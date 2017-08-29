@@ -7,10 +7,22 @@ router.get('/', function(req, res, next) {
 
 	res.json([{
 		id: 1,
-		username: "samsepi0l"
+		fname: "Henry",
+		lname: "Niseau",
+		username: "HenryN",
+		date_of_birth: "1986-11-13"
 	}, {
 		id: 2,
-		username: "D0loresH4ze"
+		fname: "Marie",
+		lname: "Debord",
+		username: "Reveuse",
+		date_of_birth: "1990-01-04"
+	}, {
+		id: 3,
+		fname: "Yasine",
+		lname: "Drissi",
+		username: "Yaya75",
+		date_of_birth: "1994-05-20"
 	}]);
 });
 
