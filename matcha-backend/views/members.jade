@@ -1,6 +1,7 @@
 extends layout
 
 block content
- h1= Les membres
-
+ 
+ script.
+  var app = Elm.Main.fullscreen({ users: !{JSON.stringify(members)} });
 

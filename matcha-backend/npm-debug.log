@@ -7,7 +7,7 @@
 6 silly lifecycle matcha-backend@0.0.0~prestart: no script for prestart, continuing
 7 info lifecycle matcha-backend@0.0.0~start: matcha-backend@0.0.0
 8 verbose lifecycle matcha-backend@0.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle matcha-backend@0.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/jubarbie/42/matcha/matcha-backend/node_modules/.bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/munki
+9 verbose lifecycle matcha-backend@0.0.0~start: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/jubarbie/42/matcha/matcha-backend/node_modules/.bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/munki
 10 verbose lifecycle matcha-backend@0.0.0~start: CWD: /Users/jubarbie/42/matcha/matcha-backend
 11 silly lifecycle matcha-backend@0.0.0~start: Args: [ '-c', 'PORT=3001 node ./bin/www' ]
 12 silly lifecycle matcha-backend@0.0.0~start: Returned: code: 1  signal: null

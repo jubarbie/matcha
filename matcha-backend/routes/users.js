@@ -15,15 +15,13 @@ var connection = mysql.createConnection({
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 	//res.send('respond with a resource');
-	
 	connection.query('SELECT * FROM user', function(err, rows, fields) {
-	connection.end();
-	if (!err) {
-	    console.log('Getting all users', rows);
-		res.json(rows);
-	}
-	else
-	    console.log('Error while getting all users', err);
+		if (!err) {
+			console.log('Getting all users', rows);
+			res.json(rows);
+		}
+		else
+			console.log('Error while getting all users', err);
 	});
 /*
 	res.json([{
