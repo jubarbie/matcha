@@ -1,14 +1,24 @@
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
+//var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var cookieSession = require('cookie-session')
+
+var login = require('./routes/login');
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+app.set('trust proxy', 1) // trust first proxy
+
+app.use(cookieSession({
+	  name: 'session',
+	  keys: ['key1', 'key2']
+}))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,7 +39,14 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', index);
+app.use('/login', login);
 app.use('/users', users);
+
+app.use(function (req, res, next) {
+	if (!req.session.user) {i
+		res.status(422).json('Unhauthorized');
+	}
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

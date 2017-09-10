@@ -3,16 +3,24 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "PORT=3001 node ./bin/www"
+    "start": "PORT=3001 node ./bin/www",
+    "watch": "PORT=3001 ./node_modules/nodemon/bin/nodemon.js ./bin/www"
   },
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",
+    "cookie-session": "^1.3.1",
     "debug": "~2.6.3",
     "express": "~4.15.2",
+    "express-mysql-session": "^1.2.2",
+    "express-validator": "^4.1.1",
     "jade": "~1.11.0",
     "morgan": "~1.8.1",
     "mysql": "^2.14.1",
     "serve-favicon": "~2.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.0"
   }
 }

@@ -1,7 +1,11 @@
 var express = require('express');
 var router = express.Router();
-
+const { check, validationResult } = require('express-validator/check');
+const { matchedData } = require('express-validator/filter');
 var mysql = require('mysql');
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 
 var connection = mysql.createConnection({
 	host     : 'localhost',
@@ -14,7 +18,6 @@ var connection = mysql.createConnection({
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-	//res.send('respond with a resource');
 	connection.query('SELECT * FROM user', function(err, rows, fields) {
 		if (!err) {
 			console.log('Getting all users', rows);
@@ -23,26 +26,56 @@ router.get('/', function(req, res, next) {
 		else
 			console.log('Error while getting all users', err);
 	});
-/*
-	res.json([{
-		id: 1,
-		fname: "Henry",
-		lname: "Niseau",
-		username: "HenryN",
-		date_of_birth: "1986-11-13"
-	}, {
-		id: 2,
-		fname: "Marie",
-		lname: "Debord",
-		username: "Reveuse",
-		date_of_birth: "1990-01-04"
-	}, {
-		id: 3,
-		fname: "Yasine",
-		lname: "Drissi",
-		username: "Yaya75",
-		date_of_birth: "1994-05-20"
-	}]);*/
 });
+
+
+/* GET user. */
+router.get('/:id', function(req, res, next) {
+	var id = req.params.id;
+	connection.query('SELECT * FROM user WHERE id='+id, function(err, rows, fields) {
+		if (!err) {
+			console.log('Getting user with id', rows);
+			res.json(rows);
+		}
+		else
+			console.log('Error while getting all users', err);
+	});
+});
+
+/* PUT new user */
+router.put('/new', [
+	check('login').exists(),
+	check('email').exists().isEmail(),
+	check('fname').exists().isLength({min:1, max:250}),
+	check('lname').exists().isLength({min:1, max:250}),
+	check('gender').exists().isIn(['M', 'F']),
+	check('int_in').exists().matches('[FM]{1,2}'),
+	check('password').exists().isLength({ min: 5 }).matches(/\d/)
+	], (req, res, next) => {
+		try {
+			validationResult(req).throw();
+			var login = req.body.login;
+			var email = req.body.email;
+			var fname = req.body.fname;
+			var lname = req.body.lname;
+			var gender = req.body.gender;
+			var int_in = req.body.int_in;
+			var bio = (req.body.bio) ? req.body.bio : "";
+			var password = bcrypt.hashSync(req.body.password, saltRounds);;
+			connection.query('INSERT INTO user (login, email, fname, lname, password, gender, interested_in, bio) VALUES ("'+login+'","'+email+'","'+fname+'", "'+lname+'","'+password+'","'+gender+'","'+int_in+'","'+bio+'")', function(err, rows, fields) {
+			if (!err) {
+				console.log('User inserted');
+				res.json({"status":"OK"});
+			}
+			else
+				console.log('Error while puting new user', err);
+			});
+		} catch (err) {
+			res.status(422).json({"status":"error", "msg":err.mapped()});
+		}
+
+	
+});
+
 
 module.exports = router;
