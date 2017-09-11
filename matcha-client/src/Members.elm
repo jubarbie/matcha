@@ -1,15 +1,22 @@
 module Members exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import RemoteData exposing (..)
 
 import Models exposing (..)
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view model =
     case model.route of
+        Login -> 
+            div []
+            [ input [type_ "text", onInput UpdateInput ][] 
+            , input [type_ "text", onInput UpdateInput ][]
+            , button [onClick SendLogin ][text "Connection"]
+            ]
         Members -> 
             div []
             [ viewMenu model 

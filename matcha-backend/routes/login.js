@@ -25,6 +25,7 @@ router.post('/', (req, res, next) => {
 				res.json({"status":"error", "msg":"Le login ou le mot de passe n'est pas correct"});
 			} else {
 				req.session.user = login;
+				console.log(req.session);
 				res.json("OK");
 			}
 		} else {

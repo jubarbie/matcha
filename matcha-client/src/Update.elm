@@ -17,3 +17,10 @@ update msg model =
                     parseLocation location
             in
                 ( { model | route = newRoute }, Cmd.none )
+        
+        UpdateInput value ->
+            (model, Cmd.none)
+
+        SendLogin ->
+            (model, Cmd.none)
+

@@ -28,6 +28,8 @@ decodeUser =
 initialModel : Route -> Model
 initialModel route =
     { route = route
+    , loginInput =  {input = "", value = "", validation = (False, "")}
+    , passwordInput =  {input = "", value = "", validation = (False, "")} 
     , users = RemoteData.Loading
     }
 

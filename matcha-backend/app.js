@@ -17,7 +17,7 @@ app.set('trust proxy', 1) // trust first proxy
 
 app.use(cookieSession({
 	  name: 'session',
-	  keys: ['key1', 'key2']
+	  secret: 'jisdovjif'
 }))
 
 // view engine setup
@@ -38,15 +38,18 @@ app.use(function(req, res, next) {
 	  next();
 });
 
-app.use('/', index);
+
 app.use('/login', login);
-app.use('/users', users);
 
 app.use(function (req, res, next) {
-	if (!req.session.user) {i
+	console.log(req.session.user);
+	if (!req.session.user) {
 		res.status(422).json('Unhauthorized');
 	}
 });
+
+app.use('/', index);
+app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
