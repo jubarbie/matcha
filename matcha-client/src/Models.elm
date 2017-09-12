@@ -25,6 +25,8 @@ type alias User =
 
 type Msg 
     = UsersResponse (WebData (List User))
+    | HttpResponse (WebData (List String))
     | OnLocationChange Location
-    | UpdateInput String
+    | UpdateLoginInput String
+    | UpdatePasswordInput String
     | SendLogin

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-	"client": "webpack-dev-server --port 3000",
+    "client": "webpack-dev-server --port 3000",
     "watch": "chokidar '**/*.elm' -c './node_modules/elm/binwrappers/elm-make Main.elm --output=matcha.js' --initial"
   },
   "author": "",
@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "css-loader": "^0.28.7",
+    "elm-format": "^0.6.1-alpha",
+    "elm-oracle": "^1.1.1",
     "elm-webpack-loader": "^4.3.1",
     "file-loader": "^0.11.2",
     "style-loader": "^0.18.2",

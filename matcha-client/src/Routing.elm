@@ -9,6 +9,7 @@ matchers : Parser (Route -> a) a
 matchers =
     oneOf
     [ map Login top
+    , map Login (s "login")
     , map Members (s "users")
     ]
 

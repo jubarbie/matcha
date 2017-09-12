@@ -4,7 +4,7 @@ import RemoteData exposing (..)
 import Navigation exposing (Location)
 import Routing exposing (..)
 
-import Members exposing (..)
+import Views exposing (view)
 import Models exposing (..)
 import Update exposing (..)
 import Commands exposing (..)

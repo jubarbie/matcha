@@ -1,0 +1,10 @@
+.navbar {
+	border-top: 1px solid grey;
+	border-bottom: 1px solid grey;
+}
+.navbar .navbar-list {
+	list-style-type: none;
+}
+.navbar .navbar-list li {
+	display: inline-block;
+}

@@ -1,8 +1,7 @@
-module Members exposing (..)
+module Members exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import RemoteData exposing (..)
 
 import Models exposing (..)
@@ -10,14 +9,6 @@ import Models exposing (..)
 
 view : Model -> Html Msg
 view model =
-    case model.route of
-        Login -> 
-            div []
-            [ input [type_ "text", onInput UpdateInput ][] 
-            , input [type_ "text", onInput UpdateInput ][]
-            , button [onClick SendLogin ][text "Connection"]
-            ]
-        Members -> 
             div []
             [ viewMenu model 
             , (
@@ -31,7 +22,6 @@ view model =
                     Success users -> viewMembers users
                 )
             ]
-        NotFoundRoute -> div [][text "401 not found"]
 
 viewMembers : List User -> Html msg
 viewMembers users =
@@ -41,10 +31,10 @@ viewMembers users =
 
 viewMenu : Model -> Html msg
 viewMenu model =
-    nav [ class "main-nav" ]
-    [ ul []
-    [ li [] [ a [ href "http://localhost:3001/users" ] [ text "PARCOURIR" ] ]
-    , li [] [ a [ href "http://localhost:3001/#chat" ] [ text "CHAT" ] ]
-    , li [] [ a [ href "http://localhost:3001/account" ] [ text "MON COMPTE" ] ]
-    ]
+    nav [ class "navbar" ]
+    [ ul [ class "navbar-list" ]
+        [ li [] [ a [ href "http://localhost:3001/users" ] [ text "PARCOURIR" ] ]
+        , li [] [ a [ href "http://localhost:3001/#chat" ] [ text "CHAT" ] ]
+        , li [] [ a [ href "http://localhost:3001/account" ] [ text "MON COMPTE" ] ]
+        ]
     ]
