@@ -11,6 +11,8 @@ matchers =
     [ map Login top
     , map Login (s "login")
     , map Members (s "users")
+    , map Chat (s "chat")
+    , map Account (s "account")
     ]
 
 

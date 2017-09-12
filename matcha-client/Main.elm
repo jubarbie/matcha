@@ -30,7 +30,8 @@ initialModel route =
     { route = route
     , loginInput =  {input = "", value = "", validation = (False, "")}
     , passwordInput =  {input = "", value = "", validation = (False, "")} 
-    , users = RemoteData.Loading
+    , users = []
+    , message = Nothing
     }
 
 init : Location -> ( Model, Cmd Msg )
@@ -38,8 +39,11 @@ init location =
     let
         currentRoute =
             Routing.parseLocation location
+        cmd = case currentRoute of
+            Members -> getUsers
+            _ -> Cmd.none
     in
-        ( initialModel currentRoute, getUsers )
+        ( initialModel currentRoute, cmd )
 
 
 subscriptions : Model -> Sub Msg

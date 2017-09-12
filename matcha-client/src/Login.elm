@@ -9,11 +9,20 @@ import Models exposing (..)
 view : Model -> Html Msg
 view model =
             div [ class "container" ]
-            [  div [ class "row" ]
+            <| [  div [ class "row" ]
                 [ div [class "twelve columns"] 
                     [ h1 [] [text "Connection"] ]
                 ]
-            , div [ class "row" ]
+            ] 
+            ++
+             ( case model.message of
+                Just msg -> 
+                    [ div [ class "row"]
+                        [ div [class "twelve columns"] [text msg]]
+                    ] 
+                _ -> []) ++
+
+            [ div [ class "row" ]
                 [ div [class "twelve columns"] 
                     [ label [ for "login" ] [ text "Login" ]
                     , input [ id "login", type_ "text", onInput UpdateLoginInput ][] 
