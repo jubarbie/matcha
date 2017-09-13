@@ -12,6 +12,7 @@ type Route
 
 type alias Model =
     { route : Route
+    , token : Maybe String
     , loginInput : Input String
     , passwordInput : Input String
     , users : List User
@@ -23,7 +24,8 @@ type alias Input a = { input : String, value : a, validation : (Bool, String) }
 
 type alias ApiResponse =
     { status : String
-    , message : Maybe String 
+    , message : Maybe String
+    , token : Maybe String
     }
 
 type alias User =

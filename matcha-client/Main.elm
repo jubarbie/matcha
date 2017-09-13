@@ -28,6 +28,7 @@ decodeUser =
 initialModel : Route -> Model
 initialModel route =
     { route = route
+    , token = Nothing
     , loginInput =  {input = "", value = "", validation = (False, "")}
     , passwordInput =  {input = "", value = "", validation = (False, "")} 
     , users = []
@@ -40,7 +41,7 @@ init location =
         currentRoute =
             Routing.parseLocation location
         cmd = case currentRoute of
-            Members -> getUsers
+            Members -> getUsers ""
             _ -> Cmd.none
     in
         ( initialModel currentRoute, cmd )

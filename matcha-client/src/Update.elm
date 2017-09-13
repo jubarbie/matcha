@@ -22,8 +22,8 @@ update msg model =
             case Debug.log "response" response of
                 Success rep ->
                     case rep.status of
-                        "success" -> 
-                            ( model
+                        "success" ->
+                            ( { model | token = rep.token}
                             , Navigation.newUrl "/#/users"
                             )
                         _->
@@ -39,7 +39,13 @@ update msg model =
                     parseLocation location
 
                 cmd = case newRoute of
-                    Members -> getUsers
+                    Members ->
+                        let
+                            token = case model.token of
+                                Just t -> t
+                                _ -> ""
+                        in
+                            getUsers <| Debug.log "sent token" token
                     _ -> Cmd.none
             in
                 ( { model | route = newRoute }, cmd )
