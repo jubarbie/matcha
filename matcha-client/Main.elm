@@ -1,6 +1,6 @@
-import Html exposing (..)
+module Main exposing (..)
+
 import Json.Decode exposing (..)
-import RemoteData exposing (..)
 import Navigation exposing (Location)
 import Routing exposing (..)
 
@@ -8,22 +8,8 @@ import Views exposing (view)
 import Models exposing (..)
 import Update exposing (..)
 import Commands exposing (..)
+import Ports exposing (getToken, tokenRecieved)
 
-initUsers : Value -> List User
-initUsers data =
-    case usersDecoder data of
-        Ok val -> val
-        _ -> [User "Error" "Error"]
-
-usersDecoder : Value -> Result String (List User)
-usersDecoder data =
-    decodeValue (list decodeUser) data
-
-decodeUser : Decoder User
-decodeUser =
-    Json.Decode.map2 User
-    (at ["fname"] string)
-    (at ["lname"] string)
 
 initialModel : Route -> Model
 initialModel route =
@@ -41,14 +27,15 @@ init location =
         currentRoute =
             Routing.parseLocation location
         cmd = case currentRoute of
-            Members -> getUsers ""
+            Members -> Cmd.none
             _ -> Cmd.none
     in
-        ( initialModel currentRoute, cmd )
+        ( initialModel currentRoute, Cmd.batch [cmd, getToken ()])
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model = Sub.none
+subscriptions model = 
+    tokenRecieved SaveToken
 
 
 main : Program Never Model Msg

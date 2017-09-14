@@ -2,6 +2,7 @@ module Views exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Models exposing (..)
 import Members exposing (view)
 import Chat exposing (view)
@@ -12,8 +13,8 @@ view : Model -> Html Msg
 view model =
     div [ class "container" ]
        <|  case model.route of
-            Login ->
-                [ Login.view model ]
+            Connect a ->
+                [ Login.view a model ]
             Members ->
                 [viewMenu model.route, Members.view model]
             Chat ->
@@ -30,13 +31,14 @@ view401 =
         , a [ href "http://localhost:3000/#/users" ] [ text "Retourner a l'accueil" ]
         ]
 
-viewMenu : Route -> Html msg
+viewMenu : Route -> Html Msg
 viewMenu route =
     nav [ class "navbar" ]
     [ ul [ class "navbar-list" ]
         [ li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/users" ] [ text "PARCOURIR" ] ]
         , li [ getMenuClass Chat route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
         , li [ getMenuClass Account route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MON COMPTE" ] ]
+        , li [ class "pull-right", onClick Logout ] [ text "LOGOUT"  ]
         ]
     ]
 

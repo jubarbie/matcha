@@ -1,15 +1,16 @@
 module Routing exposing (..)
 
 import Navigation exposing (Location)
-import Models exposing (Route(..))
+import Models exposing (Route(..), LoginRoute(..))
 import UrlParser exposing (..)
 
 
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
-    [ map Login top
-    , map Login (s "login")
+    [ map (Connect Login)  top
+    , map (Connect Login) (s "login")
+    , map (Connect Signin) (s "signin")
     , map Members (s "users")
     , map Chat (s "chat")
     , map Account (s "account")

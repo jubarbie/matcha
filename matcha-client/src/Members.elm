@@ -1,7 +1,6 @@
 module Members exposing (view)
 
 import Html exposing (..)
-import RemoteData exposing (..)
 
 import Models exposing (..)
 
