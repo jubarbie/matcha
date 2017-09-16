@@ -25,3 +25,6 @@
 	color: white;
 	background: black;
 }
+input.form-error {
+	border: red;
+}

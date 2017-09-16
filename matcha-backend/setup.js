@@ -14,7 +14,7 @@ create_database += 'CREATE TABLE matcha_db.user (id INT(6) UNSIGNED AUTO_INCREME
 create_database += 'INSERT INTO matcha_db.user (fname, lname, email, gender, interested_in, bio) VALUES ("Henry", "Niseau", "hniseau@student.42.fr", "M", "F", "Étudiant studieux, je privilégie les rencontres réelles au virtuel. On va boire un café?") ;';
 create_database += 'INSERT INTO matcha_db.user (fname, lname, email, gender, interested_in, bio) VALUES ("Marie", "Debord", "mdebord@student.42.fr", "F", "F", "Pour rencontre d\'un soir") ;';
 create_database += 'INSERT INTO matcha_db.user (fname, lname, email, gender, interested_in, bio) VALUES ("Yassine", "Drissi", "yadrissi@student.42.fr", "M", "M", "Ask me") ;';
-create_database += 'INSERT INTO matcha_db.user (fname, lname, email, gender, interested_in, bio) VALUES ("Mariana", "Marquês", "mmarques@student.42.fr", "F", "MF", "Cherche mon prince charmant")';
+create_database += 'INSERT INTO matcha_db.user (fname, lname, email, gender, interested_in, bio) VALUES ("Mariana", "Marquês", "mmarques@student.42.fr", "F", "M", "Cherche mon prince charmant") ;';
 
 connection.query(create_database, function(err, rows, fields) {
 	connection.end();

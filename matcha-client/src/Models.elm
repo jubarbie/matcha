@@ -1,7 +1,5 @@
 module Models exposing (..)
 
-import RemoteData exposing (..)
-import Navigation exposing (Location)
 
 type Route
     = Connect LoginRoute
@@ -16,15 +14,31 @@ type LoginRoute
 
 type alias Model =
     { route : Route
-    , token : Maybe String
-    , loginInput : Input String
-    , passwordInput : Input String
+    , session : Maybe Session
+    , loginForm: LoginForm
+    , newUserForm : NewUserForm
     , users : List User
     , message : Maybe String
     }
 
+type alias Session =
+    { username : String
+    , token : String
+    }
 
-type alias Input a = { input : String, value : a, validation : (Bool, String) }
+
+type alias Input a =
+    { input : String
+    , validation : ValidationForm a 
+    , id : String
+    , label : String
+    }
+
+type ValidationForm a
+    = Waiting
+    | Valid a
+    | NotValid String
+
 
 type alias AuthResponse =
     { status : String
@@ -42,7 +56,7 @@ type alias User =
     , lname : String
     , email : String
     , gender : Gender
-    , intIn : List Gender
+    , intIn : Gender
     , bio : String
     }
 
@@ -50,22 +64,41 @@ type Gender
     = M
     | F
 
+type alias LoginForm =
+    { login : Input String
+    , password : Input String
+    }
+
+initInput : Input a
+initInput =
+    Input "" Waiting "" ""
+
+initLoginForm : LoginForm
+initLoginForm = 
+    LoginForm initInput initInput
+
+initNewUserForm : NewUserForm
+initNewUserForm = 
+    NewUserForm initInput initInput initInput initInput initInput initInput initInput initInput initInput
+
 type alias NewUserForm =
     { username : Input String
+    , fname : Input String
+    , lname : Input String
     , email : Input String
     , password : Input String
     , rePassword : Input String
     , gender : Input Gender
-    , intIn : Input (List Gender)
+    , intIn : Input Gender
     , bio : Input String
     }
 
-type Msg 
-    = UsersResponse (WebData (List User))
-    | LoginResponse (WebData AuthResponse)
-    | Logout
-    | OnLocationChange Location
-    | SaveToken String 
-    | UpdateLoginInput String
-    | UpdatePasswordInput String
-    | SendLogin
+initialModel : Route -> Model
+initialModel route =
+    { route = route
+    , session = Nothing
+    , loginForm =  initLoginForm
+    , newUserForm = initNewUserForm
+    , users = []
+    , message = Nothing
+    }

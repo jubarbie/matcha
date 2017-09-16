@@ -1,8 +1,9 @@
 port module Ports exposing (..)
 
 -- Out
-port storeToken : String -> Cmd msg
+port storeToken : (List String) -> Cmd msg
 port getToken : () -> Cmd msg
+port deleteSession : () -> Cmd msg
 
 -- In
-port tokenRecieved : (String -> msg) -> Sub msg
+port tokenRecieved : (List String -> msg) -> Sub msg

@@ -17,11 +17,12 @@ apiRoutes.post('/', (req, res, next) => {
 	
 	connection.query('SELECT password FROM user WHERE login="'+login+'"', (err, rows, fields) => {
 		if (!err) {
+			console.log(rows);
 			if (rows[0] == undefined || bcrypt.compareSync(pwd, rows[0].password) == false) {
 				console.log("Mauvais mot de passe");
 				res.json({"status":"error", "msg":"Le login ou le mot de passe n'est pas correct"});
 			} else {
-				var token = jwt.sign({"login": login}, config.secret, {
+				var token = jwt.sign({"user": login}, config.secret, {
 					expiresIn: "1 day"
 				});
 				console.log("Token create", token);

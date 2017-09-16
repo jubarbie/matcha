@@ -5,6 +5,21 @@ import Json.Decode as JsonDec exposing (..)
 import Json.Encode as JsonEnc exposing (..)
 import RemoteData exposing (..)
 import Models exposing (..)
+import Msgs exposing (..)
+
+
+genderToString : Gender -> String
+genderToString g =
+    case g of
+        M -> "M"
+        F -> "F"
+
+stringToGender : String -> ValidationForm Gender
+stringToGender g =
+    case g of
+        "M" -> Valid M
+        "F" -> Valid F
+        _ -> NotValid "Must be F or M"
 
 usersDecoder : Decoder (List User)
 usersDecoder =
@@ -30,7 +45,7 @@ decodeUser =
     (at ["lname"] JsonDec.string)
     (at ["email"] JsonDec.string)
     (at ["gender"] decodeGender)
-    (at ["inIn"] gendersDecoder)
+    (at ["interested_in"] decodeGender)
     (at ["bio"] JsonDec.string)
 
 decodeApiResponse : Decoder ApiResponse
@@ -66,28 +81,22 @@ sendLogin login pwd =
         |> RemoteData.sendRequest
         |> Cmd.map LoginResponse
 
-sendNewUser : NewUserForm -> Cmd Msg
-sendNewUser model =
+sendNewUser : String -> String -> String -> String -> String -> String -> String -> String -> String -> Cmd Msg
+sendNewUser username fname lname email pwd repwd gender intIn bio =
     let
-        gender = case model.gender.value of
-            M -> "M"
-            F -> "F"
-        intIn = List.map (\i -> (
-            case i of 
-                M -> "M"
-                F -> "F")
-            ) model.intIn.value 
         body = 
             Http.jsonBody <| JsonEnc.object 
-            [ ("username", JsonEnc.string model.username.value)
-            , ("email", JsonEnc.string model.email.value)
-            , ("password", JsonEnc.string model.password.value)
-            , ("rePassword", JsonEnc.string model.rePassword.value)
+            [ ("username", JsonEnc.string username)
+            , ("email", JsonEnc.string email)
+            , ("fname", JsonEnc.string fname)
+            , ("lname", JsonEnc.string lname)
+            , ("password", JsonEnc.string pwd)
+            , ("rePassword", JsonEnc.string repwd)
             , ("gender", JsonEnc.string gender)
-            , ("intIn", JsonEnc.list (List.map JsonEnc.string intIn))
-            , ("bio", JsonEnc.string model.bio.value)
+            , ("int_in", JsonEnc.string intIn)
+            , ("bio", JsonEnc.string bio)
             ]
     in
-        Http.post "http://localhost:3001/auth" body decodeAuthResponse
+        Http.post "http://localhost:3001/api/users/new" body decodeApiResponse
         |> RemoteData.sendRequest
-        |> Cmd.map LoginResponse
+        |> Cmd.map HandleApiResponse

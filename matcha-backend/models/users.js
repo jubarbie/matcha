@@ -23,6 +23,7 @@ router.post('/', function(req, res, next) {
 		jwt.verify(token, config.secret, function(err, decoded) {      
 			if (err) {
 				console.log('Error while verif');
+				res.status(403);
 				res.json({ success: false, message: 'Failed to authenticate token.' });    
 			} else {
 
@@ -64,8 +65,8 @@ router.get('/:id', function(req, res, next) {
 });
 
 /* PUT new user */
-router.put('/new', [
-	check('login').exists(),
+router.post('/new', [
+	check('username').exists(),
 	check('email').exists().isEmail(),
 	check('fname').exists().isLength({min:1, max:250}),
 	check('lname').exists().isLength({min:1, max:250}),
@@ -75,7 +76,7 @@ router.put('/new', [
 ], (req, res, next) => {
 	try {
 		validationResult(req).throw();
-		var login = req.body.login;
+		var login = req.body.username;
 		var email = req.body.email;
 		var fname = req.body.fname;
 		var lname = req.body.lname;
@@ -86,7 +87,7 @@ router.put('/new', [
 		connection.query('INSERT INTO user (login, email, fname, lname, password, gender, interested_in, bio) VALUES ("'+login+'","'+email+'","'+fname+'", "'+lname+'","'+password+'","'+gender+'","'+int_in+'","'+bio+'")', function(err, rows, fields) {
 			if (!err) {
 				console.log('User inserted');
-				res.json({"status":"OK"});
+				res.json({"status":"success"});
 			}
 			else
 				console.log('Error while puting new user', err);
@@ -94,8 +95,6 @@ router.put('/new', [
 	} catch (err) {
 		res.status(422).json({"status":"error", "msg":err.mapped()});
 	}
-
-
 });
 
 
