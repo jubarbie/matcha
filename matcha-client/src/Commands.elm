@@ -14,12 +14,12 @@ genderToString g =
         M -> "M"
         F -> "F"
 
-stringToGender : String -> ValidationForm Gender
+stringToGender : String -> Maybe Gender
 stringToGender g =
     case g of
-        "M" -> Valid M
-        "F" -> Valid F
-        _ -> NotValid "Must be F or M"
+        "M" -> Just M
+        "F" -> Just F
+        _ -> Nothing
 
 usersDecoder : Decoder (List User)
 usersDecoder =

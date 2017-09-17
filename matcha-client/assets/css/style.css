@@ -25,6 +25,16 @@
 	color: white;
 	background: black;
 }
-input.form-error {
-	border: red;
+.input .input-tip {
+	font-size: 0.8em;
+	text-align: right;
+}
+.input.input-error input {
+	border: 1px solid red;
+}
+.input.input-error .input-tip {
+	color: red;
+}
+.input.input-success input {
+	border: 1px solid green;
 }

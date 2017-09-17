@@ -36,13 +36,14 @@ update msg model =
                 Success rep ->
                     case (rep.status == "success", rep.token) of
                         (True, Just t) ->
-                            let token = t
-                                user = case model.loginForm.login.validation of
-                                    Valid a -> a
+                            let 
+                                token = t
+                                user = case List.map (\i -> i.status) model.loginForm of
+                                    [ Valid a, b ] -> a
                                     _ -> ""
                                 session = Just <| Session user token 
                             in
-                            ( { model | session = session, loginForm = initLoginForm}
+                            ( { model | session = session, loginForm = initLoginForm }
                             , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user,token] ]
                             )
                         _ ->
@@ -78,128 +79,73 @@ update msg model =
             in
                 ( { model | route = newRoute }, cmd )
         
-        UpdateLoginInput value ->
-            let
-                lf = model.loginForm
-                input = lf.login
-                newInput = { input | validation = Valid value }
-                newLoginForm = { lf | login = input }
-            in
-                ( { model | loginForm = newLoginForm }, Cmd.none)
-        
-        UpdatePasswordInput value ->
-            let
-                lf = model.loginForm
-                input = lf.password
-                newInput = { input | validation = Valid value }
-                newLoginForm = { lf | password = input }
-            in
-                ( { model | loginForm = newLoginForm }, Cmd.none)
-        
-        UpdateUsernameInput value ->
-            let
-                form = model.newUserForm
-                input = form.username
-                newInput = { input | validation = Valid value }
-                newForm = { form | username = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
-        
-        UpdateFnameInput value ->
-            let
-                form = model.newUserForm
-                input = form.fname
-                newInput = { input | validation = Valid value }
-                newForm = { form | fname = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
-        
-        UpdateLnameInput value ->
-            let
-                form = model.newUserForm
-                input = form.lname
-                newInput = { input | validation = Valid value }
-                newForm = { form | lname = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
-        
-        UpdateEmailInput value ->
-            let
-                form = model.newUserForm
-                input = form.email
-                newInput = { input | validation = Valid value }
-                newForm = { form | email = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
-        
-        UpdatePwdInput value ->
-            let
-                form = model.newUserForm
-                input = form.password
-                newInput = { input | validation = Valid value }
-                newForm = { form | password = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
-        
-        UpdateRePwdInput value ->
-            let
-                form = model.newUserForm
-                input = form.rePassword
-                newInput = { input | validation = Valid value }
-                newForm = { form | rePassword = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
 
-        UpdateGenderInput value ->
+        UpdateLoginForm id value ->
             let
-                form = model.newUserForm
-                input = form.gender
-                newInput = { input | validation = stringToGender value }
-                newForm = { form | gender = input }
+                form = model.loginForm
+                newForm = updateInput form id (Just value)
             in
-                ( { model | newUserForm = newForm }, Cmd.none)
+                ( { model | loginForm = newForm }, Cmd.none)
 
-        UpdateIntInInput value ->
+        UpdateNewUserForm id value ->
             let
                 form = model.newUserForm
-                input = form.intIn
-                newInput = { input | validation = stringToGender value }
-                newForm = { form | intIn = input }
-            in
-                ( { model | newUserForm = newForm }, Cmd.none)
-
-        UpdateBioInput value ->
-            let
-                form = model.newUserForm
-                input = form.bio
-                newInput = { input | validation = Valid value }
-                newForm = { form | bio = input }
+                newForm = updateInput form id (Just value)
             in
                 ( { model | newUserForm = newForm }, Cmd.none)
 
 
         SendLogin ->
-            case (model.loginForm.login.validation, model.loginForm.password.validation) of
-                (Valid a, Valid b) -> 
+            let
+                values = List.map (\i -> i.status) model.loginForm
+            in
+            case values of
+                [ Valid a, Valid b ] -> 
                     (Debug.log "send login" model, sendLogin a b)
                 _ ->
                     (model, Cmd.none)
         
         
         NewUser ->
-            case 
-                ( model.newUserForm.username.validation
-                , model.newUserForm.fname.validation
-                , model.newUserForm.lname.validation
-                , model.newUserForm.password.validation
-                , model.newUserForm.rePassword.validation
-                , model.newUserForm.email.validation
-                , model.newUserForm.gender.validation
-                , model.newUserForm.intIn.validation
-                , model.newUserForm.bio.validation
-                ) of
-                (Valid username, Valid fname, Valid lname, Valid pwd, Valid repwd, Valid email, Valid gender, Valid intIn, Valid bio) -> 
-                    ( Debug.log "new user ok" model, sendNewUser username fname lname email pwd repwd (genderToString gender) (genderToString intIn) bio)
+            let
+                values = List.map (\i -> i.status) model.newUserForm
+            in
+            case values of
+                [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd, Valid gender, Valid intIn, Valid bio] -> 
+                    ( Debug.log "new user ok" model, sendNewUser username fname lname email pwd repwd gender intIn bio)
                 _ ->
                     (Debug.log "new user nok" model, Cmd.none)
+
+
+updateInput : Form -> String -> Maybe String -> Form
+updateInput form id value =
+    List.map (\i -> 
+        if i.id == id then 
+            { i 
+            | input = value
+            , status = validationForm i.validator form value 
+            } 
+        else i) form
+
+validationForm : Maybe FormValidator -> Form -> Maybe String -> FormStatus
+validationForm validator form value =
+    case validator of 
+        Nothing -> Waiting
+        Just Required -> case value of 
+                    Just a -> if a /= "" then Valid a else NotValid "Required Field"
+                    Nothing -> NotValid "Required field"
+        Just GenderValidator -> validGender value
+        Just EmailValidator -> validEmail value
+        Just PasswordValidator -> validPassword value
+        Just (PasswordConfirmValidator id) -> 
+            case findInput form id of 
+                Just a -> validConfirmPassword a value
+                Nothing -> NotValid ("No input found with id : " ++ id)
+        Just (TextValidator min max) -> validText min max value
+
+findInput : Form -> String -> Maybe Input
+findInput form id =
+    case List.filter (\i -> i.id == id) form of
+        a :: b -> Just a
+        _ -> Nothing
 

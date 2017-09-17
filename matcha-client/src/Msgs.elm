@@ -11,16 +11,7 @@ type Msg
     | Logout
     | OnLocationChange Location
     | SaveToken (List String) 
-    | UpdateLoginInput String
-    | UpdatePasswordInput String
-    | UpdateUsernameInput String
-    | UpdateFnameInput String
-    | UpdateLnameInput String
-    | UpdateEmailInput String
-    | UpdatePwdInput String
-    | UpdateRePwdInput String
-    | UpdateGenderInput String
-    | UpdateIntInInput String
-    | UpdateBioInput String
+    | UpdateNewUserForm String String
+    | UpdateLoginForm String String
     | NewUser
     | SendLogin
