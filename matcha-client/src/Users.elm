@@ -1,0 +1,28 @@
+module Users exposing (view)
+
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Models exposing (..)
+import Commands exposing (genderToString)
+import Msgs exposing (..)
+
+
+view : Model -> Html Msg
+view model =
+    div [] [ viewUsers model.users ]
+
+viewUsers : List User -> Html Msg
+viewUsers users =
+    div []
+        [ h1 [] [ text "Les membres" ]
+        , ul [ class "users-list" ] <| List.map (\u -> 
+            li [] [ viewUser u ]
+            ) users
+        ]
+
+viewUser : User -> Html Msg
+viewUser user =
+    div [ class "user-box" ] 
+        [ h3 [] [ text user.username ] 
+        , text <| genderToString user.gender
+        ]

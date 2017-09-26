@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
-import Members exposing (view)
+import Users exposing (view)
 import Chat exposing (view)
 import Login exposing (view)
 import Account exposing (view)
@@ -16,8 +16,8 @@ view model =
        <|  case model.route of
             Connect a ->
                 [ Login.view a model ]
-            Members ->
-                [viewMenu model.route, Members.view model]
+            Users a ->
+                [viewMenu model.route, Users.view model]
             Chat ->
                 [viewMenu model.route, Chat.view model]
             Account ->
@@ -36,10 +36,10 @@ viewMenu : Route -> Html Msg
 viewMenu route =
     nav [ class "navbar" ]
     [ ul [ class "navbar-list" ]
-        [ li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/users" ] [ text "PARCOURIR" ] ]
+        [ li [ getMenuClass (Users Nothing) route ] [ a [ href "http://localhost:3000/#/users" ] [ text "PARCOURIR" ] ]
         , li [ getMenuClass Chat route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
         , li [ getMenuClass Account route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MON COMPTE" ] ]
-        , li [ class "pull-right", onClick Logout ] [ text "LOGOUT"  ]
+        , li [ class "u-pull-right", onClick Logout ] [ text "LOGOUT"  ]
         ]
     ]
 

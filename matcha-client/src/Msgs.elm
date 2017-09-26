@@ -6,8 +6,9 @@ import Models exposing (..)
 
 type Msg 
     = UsersResponse (WebData (List User))
+    | UserResponse String (WebData (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)
-    | HandleApiResponse (WebData ApiResponse)
+    | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String) 

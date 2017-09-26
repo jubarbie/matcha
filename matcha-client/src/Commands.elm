@@ -40,7 +40,8 @@ decodeGender =
 
 decodeUser : Decoder User
 decodeUser =
-    JsonDec.map6 User
+    JsonDec.map7 User
+    (at ["login"] JsonDec.string)
     (at ["fname"] JsonDec.string)
     (at ["lname"] JsonDec.string)
     (at ["email"] JsonDec.string)
@@ -48,28 +49,47 @@ decodeUser =
     (at ["interested_in"] decodeGender)
     (at ["bio"] JsonDec.string)
 
-decodeApiResponse : Decoder ApiResponse
-decodeApiResponse =
-    JsonDec.map2 ApiResponse
-    (at ["status"] JsonDec.string)
-    (maybe (at ["msg"] JsonDec.string))
+decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))
+decodeApiResponse decoder =
+    case decoder of
+        Just d -> 
+            JsonDec.map3 ApiResponse
+            (at ["status"] JsonDec.string)
+            (maybe (at ["msg"] JsonDec.string))
+            (maybe (at ["data"] d))
+        _ -> 
+            JsonDec.map3 ApiResponse
+            (at ["status"] JsonDec.string)
+            (maybe (at ["msg"] JsonDec.string))
+            (JsonDec.succeed Nothing)
 
 decodeAuthResponse : Decoder AuthResponse
 decodeAuthResponse =
-    JsonDec.map3 AuthResponse
+    JsonDec.map4 AuthResponse
     (at ["status"] JsonDec.string)
     (maybe (at ["msg"] JsonDec.string))
     (maybe (at ["token"] JsonDec.string))
+    (maybe (at ["data"] decodeUser))
 
-getUsers : String -> Cmd Msg
-getUsers token  =
+getUsers : String -> String -> Cmd Msg
+getUsers user token  =
     let
         body = 
-            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
+            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token), ("user", JsonEnc.string user)]
     in
         Http.post "http://localhost:3001/api/users" body usersDecoder
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
+
+getUser : String -> String -> Cmd Msg
+getUser user token  =
+    let
+        body = 
+            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
+    in
+        Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
+        |> RemoteData.sendRequest
+        |> Cmd.map (UserResponse token)
 
 sendLogin : String -> String -> Cmd Msg
 sendLogin login pwd =
@@ -97,6 +117,6 @@ sendNewUser username fname lname email pwd repwd gender intIn bio =
             , ("bio", JsonEnc.string bio)
             ]
     in
-        Http.post "http://localhost:3001/api/users/new" body decodeApiResponse
+        Http.post "http://localhost:3001/api/users/new" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
-        |> Cmd.map HandleApiResponse
+        |> Cmd.map NewUserResponse

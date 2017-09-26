@@ -5,14 +5,14 @@ import RemoteData exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import Navigation exposing (..)
-import Commands exposing (sendLogin, getUsers, sendNewUser, genderToString, stringToGender)
+import Commands exposing (..)
 import Ports exposing (..)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
     case msg of
         UsersResponse response ->
-            case Debug.log "UserResponse" response of
+            case Debug.log "UserisResponse" response of
                 Success users -> 
                     ( { model | users = users }
                     , Cmd.none )
@@ -20,7 +20,18 @@ update msg model =
                     ( model
                     , Navigation.newUrl "/#/login" )
 
-        HandleApiResponse response ->
+        UserResponse token response ->
+            case Debug.log "UserResponse" response of
+                Success rep ->
+                    case (rep.status == "success", rep.data) of
+                        (True, Just u) -> 
+                                ( { model | session = Just <| Session u token }, Navigation.newUrl "/#/users" )
+                        _ -> (model, Navigation.newUrl "/#/login")
+                _ -> 
+                    ( model
+                    , Navigation.newUrl "/#/login" )
+        
+        NewUserResponse response ->
             case response of
                 Success rep ->
                     case rep.status of
@@ -34,17 +45,14 @@ update msg model =
         LoginResponse response -> 
             case Debug.log "response" response of
                 Success rep ->
-                    case (rep.status == "success", rep.token) of
-                        (True, Just t) ->
+                    case (rep.status == "success", rep.token, rep.user) of
+                        (True, Just t, Just user) ->
                             let 
                                 token = t
-                                user = case List.map (\i -> i.status) model.loginForm of
-                                    [ Valid a, b ] -> a
-                                    _ -> ""
                                 session = Just <| Session user token 
                             in
                             ( { model | session = session, loginForm = initLoginForm }
-                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user,token] ]
+                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user.username,token] ]
                             )
                         _ ->
                             ( Debug.log "model on login response" { model | message = rep.message }, Navigation.newUrl "/#/login")
@@ -57,13 +65,16 @@ update msg model =
             ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
         
         SaveToken session ->
-            let newSession = 
+            let cmd = 
                 case (List.head session, List.tail session) of 
                     (Just user, Just [token]) ->
-                        if (token /= "" && user /= "") then Just <| Session user token else Nothing
-                    _ -> Nothing
+                        if (token /= "" && user /= "") then 
+                            getUser user token
+                        else 
+                            Cmd.none
+                    _ -> Cmd.none
             in
-                (Debug.log "model after token" { model | session = newSession }, Navigation.newUrl "/#/users")
+                (Debug.log "model after token" model, Cmd.batch [ Navigation.newUrl "/#/users", cmd])
 
         OnLocationChange location -> 
             let
@@ -71,9 +82,9 @@ update msg model =
                     parseLocation location
 
                 cmd = case newRoute of
-                    Members ->
+                    Users a ->
                         case model.session of
-                            Just s -> getUsers <| Debug.log "sent token" s.token
+                            Just s -> getUsers s.user.username s.token
                             _ -> Navigation.newUrl "/#/login"
                     _ -> Cmd.none
             in
@@ -130,7 +141,9 @@ updateInput form id value =
 validationForm : Maybe FormValidator -> Form -> Maybe String -> FormStatus
 validationForm validator form value =
     case validator of 
-        Nothing -> Waiting
+        Nothing -> Valid (case value of 
+            Just a -> a 
+            _ -> "")
         Just Required -> case value of 
                     Just a -> if a /= "" then Valid a else NotValid "Required Field"
                     Nothing -> NotValid "Required field"

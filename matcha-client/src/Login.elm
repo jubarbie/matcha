@@ -3,14 +3,14 @@ module Login exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-
+import Html.Keyed exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 
 view : LoginRoute -> Model -> Html Msg
 view route model =
     case route of 
-        Login -> viewLoginForm model 
+        Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
 
         Signin -> viewNewUserForm model
 

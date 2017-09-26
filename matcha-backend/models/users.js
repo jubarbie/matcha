@@ -15,11 +15,12 @@ var connection = mysql.createConnection(config.database);
 router.post('/', function(req, res, next) {
 
 	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+	var username = req.body.user
 	console.log("token recieved", token);
 
-	if (token) {
-
+	if (token && username) { 
 		// verifies secret and checks exp
+		var user = getUserWithLogin(username);
 		jwt.verify(token, config.secret, function(err, decoded) {      
 			if (err) {
 				console.log('Error while verif');
@@ -48,8 +49,21 @@ router.post('/', function(req, res, next) {
 	}
 });
 
+function getUserWithLogin(login) {
+	connection.query('SELECT * FROM user WHERE login="' + login + '"', function(err, rows, fields) {
+		if (!err) {
+			console.log('Getting user with login ' + login, rows[0]);
+			return rows[0];
+		}
+		else {
+			console.log('Error while getting user ' + login, err);
+			return false;
+		}
+	});
+}
+
 /* GET user. */
-router.get('/:id', function(req, res, next) {
+/*router.get('/:id', function(req, res, next) {
 
 	var id = req.params.id;
 
@@ -61,8 +75,24 @@ router.get('/:id', function(req, res, next) {
 		else
 			console.log('Error while getting all users', err);
 	});
+}); */
 
+/* GET user. */
+/* Todo not sending password */
+router.post('/user/:user', function(req, res, next) {
+
+	var login = req.params.user;
+	
+	if (login) {
+		var user = getUserWithLogin(login);
+		console.log("mama", user);
+		if (user) { res.json({"status":"success", "data":user}); }
+		else { res.json({"status":"error", "msg":"Can't find user"}); }
+	} else {
+		res.json({"status":"error", "msg":"No login provided"});
+	}
 });
+
 
 /* PUT new user */
 router.post('/new', [
@@ -91,9 +121,10 @@ router.post('/new', [
 			}
 			else
 				console.log('Error while puting new user', err);
+				res.json({"status":"error"});
 		});
-	} catch (err) {
-		res.status(422).json({"status":"error", "msg":err.mapped()});
+	} catch (error) {
+		res.status(422).json({"status":"error", "msg":error.mapped()});
 	}
 });
 

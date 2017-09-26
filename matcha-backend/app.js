@@ -2,8 +2,6 @@ var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
-var jwt = require('jsonwebtoken');
-
 var Login = require('./models/login');
 var Users = require('./models/users');
 

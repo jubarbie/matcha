@@ -15,10 +15,11 @@ apiRoutes.post('/', (req, res, next) => {
 	var login = req.body.login;
 	var pwd = req.body.password;
 	
-	connection.query('SELECT password FROM user WHERE login="'+login+'"', (err, rows, fields) => {
+	connection.query('SELECT * FROM user WHERE login="'+login+'"', (err, rows, fields) => {
 		if (!err) {
 			console.log(rows);
-			if (rows[0] == undefined || bcrypt.compareSync(pwd, rows[0].password) == false) {
+			var user = rows[0];
+			if (user == undefined || bcrypt.compareSync(pwd, user.password) == false) {
 				console.log("Mauvais mot de passe");
 				res.json({"status":"error", "msg":"Le login ou le mot de passe n'est pas correct"});
 			} else {
@@ -26,7 +27,7 @@ apiRoutes.post('/', (req, res, next) => {
 					expiresIn: "1 day"
 				});
 				console.log("Token create", token);
-				res.json({"status":"success", "token":token});
+				res.json({"status":"success", "token":token, "data":user});
 			}
 		} else {
 			console.log('Error while getting user', err);

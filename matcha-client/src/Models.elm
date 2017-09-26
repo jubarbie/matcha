@@ -5,7 +5,7 @@ import Regex exposing (..)
 
 type Route
     = Connect LoginRoute
-    | Members
+    | Users (Maybe User)
     | Chat
     | Account
     | NotFoundRoute
@@ -24,10 +24,9 @@ type alias Model =
     }
 
 type alias Session =
-    { username : String
+    { user : User
     , token : String
     }
-
 
 type alias Input =
     { input : Maybe String
@@ -56,15 +55,18 @@ type alias AuthResponse =
     { status : String
     , message : Maybe String
     , token : Maybe String
+    , user : Maybe User
     }
 
-type alias ApiResponse =
+type alias ApiResponse a =
     { status : String
     , message : Maybe String
+    , data : a
     }
 
 type alias User =
-    { fname : String
+    { username : String
+    , fname : String
     , lname : String
     , email : String
     , gender : Gender
@@ -98,7 +100,7 @@ initNewUserForm =
        , initInput "password" "Confirmation mot de passe" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Retaper le même mot de passe")
        , initInput "text" "Genre" "gender" (Just GenderValidator) Nothing
        , initInput "text" "Intéressé par" "int_in" (Just GenderValidator) Nothing
-       , initInput "text" "Bio" "bio" (Just <| TextValidator 2 255) Nothing
+       , initInput "text" "Bio" "bio" Nothing Nothing
        ]
 
 validEmail : Maybe String -> FormStatus
