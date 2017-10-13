@@ -5,7 +5,8 @@ import Regex exposing (..)
 
 type Route
     = Connect LoginRoute
-    | Users (Maybe User)
+    | UsersRoute
+    | UserRoute String
     | Chat
     | Account
     | NotFoundRoute
@@ -20,8 +21,10 @@ type alias Model =
     , loginForm: Form
     , newUserForm : Form
     , users : List User
+    , current_user : Maybe User
     , message : Maybe String
     }
+
 
 type alias Session =
     { user : User
@@ -153,5 +156,6 @@ initialModel route =
     , loginForm =  initLoginForm
     , newUserForm = initNewUserForm
     , users = []
+    , current_user = Nothing 
     , message = Nothing
     }

@@ -12,7 +12,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
     case msg of
         UsersResponse response ->
-            case Debug.log "UserisResponse" response of
+            case response of
                 Success users -> 
                     ( { model | users = users }
                     , Cmd.none )
@@ -21,7 +21,7 @@ update msg model =
                     , Navigation.newUrl "/#/login" )
 
         UserResponse token response ->
-            case Debug.log "UserResponse" response of
+            case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) -> 
@@ -32,7 +32,7 @@ update msg model =
                     , Navigation.newUrl "/#/login" )
         
         NewUserResponse response ->
-            case response of
+            case Debug.log "resp" response of
                 Success rep ->
                     case rep.status of
                         "success" -> 
@@ -43,7 +43,7 @@ update msg model =
                     , Navigation.newUrl "/#/login" )
         
         LoginResponse response -> 
-            case Debug.log "response" response of
+            case Debug.log "Login response" response of
                 Success rep ->
                     case (rep.status == "success", rep.token, rep.user) of
                         (True, Just t, Just user) ->
@@ -55,7 +55,7 @@ update msg model =
                             , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user.username,token] ]
                             )
                         _ ->
-                            ( Debug.log "model on login response" { model | message = rep.message }, Navigation.newUrl "/#/login")
+                            ( { model | message = rep.message }, Navigation.newUrl "/#/login")
                 _ ->
                     ( model 
                     , Navigation.newUrl "/#/login"
@@ -66,15 +66,15 @@ update msg model =
         
         SaveToken session ->
             let cmd = 
-                case (List.head session, List.tail session) of 
-                    (Just user, Just [token]) ->
-                        if (token /= "" && user /= "") then 
+                case Debug.log "session" session of 
+                    [user, token] ->
+                        if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then 
                             getUser user token
                         else 
                             Cmd.none
                     _ -> Cmd.none
             in
-                (Debug.log "model after token" model, Cmd.batch [ Navigation.newUrl "/#/users", cmd])
+                (model, Cmd.batch [ cmd, Navigation.newUrl "/#/users" ])
 
         OnLocationChange location -> 
             let
@@ -82,9 +82,13 @@ update msg model =
                     parseLocation location
 
                 cmd = case newRoute of
-                    Users a ->
+                    UsersRoute ->
                         case model.session of
                             Just s -> getUsers s.user.username s.token
+                            _ -> Navigation.newUrl "/#/login"
+                    UserRoute a ->
+                        case model.session of
+                            Just s -> getUser a s.token
                             _ -> Navigation.newUrl "/#/login"
                     _ -> Cmd.none
             in
@@ -112,7 +116,7 @@ update msg model =
             in
             case values of
                 [ Valid a, Valid b ] -> 
-                    (Debug.log "send login" model, sendLogin a b)
+                    (model, sendLogin a b)
                 _ ->
                     (model, Cmd.none)
         
@@ -123,10 +127,10 @@ update msg model =
             in
             case values of
                 [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd, Valid gender, Valid intIn, Valid bio] -> 
-                    ( Debug.log "new user ok" model, sendNewUser username fname lname email pwd repwd gender intIn bio)
+                    (model, sendNewUser username fname lname email pwd repwd gender intIn bio)
                 _ ->
-                    (Debug.log "new user nok" model, Cmd.none)
-
+                    (model, Cmd.none)
+        
 
 updateInput : Form -> String -> Maybe String -> Form
 updateInput form id value =

@@ -16,13 +16,21 @@ view route model =
 
 viewLoginForm : Model -> Html Msg
 viewLoginForm model =
-    div [] <| List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
-    ++ [ button [onClick SendLogin ][ text "Connection" ]
-        , div [ class "row" ]
-        [ div [class "twelve columns"] 
-        [ a [ href "#/signin" ][ text "Créer un compte" ] ]
+    let msg = 
+        case model.message of
+        Just msg -> msg
+        _ -> ""
+    in 
+    div []
+        [ div [] [text msg]
+        , div [] <| List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
+        ++ [ button [onClick SendLogin ][ text "Connection" ]
+            , div [ class "row" ]
+            [ div [class "twelve columns"] 
+            [ a [ href "#/signin" ][ text "Créer un compte" ] ]
+            ]
         ]
-        ]
+        ] 
 
 viewNewUserForm : Model -> Html Msg
 viewNewUserForm model =

@@ -1,4 +1,4 @@
-module Users exposing (view)
+module User exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,16 +10,9 @@ import List
 
 view : Model -> Html Msg
 view model =
-    div [] [ viewUsers model.users ]
-
-viewUsers : List User -> Html Msg
-viewUsers users =
-    div []
-        [ h1 [] [ text "Les membres" ]
-        , ul [ class "users-list" ] <| List.map (\u -> 
-            li [] [ viewUser u ]
-            ) users
-        ]
+    case model.current_user of
+        Just u -> viewUser u
+        _ -> div [][ text <| "user not found" ]
 
 viewUser : User -> Html Msg
 viewUser user =

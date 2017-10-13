@@ -20,7 +20,7 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function(req, res) {
-    res.send('Hello! The API is at http://localhost:'+port+'/api');
+	res.send('Hello! The API is at http://localhost:'+port+'/api');
 });
 
 app.use('/auth', Login);

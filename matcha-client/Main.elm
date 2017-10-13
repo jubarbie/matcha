@@ -18,7 +18,7 @@ init location =
         currentRoute =
             Routing.parseLocation location
         cmd = case currentRoute of
-            Users a -> Cmd.none
+            UsersRoute -> Cmd.none
             _ -> Cmd.none
     in
         ( initialModel currentRoute, Cmd.batch [cmd, getToken ()])

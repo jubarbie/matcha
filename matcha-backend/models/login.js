@@ -17,7 +17,6 @@ apiRoutes.post('/', (req, res, next) => {
 	
 	connection.query('SELECT * FROM user WHERE login="'+login+'"', (err, rows, fields) => {
 		if (!err) {
-			console.log(rows);
 			var user = rows[0];
 			if (user == undefined || bcrypt.compareSync(pwd, user.password) == false) {
 				console.log("Mauvais mot de passe");

@@ -11,7 +11,8 @@ matchers =
     [ map (Connect Login)  top
     , map (Connect Login) (s "login")
     , map (Connect Signin) (s "signin")
-    , map (Users Nothing) (s "users")
+    , map (UsersRoute) (s "users")
+    , map (UserRoute) (s "user" </> string )
     , map Chat (s "chat")
     , map Account (s "account")
     ]

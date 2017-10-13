@@ -54,4 +54,5 @@ ul.users-list li {
 .user-box {
 	border: 1px solid black;
 	padding: 10px;
+	overflow-y: auto;
 }
