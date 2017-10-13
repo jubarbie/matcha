@@ -20,9 +20,9 @@ cd matcha-backend && npm run watch
 curl -H "Content-Type: application/json" -X POST -d '{"username":"jubarbie","password":"jules123","email":"jubarbie@student.42.fr","lname":"Barbier","fname":"Jules","gender":"M","int_in":"M"}' http://localhost:3001/api/users/new/
 
 
-Code edition tools:
+# Code edition tools:
 
-# ELM
+ELM:
 call plug#begin('~/.vim/plugged')
 Plug 'elmcast/elm-vim'
 call plug#end()
