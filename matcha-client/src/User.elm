@@ -5,7 +5,6 @@ import Html.Attributes exposing (..)
 import Models exposing (..)
 import Commands exposing (genderToString)
 import Msgs exposing (..)
-import List
 
 
 view : Model -> Html Msg
@@ -16,8 +15,9 @@ view model =
 
 viewUser : User -> Html Msg
 viewUser user =
-    div [ class "user-box" ] 
-        [ h3 [] [ text user.username ] 
-        , text <| genderToString user.gender
-        , a [href <| "http://localhost:3000/#/user/" ++ user.username][ text "See profile" ]
+    div [] 
+        [ a [href <| "http://localhost:3000/#/users"][ text "Back" ]
+        , h3 [] [ text user.username ] 
+        , div [] [ text <| genderToString user.gender ]
+        , div [] [ text user.bio ]
         ]

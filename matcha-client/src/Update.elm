@@ -20,13 +20,24 @@ update msg model =
                     ( model
                     , Navigation.newUrl "/#/login" )
 
-        UserResponse token response ->
+        ProfileResponse token response ->
             case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) -> 
                                 ( { model | session = Just <| Session u token }, Navigation.newUrl "/#/users" )
                         _ -> (model, Navigation.newUrl "/#/login")
+                _ -> 
+                    ( model
+                    , Navigation.newUrl "/#/login" )
+        
+        UserResponse response ->
+            case Debug.log "response user" response of
+                Success rep ->
+                    case (rep.status == "success", rep.data) of
+                        (True, Just u) -> 
+                                ( { model | current_user = Just u }, Cmd.none )
+                        _ -> ( {model | message = Just "user not found" }, Navigation.newUrl "/#/users")
                 _ -> 
                     ( model
                     , Navigation.newUrl "/#/login" )
@@ -69,7 +80,7 @@ update msg model =
                 case Debug.log "session" session of 
                     [user, token] ->
                         if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then 
-                            getUser user token
+                            getProfile user token
                         else 
                             Cmd.none
                     _ -> Cmd.none
@@ -94,7 +105,6 @@ update msg model =
             in
                 ( { model | route = newRoute }, cmd )
         
-
         UpdateLoginForm id value ->
             let
                 form = model.loginForm

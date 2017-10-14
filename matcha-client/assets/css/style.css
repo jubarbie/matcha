@@ -11,6 +11,7 @@
 .navbar .navbar-list li {
 	display: inline-block;
 	margin: 0;
+	cursor: pointer;
 }
 .navbar .navbar-list li a {
 	text-decoration: none;

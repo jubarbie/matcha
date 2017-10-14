@@ -4,6 +4,7 @@ port module Ports exposing (..)
 port storeToken : (List String) -> Cmd msg
 port getToken : () -> Cmd msg
 port deleteSession : () -> Cmd msg
+port loadMap : String -> Cmd msg
 
 -- In
 port tokenRecieved : (List String -> msg) -> Sub msg

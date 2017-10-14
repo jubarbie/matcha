@@ -89,7 +89,17 @@ getUser user token  =
     in
         Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
         |> RemoteData.sendRequest
-        |> Cmd.map (UserResponse token)
+        |> Cmd.map UserResponse
+
+getProfile : String -> String -> Cmd Msg
+getProfile user token  =
+    let
+        body = 
+            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
+    in
+        Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
+        |> RemoteData.sendRequest
+        |> Cmd.map (ProfileResponse token)
 
 sendLogin : String -> String -> Cmd Msg
 sendLogin login pwd =

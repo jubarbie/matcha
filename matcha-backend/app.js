@@ -2,8 +2,8 @@ var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
-var Login = require('./models/login');
-var Users = require('./models/users');
+var Login = require('./controllers/login');
+var Users = require('./controllers/users');
 
 var app = express();
 

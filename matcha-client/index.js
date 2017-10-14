@@ -1,8 +1,10 @@
 'use strict';
 
+
 // Require index.html so it gets copied to dist
 require('./index.html');
 
+var mapboxgl = require('mapbox-gl/dist/mapbox-gl.js');
 var Elm = require('./Main.elm');
 var mountNode = document.getElementById('main');
 
@@ -24,4 +26,12 @@ app.ports.getToken.subscribe(function() {
 app.ports.deleteSession.subscribe(function() {
 	window.localStorage.removeItem('user');
 	window.localStorage.removeItem('token');
+});
+ 
+app.ports.loadMap.subscribe(function(id) {
+	mapboxgl.accessToken = 'pk.eyJ1IjoianViYXJiaWUiLCJhIjoiY2o4cjV1YmY0MHJtaDJ3cDFhbGZ4aHd2ZCJ9.T1ztr8SLVvZymkDPHCUcBQ';
+	var map = new mapboxgl.Map({
+		container: id,
+		style: 'mapbox://styles/mapbox/dark-v9'
+	});
 });
