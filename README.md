@@ -9,36 +9,25 @@ docker-machine create --driver virtualbox default
 eval "$(docker-machine env default)"
 docker run --name matcha_db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_USER=jubarbie -e MYSQL_PASSWORD=root -d mysql/mysql-server:8.0
 ```
-### Connect to mysql server
+### Connecting to mysql server with command line
 ```sh
 docker exec -it matcha_db mysql -u root -p
 ```
 
-
-## Build database
+## Building app
+### Build backend server (dev)
 ```sh
-cd matcha-backend && node setup.js
+cd matcha-backend && sh install-backend.sh
 ```
 
-## Launch backend server (dev)
+### Launch client server (dev)
 ```sh
-cd matcha-backend && npm run watch
+cd matcha-client && sh install-client.sh
 ```
-
-## Launch client server (dev)
-```sh
-cd matcha-client && npm run client
-```
-
-## Add superadmin user
-```sh
-curl -H "Content-Type: application/json" -X POST -d '{"username":"jubarbie","password":"jules123","email":"jubarbie@student.42.fr","lname":"Barbier","fname":"Jules","gender":"M","int_in":"M"}' http://localhost:3001/api/users/new/
-```
-
 
 # Code edition tools:
 
-## ELM:
+## ELM for vim:
 ```sh
 call plug#begin('~/.vim/plugged')
 Plug 'elmcast/elm-vim'
