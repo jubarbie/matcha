@@ -9,14 +9,14 @@ import Commands exposing (..)
 import Ports exposing (..)
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model = 
+update msg model =
     case msg of
         UsersResponse response ->
             case response of
-                Success users -> 
+                Success users ->
                     ( { model | users = users }
                     , Cmd.none )
-                _ -> 
+                _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
 
@@ -24,43 +24,43 @@ update msg model =
             case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
-                        (True, Just u) -> 
+                        (True, Just u) ->
                                 ( { model | session = Just <| Session u token }, Navigation.newUrl "/#/users" )
                         _ -> (model, Navigation.newUrl "/#/login")
-                _ -> 
+                _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
-        
+
         UserResponse response ->
             case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
-                        (True, Just u) -> 
+                        (True, Just u) ->
                                 ( { model | current_user = Just u }, Cmd.none )
                         _ -> ( {model | message = Just "user not found" }, Navigation.newUrl "/#/users")
-                _ -> 
+                _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
-        
+
         NewUserResponse response ->
             case Debug.log "resp" response of
                 Success rep ->
                     case rep.status of
-                        "success" -> 
+                        "success" ->
                             ( model , Navigation.newUrl "/#/users" )
                         _ -> ( { model | message = rep.message }, Cmd.none)
-                _ -> 
+                _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
-        
-        LoginResponse response -> 
+
+        LoginResponse response ->
             case Debug.log "Login response" response of
                 Success rep ->
                     case (rep.status == "success", rep.token, rep.user) of
                         (True, Just t, Just user) ->
-                            let 
+                            let
                                 token = t
-                                session = Just <| Session user token 
+                                session = Just <| Session user token
                             in
                             ( { model | session = session, loginForm = initLoginForm }
                             , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user.username,token] ]
@@ -68,26 +68,26 @@ update msg model =
                         _ ->
                             ( { model | message = rep.message }, Navigation.newUrl "/#/login")
                 _ ->
-                    ( model 
+                    ( model
                     , Navigation.newUrl "/#/login"
                     )
 
         Logout ->
             ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
-        
+
         SaveToken session ->
-            let cmd = 
-                case Debug.log "session" session of 
+            let cmd =
+                case Debug.log "session" session of
                     [user, token] ->
-                        if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then 
+                        if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then
                             getProfile user token
-                        else 
+                        else
                             Cmd.none
                     _ -> Cmd.none
             in
                 (model, Cmd.batch [ cmd, Navigation.newUrl "/#/users" ])
 
-        OnLocationChange location -> 
+        OnLocationChange location ->
             let
                 newRoute =
                     parseLocation location
@@ -104,7 +104,7 @@ update msg model =
                     _ -> Cmd.none
             in
                 ( { model | route = newRoute }, cmd )
-        
+
         UpdateLoginForm id value ->
             let
                 form = model.loginForm
@@ -125,47 +125,50 @@ update msg model =
                 values = List.map (\i -> i.status) model.loginForm
             in
             case values of
-                [ Valid a, Valid b ] -> 
+                [ Valid a, Valid b ] ->
                     (model, sendLogin a b)
                 _ ->
                     (model, Cmd.none)
-        
-        
+
+
         NewUser ->
             let
                 values = List.map (\i -> i.status) model.newUserForm
             in
             case values of
-                [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd, Valid gender, Valid intIn, Valid bio] -> 
+                [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd, Valid gender, Valid intIn, Valid bio] ->
                     (model, sendNewUser username fname lname email pwd repwd gender intIn bio)
                 _ ->
                     (model, Cmd.none)
-        
+
+        Localize ->
+            (model, localize ())
+
 
 updateInput : Form -> String -> Maybe String -> Form
 updateInput form id value =
-    List.map (\i -> 
-        if i.id == id then 
-            { i 
+    List.map (\i ->
+        if i.id == id then
+            { i
             | input = value
-            , status = validationForm i.validator form value 
-            } 
+            , status = validationForm i.validator form value
+            }
         else i) form
 
 validationForm : Maybe FormValidator -> Form -> Maybe String -> FormStatus
 validationForm validator form value =
-    case validator of 
-        Nothing -> Valid (case value of 
-            Just a -> a 
+    case validator of
+        Nothing -> Valid (case value of
+            Just a -> a
             _ -> "")
-        Just Required -> case value of 
+        Just Required -> case value of
                     Just a -> if a /= "" then Valid a else NotValid "Required Field"
                     Nothing -> NotValid "Required field"
         Just GenderValidator -> validGender value
         Just EmailValidator -> validEmail value
         Just PasswordValidator -> validPassword value
-        Just (PasswordConfirmValidator id) -> 
-            case findInput form id of 
+        Just (PasswordConfirmValidator id) ->
+            case findInput form id of
                 Just a -> validConfirmPassword a value
                 Nothing -> NotValid ("No input found with id : " ++ id)
         Just (TextValidator min max) -> validText min max value
@@ -175,4 +178,3 @@ findInput form id =
     case List.filter (\i -> i.id == id) form of
         a :: b -> Just a
         _ -> Nothing
-

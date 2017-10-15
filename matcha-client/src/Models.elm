@@ -77,7 +77,7 @@ type alias User =
     , bio : String
     }
 
-type Gender 
+type Gender
     = M
     | F
 
@@ -88,13 +88,13 @@ initInput typ label id validator tip =
     Input Nothing typ Waiting validator id label tip
 
 initLoginForm : Form
-initLoginForm = 
+initLoginForm =
         [ initInput "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
         , initInput "password" "Mot de passe" "pwd" (Just <| TextValidator 2 255) Nothing
         ]
 
 initNewUserForm : Form
-initNewUserForm =  
+initNewUserForm =
        [ initInput "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
        , initInput "text" "Prénom" "fname" (Just <| TextValidator 2 255) Nothing
        , initInput "text" "Nom" "lname" (Just <| TextValidator 2 255) Nothing
@@ -121,17 +121,17 @@ validPassword value =
 validConfirmPassword : Input -> Maybe String -> FormStatus
 validConfirmPassword inp value =
     case inp.status of
-        Valid a -> 
+        Valid a ->
             case value of
-                Just b -> if a == b then Valid a else NotValid "Both password doesn't match" 
+                Just b -> if a == b then Valid a else NotValid "Both password doesn't match"
                 Nothing -> Waiting
         _ -> Waiting
 
 validText : Int -> Int -> Maybe String -> FormStatus
 validText min max t =
-    case t of 
-        Just s -> 
-            let 
+    case t of
+        Just s ->
+            let
                 size = String.length s
             in
             case size >= min && size <= max of
@@ -141,8 +141,8 @@ validText min max t =
 
 validGender : Maybe String -> FormStatus
 validGender g =
-    case g of 
-        Just s -> 
+    case g of
+        Just s ->
             case s of
                 "M" -> Valid "M"
                 "F" -> Valid "F"
@@ -156,6 +156,6 @@ initialModel route =
     , loginForm =  initLoginForm
     , newUserForm = initNewUserForm
     , users = []
-    , current_user = Nothing 
+    , current_user = Nothing
     , message = Nothing
     }

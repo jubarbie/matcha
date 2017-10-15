@@ -1,10 +1,10 @@
 module Msgs exposing (..)
 
-import RemoteData exposing (..) 
+import RemoteData exposing (..)
 import Navigation exposing (..)
 import Models exposing (..)
 
-type Msg 
+type Msg
     = UsersResponse (WebData (List User))
     | ProfileResponse String (WebData (ApiResponse (Maybe User)))
     | UserResponse (WebData (ApiResponse (Maybe User)))
@@ -12,8 +12,9 @@ type Msg
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | Logout
     | OnLocationChange Location
-    | SaveToken (List String) 
+    | SaveToken (List String)
     | UpdateNewUserForm String String
     | UpdateLoginForm String String
     | NewUser
     | SendLogin
+    | Localize

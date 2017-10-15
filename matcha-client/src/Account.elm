@@ -13,8 +13,8 @@ view : Model ->  Html Msg
 view model =
     case model.session of
         Just s -> viewAccount model s.user
-        _ -> text "no session..."    
-        
+        _ -> text "no session..."
+
 viewAccount : Model -> User -> Html Msg
 viewAccount model user =
     let
@@ -27,12 +27,13 @@ viewAccount model user =
             }
     in
         div []
-        [ h1 [] [text "Account"] 
+        [ h1 [] [text "Account"]
         , div [] [text user.username]
         , div [] [text user.fname, text " ",text user.lname]
         , div [] [text user.email]
         , div [] [text user.bio]
-        , Mapbox.slippyMap Endpoint.streets mapboxToken options pos (Mapbox.Size 1000 500)
+        , div [ id "map" ] []
+        , button [ onClick Localize ][ text "Localize me" ]
         ]
 
 mapboxToken : String

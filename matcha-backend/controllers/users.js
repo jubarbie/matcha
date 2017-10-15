@@ -5,7 +5,8 @@ const { check, validationResult } = require('express-validator/check');
 const { matchedData } = require('express-validator/filter');
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
-var jwt = require('jsonwebtoken'); 
+var jwt = require('jsonwebtoken');
+var nodemailer = require('nodemailer');
 
 var config = require('../config');
 var UsersModel = require('../models/users_model');
@@ -17,14 +18,14 @@ router.post('/', function(req, res, next) {
 	var username = req.body.user
 		console.log("token recieved", token);
 
-	if (token && username) { 
+	if (token && username) {
 		// verifies secret and checks exp
 		var user = UsersModel.getUserWithLogin(username);
-		jwt.verify(token, config.secret, function(err, decoded) {      
+		jwt.verify(token, config.secret, function(err, decoded) {
 			if (err) {
 				console.log('Error while verif');
 				res.status(403);
-				res.json({ success: false, message: 'Failed to authenticate token.' });    
+				res.json({ success: false, message: 'Failed to authenticate token.' });
 			} else {
 
 				UsersModel.getAllUsers(function(err, rows, fields) {
@@ -40,9 +41,9 @@ router.post('/', function(req, res, next) {
 
 	} else {
 
-		res.status(403).send({ 
-			success: false, 
-			message: 'No token provided.' 
+		res.status(403).send({
+			success: false,
+			message: 'No token provided.'
 		});
 
 	}
@@ -59,11 +60,11 @@ router.post('/user/:user', function(req, res, next) {
 		UsersModel.getUserWithLogin(login, function(err, rows, fields) {
 			if (rows) {
 				console.log("User ", rows[0]);
-				res.json({"status":"success", "data":rows[0]}); 
-			} else { 
-				res.json({"status":"error", "msg":"Can't find user"}); 
+				res.json({"status":"success", "data":rows[0]});
+			} else {
+				res.json({"status":"error", "msg":"Can't find user"});
 			}
-		}); 
+		});
 	} else {
 		res.json({"status":"error", "msg":"No login provided"});
 	}
@@ -100,6 +101,38 @@ router.post('/new', [
 	UsersModel.insertUser(user, function(err, rows, fields) {
 		if (!err) {
 			console.log('User inserted');
+			nodemailer.createTestAccount((err, account) => {
+
+			    // create reusable transporter object using the default SMTP transport
+			    let transporter = nodemailer.createTransport({
+			        host: 'smtp.ethereal.email',
+			        port: 587,
+			        secure: false, // true for 465, false for other ports
+			        auth: {
+			            user: account.user, // generated ethereal user
+			            pass: account.pass  // generated ethereal password
+			        }
+			    });
+
+			    // setup email data with unicode symbols
+			    let mailOptions = {
+			        from: '"DARKROOM" <noreply@darkroom.com>', // sender address
+			        to: user.email, // list of receivers
+			        subject: 'Welcome to DARKROOM', // Subject line
+			        html: '<b>Welcome!</b>' // html body
+			    };
+
+			    // send mail with defined transport object
+			    transporter.sendMail(mailOptions, (error, info) => {
+			        if (error) {
+			            return console.log(error);
+			        }
+			        console.log('Message sent: %s', info.messageId);
+			        // Preview only available when sending through an Ethereal account
+			        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+			    });
+			});
 			res.json({"status":"success"});
 		}
 		else {
