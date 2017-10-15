@@ -25,9 +25,9 @@ cd matcha-backend && sh install-backend.sh
 cd matcha-client && sh install-client.sh
 ```
 
-# Code edition tools:
+## Code edition tools:
 
-## ELM for vim:
+### ELM for vim:
 ```sh
 call plug#begin('~/.vim/plugged')
 Plug 'elmcast/elm-vim'
