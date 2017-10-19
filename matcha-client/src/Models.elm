@@ -9,6 +9,7 @@ type Route
     | UserRoute String
     | Chat
     | Account
+    | Members
     | NotFoundRoute
 
 type LoginRoute
@@ -72,8 +73,8 @@ type alias User =
     , fname : String
     , lname : String
     , email : String
-    , gender : Gender
-    , intIn : Gender
+    , gender : Maybe Gender
+    , intIn : Maybe Gender
     , bio : String
     }
 

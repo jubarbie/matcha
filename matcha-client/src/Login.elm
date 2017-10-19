@@ -9,27 +9,26 @@ import Msgs exposing (..)
 
 view : LoginRoute -> Model -> Html Msg
 view route model =
-    case route of 
-        Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
-
-        Signin -> viewNewUserForm model
-
-viewLoginForm : Model -> Html Msg
-viewLoginForm model =
     let msg = 
         case model.message of
         Just msg -> msg
         _ -> ""
     in 
     div []
-        [ div [] [text msg]
-        , div [] <| List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
+    [ div [][text msg]
+    , (case route of 
+        Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
+        Signin -> Html.Keyed.node "sign" [] [("div", viewNewUserForm model)])
+    ]
+
+viewLoginForm : Model -> Html Msg
+viewLoginForm model =
+    div [] <| List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
         ++ [ button [onClick SendLogin ][ text "Connection" ]
             , div [ class "row" ]
             [ div [class "twelve columns"] 
             [ a [ href "#/signin" ][ text "Créer un compte" ] ]
             ]
-        ]
         ] 
 
 viewNewUserForm : Model -> Html Msg

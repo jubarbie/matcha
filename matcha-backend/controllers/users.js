@@ -131,6 +131,9 @@ router.post('/newfast', [
 	if (!errors.isEmpty()) {
 		res.status(422).json({"status":"error", "msg":errors});
 	}
+	UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
+		if (rows) { res.json({"status":"error", "msg":"Login already used"}); }
+		else {
 	var user = buildUserFromRequest(req);
 	UsersModel.insertUser(user, function(err, rows, fields) {
 		if (!err) {
@@ -173,6 +176,8 @@ router.post('/newfast', [
 			console.log('Error while puting new user', err);
 			res.json({"status":"error"});
 		}
+	});
+	}
 	});
 });
 

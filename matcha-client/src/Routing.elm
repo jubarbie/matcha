@@ -15,6 +15,7 @@ matchers =
     , map (UserRoute) (s "user" </> string )
     , map Chat (s "chat")
     , map Account (s "account")
+    , map Members (s "members")
     ]
 
 

@@ -12,7 +12,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         UsersResponse response ->
-            case response of
+            case Debug.log "response" response of
                 Success users ->
                     ( { model | users = users }
                     , Cmd.none )
@@ -37,7 +37,7 @@ update msg model =
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
                                 ( { model | current_user = Just u }, Cmd.none )
-                        _ -> ( {model | message = Just "user not found" }, Navigation.newUrl "/#/users")
+                        _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
@@ -48,7 +48,7 @@ update msg model =
                     case rep.status of
                         "success" ->
                             ( model , Navigation.newUrl "/#/users" )
-                        _ -> ( { model | message = rep.message }, Cmd.none)
+                        _ -> ( { model | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none)
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )

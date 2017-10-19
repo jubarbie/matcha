@@ -8,11 +8,12 @@ import Models exposing (..)
 import Msgs exposing (..)
 
 
-genderToString : Gender -> String
+genderToString : Maybe Gender -> String
 genderToString g =
     case g of
-        M -> "M"
-        F -> "F"
+        Just M -> "M"
+        Just F -> "F"
+        _ -> "No gender"
 
 stringToGender : String -> Maybe Gender
 stringToGender g =
@@ -45,8 +46,8 @@ decodeUser =
     (at ["fname"] JsonDec.string)
     (at ["lname"] JsonDec.string)
     (at ["email"] JsonDec.string)
-    (at ["gender"] decodeGender)
-    (at ["interested_in"] decodeGender)
+    (maybe (at ["gender"] decodeGender))
+    (maybe (at ["interested_in"] decodeGender))
     (at ["bio"] JsonDec.string)
 
 decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))
