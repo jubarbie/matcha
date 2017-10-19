@@ -136,8 +136,8 @@ update msg model =
                 values = List.map (\i -> i.status) model.newUserForm
             in
             case values of
-                [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd, Valid gender, Valid intIn, Valid bio] ->
-                    (model, sendNewUser username fname lname email pwd repwd gender intIn bio)
+                [Valid username, Valid email, Valid pwd, Valid repwd] ->
+                    (model, sendFastNewUser username email pwd repwd)
                 _ ->
                     (model, Cmd.none)
 

@@ -9,6 +9,7 @@
   "dependencies": {
     "bcrypt": "^1.0.3",
     "body-parser": "~1.17.1",
+    "crypto": "^1.0.1",
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "express-validator": "^4.1.1",

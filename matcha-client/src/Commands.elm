@@ -31,8 +31,8 @@ gendersDecoder =
 
 decodeGender : Decoder Gender
 decodeGender =
-    JsonDec.string |> JsonDec.andThen 
-        (\a -> case a of 
+    JsonDec.string |> JsonDec.andThen
+        (\a -> case a of
             "M" -> JsonDec.succeed M
             "F" -> JsonDec.succeed F
             _ -> JsonDec.fail "Gender must be M or F"
@@ -52,12 +52,12 @@ decodeUser =
 decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))
 decodeApiResponse decoder =
     case decoder of
-        Just d -> 
+        Just d ->
             JsonDec.map3 ApiResponse
             (at ["status"] JsonDec.string)
             (maybe (at ["msg"] JsonDec.string))
             (maybe (at ["data"] d))
-        _ -> 
+        _ ->
             JsonDec.map3 ApiResponse
             (at ["status"] JsonDec.string)
             (maybe (at ["msg"] JsonDec.string))
@@ -74,7 +74,7 @@ decodeAuthResponse =
 getUsers : String -> String -> Cmd Msg
 getUsers user token  =
     let
-        body = 
+        body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token), ("user", JsonEnc.string user)]
     in
         Http.post "http://localhost:3001/api/users" body usersDecoder
@@ -84,7 +84,7 @@ getUsers user token  =
 getUser : String -> String -> Cmd Msg
 getUser user token  =
     let
-        body = 
+        body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
         Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
@@ -94,7 +94,7 @@ getUser user token  =
 getProfile : String -> String -> Cmd Msg
 getProfile user token  =
     let
-        body = 
+        body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
         Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
@@ -104,18 +104,33 @@ getProfile user token  =
 sendLogin : String -> String -> Cmd Msg
 sendLogin login pwd =
     let
-        body = 
+        body =
             Http.jsonBody <| JsonEnc.object [("login", JsonEnc.string login), ("password", JsonEnc.string pwd)]
     in
         Http.post "http://localhost:3001/auth" body decodeAuthResponse
         |> RemoteData.sendRequest
         |> Cmd.map LoginResponse
 
+sendFastNewUser : String -> String -> String -> String -> Cmd Msg
+sendFastNewUser username email pwd repwd =
+    let
+        body =
+            Http.jsonBody <| JsonEnc.object
+            [ ("username", JsonEnc.string username)
+            , ("email", JsonEnc.string email)
+            , ("password", JsonEnc.string pwd)
+            , ("rePassword", JsonEnc.string repwd)
+            ]
+    in
+        Http.post "http://localhost:3001/api/users/newfast" body (decodeApiResponse Nothing)
+        |> RemoteData.sendRequest
+        |> Cmd.map NewUserResponse
+
 sendNewUser : String -> String -> String -> String -> String -> String -> String -> String -> String -> Cmd Msg
 sendNewUser username fname lname email pwd repwd gender intIn bio =
     let
-        body = 
-            Http.jsonBody <| JsonEnc.object 
+        body =
+            Http.jsonBody <| JsonEnc.object
             [ ("username", JsonEnc.string username)
             , ("email", JsonEnc.string email)
             , ("fname", JsonEnc.string fname)
@@ -127,6 +142,6 @@ sendNewUser username fname lname email pwd repwd gender intIn bio =
             , ("bio", JsonEnc.string bio)
             ]
     in
-        Http.post "http://localhost:3001/api/users/new" body (decodeApiResponse Nothing)
+        Http.post "http://localhost:3001/api/users/newfast" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
         |> Cmd.map NewUserResponse

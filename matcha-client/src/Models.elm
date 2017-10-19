@@ -106,6 +106,14 @@ initNewUserForm =
        , initInput "text" "Bio" "bio" Nothing Nothing
        ]
 
+initFastNewUserForm : Form
+initFastNewUserForm =
+       [ initInput "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
+       , initInput "text" "Email" "email" (Just EmailValidator) Nothing
+       , initInput "password" "Mot de passe" "pwd" (Just PasswordValidator) (Just "Minimum 6 caractère dont au moins un chiffre")
+       , initInput "password" "Confirmation mot de passe" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Retaper le même mot de passe")
+       ]
+
 validEmail : Maybe String -> FormStatus
 validEmail value =
     case value of
@@ -154,7 +162,7 @@ initialModel route =
     { route = route
     , session = Nothing
     , loginForm =  initLoginForm
-    , newUserForm = initNewUserForm
+    , newUserForm = initFastNewUserForm
     , users = []
     , current_user = Nothing
     , message = Nothing
