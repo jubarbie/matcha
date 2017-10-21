@@ -73,6 +73,7 @@ router.post('/user/:login', function(req, res, next) {
 	}
 });
 
+
 /* GET user. */
 router.get('/user/:login/emailverif', function(req, res, next) {
 

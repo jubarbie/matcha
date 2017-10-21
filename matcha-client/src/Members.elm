@@ -18,14 +18,17 @@ viewUsers users =
     div []
         [ h1 [] [ text "Les membres" ]
         , table [ class "u-full-width" ] <|
-          [ tr []
-            [ th [] [ text "Username" ]
-            , th [] [ text "First name" ]
-            , th [] [ text "Last name" ]
-            , th [] [ text "Email" ]
-            , th [] [ text "Gender" ]
+          [ thead []
+             [ tr []
+                  [ th [] [ text "Username" ]
+                  , th [] [ text "First name" ]
+                  , th [] [ text "Last name" ]
+                  , th [] [ text "Email" ]
+                  , th [] [ text "Gender" ]
+                  ]
             ]
-            ] ++ List.map (\u -> viewUserRow u ) users
+          , tbody [] <| List.map (\u -> viewUserRow u ) users
+          ]
           ]
 
 viewUserRow : User -> Html Msg

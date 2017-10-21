@@ -12,7 +12,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         UsersResponse response ->
-            case Debug.log "response" response of
+            case response of
                 Success users ->
                     ( { model | users = users }
                     , Cmd.none )
@@ -115,7 +115,7 @@ update msg model =
                              Cmd.none
                     _ -> Cmd.none
             in
-                (Debug.log "model after token saved" model, cmd)
+                (model, cmd)
 
         OnLocationChange location ->
             let

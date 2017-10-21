@@ -1,6 +1,7 @@
 .navbar {
 	border-top: 1px solid grey;
 	border-bottom: 1px solid grey;
+	margin: 20px 0;
 }
 .navbar .navbar-list {
 	list-style-type: none;
@@ -12,20 +13,24 @@
 	display: inline-block;
 	margin: 0;
 	cursor: pointer;
+	padding: 20px;
+	line-height: normal;
+	box-sizing: border-box;;
 }
 .navbar .navbar-list li a {
 	text-decoration: none;
 	color: black;
 	display: block;
-	padding: 10px 20px 10px 5px;
-	line-height: normal;
+	height: 100%;
 }
-.navbar .navbar-list li a:hover {
-	color: blue;
+.navbar .navbar-list li:hover {
+	background: grey;
+}
+.navbar .navbar-list li.active {
+	background: black;
 }
 .navbar .navbar-list li.active a {
 	color: white;
-	background: black;
 }
 .input .input-tip {
 	font-size: 0.8em;

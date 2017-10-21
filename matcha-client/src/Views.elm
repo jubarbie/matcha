@@ -14,7 +14,7 @@ import Account exposing (view)
 
 view : Model -> Html Msg
 view model =
-    div [ class "container" ]
+  div [ class "container" ]
        <|  case model.route of
             Connect a ->
                 [ Login.view a model ]
@@ -30,9 +30,9 @@ view model =
                 [viewMenu model.route, Members.view model]
             NotFoundRoute ->
                 [view401]
-        
+
 view401 : Html msg
-view401 = 
+view401 =
     div []
         [ text "401 page non trouvée"
         , a [ href "http://localhost:3000/#/users" ] [ text "Retourner a l'accueil" ]
