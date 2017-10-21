@@ -13,6 +13,10 @@ model.getUserWithLogin = function(login, cb) {
 	connection.query('SELECT * FROM user WHERE login="' + login + '"', cb);
 }
 
+model.deleteUser = function(login, cb) {
+	connection.query('DELETE FROM user WHERE login="' + login + '"', cb);
+}
+
 model.activatedUserWithLogin = function(login, cb) {
 	connection.query('UPDATE user SET activated="activated" WHERE login="' + login + '"', cb);
 }

@@ -78,7 +78,7 @@ getUsers user token  =
         body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token), ("user", JsonEnc.string user)]
     in
-        Http.post "http://localhost:3001/api/users" body usersDecoder
+        Http.post "http://localhost:3001/api/users/all_users" body usersDecoder
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
 
@@ -146,3 +146,16 @@ sendNewUser username fname lname email pwd repwd gender intIn bio =
         Http.post "http://localhost:3001/api/users/newfast" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
         |> Cmd.map NewUserResponse
+
+deleteUser : String -> String -> Cmd Msg
+deleteUser username token =
+    let
+        body =
+            Http.jsonBody <| JsonEnc.object
+            [ ("username", JsonEnc.string username)
+            , ("token", JsonEnc.string token)
+            ]
+    in
+        Http.post "http://localhost:3001/api/users/delete_user" body (decodeApiResponse Nothing)
+        |> RemoteData.sendRequest
+        |> Cmd.map (DeleteUserResponse username)

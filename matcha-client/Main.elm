@@ -24,7 +24,7 @@ init location =
         ( initialModel currentRoute, Cmd.batch [cmd, getToken ()])
 
 subscriptions : Model -> Sub Msg
-subscriptions model = 
+subscriptions model =
     tokenRecieved SaveToken
 
 main : Program Never Model Msg

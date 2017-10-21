@@ -13,7 +13,7 @@ var config = require('../config');
 var UsersModel = require('../models/users_model');
 
 /* GET users listing. */
-router.post('/', function(req, res, next) {
+router.post('/all_users', function(req, res, next) {
 
 	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 	var username = req.body.user
@@ -21,7 +21,6 @@ router.post('/', function(req, res, next) {
 
 	if (token && username) {
 		// verifies secret and checks exp
-		var user = UsersModel.getUserWithLogin(username);
 		jwt.verify(token, config.secret, function(err, decoded) {
 			if (err) {
 				console.log('Error while verif');
@@ -56,15 +55,18 @@ router.post('/', function(req, res, next) {
 router.post('/user/:login', function(req, res, next) {
 
 	var login = req.params.login;
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-	if (login) {
-		UsersModel.getUserWithLogin(login, function(err, rows, fields) {
-			if (rows) {
-				console.log("User ", rows[0]);
-				res.json({"status":"success", "data":rows[0]});
-			} else {
-				res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
-			}
+	if (token && login) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+				UsersModel.getUserWithLogin(login, function(err, rows, fields) {
+					if (rows) {
+						console.log("User ", rows[0]);
+						res.json({"status":"success", "data":rows[0]});
+					} else {
+						res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
+					}
+				});
 		});
 	} else {
 		res.json({"status":"error", "msg":"Missing login"});
@@ -72,7 +74,6 @@ router.post('/user/:login', function(req, res, next) {
 });
 
 /* GET user. */
-/* Todo not sending password */
 router.get('/user/:login/emailverif', function(req, res, next) {
 
 	var login = req.params.login;
@@ -106,6 +107,32 @@ router.get('/user/:login/emailverif', function(req, res, next) {
 	}
 });
 
+/* REMOVE user. */
+router.post('/delete_user', function(req, res, next) {
+
+	var username = req.body.username;
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token && username) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+			if (decoded.rights == 0) {
+				UsersModel.deleteUser(username, function(err, rows, fields) {
+					if (rows) {
+						console.log("User ", rows);
+						res.json({"status":"success"});
+					} else {
+						res.json({"status":"error", "msg":"User " + username + " doesn't exists"});
+					}
+				});
+			} else {
+				res.json({"status":"error", "msg": "unauthorize"});
+			}
+		});
+	} else {
+		res.json({"status":"error"});
+	}
+});
+
 var buildUserFromRequest = function(req) {
 	var user = {};
 	user.login = req.body.username;
@@ -132,52 +159,54 @@ router.post('/newfast', [
 		res.status(422).json({"status":"error", "msg":errors});
 	}
 	UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
-		if (rows) { res.json({"status":"error", "msg":"Login already used"}); }
-		else {
-	var user = buildUserFromRequest(req);
-	UsersModel.insertUser(user, function(err, rows, fields) {
-		if (!err) {
-			console.log('User inserted');
-			nodemailer.createTestAccount((err, account) => {
+		if (rows[0]) {
+			console.log(rows);
+			res.json({"status":"error", "msg":"Login already used"});
+		} else {
+			var user = buildUserFromRequest(req);
+			UsersModel.insertUser(user, function(err, rows, fields) {
+				if (!err) {
+					console.log('User inserted');
+					nodemailer.createTestAccount((err, account) => {
 
-			    // create reusable transporter object using the default SMTP transport
-			    let transporter = nodemailer.createTransport({
-			        host: 'smtp.ethereal.email',
-			        port: 587,
-			        secure: false, // true for 465, false for other ports
-			        auth: {
-			            user: account.user, // generated ethereal user
-			            pass: account.pass  // generated ethereal password
-			        }
-			    });
+					    // create reusable transporter object using the default SMTP transport
+					    let transporter = nodemailer.createTransport({
+					        host: 'smtp.ethereal.email',
+					        port: 587,
+					        secure: false, // true for 465, false for other ports
+					        auth: {
+					            user: account.user, // generated ethereal user
+					            pass: account.pass  // generated ethereal password
+					        }
+					    });
 
-			    // setup email data with unicode symbols
-			    let mailOptions = {
-			        from: '"DARKROOM" <noreply@darkroom.com>', // sender address
-			        to: user.email, // list of receivers
-			        subject: 'Welcome into the DARKROOM', // Subject line
-			        html: '<b>Please verify you email by clicking on this link <a href="">localhost:3001/api/users/user/'+user.login+'/emailverif?r='+user.activated+'</a></b>' // html body
-			    };
+					    // setup email data with unicode symbols
+					    let mailOptions = {
+					        from: '"DARKROOM" <noreply@darkroom.com>', // sender address
+					        to: user.email, // list of receivers
+					        subject: 'Welcome into the DARKROOM', // Subject line
+					        html: '<b>Please verify you email by clicking on this link <a href="">localhost:3001/api/users/user/'+user.login+'/emailverif?r='+user.activated+'</a></b>' // html body
+					    };
 
-			    // send mail with defined transport object
-			    transporter.sendMail(mailOptions, (error, info) => {
-			        if (error) {
-			            return console.log(error);
-			        }
-			        console.log('Message sent: %s', info.messageId);
-			        // Preview only available when sending through an Ethereal account
-			        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+					    // send mail with defined transport object
+					    transporter.sendMail(mailOptions, (error, info) => {
+					        if (error) {
+					            return console.log(error);
+					        }
+					        console.log('Message sent: %s', info.messageId);
+					        // Preview only available when sending through an Ethereal account
+					        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 
-			    });
+					    });
+					});
+					res.json({"status":"success"});
+				}
+				else {
+					console.log('Error while puting new user', err);
+					res.json({"status":"error"});
+				}
 			});
-			res.json({"status":"success"});
 		}
-		else {
-			console.log('Error while puting new user', err);
-			res.json({"status":"error"});
-		}
-	});
-	}
 	});
 });
 

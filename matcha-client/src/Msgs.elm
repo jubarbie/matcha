@@ -10,6 +10,7 @@ type Msg
     | UserResponse (WebData (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
+    | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -17,4 +18,6 @@ type Msg
     | UpdateLoginForm String String
     | NewUser
     | SendLogin
+    | DeleteUser String
     | Localize
+    | GoBack Int

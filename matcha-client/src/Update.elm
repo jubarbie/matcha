@@ -25,7 +25,24 @@ update msg model =
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
-                                ( { model | session = Just <| Session u token }, Navigation.newUrl "/#/users" )
+                          let
+                            newModel = { model | session = Just <| Session u token }
+                            cmd = case model.route of
+                                  Members ->
+                                    case newModel.session of
+                                        Just s -> getUsers s.user.username s.token
+                                        _ -> Navigation.newUrl "/#/login"
+                                  UsersRoute ->
+                                      case newModel.session of
+                                          Just s -> getUsers s.user.username s.token
+                                          _ -> Navigation.newUrl "/#/login"
+                                  UserRoute a ->
+                                      case newModel.session of
+                                          Just s -> getUser a s.token
+                                          _ -> Navigation.newUrl "/#/login"
+                                  _ -> Cmd.none
+                              in
+                                ( newModel, cmd )
                         _ -> (model, Navigation.newUrl "/#/login")
                 _ ->
                     ( model
@@ -52,6 +69,19 @@ update msg model =
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
+
+        DeleteUserResponse username response ->
+            case Debug.log "resp" response of
+                Success rep ->
+                    case rep.status of
+                        "success" ->
+                            let
+                              newUsers = List.filter (\u -> u.username /= username ) model.users
+                            in
+                            ( { model  | users = newUsers }, Cmd.none )
+                        _ -> ( { model | message = rep.message }, Navigation.newUrl "/#/login")
+                _ ->
+                    ( model, Navigation.newUrl "/#/login" )
 
         LoginResponse response ->
             case Debug.log "Login response" response of
@@ -82,10 +112,10 @@ update msg model =
                         if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then
                             getProfile user token
                         else
-                            Cmd.none
+                             Cmd.none
                     _ -> Cmd.none
             in
-                (model, Cmd.batch [ cmd, Navigation.newUrl "/#/users" ])
+                (Debug.log "model after token saved" model, cmd)
 
         OnLocationChange location ->
             let
@@ -93,6 +123,10 @@ update msg model =
                     parseLocation location
 
                 cmd = case newRoute of
+                    Members ->
+                      case model.session of
+                          Just s -> getUsers s.user.username s.token
+                          _ -> Navigation.newUrl "/#/login"
                     UsersRoute ->
                         case model.session of
                             Just s -> getUsers s.user.username s.token
@@ -104,6 +138,9 @@ update msg model =
                     _ -> Cmd.none
             in
                 ( { model | route = newRoute }, cmd )
+
+        GoBack amount ->
+          (model, Navigation.back amount)
 
         UpdateLoginForm id value ->
             let
@@ -140,6 +177,11 @@ update msg model =
                     (model, sendFastNewUser username email pwd repwd)
                 _ ->
                     (model, Cmd.none)
+
+        DeleteUser username ->
+          case model.session of
+            Just s -> (model, deleteUser username s.token)
+            _ -> (model, Navigation.newUrl "/#/login")
 
         Localize ->
             (model, localize ())

@@ -2,6 +2,7 @@ module User exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Models exposing (..)
 import Commands exposing (genderToString)
 import Msgs exposing (..)
@@ -15,9 +16,9 @@ view model =
 
 viewUser : User -> Html Msg
 viewUser user =
-    div [] 
-        [ a [href <| "http://localhost:3000/#/users"][ text "Back" ]
-        , h3 [] [ text user.username ] 
+    div []
+        [ button [ onClick <| GoBack 1 ][ text "Back" ]
+        , h3 [] [ text user.username ]
         , div [] [ text <| genderToString user.gender ]
         , div [] [ text user.bio ]
         ]
