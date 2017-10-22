@@ -1,14 +1,14 @@
 CREATE TABLE IF NOT EXISTS `likes` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
-  `id_from` int(6) NOT NULL,
-  `id_to` int(6) NOT NULL,
+  `user_from` varchar(255) DEFAULT NULL,
+  `user_to` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `message` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `id_talk` int(6) NOT NULL,
-  `id_user` int(6) NOT NULL,
+  `username` varchar(255) DEFAULT NULL,
   `date` timestamp NULL DEFAULT NULL,
   `message` text,
   PRIMARY KEY (`id`)
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS `message` (
 
 CREATE TABLE IF NOT EXISTS `talk` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
-  `id_user1` int(6) NOT NULL,
-  `id_user2` int(6) NOT NULL,
+  `username1` varchar(255) DEFAULT NULL,
+  `username2` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -36,11 +36,13 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4;
 
+INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (106,'undefined','tincidunt');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (108,'jubarbie','tincidunt');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (110,'jubarbie','facilisis');
 
 
 
-
-
+INSERT INTO `talk` (`id`,`username1`,`username2`) VALUES (105,'jubarbie','tincidunt');
 
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (14,'tincidunt','KBI60RZD5FU','Signe','Quin','euismod.in@fringillacursuspurus.edu','F','F','a neque. Nullam ut nisi a odio semper cursus. Integer mollis. Integer tincidunt aliquam arcu. Aliquam ultrices iaculis odio. Nam interdum enim non nisi. Aenean eget metus. In nec orci. Donec nibh. Quisque nonummy ipsum non arcu. Vivamus sit amet risus. Donec egestas. Aliquam nec enim. Nunc ut erat. Sed nunc est, mollis non, cursus non, egestas a, dui. Cras pellentesque. Sed dictum. Proin eget odio. Aliquam vulputate ullamcorper magna. Sed eu eros. Nam consequat dolor vitae dolor. Donec fringilla. Donec feugiat metus sit amet ante. Vivamus non lorem vitae odio sagittis semper. Nam tempor diam dictum sapien. Aenean massa. Integer vitae nibh. Donec est mauris, rhoncus id, mollis nec, cursus a, enim. Suspendisse aliquet, sem ut cursus luctus, ipsum leo elementum sem, vitae aliquam eros','activated',1);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (16,'Aenean','MTG37IIL0KU','Bruce','Leroy','mollis@orciadipiscingnon.ca','M','F','nec luctus felis purus ac tellus. Suspendisse sed dolor. Fusce mi lorem, vehicula et, rutrum eu, ultrices sit amet, risus. Donec nibh enim, gravida sit amet, dapibus id, blandit at, nisi. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vel nisl. Quisque fringilla euismod enim. Etiam gravida molestie arcu. Sed eu nibh vulputate mauris sagittis placerat. Cras dictum ultricies ligula. Nullam enim. Sed nulla ante, iaculis nec, eleifend non, dapibus rutrum, justo. Praesent luctus. Curabitur egestas nunc sed libero. Proin sed turpis nec mauris blandit mattis. Cras eget nisi dictum augue malesuada malesuada. Integer id magna et ipsum cursus vestibulum. Mauris','activated',1);

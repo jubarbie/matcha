@@ -8,9 +8,13 @@ type Msg
     = UsersResponse (WebData (List User))
     | ProfileResponse String (WebData (ApiResponse (Maybe User)))
     | UserResponse (WebData (ApiResponse (Maybe User)))
+    | CurrentUserResponse (WebData (ApiResponse (Maybe CurrentUser)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
+    | ToggleLikeResponse String (WebData (ApiResponse (Maybe User)))
+    | GetTalkResponse (WebData (ApiResponse (Maybe (List Message))))
+    | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -21,3 +25,4 @@ type Msg
     | DeleteUser String
     | Localize
     | GoBack Int
+    | ToggleLike String

@@ -13,7 +13,8 @@ matchers =
     , map (Connect Signin) (s "signin")
     , map (UsersRoute) (s "users")
     , map (UserRoute) (s "user" </> string )
-    , map Chat (s "chat")
+    , map ChatRoute (s "chat" </> string)
+    , map ChatsRoute (s "chat")
     , map Account (s "account")
     , map Members (s "members")
     ]

@@ -21,9 +21,10 @@ apiRoutes.post('/', (req, res, next) => {
 				console.log("Mauvais mot de passe");
 				res.json({"status":"error", "msg":"Le login ou le mot de passe n'est pas correct"});
 			} else {
-				var token = jwt.sign({"rights": user.rights}, config.secret, {
+				var token = jwt.sign({"rights": user.rights, "username": user.login}, config.secret, {
 					expiresIn: "1 day"
 				});
+				user.talks = [];
 				console.log("Token create", token);
 				res.json({"status":"success", "token":token, "data":user});
 			}

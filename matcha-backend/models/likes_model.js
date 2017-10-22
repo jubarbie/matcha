@@ -5,20 +5,20 @@ var connection = mysql.createConnection(config.database);
 
 var model = {};
 
-model.getNumberOfLikes = function(id, cb) {
-	connection.query('SELECT * FROM likes WHERE id_to="' + id + '"', cb);
+model.getNumberOfLikes = function(username, cb) {
+	connection.query('SELECT COUNT(*) FROM likes WHERE user_to="' + username + '"', cb);
 };
 
-model.newLike = function(id_from, id_to, cb) {
-	connection.query('INSERT INTO likes (id_from, id_to) VALUES ("'+id_from+'","'+id_to+'")', cb);
+model.like = function(user_from, user_to, cb) {
+	connection.query('INSERT INTO likes (user_from, user_to) VALUES ("'+user_from+'","'+user_to+'")', cb);
 };
 
-model.removeLike = function(id, id_user) {
-	connection.query('DELETE FROM likes WHERE id="'+id+'")', cb);
+model.unLike = function(user_from, user_to, cb) {
+	connection.query('DELETE FROM likes WHERE user_from="'+user_from+'" AND user_to="'+user_to+'"', cb);
 };
 
-model.getLikeFromUsers = function(id_from, id_to, cb) {
-	connection.query('SELECT * FROM likes WHERE id_from="' + id_from + '" AND id_to="' + id_to + '"', cb);
+model.getLikeFromUsers = function(user_from, user_to, cb) {
+	connection.query('SELECT * FROM likes WHERE user_from="' + user_from + '" AND user_to="' + user_to + '"', cb);
 };
 
 module.exports = model;

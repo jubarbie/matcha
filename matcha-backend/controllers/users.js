@@ -11,6 +11,8 @@ var nodemailer = require('nodemailer');
 
 var config = require('../config');
 var UsersModel = require('../models/users_model');
+var LikesModel = require('../models/likes_model');
+var TalkModel = require('../models/talk_model');
 
 /* GET users listing. */
 router.post('/all_users', function(req, res, next) {
@@ -31,7 +33,11 @@ router.post('/all_users', function(req, res, next) {
 				UsersModel.getAllUsers(function(err, rows, fields) {
 					if (!err) {
 						console.log('Getting all users');
-						res.json(rows);
+						var users = rows.map(function (user) {
+							user.talks = [];
+							return user;
+						});
+						res.json(users);
 					}
 					else
 						console.log('Error while getting all users', err);
@@ -62,7 +68,76 @@ router.post('/user/:login', function(req, res, next) {
 				UsersModel.getUserWithLogin(login, function(err, rows, fields) {
 					if (rows) {
 						console.log("User ", rows[0]);
-						res.json({"status":"success", "data":rows[0]});
+						TalkModel.getUserTalks(login, function(err, talks, fields) {
+							var talkers = [];
+							talkers = talks.map(function (talk) {
+								 return (talk.username1 == login) ? talk.username2 : talk.username1;
+							});
+							console.log("talkers", talkers);
+							res.json({"status":"success", "data":talkers});
+						})
+					} else {
+						res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
+					}
+				});
+		});
+	} else {
+		res.json({"status":"error", "msg":"Missing login"});
+	}
+});
+
+/* GET user. */
+/* Todo not sending password */
+router.post('/all_talks', function(req, res, next) {
+
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+			var username = decoded.username
+				TalkModel.getUserTalks(username, function(err, talks, fields) {
+							var talkers = [];
+							talkers = talks.map(function (talk) {
+								 return (talk.username1 == username) ? talk.username2 : talk.username1;
+							});
+							console.log("talkers", talkers);
+							res.json({"status":"success", "data":talkers});
+						});
+				});
+	} else {
+		res.json({"status":"error", "msg":"Missing login"});
+	}
+});
+
+/* GET user. */
+/* Todo not sending password */
+router.post('/current_user/:login', function(req, res, next) {
+
+	var login = req.params.login;
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token && login) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+				UsersModel.getUserWithLogin(login, function(err, users, fields) {
+					if (users) {
+						console.log("User ", users[0]);
+						user = users[0];
+						LikesModel.getLikeFromUsers(decoded.username, login, function(err, likes, fields) {
+							console.log("getting like", likes);
+							usersTab = [decoded.username, login].sort();
+							TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
+							userToSend = {};
+							userToSend.login = user.login;
+							userToSend.gender = user.gender;
+							userToSend.bio = user.bio;
+							userToSend.liked = (likes.length > 0) ? true : false;
+							if (talks.length > 0) {
+								userToSend.talk = talks[0].id;
+							}
+							console.log("usertosend", userToSend);
+							res.json({"status":"success", "data":userToSend});
+							});
+						});
 					} else {
 						res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
 					}
@@ -108,6 +183,7 @@ router.get('/user/:login/emailverif', function(req, res, next) {
 	}
 });
 
+
 /* REMOVE user. */
 router.post('/delete_user', function(req, res, next) {
 
@@ -128,6 +204,69 @@ router.post('/delete_user', function(req, res, next) {
 			} else {
 				res.json({"status":"error", "msg": "unauthorize"});
 			}
+		});
+	} else {
+		res.json({"status":"error"});
+	}
+});
+
+/* Talk user. */
+router.post('/talk/:login', function(req, res, next) {
+
+	var username = req.params.login;
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token && username) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+			usersTab = [decoded.username, username].sort();
+			TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
+					if (talks.length > 0) {
+						TalkModel.getTalkMessages(talks[0].id, function(err, mess, fields) {
+							res.json({"status":"success", "data":mess});
+						});
+					} else {
+						TalkModel.newTalk(usersTab[0], usersTab[1], function(err, rows, fields) {
+							res.json({"status":"success", "data":[]});
+						});
+					}
+		});
+	});
+	} else {
+		res.json({"status":"error"});
+	}
+});
+
+/* Like or unlike user. */
+router.post('/toggle_like', function(req, res, next) {
+
+	var username = req.body.username;
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token && username) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+				LikesModel.getLikeFromUsers(decoded.username, username, function(err, rows, fields) {
+					if (rows[0]) {
+						console.log("Already liked", rows);
+						LikesModel.unLike(decoded.username, username, function(err, rows, fields) {
+							if (rows) {
+								res.json({"status":"success", "msg":"unliked"});
+							} else {
+								console.log("error when unliking");
+								res.json({"status":"error"});
+							}
+						});
+					} else {
+						console.log("Not liked yet", rows);
+						LikesModel.like(decoded.username, username, function(err, rows, fields) {
+							if (rows) {
+								res.json({"status":"success", "msg":"liked"});
+							} else {
+								console.log("error when liking");
+								res.json({"status":"error"});
+							}
+						});
+					}
+				});
 		});
 	} else {
 		res.json({"status":"error"});

@@ -7,7 +7,8 @@ type Route
     = Connect LoginRoute
     | UsersRoute
     | UserRoute String
-    | Chat
+    | ChatsRoute
+    | ChatRoute String
     | Account
     | Members
     | NotFoundRoute
@@ -22,10 +23,18 @@ type alias Model =
     , loginForm: Form
     , newUserForm : Form
     , users : List User
-    , current_user : Maybe User
+    , current_user : Maybe CurrentUser
+    , current_talk : Maybe Talk
     , message : Maybe String
     }
 
+type alias Talk = List Message
+
+type alias Message =
+  { date : String
+  , message : String
+  , user : String
+  }
 
 type alias Session =
     { user : User
@@ -76,6 +85,15 @@ type alias User =
     , gender : Maybe Gender
     , intIn : Maybe Gender
     , bio : String
+    , talks : List String
+    }
+
+type alias CurrentUser =
+    { username : String
+    , gender : Maybe Gender
+    , bio : String
+    , liked : Bool
+    , talk_id : Maybe Int
     }
 
 type Gender
@@ -166,5 +184,6 @@ initialModel route =
     , newUserForm = initFastNewUserForm
     , users = []
     , current_user = Nothing
+    , current_talk = Nothing
     , message = Nothing
     }

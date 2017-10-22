@@ -28,6 +28,10 @@ update msg model =
                           let
                             newModel = { model | session = Just <| Session u token }
                             cmd = case model.route of
+                                  ChatRoute a ->
+                                    case newModel.session of
+                                        Just s -> getTalk a s.token
+                                        _ -> Navigation.newUrl "/#/login"
                                   Members ->
                                     case newModel.session of
                                         Just s -> getUsers s.user.username s.token
@@ -38,7 +42,7 @@ update msg model =
                                           _ -> Navigation.newUrl "/#/login"
                                   UserRoute a ->
                                       case newModel.session of
-                                          Just s -> getUser a s.token
+                                          Just s -> getCurrentUser a s.token
                                           _ -> Navigation.newUrl "/#/login"
                                   _ -> Cmd.none
                               in
@@ -53,11 +57,22 @@ update msg model =
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
-                                ( { model | current_user = Just u }, Cmd.none )
+                                ( model, Cmd.none )
                         _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
+
+        CurrentUserResponse response ->
+          case Debug.log "response currentUser" response of
+              Success rep ->
+                  case (rep.status == "success", rep.data) of
+                      (True, Just u) ->
+                              ( { model | current_user = Just u }, Cmd.none )
+                      _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
+              _ ->
+                  ( model
+                  , Navigation.newUrl "/#/login" )
 
         NewUserResponse response ->
             case Debug.log "resp" response of
@@ -83,17 +98,32 @@ update msg model =
                 _ ->
                     ( model, Navigation.newUrl "/#/login" )
 
+        ToggleLikeResponse username response ->
+            case Debug.log "resp" response of
+                Success rep ->
+                    case rep.status of
+                        "success" ->
+                            let
+                              newCurrentUser =
+                                case model.current_user of
+                                  Just u -> Just { u | liked = (rep.message == Just "liked") }
+                                  _ -> Nothing
+                            in
+                            ( { model  | current_user = newCurrentUser }, Cmd.none )
+                        _ -> ( model, Navigation.newUrl "/#/login")
+                _ ->
+                    ( model, Navigation.newUrl "/#/login" )
+
         LoginResponse response ->
             case Debug.log "Login response" response of
                 Success rep ->
                     case (rep.status == "success", rep.token, rep.user) of
                         (True, Just t, Just user) ->
                             let
-                                token = t
-                                session = Just <| Session user token
+                                session = Just <| Session user t
                             in
                             ( { model | session = session, loginForm = initLoginForm }
-                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user.username,token] ]
+                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user.username,t] ]
                             )
                         _ ->
                             ( { model | message = rep.message }, Navigation.newUrl "/#/login")
@@ -101,6 +131,38 @@ update msg model =
                     ( model
                     , Navigation.newUrl "/#/login"
                     )
+
+        GetTalkResponse response ->
+          case Debug.log "response talk" response of
+              Success rep ->
+                  case (rep.status == "success", rep.data) of
+                      (True, talk) ->
+                              ( { model | current_talk = talk } , Cmd.none )
+                      _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
+              _ ->
+                  ( model
+                  , Navigation.newUrl "/#/login" )
+
+        GetTalksResponse response ->
+          case Debug.log "response talk" response of
+              Success rep ->
+                  case (rep.status == "success", rep.data) of
+                      (True, Just talks) ->
+                              let
+                                newSess = case model.session of
+                                  Just s ->
+                                    let
+                                      user = s.user
+                                      newUser = { user | talks = talks }
+                                    in
+                                      Just { s | user = newUser }
+                                  _ -> Nothing
+                              in
+                                ( { model | session = newSess } , Cmd.none )
+                      _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
+              _ ->
+                  ( model
+                  , Navigation.newUrl "/#/login" )
 
         Logout ->
             ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
@@ -123,6 +185,14 @@ update msg model =
                     parseLocation location
 
                 cmd = case newRoute of
+                    ChatsRoute ->
+                      case model.session of
+                          Just s -> getTalks s.token
+                          _ -> Navigation.newUrl "/#/login"
+                    ChatRoute a ->
+                      case model.session of
+                          Just s -> getTalk a s.token
+                          _ -> Navigation.newUrl "/#/login"
                     Members ->
                       case model.session of
                           Just s -> getUsers s.user.username s.token
@@ -133,7 +203,7 @@ update msg model =
                             _ -> Navigation.newUrl "/#/login"
                     UserRoute a ->
                         case model.session of
-                            Just s -> getUser a s.token
+                            Just s -> getCurrentUser a s.token
                             _ -> Navigation.newUrl "/#/login"
                     _ -> Cmd.none
             in
@@ -182,6 +252,11 @@ update msg model =
           case model.session of
             Just s -> (model, deleteUser username s.token)
             _ -> (model, Navigation.newUrl "/#/login")
+
+        ToggleLike username ->
+            case model.session of
+              Just s -> (model, toggleLike username s.token)
+              _ -> (model, Navigation.newUrl "/#/login")
 
         Localize ->
             (model, localize ())
