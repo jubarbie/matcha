@@ -15,6 +15,7 @@ type Msg
     | ToggleLikeResponse String (WebData (ApiResponse (Maybe User)))
     | GetTalkResponse (WebData (ApiResponse (Maybe (List Message))))
     | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
+    | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -26,3 +27,6 @@ type Msg
     | Localize
     | GoBack Int
     | ToggleLike String
+    | UpdateNewMessage String
+    | SendNewMessage
+    | NewMessage String

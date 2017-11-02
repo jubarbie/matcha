@@ -11,6 +11,21 @@ import Ports exposing (..)
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
+        Logout ->
+            ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
+
+        SaveToken session ->
+            let cmd =
+                case Debug.log "session" session of
+                    [user, token] ->
+                        if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then
+                            getProfile user token
+                        else
+                             Cmd.none
+                    _ -> Cmd.none
+            in
+                (model, cmd)
+
         UsersResponse response ->
             case response of
                 Success users ->
@@ -69,7 +84,7 @@ update msg model =
                   case (rep.status == "success", rep.data) of
                       (True, Just u) ->
                               ( { model | current_user = Just u }, Cmd.none )
-                      _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
+                      _ -> ( { model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
               _ ->
                   ( model
                   , Navigation.newUrl "/#/login" )
@@ -123,7 +138,7 @@ update msg model =
                                 session = Just <| Session user t
                             in
                             ( { model | session = session, loginForm = initLoginForm }
-                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [user.username,t] ]
+                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [ user.username,t ] ]
                             )
                         _ ->
                             ( { model | message = rep.message }, Navigation.newUrl "/#/login")
@@ -137,8 +152,13 @@ update msg model =
               Success rep ->
                   case (rep.status == "success", rep.data) of
                       (True, talk) ->
-                              ( { model | current_talk = talk } , Cmd.none )
-                      _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
+                          let ctalk =
+                            case (talk, model.route) of
+                              (Just t, ChatRoute u ) -> Just <| Talk t u ""
+                              _ -> Nothing
+                            in
+                              ( { model | current_talk = ctalk } , Cmd.none )
+                      _ -> ( { model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
               _ ->
                   ( model
                   , Navigation.newUrl "/#/login" )
@@ -164,20 +184,21 @@ update msg model =
                   ( model
                   , Navigation.newUrl "/#/login" )
 
-        Logout ->
-            ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
-
-        SaveToken session ->
-            let cmd =
-                case Debug.log "session" session of
-                    [user, token] ->
-                        if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then
-                            getProfile user token
-                        else
-                             Cmd.none
-                    _ -> Cmd.none
-            in
-                (model, cmd)
+        NewMessageResponse response ->
+          case Debug.log "response new message" response of
+              Success rep ->
+                  case rep.status == "success" of
+                      True ->
+                        let
+                          newTalk =
+                            case model.current_talk of
+                              Just t -> Just { t | messages = ( (Message "date" t.new_message "user") :: t.messages ), new_message = "" }
+                              _ -> Nothing
+                        in
+                          ( { model | current_talk = newTalk }, Cmd.none )
+                      _ -> ( model , Cmd.none )
+              _ ->
+                  ( { model | message = Just "Error while sending new message. Try again baby" }, Cmd.none )
 
         OnLocationChange location ->
             let
@@ -261,6 +282,24 @@ update msg model =
         Localize ->
             (model, localize ())
 
+        UpdateNewMessage msg ->
+          let
+            newTalk =
+              case model.current_talk of
+                Just t -> Just { t | new_message = msg }
+                _ -> Nothing
+          in
+            ( { model | current_talk = newTalk } , Cmd.none)
+
+        SendNewMessage ->
+          case ( model.session, model.current_talk ) of
+            ( Just s, Just t ) ->
+              ( model, sendMessage s.token t.username_with t.new_message )
+            _ ->
+              ( model, Cmd.none )
+
+        NewMessage str ->
+          ( { model | message = Just str }, Cmd.none )
 
 updateInput : Form -> String -> Maybe String -> Form
 updateInput form id value =

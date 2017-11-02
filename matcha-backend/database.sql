@@ -9,17 +9,17 @@ CREATE TABLE IF NOT EXISTS `message` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `id_talk` int(6) NOT NULL,
   `username` varchar(255) DEFAULT NULL,
-  `date` timestamp NULL DEFAULT NULL,
+  `date` varchar(200) NOT NULL,
   `message` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `talk` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `username1` varchar(255) DEFAULT NULL,
   `username2` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -34,15 +34,33 @@ CREATE TABLE IF NOT EXISTS `user` (
   `activated` varchar(255) DEFAULT NULL,
   `rights` int(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (106,'undefined','tincidunt');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (108,'jubarbie','tincidunt');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (110,'jubarbie','facilisis');
 
-
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (113,106,'jubarbie','1509631495783','oui\n');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (114,106,'jubarbie','1509631520915','<script>alert(\'oui\');</script>');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (115,106,'jubarbie','1509631663195','yo\n');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (116,106,'jubarbie','1509631667443','bien ?');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (117,106,'jubarbie','1509631762982','oui et toi ?');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (118,106,'jubarbie','1509636891310','ca va oui merci');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (119,106,'jubarbie','1509637551109','yo');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (120,106,'jubarbie','1509640806902','test');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (121,106,'jubarbie','1509640833994','test\n');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (122,106,'jubarbie','1509640943401','test');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (123,106,'jubarbie','1509641014002','love you');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (124,106,'jubarbie','1509641037178','test');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (125,106,'jubarbie','1509641043318','test');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (126,106,'jubarbie','1509641129634','YoYoyoyo');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (127,106,'jubarbie','1509641312117','love you');
+INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (128,106,'marchall','1509641328395','hahah');
 
 INSERT INTO `talk` (`id`,`username1`,`username2`) VALUES (105,'jubarbie','tincidunt');
+INSERT INTO `talk` (`id`,`username1`,`username2`) VALUES (106,'jubarbie','marchall');
+INSERT INTO `talk` (`id`,`username1`,`username2`) VALUES (107,'Aenean','jubarbie');
+INSERT INTO `talk` (`id`,`username1`,`username2`) VALUES (108,'marchall','marchall');
 
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (14,'tincidunt','KBI60RZD5FU','Signe','Quin','euismod.in@fringillacursuspurus.edu','F','F','a neque. Nullam ut nisi a odio semper cursus. Integer mollis. Integer tincidunt aliquam arcu. Aliquam ultrices iaculis odio. Nam interdum enim non nisi. Aenean eget metus. In nec orci. Donec nibh. Quisque nonummy ipsum non arcu. Vivamus sit amet risus. Donec egestas. Aliquam nec enim. Nunc ut erat. Sed nunc est, mollis non, cursus non, egestas a, dui. Cras pellentesque. Sed dictum. Proin eget odio. Aliquam vulputate ullamcorper magna. Sed eu eros. Nam consequat dolor vitae dolor. Donec fringilla. Donec feugiat metus sit amet ante. Vivamus non lorem vitae odio sagittis semper. Nam tempor diam dictum sapien. Aenean massa. Integer vitae nibh. Donec est mauris, rhoncus id, mollis nec, cursus a, enim. Suspendisse aliquet, sem ut cursus luctus, ipsum leo elementum sem, vitae aliquam eros','activated',1);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (16,'Aenean','MTG37IIL0KU','Bruce','Leroy','mollis@orciadipiscingnon.ca','M','F','nec luctus felis purus ac tellus. Suspendisse sed dolor. Fusce mi lorem, vehicula et, rutrum eu, ultrices sit amet, risus. Donec nibh enim, gravida sit amet, dapibus id, blandit at, nisi. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vel nisl. Quisque fringilla euismod enim. Etiam gravida molestie arcu. Sed eu nibh vulputate mauris sagittis placerat. Cras dictum ultricies ligula. Nullam enim. Sed nulla ante, iaculis nec, eleifend non, dapibus rutrum, justo. Praesent luctus. Curabitur egestas nunc sed libero. Proin sed turpis nec mauris blandit mattis. Cras eget nisi dictum augue malesuada malesuada. Integer id magna et ipsum cursus vestibulum. Mauris','activated',1);
@@ -123,3 +141,4 @@ INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`in
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (99,'arcu.','LXF21APG8WR','Olympia','Cheyenne','egestas@idliberoDonec.co.uk','M','F','nonummy. Fusce fermentum fermentum arcu. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere','activated',1);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (100,'ipsum','MFA12BKM0HW','Xander','Matthew','cursus.et.eros@liberoat.ca','F','F','vel est tempor bibendum. Donec felis orci, adipiscing non, luctus sit amet, faucibus ut, nulla. Cras eu tellus eu augue porttitor interdum. Sed auctor odio a purus. Duis elementum, dui quis accumsan convallis, ante lectus convallis est,','activated',1);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (101,'jubarbie','$2a$10$vtdJOptKqDxpfK.nO5t7xO2hR4/vojekgQe.XBazhqXWsDlTWs97S','Jules','Barbier','jubarbie@student.42.fr','M','M','I\'m the administrator of this app','activated',0);
+INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`) VALUES (105,'marchall','$2a$10$otYZIoZ6RazrStSZ9U56DODgjk56SL1DHjx3nnYY53xp.chph6AWK','','','jules.barbier.fr@gmail.com','','','','activated',1);

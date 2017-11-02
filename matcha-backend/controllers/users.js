@@ -56,8 +56,7 @@ router.post('/all_users', function(req, res, next) {
 });
 
 
-/* GET user. */
-/* Todo not sending password */
+/* GET user */
 router.post('/user/:login', function(req, res, next) {
 
 	var login = req.params.login;
@@ -67,14 +66,16 @@ router.post('/user/:login', function(req, res, next) {
 		jwt.verify(token, config.secret, function(err, decoded) {
 				UsersModel.getUserWithLogin(login, function(err, rows, fields) {
 					if (rows) {
-						console.log("User ", rows[0]);
+						user = rows[0];
 						TalkModel.getUserTalks(login, function(err, talks, fields) {
 							var talkers = [];
 							talkers = talks.map(function (talk) {
 								 return (talk.username1 == login) ? talk.username2 : talk.username1;
 							});
-							console.log("talkers", talkers);
-							res.json({"status":"success", "data":talkers});
+							console.log("Talkers ", talkers);
+							user.talks = talkers
+							console.log("User ", user);
+							res.json({"status":"success", "data":user});
 						})
 					} else {
 						res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
@@ -86,31 +87,7 @@ router.post('/user/:login', function(req, res, next) {
 	}
 });
 
-/* GET user. */
-/* Todo not sending password */
-router.post('/all_talks', function(req, res, next) {
-
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-	if (token) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-			var username = decoded.username
-				TalkModel.getUserTalks(username, function(err, talks, fields) {
-							var talkers = [];
-							talkers = talks.map(function (talk) {
-								 return (talk.username1 == username) ? talk.username2 : talk.username1;
-							});
-							console.log("talkers", talkers);
-							res.json({"status":"success", "data":talkers});
-						});
-				});
-	} else {
-		res.json({"status":"error", "msg":"Missing login"});
-	}
-});
-
-/* GET user. */
-/* Todo not sending password */
+/* GET user */
 router.post('/current_user/:login', function(req, res, next) {
 
 	var login = req.params.login;
@@ -149,7 +126,7 @@ router.post('/current_user/:login', function(req, res, next) {
 });
 
 
-/* GET user. */
+/* Verify email */
 router.get('/user/:login/emailverif', function(req, res, next) {
 
 	var login = req.params.login;
@@ -205,32 +182,6 @@ router.post('/delete_user', function(req, res, next) {
 				res.json({"status":"error", "msg": "unauthorize"});
 			}
 		});
-	} else {
-		res.json({"status":"error"});
-	}
-});
-
-/* Talk user. */
-router.post('/talk/:login', function(req, res, next) {
-
-	var username = req.params.login;
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-	if (token && username) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-			usersTab = [decoded.username, username].sort();
-			TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
-					if (talks.length > 0) {
-						TalkModel.getTalkMessages(talks[0].id, function(err, mess, fields) {
-							res.json({"status":"success", "data":mess});
-						});
-					} else {
-						TalkModel.newTalk(usersTab[0], usersTab[1], function(err, rows, fields) {
-							res.json({"status":"success", "data":[]});
-						});
-					}
-		});
-	});
 	} else {
 		res.json({"status":"error"});
 	}

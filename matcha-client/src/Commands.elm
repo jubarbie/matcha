@@ -1,6 +1,8 @@
 module Commands exposing (..)
 
 import Http
+import Task
+import Time
 import Json.Decode as JsonDec exposing (..)
 import Json.Encode as JsonEnc exposing (..)
 import RemoteData exposing (..)
@@ -56,7 +58,7 @@ decodeMessage =
   JsonDec.map3 Message
   (at ["date"] JsonDec.string)
   (at ["message"] JsonDec.string)
-  (at ["user"] JsonDec.string)
+  (at ["username"] JsonDec.string)
 
 decodeUser : Decoder User
 decodeUser =
@@ -220,7 +222,7 @@ getTalk username token =
           Http.jsonBody <| JsonEnc.object
           [ ("token", JsonEnc.string token) ]
   in
-      Http.post ("http://localhost:3001/api/users/talk/" ++ username) body (decodeApiResponse <| Just talkDecoder )
+      Http.post ("http://localhost:3001/api/talks/talk/" ++ username) body (decodeApiResponse <| Just talkDecoder )
       |> RemoteData.sendRequest
       |> Cmd.map GetTalkResponse
 
@@ -231,6 +233,20 @@ getTalks token =
           Http.jsonBody <| JsonEnc.object
           [ ("token", JsonEnc.string token) ]
   in
-      Http.post "http://localhost:3001/api/users/all_talks/" body (decodeApiResponse <| Just decodeTalks )
+      Http.post "http://localhost:3001/api/talks/all_talks/" body (decodeApiResponse <| Just decodeTalks )
       |> RemoteData.sendRequest
       |> Cmd.map GetTalksResponse
+
+sendMessage : String -> String -> String -> Cmd Msg
+sendMessage token username message =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("username", JsonEnc.string username)
+          , ("message", JsonEnc.string message)
+          ]
+  in
+      Http.post "http://localhost:3001/api/talks/new_message/" body (decodeApiResponse <| Just talkDecoder )
+      |> RemoteData.sendRequest
+      |> Cmd.map GetTalkResponse

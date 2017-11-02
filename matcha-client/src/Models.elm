@@ -28,7 +28,11 @@ type alias Model =
     , message : Maybe String
     }
 
-type alias Talk = List Message
+type alias Talk =
+  { messages : List Message
+  , username_with : String
+  , new_message : String
+  }
 
 type alias Message =
   { date : String
