@@ -37,17 +37,17 @@ view401 : Html msg
 view401 =
     div []
         [ text "401 page non trouvée"
-        , a [ href "http://localhost:3000/#/users" ] [ text "Retourner a l'accueil" ]
+        , a [ href "http://localhost:3000/#/users" ] [ text "Back to homepage" ]
         ]
 
 viewMenu : Route -> Html Msg
 viewMenu route =
     nav [ class "navbar" ]
     [ ul [ class "navbar-list" ]
-        [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "PARCOURIR" ] ]
+        [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
         , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
-        , li [ getMenuClass Account route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MON COMPTE" ] ]
-        , li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "LES MEMBRES" ] ]
+        , li [ getMenuClass Account route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
+        , li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "MEMBERS" ] ]
         , li [ class "u-pull-right", onClick Logout ] [ text "LOGOUT"  ]
         ]
     ]

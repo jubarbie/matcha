@@ -26,32 +26,30 @@ router.post('/all_users', function(req, res, next) {
 		jwt.verify(token, config.secret, function(err, decoded) {
 			if (err) {
 				console.log('Error while verif');
-				res.status(403);
-				res.json({ success: false, message: 'Failed to authenticate token.' });
+				res.status(403).json({ "status":"error", "msg": 'Failed to authenticate token' });
 			} else {
-
-				UsersModel.getAllUsers(function(err, rows, fields) {
-					if (!err) {
-						console.log('Getting all users');
-						var users = rows.map(function (user) {
-							user.talks = [];
-							return user;
-						});
-						res.json(users);
-					}
-					else
-						console.log('Error while getting all users', err);
-				});
+					UsersModel.getUserWithLogin(decoded.username, function(err, logged, fields) {
+						if (!err && logged.length > 0 && logged[0].rights == 0) {
+							UsersModel.getAllUsers(function(err, rows, fields) {
+								if (!err) {
+									console.log('Getting all users');
+									var users = rows.map(function (user) {
+										user.talks = [];
+										return user;
+									});
+									res.json(users);
+								}
+								else
+									res.status(500).json({"status":"error"});
+							});
+						} else {
+							res.status(401).json({ "status":"error", "msg": "Not authorized user" });
+						}
+					});
 			}
 		});
-
 	} else {
-
-		res.status(403).send({
-			success: false,
-			message: 'No token provided.'
-		});
-
+		res.status(403).send({'status': 'error', 'msg': 'No token provided'});
 	}
 });
 
@@ -108,9 +106,7 @@ router.post('/current_user/:login', function(req, res, next) {
 							userToSend.gender = user.gender;
 							userToSend.bio = user.bio;
 							userToSend.liked = (likes.length > 0) ? true : false;
-							if (talks.length > 0) {
-								userToSend.talk = talks[0].id;
-							}
+							userToSend.has_talk = (talks.length > 0) ? true : false;
 							console.log("usertosend", userToSend);
 							res.json({"status":"success", "data":userToSend});
 							});
@@ -140,7 +136,7 @@ router.get('/user/:login/emailverif', function(req, res, next) {
 				switch(activated) {
 				    case token:
 				        UsersModel.activatedUserWithLogin(login, function(err, rows, fields) {
-							if (rows) { res.send('Email verified. You can now <a href="localhost:3000">login</a>'); }
+							if (rows) { res.send('Email verified. You can now <a href="http://localhost:3000">login</a>'); }
 							else { res.send('A problem occured, please try again'); }
 						});
 				        break;
@@ -169,18 +165,19 @@ router.post('/delete_user', function(req, res, next) {
 
 	if (token && username) {
 		jwt.verify(token, config.secret, function(err, decoded) {
-			if (decoded.rights == 0) {
-				UsersModel.deleteUser(username, function(err, rows, fields) {
-					if (rows) {
-						console.log("User ", rows);
-						res.json({"status":"success"});
-					} else {
-						res.json({"status":"error", "msg":"User " + username + " doesn't exists"});
-					}
-				});
-			} else {
-				res.json({"status":"error", "msg": "unauthorize"});
-			}
+			UsersModel.getUserWithLogin(decoded.username, function (err, rows, fields) {
+				if (rows.length > 0 && rows[0].rights == 0) {
+					UsersModel.deleteUser(username, function(err, results, fields) {
+						if (results) {
+							res.json({"status":"success"});
+						} else {
+							res.json({"status":"error", "msg":"User " + username + " doesn't exists"});
+						}
+					});
+				} else {
+					res.json({"status":"error", "msg": "unauthorize"});
+				}
+			});
 		});
 	} else {
 		res.json({"status":"error"});
@@ -255,7 +252,8 @@ router.post('/newfast', [
 			res.json({"status":"error", "msg":"Login already used"});
 		} else {
 			var user = buildUserFromRequest(req);
-			UsersModel.insertUser(user, function(err, rows, fields) {
+			var now = Date.now();
+			UsersModel.insertUser(user, now, function(err, rows, fields) {
 				if (!err) {
 					console.log('User inserted');
 					nodemailer.createTestAccount((err, account) => {
@@ -316,7 +314,8 @@ router.post('/new', [
 		res.status(422).json({"status":"error", "msg":error});
 	}
 	var user = buildUserFromRequest(req);
-	UsersModel.insertUser(user, function(err, rows, fields) {
+	var now = Date.now();
+	UsersModel.insertUser(user, now, function(err, rows, fields) {
 		if (!err) {
 			console.log('User inserted');
 			nodemailer.createTestAccount((err, account) => {

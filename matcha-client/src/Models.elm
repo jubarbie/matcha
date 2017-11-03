@@ -17,6 +17,11 @@ type LoginRoute
     = Login
     | Signin
 
+type MapState
+  = NoMap
+  | Loading
+  | Rendered
+
 type alias Model =
     { route : Route
     , session : Maybe Session
@@ -26,6 +31,7 @@ type alias Model =
     , current_user : Maybe CurrentUser
     , current_talk : Maybe Talk
     , message : Maybe String
+    , map_state : MapState
     }
 
 type alias Talk =
@@ -97,7 +103,7 @@ type alias CurrentUser =
     , gender : Maybe Gender
     , bio : String
     , liked : Bool
-    , talk_id : Maybe Int
+    , has_talk : Bool
     }
 
 type Gender
@@ -119,13 +125,13 @@ initLoginForm =
 initNewUserForm : Form
 initNewUserForm =
        [ initInput "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
-       , initInput "text" "Prénom" "fname" (Just <| TextValidator 2 255) Nothing
-       , initInput "text" "Nom" "lname" (Just <| TextValidator 2 255) Nothing
+       , initInput "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
+       , initInput "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
        , initInput "text" "Email" "email" (Just EmailValidator) Nothing
-       , initInput "password" "Mot de passe" "pwd" (Just PasswordValidator) (Just "Minimum 6 caractère dont au moins un chiffre")
-       , initInput "password" "Confirmation mot de passe" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Retaper le même mot de passe")
-       , initInput "text" "Genre" "gender" (Just GenderValidator) Nothing
-       , initInput "text" "Intéressé par" "int_in" (Just GenderValidator) Nothing
+       , initInput "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars and 1 number")
+       , initInput "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-type your password")
+       , initInput "text" "Gender" "gender" (Just GenderValidator) Nothing
+       , initInput "text" "Interested in" "int_in" (Just GenderValidator) Nothing
        , initInput "text" "Bio" "bio" Nothing Nothing
        ]
 
@@ -133,8 +139,8 @@ initFastNewUserForm : Form
 initFastNewUserForm =
        [ initInput "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
        , initInput "text" "Email" "email" (Just EmailValidator) Nothing
-       , initInput "password" "Mot de passe" "pwd" (Just PasswordValidator) (Just "Minimum 6 caractère dont au moins un chiffre")
-       , initInput "password" "Confirmation mot de passe" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Retaper le même mot de passe")
+       , initInput "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars and 1 number")
+       , initInput "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-type your password")
        ]
 
 validEmail : Maybe String -> FormStatus
@@ -147,7 +153,7 @@ validPassword : Maybe String -> FormStatus
 validPassword value =
     case value of
         Nothing -> Waiting
-        Just a -> if contains (regex "\\d") a && String.length a >= 6 then Valid a else NotValid "Should be at least 6 char and 1 number"
+        Just a -> if contains (regex "\\d") a && String.length a >= 6 then Valid a else NotValid "Should be at least 6 chars and 1 number"
 
 validConfirmPassword : Input -> Maybe String -> FormStatus
 validConfirmPassword inp value =
@@ -190,4 +196,5 @@ initialModel route =
     , current_user = Nothing
     , current_talk = Nothing
     , message = Nothing
+    , map_state = if route == Account then Loading else NoMap
     }

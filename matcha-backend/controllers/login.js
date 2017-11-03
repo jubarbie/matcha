@@ -19,9 +19,11 @@ apiRoutes.post('/', (req, res, next) => {
 			var user = rows[0];
 			if (user == undefined || bcrypt.compareSync(pwd, user.password) == false) {
 				console.log("Mauvais mot de passe");
-				res.json({"status":"error", "msg":"Le login ou le mot de passe n'est pas correct"});
+				res.json({"status":"error", "msg":"Incorrect login or password"});
+			} else if (user.activated != "activated") {
+				res.json({"status":"error", "msg":"You must activate your email"});
 			} else {
-				var token = jwt.sign({"rights": user.rights, "username": user.login}, config.secret, {
+				var token = jwt.sign({"username": user.login}, config.secret, {
 					expiresIn: "1 day"
 				});
 				user.talks = [];

@@ -9,43 +9,43 @@ import Msgs exposing (..)
 
 view : LoginRoute -> Model -> Html Msg
 view route model =
-    let msg = 
+    let msg =
         case model.message of
         Just msg -> msg
         _ -> ""
-    in 
+    in
     div []
-    [ div [][text msg]
-    , (case route of 
-        Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
-        Signin -> Html.Keyed.node "sign" [] [("div", viewNewUserForm model)])
-    ]
+        [ div [][text msg]
+        , (case route of
+            Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
+            Signin -> Html.Keyed.node "sign" [] [("div", viewNewUserForm model)])
+        ]
 
 viewLoginForm : Model -> Html Msg
 viewLoginForm model =
     div [] <| List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
         ++ [ button [onClick SendLogin ][ text "Connection" ]
             , div [ class "row" ]
-            [ div [class "twelve columns"] 
-            [ a [ href "#/signin" ][ text "Créer un compte" ] ]
+            [ div [class "twelve columns"]
+            [ a [ href "#/signin" ][ text "Create new account" ] ]
             ]
-        ] 
+        ]
 
 viewNewUserForm : Model -> Html Msg
 viewNewUserForm model =
         div [] <| List.map (\i -> viewInput (UpdateNewUserForm i.id) i) model.newUserForm
-        ++ 
-        [ button [onClick NewUser ][ text "Créer" ] 
+        ++
+        [ button [onClick NewUser ][ text "Sign in" ]
         , div [ class "row" ]
-        [ div [class "twelve columns"] 
-        [ a [ href "#/login" ][ text "J'ai déjà un compte" ] ]
-        ]
+        [ div [class "twelve columns"]
+              [ a [ href "#/login" ][ text "I already have an account" ] ]
+              ]
         ]
 
 viewInput : (String -> Msg) -> Input -> Html Msg
 viewInput mess i =
-    let 
-        inputClass = case i.status of 
+    let
+        inputClass = case i.status of
             NotValid err -> "input input-error"
             Valid a -> "input input-success"
             Waiting -> "input"

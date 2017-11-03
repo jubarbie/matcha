@@ -4,6 +4,7 @@ var jwt = require('jsonwebtoken');
 
 var config = require('../config');
 var TalkModel = require('../models/talk_model');
+var UserModel = require('../models/users_model');
 
 /* GET user. */
 /* Todo not sending password */
@@ -31,12 +32,12 @@ router.post('/all_talks', function(req, res, next) {
 /* Talk user. */
 router.post('/talk/:login', function(req, res, next) {
 
-	var username = req.params.login;
+	var userTo = req.params.login;
 	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-	if (token && username) {
+	if (token && userTo) {
 		jwt.verify(token, config.secret, function(err, decoded) {
-			usersTab = [decoded.username, username].sort();
+			usersTab = [decoded.username, userTo].sort();
 			TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
 					if (talks.length > 0) {
 						console.log("talk found", talks);
@@ -45,8 +46,14 @@ router.post('/talk/:login', function(req, res, next) {
 							res.json({ "status":"success", "data":mess });
 						});
 					} else {
-						TalkModel.newTalk(usersTab[0], usersTab[1], function(err, rows, fields) {
-							res.json({ "status":"success", "data":[]} );
+						UserModel.getUserWithLogin(userTo, function(err, rows, fields) {
+							if (rows.length > 0) {
+								TalkModel.newTalk(usersTab[0], usersTab[1], function(err, rows, fields) {
+									res.json({ "status":"success", "data":[]} );
+								});
+							} else {
+								res.json({"status":"error","msg":"Unknown user"});
+							}
 						});
 					}
 		});

@@ -17,9 +17,11 @@ view model =
 viewUser : CurrentUser -> Html Msg
 viewUser user =
   let
-    talkTxt = case user.talk_id of
-      Just t -> "Open talk"
-      _ -> "New talk"
+    talkTxt =
+      if user.has_talk then
+        "Open talk"
+      else
+        "New talk"
   in
     div []
         [ button [ onClick <| GoBack 1 ][ text "Back" ]

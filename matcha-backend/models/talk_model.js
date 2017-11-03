@@ -25,4 +25,8 @@ model.getTalkMessages = function(id, cb) {
 	connection.query('SELECT * FROM message INNER JOIN talk ON talk.id=message.id_talk WHERE talk.id="' + id + '" ORDER BY message.date DESC LIMIT 50', cb);
 };
 
+model.removeTalk = function(id, cb) {
+	connection.query('DELETE FROM message WHERE talk_id=' + id + '; DELETE FROM talk WHERE id=' + id , cb);
+};
+
 module.exports = model;

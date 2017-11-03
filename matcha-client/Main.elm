@@ -3,12 +3,13 @@ module Main exposing (..)
 import Navigation exposing (Location)
 import Routing exposing (..)
 import WebSocket
+import Time
 
 import Views exposing (view)
 import Models exposing (..)
 import Msgs exposing (..)
 import Update exposing (..)
-import Ports exposing (getToken, tokenRecieved)
+import Ports exposing (getToken, tokenRecieved, localize, newLocalisation)
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -24,7 +25,16 @@ init location =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
+  let
+    sub =
+      case model.route of
+        ChatRoute a -> Time.every Time.second (FetchTalk a)
+        _ -> Sub.none
+  in
     Sub.batch [ tokenRecieved SaveToken
+              , newLocalisation SetNewLocalisation
+              , Sub.none
+              , Time.every Time.second LoadMap
               ]
 
 main : Program Never Model Msg

@@ -16,7 +16,7 @@ view model =
 viewUsers : List User -> Html Msg
 viewUsers users =
     div []
-        [ h1 [] [ text "Les membres" ]
+        [ h1 [] [ text "Members" ]
         , table [ class "u-full-width" ] <|
           [ thead []
              [ tr []

@@ -79,7 +79,7 @@ decodeCurrentUser =
   (maybe (at ["gender"] decodeGender))
   (at ["bio"] JsonDec.string)
   (at ["liked"] JsonDec.bool)
-  (maybe (at ["talk_id"] JsonDec.int))
+  (at ["has_talk"] JsonDec.bool)
 
 
 decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))

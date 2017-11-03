@@ -8,3 +8,4 @@ port localize : () -> Cmd msg
 
 -- In
 port tokenRecieved : (List String -> msg) -> Sub msg
+port newLocalisation : (List String -> msg) -> Sub msg

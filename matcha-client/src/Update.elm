@@ -7,6 +7,7 @@ import Msgs exposing (..)
 import Navigation exposing (..)
 import Commands exposing (..)
 import Ports exposing (..)
+import Task
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -151,9 +152,9 @@ update msg model =
           case Debug.log "response talk" response of
               Success rep ->
                   case (rep.status == "success", rep.data) of
-                      (True, talk) ->
+                      (True, mess) ->
                           let ctalk =
-                            case (talk, model.route) of
+                            case (mess, model.route) of
                               (Just t, ChatRoute u ) -> Just <| Talk t u ""
                               _ -> Nothing
                             in
@@ -205,30 +206,34 @@ update msg model =
                 newRoute =
                     parseLocation location
 
-                cmd = case newRoute of
+                ret = case newRoute of
                     ChatsRoute ->
                       case model.session of
-                          Just s -> getTalks s.token
-                          _ -> Navigation.newUrl "/#/login"
+                          Just s -> ( { model | route = newRoute }, getTalks s.token)
+                          _ -> ( model, Navigation.newUrl "/#/login")
                     ChatRoute a ->
                       case model.session of
-                          Just s -> getTalk a s.token
-                          _ -> Navigation.newUrl "/#/login"
+                          Just s -> ( { model | route = newRoute }, getTalk a s.token)
+                          _ -> (model, Navigation.newUrl "/#/login")
                     Members ->
                       case model.session of
-                          Just s -> getUsers s.user.username s.token
-                          _ -> Navigation.newUrl "/#/login"
+                          Just s -> ( { model | route = newRoute }, getUsers s.user.username s.token)
+                          _ -> (model, Navigation.newUrl "/#/login")
                     UsersRoute ->
                         case model.session of
-                            Just s -> getUsers s.user.username s.token
-                            _ -> Navigation.newUrl "/#/login"
+                            Just s -> ( { model | route = newRoute }, getUsers s.user.username s.token)
+                            _ -> ( model, Navigation.newUrl "/#/login")
                     UserRoute a ->
                         case model.session of
-                            Just s -> getCurrentUser a s.token
-                            _ -> Navigation.newUrl "/#/login"
-                    _ -> Cmd.none
+                            Just s -> ( { model | route = newRoute }, getCurrentUser a s.token)
+                            _ -> (model, Navigation.newUrl "/#/login")
+                    Account ->
+                        case model.session of
+                            Just s -> ( { model | route = newRoute, map_state = Models.Loading }, Cmd.none)
+                            _ -> ( model, Navigation.newUrl "/#/login")
+                    _ -> ( { model | route = newRoute }, Cmd.none)
             in
-                ( { model | route = newRoute }, cmd )
+                ret
 
         GoBack amount ->
           (model, Navigation.back amount)
@@ -300,6 +305,21 @@ update msg model =
 
         NewMessage str ->
           ( { model | message = Just str }, Cmd.none )
+
+        FetchTalk a t ->
+          case model.session of
+              Just s -> ( model, Cmd.none )
+              _ -> (model, Navigation.newUrl "/#/login")
+
+        LoadMap t ->
+          case model.map_state of
+              Models.Loading -> ( { model | map_state = Models.Rendered }, localize ())
+              _ -> (model, Cmd.none)
+
+        SetNewLocalisation loc ->
+         case Debug.log "new loc" loc of
+            [long, lat] -> (model, Cmd.none )
+            _ -> ( model, Cmd.none )
 
 updateInput : Form -> String -> Maybe String -> Form
 updateInput form id value =

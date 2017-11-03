@@ -3,6 +3,7 @@ module Msgs exposing (..)
 import RemoteData exposing (..)
 import Navigation exposing (..)
 import Models exposing (..)
+import Time
 
 type Msg
     = UsersResponse (WebData (List User))
@@ -19,6 +20,7 @@ type Msg
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
+    | SetNewLocalisation (List String)
     | UpdateNewUserForm String String
     | UpdateLoginForm String String
     | NewUser
@@ -30,3 +32,5 @@ type Msg
     | UpdateNewMessage String
     | SendNewMessage
     | NewMessage String
+    | FetchTalk String Time.Time
+    | LoadMap Time.Time
