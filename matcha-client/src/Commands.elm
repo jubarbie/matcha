@@ -4,10 +4,19 @@ import Http
 import Task
 import Time
 import Json.Decode as JsonDec exposing (..)
+import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)
 import RemoteData exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
+
+
+decodeLocalisationResponse : Decoder LocalisationApi
+decodeLocalisationResponse =
+  JsonDec.map3 LocalisationApi
+  (at ["status"] JsonDec.string)
+  (maybe (at ["lon"] JsonDec.float))
+  (maybe (at ["lat"] JsonDec.float))
 
 
 genderToString : Maybe Gender -> String
@@ -60,17 +69,25 @@ decodeMessage =
   (at ["message"] JsonDec.string)
   (at ["username"] JsonDec.string)
 
+decodeLocalisation : Decoder Localisation
+decodeLocalisation =
+  JsonDec.map2 Localisation
+    (at ["lon"] JsonDec.float)
+    (at ["lat"] JsonDec.float)
+
 decodeUser : Decoder User
 decodeUser =
-    JsonDec.map8 User
-    (at ["login"] JsonDec.string)
-    (at ["fname"] JsonDec.string)
-    (at ["lname"] JsonDec.string)
-    (at ["email"] JsonDec.string)
-    (maybe (at ["gender"] decodeGender))
-    (maybe (at ["interested_in"] decodeGender))
-    (at ["bio"] JsonDec.string)
-    (at ["talks"] decodeTalks)
+  JsonDec.succeed User
+    |: (field "login" JsonDec.string)
+    |: (field "fname" JsonDec.string)
+    |: (field "lname" JsonDec.string)
+    |: (field "email" JsonDec.string)
+    |: maybe (field "gender" decodeGender)
+    |: maybe (field "interested_in" decodeGender)
+    |: (field "bio" JsonDec.string)
+    |: (field "talks" decodeTalks)
+    |: maybe (field "localisation" decodeLocalisation)
+
 
 decodeCurrentUser : Decoder CurrentUser
 decodeCurrentUser =
@@ -250,3 +267,23 @@ sendMessage token username message =
       Http.post "http://localhost:3001/api/talks/new_message/" body (decodeApiResponse <| Just talkDecoder )
       |> RemoteData.sendRequest
       |> Cmd.map GetTalkResponse
+
+getIpLocalisation : Cmd Msg
+getIpLocalisation =
+    Http.get "http://ip-api.com/json" decodeLocalisationResponse
+    |> RemoteData.sendRequest
+    |> Cmd.map GetIpLocalisation
+
+saveLocation : String -> Localisation -> Cmd Msg
+saveLocation token loc =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("lat", JsonEnc.float loc.lat)
+          , ("lon", JsonEnc.float loc.lon)
+          ]
+  in
+      Http.post "http://localhost:3001/api/users/save_loc" body (decodeApiResponse Nothing)
+      |> RemoteData.sendRequest
+      |> Cmd.map SaveLocRespone

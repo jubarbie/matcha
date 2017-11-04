@@ -22,6 +22,17 @@ type MapState
   | Loading
   | Rendered
 
+type alias LocalisationApi =
+  { status: String
+  , lon: Maybe Float
+  , lat: Maybe Float
+  }
+
+type alias Localisation =
+  { lon: Float
+  , lat: Float
+  }
+
 type alias Model =
     { route : Route
     , session : Maybe Session
@@ -32,6 +43,7 @@ type alias Model =
     , current_talk : Maybe Talk
     , message : Maybe String
     , map_state : MapState
+    , current_location : Maybe Localisation
     }
 
 type alias Talk =
@@ -96,6 +108,7 @@ type alias User =
     , intIn : Maybe Gender
     , bio : String
     , talks : List String
+    , localisation : Maybe Localisation
     }
 
 type alias CurrentUser =
@@ -197,4 +210,5 @@ initialModel route =
     , current_talk = Nothing
     , message = Nothing
     , map_state = if route == Account then Loading else NoMap
+    , current_location = Nothing
     }

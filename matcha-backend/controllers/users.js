@@ -29,7 +29,7 @@ router.post('/all_users', function(req, res, next) {
 				res.status(403).json({ "status":"error", "msg": 'Failed to authenticate token' });
 			} else {
 					UsersModel.getUserWithLogin(decoded.username, function(err, logged, fields) {
-						if (!err && logged.length > 0 && logged[0].rights == 0) {
+						if (!err && logged.length > 0 && logged[0].rights >= 0) {
 							UsersModel.getAllUsers(function(err, rows, fields) {
 								if (!err) {
 									console.log('Getting all users');
@@ -73,6 +73,9 @@ router.post('/user/:login', function(req, res, next) {
 							console.log("Talkers ", talkers);
 							user.talks = talkers
 							console.log("User ", user);
+							if (loc = user.localisation) {
+								user.localisation = JSON.parse(loc);
+							}
 							res.json({"status":"success", "data":user});
 						})
 					} else {
@@ -169,6 +172,13 @@ router.post('/delete_user', function(req, res, next) {
 				if (rows.length > 0 && rows[0].rights == 0) {
 					UsersModel.deleteUser(username, function(err, results, fields) {
 						if (results) {
+							TalkModel.getUserTalks(username, function(err, talks, fields) {
+								if (talks.lenth > 0) {
+									talks.map(function (talk) {
+										TalkModel.removeTalk(talk.id, null);
+									});
+								}
+							});
 							res.json({"status":"success"});
 						} else {
 							res.json({"status":"error", "msg":"User " + username + " doesn't exists"});
@@ -359,5 +369,31 @@ router.post('/new', [
 	});
 });
 
+/* Like or unlike user. */
+router.post('/save_loc', function(req, res, next) {
+
+	var lat = req.body.lat;
+	var lon = req.body.lon;
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token && lat && lon) {
+		var loc = {};
+		loc.lon = lon;
+		loc.lat = lat;
+		console.log("saving loc", loc);
+		jwt.verify(token, config.secret, function(err, decoded) {
+				UsersModel.updateLocation(decoded.username, JSON.stringify(loc), function (err, rows, fields) {
+					if (!err) {
+						res.json({"status":"success"});
+					} else {
+						console.log("error", err);
+						res.json({"status":"error"});
+					}
+				});
+		});
+	} else {
+		res.json({"status":"error"});
+	}
+});
 
 module.exports = router;

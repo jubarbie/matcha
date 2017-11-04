@@ -17,16 +17,17 @@ type Msg
     | GetTalkResponse (WebData (ApiResponse (Maybe (List Message))))
     | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
+    | SaveLocRespone (WebData (ApiResponse (Maybe String)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
-    | SetNewLocalisation (List String)
+    | SetNewLocalisation (List Float)
     | UpdateNewUserForm String String
     | UpdateLoginForm String String
     | NewUser
     | SendLogin
     | DeleteUser String
-    | Localize
+    | SaveLocation
     | GoBack Int
     | ToggleLike String
     | UpdateNewMessage String
@@ -34,3 +35,5 @@ type Msg
     | NewMessage String
     | FetchTalk String Time.Time
     | LoadMap Time.Time
+    | GetIpLocalisation (WebData LocalisationApi)
+    | Localize

@@ -65,6 +65,9 @@ ul.users-list li {
 #map {
 	height: 500px;
 }
+#map button {
+	margin-bottom: 0;
+}
 .marker {
   background-image: url('../images/mapbox-icon.png');
   background-size: cover;

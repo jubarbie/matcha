@@ -201,6 +201,22 @@ update msg model =
               _ ->
                   ( { model | message = Just "Error while sending new message. Try again baby" }, Cmd.none )
 
+        SaveLocRespone response ->
+          case Debug.log "response new message" response of
+              Success rep ->
+                  case rep.status of
+                    "success" ->
+                      let
+                        session =
+                          case (model.session, model.current_location) of
+                            (Just s, Just l) ->
+                              let user = s.user in Just { s | user = { user | localisation = Just l } }
+                            _ -> Nothing
+                      in
+                          ( { model | session = session }, Cmd.none )
+                    _ -> ( { model | message = Just "Error while saving localisation. Try again" }, Cmd.none )
+              _ -> ( { model | message = Just "Error while saving localisation. Try again" }, Cmd.none )
+
         OnLocationChange location ->
             let
                 newRoute =
@@ -284,8 +300,10 @@ update msg model =
               Just s -> (model, toggleLike username s.token)
               _ -> (model, Navigation.newUrl "/#/login")
 
-        Localize ->
-            (model, localize ())
+        SaveLocation ->
+          case ( model.session, model.current_location ) of
+            (Just s, Just l) -> ( model, saveLocation s.token l )
+            _ -> ( model, Cmd.none )
 
         UpdateNewMessage msg ->
           let
@@ -313,13 +331,41 @@ update msg model =
 
         LoadMap t ->
           case model.map_state of
-              Models.Loading -> ( { model | map_state = Models.Rendered }, localize ())
+              Models.Loading ->
+                let
+                  cmd = case model.session of
+                    Just s -> case s.user.localisation of
+                      Just l -> localize [l.lon, l.lat]
+                      _ -> getIpLocalisation
+                    _ -> Cmd.none
+                in
+                  ( { model | map_state = Models.Rendered }, cmd )
               _ -> (model, Cmd.none)
+
+        Localize ->
+          ( model, getIpLocalisation)
 
         SetNewLocalisation loc ->
          case Debug.log "new loc" loc of
-            [long, lat] -> (model, Cmd.none )
+            [long, lat] -> ( { model | current_location = Just <| Localisation long lat }, Cmd.none )
             _ -> ( model, Cmd.none )
+
+        GetIpLocalisation resp ->
+          case Debug.log "local" resp of
+            Success locapi ->
+              let
+                loc =
+                  case (locapi.status, locapi.lon, locapi.lat) of
+                    ("success", Just lo, Just la) -> Just <| Localisation lo la
+                    _ -> Nothing
+              in
+                ( { model | current_location = loc }
+                , localize <|
+                    ( case loc of
+                      Just l -> [l.lon, l.lat]
+                      _ -> [] )
+                )
+            _ -> (model, Cmd.none)
 
 updateInput : Form -> String -> Maybe String -> Form
 updateInput form id value =

@@ -27,13 +27,13 @@ app.ports.deleteSession.subscribe(function() {
 	window.localStorage.removeItem('token');
 });
 
-app.ports.localize.subscribe(function() {
+app.ports.localize.subscribe(function(loc) {
 	mapboxgl.accessToken = 'pk.eyJ1IjoianViYXJiaWUiLCJhIjoiY2o4cjV1YmY0MHJtaDJ3cDFhbGZ4aHd2ZCJ9.T1ztr8SLVvZymkDPHCUcBQ';
 
 	// Holds mousedown state for events. if this
 	// flag is active, we move the point on `mousemove`.
 	var isDragging;
-
+	console.log(loc);
 	// Is the cursor over a point? if this
 	// flag is active, we listen for a mousedown event.
 	var isCursorOverPoint;
@@ -42,8 +42,8 @@ app.ports.localize.subscribe(function() {
 	var map = new mapboxgl.Map({
 	    container: 'map',
 	    style: 'mapbox://styles/mapbox/light-v9',
-	    center: [2.4093, 48.8944],
-	    zoom: 2
+	    center: loc,
+	    zoom: 12
 	});
 
 	var canvas = map.getCanvasContainer();
@@ -54,7 +54,7 @@ app.ports.localize.subscribe(function() {
 	        "type": "Feature",
 	        "geometry": {
 	            "type": "Point",
-	            "coordinates": [2.4093, 48.8944]
+	            "coordinates": loc
 	        }
 	    }]
 	};
@@ -98,7 +98,7 @@ app.ports.localize.subscribe(function() {
 
 	    // Unbind mouse events
 	    map.off('mousemove', onMove);
-			app.ports.newLocalisation.send([String(coords.lng), String(coords.lat)]);
+			app.ports.newLocalisation.send([coords.lng, coords.lat]);
 	}
 
 	map.on('load', function() {

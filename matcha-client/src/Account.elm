@@ -24,5 +24,6 @@ viewAccount model user =
       , div [] [text user.email]
       , div [] [text user.bio]
       , div [ id "map" ] []
+      , button [ onClick SaveLocation ][ text "Use this location" ]
       , button [ onClick Localize ][ text "Localize me" ]
       ]
