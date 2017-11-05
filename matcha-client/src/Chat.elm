@@ -29,14 +29,16 @@ view model =
 
 allChatsView : Model -> Html Msg
 allChatsView model =
-  let
-    talks =
-      case model.session of
-        Just s -> s.user.talks
-        _ -> []
-  in
-    div [] <|
-        List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t] [ text t ] ] ) talks
+  case model.session of
+        Just s ->
+          if List.length s.user.talks > 0 then
+            div [] <|
+                List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t] [ text t ] ] ) s.user.talks
+          else
+            div [] [ text "You haven't talk to anyone yet" ]
+        _ ->
+          div [] [ text "No session..." ]
+
 
 messageView : String -> Message -> Html Msg
 messageView to msg =

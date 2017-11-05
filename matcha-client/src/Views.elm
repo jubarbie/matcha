@@ -14,22 +14,27 @@ import Account exposing (view)
 
 view : Model -> Html Msg
 view model =
+  let
+    role = case model.session of
+      Just s -> s.user.role
+      _ -> USER
+  in
   div [ class "container" ]
        <|  case model.route of
             Connect a ->
                 [ Login.view a model ]
             UsersRoute ->
-                [viewMenu model.route, Users.view model]
+                [viewMenu model.route role, Users.view model]
             UserRoute a ->
-                [viewMenu model.route, User.view model]
+                [viewMenu model.route role, User.view model]
             ChatsRoute ->
-                [viewMenu model.route, Chat.allChatsView model]
+                [viewMenu model.route role, Chat.allChatsView model]
             ChatRoute a ->
-                [viewMenu model.route, Chat.view model]
+                [viewMenu model.route role, Chat.view model]
             Account ->
-                [viewMenu model.route, Account.view model]
+                [viewMenu model.route role, Account.view model]
             Members ->
-                [viewMenu model.route, Members.view model]
+                [viewMenu model.route role, Members.view model]
             NotFoundRoute ->
                 [view401]
 
@@ -40,16 +45,21 @@ view401 =
         , a [ href "http://localhost:3000/#/users" ] [ text "Back to homepage" ]
         ]
 
-viewMenu : Route -> Html Msg
-viewMenu route =
+viewMenu : Route -> UserRole -> Html Msg
+viewMenu route role =
     nav [ class "navbar" ]
     [ ul [ class "navbar-list" ]
-        [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
+    <| [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
         , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
         , li [ getMenuClass Account route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
-        , li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "MEMBERS" ] ]
-        , li [ class "u-pull-right", onClick Logout ] [ text "LOGOUT"  ]
         ]
+        ++
+        ( if role == ADMIN then
+          [ li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "MEMBERS" ] ] ]
+        else
+          [] )
+        ++
+        [ li [ class "u-pull-right", onClick Logout ] [ text "LOGOUT"  ] ]
     ]
 
 getMenuClass : Route -> Route -> Attribute msg

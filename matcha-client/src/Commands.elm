@@ -50,6 +50,15 @@ decodeGender =
             _ -> JsonDec.fail "Gender must be M or F"
         )
 
+decodeRole : Decoder UserRole
+decodeRole =
+    JsonDec.int |> JsonDec.andThen
+        (\a -> case a of
+            0 -> JsonDec.succeed ADMIN
+            1 -> JsonDec.succeed USER
+            _ -> JsonDec.fail "Unknown role"
+        )
+
 decodeTalks : Decoder (List String)
 decodeTalks =
   JsonDec.list decodeTalkUsername
@@ -87,6 +96,7 @@ decodeUser =
     |: (field "bio" JsonDec.string)
     |: (field "talks" decodeTalks)
     |: maybe (field "localisation" decodeLocalisation)
+    |: (field "rights" decodeRole)
 
 decodeCurrentUser : Decoder CurrentUser
 decodeCurrentUser =

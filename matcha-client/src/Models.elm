@@ -58,6 +58,11 @@ type alias Message =
   , user : String
   }
 
+type UserRole
+  = ADMIN
+  | USER
+
+
 type alias Session =
     { user : User
     , token : String
@@ -109,6 +114,7 @@ type alias User =
     , bio : String
     , talks : List String
     , localisation : Maybe Localisation
+    , role : UserRole
     }
 
 type alias CurrentUser =
@@ -141,8 +147,8 @@ initNewUserForm =
        , initInput "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
        , initInput "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
        , initInput "text" "Email" "email" (Just EmailValidator) Nothing
-       , initInput "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars and 1 number")
-       , initInput "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-type your password")
+       , initInput "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars including 1 number")
+       , initInput "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-enter your password")
        , initInput "text" "Gender" "gender" (Just GenderValidator) Nothing
        , initInput "text" "Interested in" "int_in" (Just GenderValidator) Nothing
        , initInput "text" "Bio" "bio" Nothing Nothing
