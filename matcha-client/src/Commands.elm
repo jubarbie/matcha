@@ -88,7 +88,6 @@ decodeUser =
     |: (field "talks" decodeTalks)
     |: maybe (field "localisation" decodeLocalisation)
 
-
 decodeCurrentUser : Decoder CurrentUser
 decodeCurrentUser =
   JsonDec.map5 CurrentUser
@@ -121,13 +120,23 @@ decodeAuthResponse =
     (maybe (at ["token"] JsonDec.string))
     (maybe (at ["data"] decodeUser))
 
-getUsers : String -> String -> Cmd Msg
-getUsers user token  =
+getUsers : String -> Cmd Msg
+getUsers token  =
     let
         body =
-            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token), ("user", JsonEnc.string user)]
+            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
         Http.post "http://localhost:3001/api/users/all_users" body usersDecoder
+        |> RemoteData.sendRequest
+        |> Cmd.map UsersResponse
+
+getRelevantUsers : String -> Cmd Msg
+getRelevantUsers token  =
+    let
+        body =
+            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
+    in
+        Http.post "http://localhost:3001/api/users/relevant_users" body usersDecoder
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
 

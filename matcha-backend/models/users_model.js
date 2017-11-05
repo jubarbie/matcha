@@ -10,7 +10,7 @@ model.getAllUsers = function(cb) {
 }
 
 model.getRelevantProfiles = function(gender, int_in, cb) {
-	connection.query('SELECT login, gender FROM user WHERE gender = ? AND int_in = ?', [gender, int_in], cb);
+	connection.query('SELECT * FROM user WHERE gender = ? AND interested_in = ?', [gender, int_in], cb);
 }
 
 model.getUserWithLogin = function(login, cb) {

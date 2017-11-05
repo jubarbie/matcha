@@ -18,10 +18,9 @@ var TalkModel = require('../models/talk_model');
 router.post('/all_users', function(req, res, next) {
 
 	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-	var username = req.body.user
 		console.log("token recieved", token);
 
-	if (token && username) {
+	if (token) {
 		// verifies secret and checks exp
 		jwt.verify(token, config.secret, function(err, decoded) {
 			if (err) {
@@ -29,7 +28,7 @@ router.post('/all_users', function(req, res, next) {
 				res.status(403).json({ "status":"error", "msg": 'Failed to authenticate token' });
 			} else {
 					UsersModel.getUserWithLogin(decoded.username, function(err, logged, fields) {
-						if (!err && logged.length > 0 && logged[0].rights >= 0) {
+						if (!err && logged.length > 0 && logged[0].rights == 0) {
 							UsersModel.getAllUsers(function(err, rows, fields) {
 								if (!err) {
 									console.log('Getting all users');
@@ -41,6 +40,46 @@ router.post('/all_users', function(req, res, next) {
 								}
 								else
 									res.status(500).json({"status":"error"});
+							});
+						} else {
+							res.status(401).json({ "status":"error", "msg": "Not authorized user" });
+						}
+					});
+			}
+		});
+	} else {
+		res.status(403).send({'status': 'error', 'msg': 'No token provided'});
+	}
+});
+
+/* GET users listing. */
+router.post('/relevant_users', function(req, res, next) {
+
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+			if (err) {
+				console.log('Error while verif');
+				res.status(403).json({ "status":"error", "msg": 'Failed to authenticate token' });
+			} else {
+					UsersModel.getUserWithLogin(decoded.username, function(err, logged, fields) {
+						if (!err && logged.length > 0) {
+							var gender = (logged.int_in) ? logged.int_in : "M";
+							var int_in = (logged.gender) ? logged.gender : "M";
+							UsersModel.getRelevantProfiles(gender, int_in, function(err, rows, fields) {
+								if (!err) {
+									console.log('Getting relevant users');
+									var users = rows.map(function (user) {
+										user.talks = [];
+										return user;
+									});
+									res.json(users);
+								}
+								else {
+									console.log(err);
+									res.status(500).json({"status":"error"});
+								}
 							});
 						} else {
 							res.status(401).json({ "status":"error", "msg": "Not authorized user" });

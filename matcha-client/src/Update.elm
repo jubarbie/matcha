@@ -30,7 +30,7 @@ update msg model =
         UsersResponse response ->
             case response of
                 Success users ->
-                    ( { model | users = users }
+                    ( { model | users = users, current_user = Nothing }
                     , Cmd.none )
                 _ ->
                     ( model
@@ -50,11 +50,11 @@ update msg model =
                                         _ -> Navigation.newUrl "/#/login"
                                   Members ->
                                     case newModel.session of
-                                        Just s -> getUsers s.user.username s.token
+                                        Just s -> getUsers s.token
                                         _ -> Navigation.newUrl "/#/login"
                                   UsersRoute ->
                                       case newModel.session of
-                                          Just s -> getUsers s.user.username s.token
+                                          Just s -> getRelevantUsers s.token
                                           _ -> Navigation.newUrl "/#/login"
                                   UserRoute a ->
                                       case newModel.session of
@@ -73,7 +73,7 @@ update msg model =
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
-                                ( model, Cmd.none )
+                                ( { model | current_user = Nothing }, Cmd.none )
                         _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
                 _ ->
                     ( model
@@ -233,11 +233,11 @@ update msg model =
                           _ -> (model, Navigation.newUrl "/#/login")
                     Members ->
                       case model.session of
-                          Just s -> ( { model | route = newRoute }, getUsers s.user.username s.token)
+                          Just s -> ( { model | route = newRoute }, getUsers s.token)
                           _ -> (model, Navigation.newUrl "/#/login")
                     UsersRoute ->
                         case model.session of
-                            Just s -> ( { model | route = newRoute }, getUsers s.user.username s.token)
+                            Just s -> ( { model | route = newRoute }, getRelevantUsers s.token)
                             _ -> ( model, Navigation.newUrl "/#/login")
                     UserRoute a ->
                         case model.session of
