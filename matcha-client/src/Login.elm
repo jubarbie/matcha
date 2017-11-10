@@ -11,11 +11,12 @@ view : LoginRoute -> Model -> Html Msg
 view route model =
     let msg =
         case model.message of
-        Just msg -> msg
-        _ -> ""
+            Just msg -> msg
+            _ -> ""
     in
     div []
-        [ div [][text msg]
+        [ img [ src "/assets/images/DARKROOM_logo.svg", id "logo" ] []
+        , div [][text msg]
         , (case route of
             Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
             Signin -> Html.Keyed.node "sign" [] [("div", viewNewUserForm model)])
@@ -24,7 +25,7 @@ view route model =
 viewLoginForm : Model -> Html Msg
 viewLoginForm model =
     div [] <| List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
-        ++ [ button [onClick SendLogin ][ text "Connection" ]
+        ++ [ div [onClick SendLogin, class "important-font"  ][ text "ENTER" ]
             , div [ class "row" ]
             [ div [class "twelve columns"]
             [ a [ href "#/signin" ][ text "Create new account" ] ]
@@ -35,7 +36,7 @@ viewNewUserForm : Model -> Html Msg
 viewNewUserForm model =
         div [] <| List.map (\i -> viewInput (UpdateNewUserForm i.id) i) model.newUserForm
         ++
-        [ button [onClick NewUser ][ text "Sign in" ]
+        [ div [ onClick NewUser, class "important-font" ][ text "Sign in" ]
         , div [ class "row" ]
         [ div [class "twelve columns"]
               [ a [ href "#/login" ][ text "I already have an account" ] ]

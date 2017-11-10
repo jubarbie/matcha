@@ -1,3 +1,35 @@
+body {
+	background: #252525;
+	/*text-align: center;*/
+	font-family: futura;
+	color: white;
+}
+#logo {
+	width: 300px;
+	margin: 0 auto;
+	margin-top: 80px;
+}
+input {
+	border: none !important;
+	border-bottom: 1px solid white !important;
+	background-color: #252525 !important;
+	border-radius: 0 !important;
+	position: relative;
+}
+.important-font {
+	font-size: 22px;
+	text-transform: uppercase;
+	font-style: italic;
+	color: #252525;
+	text-shadow: 1px 1px 0 white,
+			    -1px 1px 0 white,
+			    1px -1px 0 white,
+			    -1px -1px 0 white,
+			    0px 1px 0 white,
+			    0px -1px 0 white,
+			    -1px 0px 0 white,
+			    1px 0px 0 white;
+}
 .navbar {
 	border-top: 1px solid grey;
 	border-bottom: 1px solid grey;
