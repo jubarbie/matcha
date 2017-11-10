@@ -1,4 +1,4 @@
-module Login exposing (view)
+module Login exposing (view, viewInput)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -6,6 +6,7 @@ import Html.Events exposing (..)
 import Html.Keyed exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
+import FormUtils exposing (..)
 
 view : LoginRoute -> Model -> Html Msg
 view route model =
@@ -53,7 +54,14 @@ viewInput mess i =
     in
         div [ class inputClass]
             [ label [ for i.id ] [ text i.label ]
-            , input [ type_ i.typ, id i.id, onInput mess ] []
+            , input [
+                type_ i.typ,
+                id i.id,
+                onInput mess,
+                value <| case i.input of
+                  Just val -> val
+                  _ -> ""
+              ] []
             , case i.tip of
                 Just tip -> div [ class "input-tip" ][ text tip ]
                 _ -> div [][]

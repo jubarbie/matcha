@@ -10,7 +10,8 @@ import Members exposing (view)
 import User exposing (view)
 import Chat exposing (view, allChatsView)
 import Login exposing (view)
-import Account exposing (view)
+import Account exposing (view, viewEditAccount)
+import UserModel exposing (..)
 
 view : Model -> Html Msg
 view model =
@@ -31,8 +32,10 @@ view model =
                 [viewMenu model.route role, Chat.allChatsView model]
             ChatRoute a ->
                 [viewMenu model.route role, Chat.view model]
-            Account ->
+            AccountRoute ->
                 [viewMenu model.route role, Account.view model]
+            EditAccountRoute ->
+                [viewMenu model.route role, Account.viewEditAccount model]
             Members ->
                 [viewMenu model.route role, Members.view model]
             NotFoundRoute ->
@@ -51,7 +54,7 @@ viewMenu route role =
     [ ul [ class "navbar-list" ]
     <| [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
         , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
-        , li [ getMenuClass Account route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
+        , li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
         ]
         ++
         ( if role == ADMIN then

@@ -4,8 +4,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Models exposing (..)
-import Commands exposing (genderToString)
 import Msgs exposing (..)
+import FormUtils exposing (..)
+import UserModel exposing (..)
 
 
 view : Model -> Html Msg

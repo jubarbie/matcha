@@ -8,6 +8,8 @@ import Navigation exposing (..)
 import Commands exposing (..)
 import Ports exposing (..)
 import Task
+import FormUtils exposing (..)
+import UserModel exposing (..)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -42,7 +44,7 @@ update msg model =
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
                           let
-                            newModel = { model | session = Just <| Session u token }
+                            newModel = { model | session = Just <| Session u token, editAccountForm = initEditAccountForm u }
                             cmd = case model.route of
                                   ChatRoute a ->
                                     case newModel.session of
@@ -96,6 +98,21 @@ update msg model =
                     case rep.status of
                         "success" ->
                             ( model , Navigation.newUrl "/#/users" )
+                        _ -> ( { model | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none)
+                _ ->
+                    ( model
+                    , Navigation.newUrl "/#/login" )
+
+        EditAccountResponse email fname lname gender intIn bio response ->
+            case Debug.log "resp" response of
+                Success rep ->
+                    case (rep.status, model.session ) of
+                        ("success", Just s) ->
+                          let
+                            user = s.user
+                            newUser = { user | email = email, fname = fname, lname = lname, gender = stringToGender gender, intIn = stringToGender intIn, bio = bio }
+                          in
+                            ( { model | message = Just "Information saved", session = Just { s | user = newUser } }, Cmd.none )
                         _ -> ( { model | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none)
                 _ ->
                     ( model
@@ -243,9 +260,14 @@ update msg model =
                         case model.session of
                             Just s -> ( { model | route = newRoute }, getCurrentUser a s.token)
                             _ -> (model, Navigation.newUrl "/#/login")
-                    Account ->
+                    AccountRoute ->
                         case model.session of
                             Just s -> ( { model | route = newRoute, map_state = Models.Loading }, Cmd.none)
+                            _ -> ( model, Navigation.newUrl "/#/login")
+                    EditAccountRoute ->
+                        case model.session of
+                            Just s ->
+                              ( { model | route = newRoute, editAccountForm = initEditAccountForm s.user }, Cmd.none)
                             _ -> ( model, Navigation.newUrl "/#/login")
                     _ -> ( { model | route = newRoute }, Cmd.none)
             in
@@ -330,8 +352,8 @@ update msg model =
               _ -> (model, Navigation.newUrl "/#/login")
 
         LoadMap t ->
-          case model.map_state of
-              Models.Loading ->
+          case (model.map_state, model.route) of
+              (Models.Loading, AccountRoute) ->
                 let
                   cmd = case model.session of
                     Just s -> case s.user.localisation of
@@ -367,36 +389,22 @@ update msg model =
                 )
             _ -> (model, Cmd.none)
 
-updateInput : Form -> String -> Maybe String -> Form
-updateInput form id value =
-    List.map (\i ->
-        if i.id == id then
-            { i
-            | input = value
-            , status = validationForm i.validator form value
-            }
-        else i) form
+        UpdateEditAccountForm id value ->
+          let
+              form = model.editAccountForm
+              newForm = updateInput form id (Just value)
+          in
+              ( { model | editAccountForm = newForm }, Cmd.none)
 
-validationForm : Maybe FormValidator -> Form -> Maybe String -> FormStatus
-validationForm validator form value =
-    case validator of
-        Nothing -> Valid (case value of
-            Just a -> a
-            _ -> "")
-        Just Required -> case value of
-                    Just a -> if a /= "" then Valid a else NotValid "Required Field"
-                    Nothing -> NotValid "Required field"
-        Just GenderValidator -> validGender value
-        Just EmailValidator -> validEmail value
-        Just PasswordValidator -> validPassword value
-        Just (PasswordConfirmValidator id) ->
-            case findInput form id of
-                Just a -> validConfirmPassword a value
-                Nothing -> NotValid ("No input found with id : " ++ id)
-        Just (TextValidator min max) -> validText min max value
-
-findInput : Form -> String -> Maybe Input
-findInput form id =
-    case List.filter (\i -> i.id == id) form of
-        a :: b -> Just a
-        _ -> Nothing
+        SaveAccountUpdates ->
+          case model.session of
+              Just s ->
+                let
+                    values = List.map (\i -> i.status) model.editAccountForm
+                in
+                case Debug.log "values" values of
+                    [Valid fname, Valid lname, Valid email, Valid gender, Valid int_in, Valid bio] ->
+                        (model, updateAccountInfos s.token fname lname email gender int_in bio)
+                    _ ->
+                        (model, Cmd.none)
+              _ -> (model, Navigation.newUrl "/#/login")

@@ -8,6 +8,7 @@ import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)
 import RemoteData exposing (..)
 import Models exposing (..)
+import UserModel exposing (..)
 import Msgs exposing (..)
 
 
@@ -17,21 +18,6 @@ decodeLocalisationResponse =
   (at ["status"] JsonDec.string)
   (maybe (at ["lon"] JsonDec.float))
   (maybe (at ["lat"] JsonDec.float))
-
-
-genderToString : Maybe Gender -> String
-genderToString g =
-    case g of
-        Just M -> "M"
-        Just F -> "F"
-        _ -> "No gender"
-
-stringToGender : String -> Maybe Gender
-stringToGender g =
-    case g of
-        "M" -> Just M
-        "F" -> Just F
-        _ -> Nothing
 
 usersDecoder : Decoder (List User)
 usersDecoder =
@@ -96,6 +82,7 @@ decodeUser =
     |: (field "bio" JsonDec.string)
     |: (field "talks" decodeTalks)
     |: maybe (field "localisation" decodeLocalisation)
+    |: (field "photos" (JsonDec.list JsonDec.string))
     |: (field "rights" decodeRole)
 
 decodeCurrentUser : Decoder CurrentUser
@@ -206,7 +193,7 @@ sendFastNewUser username email pwd repwd =
         |> Cmd.map NewUserResponse
 
 sendNewUser : String -> String -> String -> String -> String -> String -> String -> String -> String -> Cmd Msg
-sendNewUser username fname lname email pwd repwd gender intIn bio =
+sendNewUser username email fname lname pwd repwd gender intIn bio =
     let
         body =
             Http.jsonBody <| JsonEnc.object
@@ -224,6 +211,24 @@ sendNewUser username fname lname email pwd repwd gender intIn bio =
         Http.post "http://localhost:3001/api/users/newfast" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
         |> Cmd.map NewUserResponse
+
+updateAccountInfos : String -> String -> String -> String -> String -> String -> String -> Cmd Msg
+updateAccountInfos token fname lname email gender intIn bio =
+    let
+        body =
+            Http.jsonBody <| JsonEnc.object
+            [ ("token", JsonEnc.string token)
+            , ("email", JsonEnc.string email)
+            , ("fname", JsonEnc.string fname)
+            , ("lname", JsonEnc.string lname)
+            , ("gender", JsonEnc.string gender)
+            , ("int_in", JsonEnc.string intIn)
+            , ("bio", JsonEnc.string bio)
+            ]
+    in
+        Http.post "http://localhost:3001/api/users/update" body (decodeApiResponse Nothing)
+        |> RemoteData.sendRequest
+        |> Cmd.map (EditAccountResponse email fname lname gender intIn bio)
 
 deleteUser : String -> String -> Cmd Msg
 deleteUser username token =

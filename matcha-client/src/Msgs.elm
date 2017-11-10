@@ -3,6 +3,7 @@ module Msgs exposing (..)
 import RemoteData exposing (..)
 import Navigation exposing (..)
 import Models exposing (..)
+import UserModel exposing (..)
 import Time
 
 type Msg
@@ -18,6 +19,7 @@ type Msg
     | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
     | SaveLocRespone (WebData (ApiResponse (Maybe String)))
+    | EditAccountResponse String String String String String String (WebData (ApiResponse (Maybe User)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -37,3 +39,5 @@ type Msg
     | LoadMap Time.Time
     | GetIpLocalisation (WebData LocalisationApi)
     | Localize
+    | UpdateEditAccountForm String String
+    | SaveAccountUpdates

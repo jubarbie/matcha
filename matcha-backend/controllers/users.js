@@ -72,6 +72,7 @@ router.post('/relevant_users', function(req, res, next) {
 									console.log('Getting relevant users');
 									var users = rows.map(function (user) {
 										user.talks = [];
+										user.photos = [];
 										return user;
 									});
 									res.json(users);
@@ -109,12 +110,12 @@ router.post('/user/:login', function(req, res, next) {
 							talkers = talks.map(function (talk) {
 								 return (talk.username1 == login) ? talk.username2 : talk.username1;
 							});
-							console.log("Talkers ", talkers);
-							user.talks = talkers
-							console.log("User ", user);
+							user.talks = talkers;
+							user.photos = [];
 							if (loc = user.localisation) {
 								user.localisation = JSON.parse(loc);
 							}
+							console.log("user sent", user);
 							res.json({"status":"success", "data":user});
 						})
 					} else {
@@ -360,7 +361,7 @@ router.post('/new', [
 ], (req, res, next) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
-		res.status(422).json({"status":"error", "msg":error});
+		res.status(422).json({"status":"error", "msg":errors});
 	}
 	var user = buildUserFromRequest(req);
 	var now = Date.now();
@@ -406,6 +407,45 @@ router.post('/new', [
 			res.json({"status":"error"});
 		}
 	});
+});
+
+/* Update user infos */
+router.post('/update', [
+		check('email').exists().isEmail(),
+		check('fname').exists().isLength({min:1, max:250}),
+		check('lname').exists().isLength({min:1, max:250}),
+		check('gender').exists().isIn(['M', 'F']),
+		check('int_in').exists().matches('[FM]{1,2}')
+], (req, res, next) => {
+
+	const errors = validationResult(req);
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	if (token) {
+		jwt.verify(token, config.secret, function(err, decoded) {
+			if (err || !errors.isEmpty()) {
+				res.status(422).json({"status":"error", "msg":"invalid form"});
+			} else {
+				var infos = {};
+				infos.email = req.body.email;
+				infos.fname = req.body.fname;
+				infos.lname = req.body.lname;
+				infos.gender = req.body.gender;
+				infos.int_in = req.body.int_in;
+				infos.bio = (req.body.bio) ? req.body.bio : "";
+
+				UsersModel.updateInfos(decoded.username, infos, function (err, rows, fields) {
+					if (rows && !err) {
+						console.log('User modified', rows);
+						res.json({"status":"success"});
+					} else {
+						console.log('Error while puting new user', err);
+						res.json({"status":"error"});
+					}
+				});
+			}
+		});
+	}
 });
 
 /* Like or unlike user. */

@@ -3,9 +3,9 @@ module Users exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Models exposing (..)
-import Commands exposing (genderToString)
 import Msgs exposing (..)
 import List
+import UserModel exposing (..)
 
 
 view : Model -> Html Msg
@@ -15,7 +15,7 @@ view model =
 viewUsers : List User -> Html Msg
 viewUsers users =
     div []
-        [ ul [ class "users-list" ] <| List.map (\u -> 
+        [ ul [ class "users-list" ] <| List.map (\u ->
             li [] [ viewUser u ]
             ) users
         ]

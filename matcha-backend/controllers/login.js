@@ -27,7 +27,9 @@ apiRoutes.post('/', (req, res, next) => {
 					expiresIn: "1 day"
 				});
 				user.talks = [];
+				user.photos = ["http://popnhop.com/wp-content/uploads/2015/01/bigstock-LOS-ANGELES-NOVEMBER-Joc-58406525-400x242.jpg?a0519e"];
 				console.log("Token create", token);
+				console.log("User sent", user);
 				res.json({"status":"success", "token":token, "data":user});
 			}
 		} else {
