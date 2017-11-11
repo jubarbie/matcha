@@ -31,9 +31,12 @@ update msg model =
 
         UsersResponse response ->
             case response of
-                Success users ->
-                    ( { model | users = users, current_user = Nothing }
-                    , Cmd.none )
+                Success rep ->
+                  case (rep.status == "success", rep.data) of
+                      (True, Just u) ->
+                          ( { model | users = u, current_user = Nothing }
+                          , Cmd.none )
+                      _ -> (model, Navigation.newUrl "/#/login")
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )

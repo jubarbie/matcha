@@ -2,9 +2,9 @@ var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
-var Login = require('./controllers/login');
-var Users = require('./controllers/users');
-var Talks = require('./controllers/talks');
+var Login = require('./routes/login');
+var Users = require('./routes/users');
+var Talks = require('./routes/talks');
 
 var app = express();
 var expressWs = require('express-ws')(app);

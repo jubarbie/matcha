@@ -10,122 +10,111 @@ var jwt = require('jsonwebtoken');
 var nodemailer = require('nodemailer');
 
 var config = require('../config');
+
+var UserCtrl = require('../controllers/user_ctrl.js');
+
 var UsersModel = require('../models/users_model');
 var LikesModel = require('../models/likes_model');
 var TalkModel = require('../models/talk_model');
+var ImageModel = require('../models/image_model');
+
+
+// Check if token is provided, user role
+var isAuthorized = function (req, rights, next) {
+
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	jwt.verify(token, config.secret, function(err, decoded) {
+		if (!err) {
+			UsersModel.getUserWithLogin(decoded.username, function(err, rows, fields) {
+				if (!err && rows.length > 0 && rows[0].rights <= rights) {
+					next (rows[0]);
+				} else {
+					next (null);
+				}
+			});
+		} else {
+			next(null);
+		}
+	});
+
+};
 
 /* GET users listing. */
 router.post('/all_users', function(req, res, next) {
 
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-		console.log("token recieved", token);
-
-	if (token) {
-		// verifies secret and checks exp
-		jwt.verify(token, config.secret, function(err, decoded) {
-			if (err) {
-				console.log('Error while verif');
-				res.status(403).json({ "status":"error", "msg": 'Failed to authenticate token' });
-			} else {
-					UsersModel.getUserWithLogin(decoded.username, function(err, logged, fields) {
-						if (!err && logged.length > 0 && logged[0].rights == 0) {
-							UsersModel.getAllUsers(function(err, rows, fields) {
-								if (!err) {
-									console.log('Getting all users');
-									var users = rows.map(function (user) {
-										user.talks = [];
-										return user;
-									});
-									res.json(users);
-								}
-								else
-									res.status(500).json({"status":"error"});
-							});
-						} else {
-							res.status(401).json({ "status":"error", "msg": "Not authorized user" });
-						}
+	isAuthorized(req, 0, function (logged) {
+		if (logged) {
+			UsersModel.getAllUsers(function(err, rows, fields) {
+				if (!err) {
+					console.log('Getting all users');
+					var users = rows.map(function (user) {
+						user.talks = [];
+						user.photos = [];
+						return user;
 					});
-			}
-		});
-	} else {
-		res.status(403).send({'status': 'error', 'msg': 'No token provided'});
-	}
+					res.json({"status":"success", "data":users});
+				}
+				else
+					res.json({"status":"error"});
+			});
+		} else {
+			res.status(401).json({ "status":"error" });
+		}
+	});
+
 });
 
 /* GET users listing. */
 router.post('/relevant_users', function(req, res, next) {
 
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+	isAuthorized(req, 1, function (logged) {
+		if (logged) {
+			UserCtrl.getRelevantUsers(logged, function (users) {
+				if (users) {
+					res.json({ "status":"success", "data": users });
+				} else {
+					res.json({ "status":"error", "msg": "A problem occur while fetching users" });
+				}
+			});
+		} else {
+			res.status(401).json({ "status":"error" });
+		}
+	});
 
-	if (token) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-			if (err) {
-				console.log('Error while verif');
-				res.status(403).json({ "status":"error", "msg": 'Failed to authenticate token' });
-			} else {
-					UsersModel.getUserWithLogin(decoded.username, function(err, logged, fields) {
-						if (!err && logged.length > 0) {
-							var gender = (logged.int_in) ? logged.int_in : "M";
-							var int_in = (logged.gender) ? logged.gender : "M";
-							UsersModel.getRelevantProfiles(gender, int_in, function(err, rows, fields) {
-								if (!err) {
-									console.log('Getting relevant users');
-									var users = rows.map(function (user) {
-										user.talks = [];
-										user.photos = [];
-										return user;
-									});
-									res.json(users);
-								}
-								else {
-									console.log(err);
-									res.status(500).json({"status":"error"});
-								}
-							});
-						} else {
-							res.status(401).json({ "status":"error", "msg": "Not authorized user" });
-						}
-					});
-			}
-		});
-	} else {
-		res.status(403).send({'status': 'error', 'msg': 'No token provided'});
-	}
 });
-
 
 /* GET user */
 router.post('/user/:login', function(req, res, next) {
 
 	var login = req.params.login;
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-	if (token && login) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-				UsersModel.getUserWithLogin(login, function(err, rows, fields) {
-					if (rows) {
-						user = rows[0];
-						TalkModel.getUserTalks(login, function(err, talks, fields) {
-							var talkers = [];
-							talkers = talks.map(function (talk) {
-								 return (talk.username1 == login) ? talk.username2 : talk.username1;
-							});
-							user.talks = talkers;
-							user.photos = [];
-							if (loc = user.localisation) {
-								user.localisation = JSON.parse(loc);
-							}
-							console.log("user sent", user);
-							res.json({"status":"success", "data":user});
-						})
-					} else {
-						res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
-					}
-				});
-		});
-	} else {
-		res.json({"status":"error", "msg":"Missing login"});
-	}
+	isAuthorized(req, 1, function (logged) {
+		if (logged && login) {
+			UserCtrl.getUser(login, function (user) {
+				if (user) {
+					res.json({"status":"success", "data":user});
+				} else {
+					res.json({"status":"error", "msg":"Error when fetching user"});
+				}
+			});
+		} else {
+			res.status(401).json({ "status":"error" });
+		}
+	});
+
+});
+
+/* Add photo to connected user */
+router.post('/user/add_photo', function(req, res, next) {
+
+	isAuthorized(req, 1, function (logged) {
+		if (logged) {
+
+		} else {
+			res.status(401).json({ "status":"error" });
+		}
+	});
 });
 
 /* GET user */
@@ -150,6 +139,12 @@ router.post('/current_user/:login', function(req, res, next) {
 							userToSend.bio = user.bio;
 							userToSend.liked = (likes.length > 0) ? true : false;
 							userToSend.has_talk = (talks.length > 0) ? true : false;
+							userToSend.photos = [];
+							ImageModel.getImagesFromUserId(userToSend.id, function(err, imgs, fields){
+								if (!err && imgs.length > 0) {
+									userToSend.photos = imgs;
+								}
+							});
 							console.log("usertosend", userToSend);
 							res.json({"status":"success", "data":userToSend});
 							});

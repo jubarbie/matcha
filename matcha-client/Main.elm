@@ -29,12 +29,12 @@ subscriptions model =
     sub =
       case model.route of
         ChatRoute a -> Time.every Time.second (FetchTalk a)
+        AccountRoute -> Time.every Time.second LoadMap
         _ -> Sub.none
   in
     Sub.batch [ tokenRecieved SaveToken
               , newLocalisation SetNewLocalisation
-              , Sub.none
-              , Time.every Time.second LoadMap
+              , sub
               ]
 
 main : Program Never Model Msg

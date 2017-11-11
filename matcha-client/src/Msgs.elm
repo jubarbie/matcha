@@ -7,7 +7,7 @@ import UserModel exposing (..)
 import Time
 
 type Msg
-    = UsersResponse (WebData (List User))
+    = UsersResponse (WebData (ApiResponse (Maybe (List User))))
     | ProfileResponse String (WebData (ApiResponse (Maybe User)))
     | UserResponse (WebData (ApiResponse (Maybe User)))
     | CurrentUserResponse (WebData (ApiResponse (Maybe CurrentUser)))

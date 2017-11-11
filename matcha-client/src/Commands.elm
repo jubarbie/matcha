@@ -123,7 +123,7 @@ getUsers token  =
         body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
-        Http.post "http://localhost:3001/api/users/all_users" body usersDecoder
+        Http.post "http://localhost:3001/api/users/all_users" body (decodeApiResponse <| Just usersDecoder)
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
 
@@ -133,7 +133,7 @@ getRelevantUsers token  =
         body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
-        Http.post "http://localhost:3001/api/users/relevant_users" body usersDecoder
+        Http.post "http://localhost:3001/api/users/relevant_users" body (decodeApiResponse <| Just usersDecoder)
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
 

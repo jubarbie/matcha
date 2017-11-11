@@ -6,11 +6,25 @@ var connection = mysql.createConnection(config.database);
 var model = {};
 
 model.getAllUsers = function(cb) {
-	connection.query('SELECT * FROM user', cb);
+	connection.query('\
+		SELECT u.*, GROUP_CONCAT(i.src) AS photos \
+			FROM user AS u \
+			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
+			LEFT JOIN image AS i ON i.id = rel.id_image \
+			GROUP BY u.id'
+	, cb);
 }
 
 model.getRelevantProfiles = function(gender, int_in, cb) {
-	connection.query('SELECT * FROM user WHERE gender = ? AND interested_in = ?', [gender, int_in], cb);
+	connection.query('\
+		SELECT u.*, GROUP_CONCAT(i.src) AS photos \
+			FROM user AS u \
+			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
+			LEFT JOIN image AS i ON i.id = rel.id_image \
+			WHERE u.gender = ? \
+			AND u.interested_in = ? \
+			GROUP BY u.id'
+	, [gender, int_in], cb);
 }
 
 model.getUserWithLogin = function(login, cb) {

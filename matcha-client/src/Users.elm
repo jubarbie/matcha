@@ -22,8 +22,14 @@ viewUsers users =
 
 viewUser : User -> Html Msg
 viewUser user =
+  let
+    imgSrc = case List.head user.photos of
+      Just src -> src
+      _ -> "http://profile.actionsprout.com/default.jpeg"
+  in
     div [ class "user-box" ]
-        [ h3 [] [ text user.username ]
+        [ h3 [] [ text <| Debug.log "username" user.username ]
+        , div [ id "profile-img" ] [ img [ src imgSrc ] [] ]
         , div [] [ text <| genderToString user.gender ]
         , div [] [ a [href <| "http://localhost:3000/#/user/" ++ user.username][ text "See profile" ] ]
         ]

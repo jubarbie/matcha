@@ -104,6 +104,9 @@ ul.users-list li {
 	padding: 10px;
 	overflow-y: auto;
 }
+.user-box #profile-img img {
+	width: 100%;
+}
 #map {
 	height: 500px;
 }
