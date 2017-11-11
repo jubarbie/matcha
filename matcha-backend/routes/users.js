@@ -6,81 +6,33 @@ const { matchedData } = require('express-validator/filter');
 var bcrypt = require('bcrypt');
 var crypto = require('crypto');
 const saltRounds = 10;
-var jwt = require('jsonwebtoken');
-var nodemailer = require('nodemailer');
 
 var config = require('../config');
-
+var Mailer = require('../middlewares/mailer');
 var UserCtrl = require('../controllers/user_ctrl.js');
-
 var UsersModel = require('../models/users_model');
 var LikesModel = require('../models/likes_model');
 var TalkModel = require('../models/talk_model');
 var ImageModel = require('../models/image_model');
 
 
-// Check if token is provided, user role
-var isAuthorized = function (req, rights, next) {
-
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-	jwt.verify(token, config.secret, function(err, decoded) {
-		if (!err) {
-			UsersModel.getUserWithLogin(decoded.username, function(err, rows, fields) {
-				if (!err && rows.length > 0 && rows[0].rights <= rights) {
-					next (rows[0]);
-				} else {
-					next (null);
-				}
-			});
-		} else {
-			next(null);
-		}
-	});
-
-};
-
-/* GET users listing. */
-router.post('/all_users', function(req, res, next) {
-
-	isAuthorized(req, 0, function (logged) {
-		if (logged) {
-			UsersModel.getAllUsers(function(err, rows, fields) {
-				if (!err) {
-					console.log('Getting all users');
-					var users = rows.map(function (user) {
-						user.talks = [];
-						user.photos = [];
-						return user;
-					});
-					res.json({"status":"success", "data":users});
-				}
-				else
-					res.json({"status":"error"});
-			});
-		} else {
-			res.status(401).json({ "status":"error" });
-		}
-	});
-
-});
-
 /* GET users listing. */
 router.post('/relevant_users', function(req, res, next) {
 
-	isAuthorized(req, 1, function (logged) {
-		if (logged) {
-			UserCtrl.getRelevantUsers(logged, function (users) {
-				if (users) {
-					res.json({ "status":"success", "data": users });
-				} else {
-					res.json({ "status":"error", "msg": "A problem occur while fetching users" });
-				}
-			});
-		} else {
-			res.status(401).json({ "status":"error" });
-		}
-	});
+	var logged = req.logged_user;
+
+	if (logged) {
+		UserCtrl.getRelevantUsers(logged, function (users) {
+			if (users) {
+				res.json({ "status":"success", "data": users });
+			} else {
+				res.json({ "status":"error", "msg": "A problem occur while fetching users" });
+			}
+		});
+	} else {
+		res.status(401).json({ "status":"error" });
+	}
+
 
 });
 
@@ -88,75 +40,67 @@ router.post('/relevant_users', function(req, res, next) {
 router.post('/user/:login', function(req, res, next) {
 
 	var login = req.params.login;
+	var logged = req.logged_user;
 
-	isAuthorized(req, 1, function (logged) {
-		if (logged && login) {
-			UserCtrl.getUser(login, function (user) {
-				if (user) {
-					res.json({"status":"success", "data":user});
-				} else {
-					res.json({"status":"error", "msg":"Error when fetching user"});
-				}
-			});
-		} else {
-			res.status(401).json({ "status":"error" });
-		}
-	});
+	if (logged && login) {
+		UserCtrl.getUser(login, function (user) {
+			if (user) {
+				res.json({"status":"success", "data":user});
+			} else {
+				res.json({"status":"error", "msg":"Error when fetching user"});
+			}
+		});
+	} else {
+		res.status(401).json({ "status":"error" });
+	}
+
 
 });
 
 /* Add photo to connected user */
 router.post('/user/add_photo', function(req, res, next) {
 
-	isAuthorized(req, 1, function (logged) {
-		if (logged) {
+	//TODO
 
-		} else {
-			res.status(401).json({ "status":"error" });
-		}
-	});
 });
 
 /* GET user */
 router.post('/current_user/:login', function(req, res, next) {
 
 	var login = req.params.login;
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+	var logged = req.logged_user;
 
-	if (token && login) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-				UsersModel.getUserWithLogin(login, function(err, users, fields) {
-					if (users) {
-						console.log("User ", users[0]);
-						user = users[0];
-						LikesModel.getLikeFromUsers(decoded.username, login, function(err, likes, fields) {
-							console.log("getting like", likes);
-							usersTab = [decoded.username, login].sort();
-							TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
-							userToSend = {};
-							userToSend.login = user.login;
-							userToSend.gender = user.gender;
-							userToSend.bio = user.bio;
-							userToSend.liked = (likes.length > 0) ? true : false;
-							userToSend.has_talk = (talks.length > 0) ? true : false;
-							userToSend.photos = [];
-							ImageModel.getImagesFromUserId(userToSend.id, function(err, imgs, fields){
-								if (!err && imgs.length > 0) {
-									userToSend.photos = imgs;
-								}
-							});
-							console.log("usertosend", userToSend);
-							res.json({"status":"success", "data":userToSend});
-							});
+	if (logged && login) {
+		UserCtrl.getUser(login, function (user) {
+			if (user) {
+				LikesModel.getLikeFromUsers(logged.login, login, function(err, likes, fields) {
+					console.log("getting like", likes);
+					usersTab = [logged.login, login].sort();
+					TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
+						userToSend = {};
+						userToSend.login = user.login;
+						userToSend.gender = user.gender;
+						userToSend.bio = user.bio;
+						userToSend.liked = (likes.length > 0) ? true : false;
+						userToSend.has_talk = (talks.length > 0) ? true : false;
+						userToSend.photos = [];
+						ImageModel.getImagesFromUserId(userToSend.id, function(err, imgs, fields){
+							if (!err && imgs.length > 0) {
+								userToSend.photos = imgs;
+							}
 						});
-					} else {
-						res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
-					}
+						console.log("usertosend", userToSend);
+						res.json({"status":"success", "data":userToSend});
+					});
 				});
+			} else {
+				res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
+			}
 		});
 	} else {
 		res.json({"status":"error", "msg":"Missing login"});
 	}
+
 });
 
 
@@ -195,71 +139,31 @@ router.get('/user/:login/emailverif', function(req, res, next) {
 });
 
 
-/* REMOVE user. */
-router.post('/delete_user', function(req, res, next) {
-
-	var username = req.body.username;
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-	if (token && username) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-			UsersModel.getUserWithLogin(decoded.username, function (err, rows, fields) {
-				if (rows.length > 0 && rows[0].rights == 0) {
-					UsersModel.deleteUser(username, function(err, results, fields) {
-						if (results) {
-							TalkModel.getUserTalks(username, function(err, talks, fields) {
-								if (talks.lenth > 0) {
-									talks.map(function (talk) {
-										TalkModel.removeTalk(talk.id, null);
-									});
-								}
-							});
-							res.json({"status":"success"});
-						} else {
-							res.json({"status":"error", "msg":"User " + username + " doesn't exists"});
-						}
-					});
-				} else {
-					res.json({"status":"error", "msg": "unauthorize"});
-				}
-			});
-		});
-	} else {
-		res.json({"status":"error"});
-	}
-});
-
 /* Like or unlike user. */
 router.post('/toggle_like', function(req, res, next) {
 
 	var username = req.body.username;
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+	var logged = req.logged_user;
 
-	if (token && username) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-				LikesModel.getLikeFromUsers(decoded.username, username, function(err, rows, fields) {
-					if (rows[0]) {
-						console.log("Already liked", rows);
-						LikesModel.unLike(decoded.username, username, function(err, rows, fields) {
-							if (rows) {
-								res.json({"status":"success", "msg":"unliked"});
-							} else {
-								console.log("error when unliking");
-								res.json({"status":"error"});
-							}
-						});
+	if (logged && username) {
+		LikesModel.getLikeFromUsers(decoded.username, username, function(err, rows, fields) {
+			if (rows[0]) {
+				LikesModel.unLike(decoded.username, username, function(err, rows, fields) {
+					if (rows) {
+						res.json({"status":"success", "msg":"unliked"});
 					} else {
-						console.log("Not liked yet", rows);
-						LikesModel.like(decoded.username, username, function(err, rows, fields) {
-							if (rows) {
-								res.json({"status":"success", "msg":"liked"});
-							} else {
-								console.log("error when liking");
-								res.json({"status":"error"});
-							}
-						});
+						res.json({"status":"error"});
 					}
 				});
+			} else {
+				LikesModel.like(decoded.username, username, function(err, rows, fields) {
+					if (rows) {
+						res.json({"status":"success", "msg":"liked"});
+					} else {
+						res.json({"status":"error"});
+					}
+				});
+			}
 		});
 	} else {
 		res.json({"status":"error"});
@@ -301,38 +205,7 @@ router.post('/newfast', [
 			UsersModel.insertUser(user, now, function(err, rows, fields) {
 				if (!err) {
 					console.log('User inserted');
-					nodemailer.createTestAccount((err, account) => {
-
-					    // create reusable transporter object using the default SMTP transport
-					    let transporter = nodemailer.createTransport({
-					        host: 'smtp.ethereal.email',
-					        port: 587,
-					        secure: false, // true for 465, false for other ports
-					        auth: {
-					            user: account.user, // generated ethereal user
-					            pass: account.pass  // generated ethereal password
-					        }
-					    });
-
-					    // setup email data with unicode symbols
-					    let mailOptions = {
-					        from: '"DARKROOM" <noreply@darkroom.com>', // sender address
-					        to: user.email, // list of receivers
-					        subject: 'Welcome into the DARKROOM', // Subject line
-					        html: '<b>Please verify you email by clicking on this link <a href="">localhost:3001/api/users/user/'+user.login+'/emailverif?r='+user.activated+'</a></b>' // html body
-					    };
-
-					    // send mail with defined transport object
-					    transporter.sendMail(mailOptions, (error, info) => {
-					        if (error) {
-					            return console.log(error);
-					        }
-					        console.log('Message sent: %s', info.messageId);
-					        // Preview only available when sending through an Ethereal account
-					        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
-					    });
-					});
+					Mailer.sendVerifEmail(user.email, user.login, user.activated);
 					res.json({"status":"success"});
 				}
 				else {
@@ -363,38 +236,7 @@ router.post('/new', [
 	UsersModel.insertUser(user, now, function(err, rows, fields) {
 		if (!err) {
 			console.log('User inserted');
-			nodemailer.createTestAccount((err, account) => {
-
-			    // create reusable transporter object using the default SMTP transport
-			    let transporter = nodemailer.createTransport({
-			        host: 'smtp.ethereal.email',
-			        port: 587,
-			        secure: false, // true for 465, false for other ports
-			        auth: {
-			            user: account.user, // generated ethereal user
-			            pass: account.pass  // generated ethereal password
-			        }
-			    });
-
-			    // setup email data with unicode symbols
-			    let mailOptions = {
-			        from: '"DARKROOM" <noreply@darkroom.com>', // sender address
-			        to: user.email, // list of receivers
-			        subject: 'Welcome to DARKROOM', // Subject line
-			        html: '<b>Welcome!</b>' // html body
-			    };
-
-			    // send mail with defined transport object
-			    transporter.sendMail(mailOptions, (error, info) => {
-			        if (error) {
-			            return console.log(error);
-			        }
-			        console.log('Message sent: %s', info.messageId);
-			        // Preview only available when sending through an Ethereal account
-			        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
-			    });
-			});
+			Mailer.sendVerifEmail(user.email, user.login, user.activated);
 			res.json({"status":"success"});
 		}
 		else {
@@ -414,32 +256,28 @@ router.post('/update', [
 ], (req, res, next) => {
 
 	const errors = validationResult(req);
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+	var logged = req.logged_user;
 
-	if (token) {
-		jwt.verify(token, config.secret, function(err, decoded) {
-			if (err || !errors.isEmpty()) {
-				res.status(422).json({"status":"error", "msg":"invalid form"});
-			} else {
-				var infos = {};
-				infos.email = req.body.email;
-				infos.fname = req.body.fname;
-				infos.lname = req.body.lname;
-				infos.gender = req.body.gender;
-				infos.int_in = req.body.int_in;
-				infos.bio = (req.body.bio) ? req.body.bio : "";
+	if (logged) {
+		if (!errors.isEmpty()) {
+			res.json({"status":"error", "msg":"invalid form"});
+		} else {
+			var infos = {};
+			infos.email = req.body.email;
+			infos.fname = req.body.fname;
+			infos.lname = req.body.lname;
+			infos.gender = req.body.gender;
+			infos.int_in = req.body.int_in;
+			infos.bio = (req.body.bio) ? req.body.bio : "";
 
-				UsersModel.updateInfos(decoded.username, infos, function (err, rows, fields) {
-					if (rows && !err) {
-						console.log('User modified', rows);
-						res.json({"status":"success"});
-					} else {
-						console.log('Error while puting new user', err);
-						res.json({"status":"error"});
-					}
-				});
-			}
-		});
+			UsersModel.updateInfos(logged.login, infos, function (err, rows, fields) {
+				if (rows && !err) {
+					res.json({"status":"success"});
+				} else {
+					res.json({"status":"error"});
+				}
+			});
+		}
 	}
 });
 
@@ -448,26 +286,24 @@ router.post('/save_loc', function(req, res, next) {
 
 	var lat = req.body.lat;
 	var lon = req.body.lon;
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+	var logged = req.logged_user;
 
-	if (token && lat && lon) {
+	if (logged && lat && lon) {
 		var loc = {};
 		loc.lon = lon;
 		loc.lat = lat;
-		console.log("saving loc", loc);
-		jwt.verify(token, config.secret, function(err, decoded) {
-				UsersModel.updateLocation(decoded.username, JSON.stringify(loc), function (err, rows, fields) {
-					if (!err) {
-						res.json({"status":"success"});
-					} else {
-						console.log("error", err);
-						res.json({"status":"error"});
-					}
-				});
+		UsersModel.updateLocation(logged.login, JSON.stringify(loc), function (err, rows, fields) {
+			if (!err) {
+				res.json({"status":"success"});
+			} else {
+				console.log("error", err);
+				res.json({"status":"error"});
+			}
 		});
 	} else {
 		res.json({"status":"error"});
 	}
+
 });
 
 module.exports = router;

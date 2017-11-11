@@ -2,12 +2,18 @@ var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
+var Auth = require('./middlewares/authentification');
 var Login = require('./routes/login');
 var Users = require('./routes/users');
 var Talks = require('./routes/talks');
+var Admin = require('./routes/admin');
 
 var app = express();
 var expressWs = require('express-ws')(app);
+
+var config = require('./config');
+var jwt = require('jsonwebtoken');
+var UsersModel = require('./models/users_model');
 
 app.use(morgan('dev'));
 app.use(bodyParser.json());
@@ -24,8 +30,11 @@ app.get('/', function(req, res) {
 });
 
 app.use('/auth', Login);
+app.post('/api/*', Auth.hasRole(1));
 app.use('/api/users', Users);
 app.use('/api/talks', Talks);
+app.post('/api/admin/*', Auth.hasRole(0));
+app.use('/api/admin', Admin);
 
 app.ws('/talking', function(ws, req) {
   ws.on('message', function(msg) {

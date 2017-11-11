@@ -18,15 +18,16 @@ model.newMessage = function(id_talk, message, username, date, cb) {
 };
 
 model.getUserTalks = function(username, cb) {
-	connection.query('SELECT * FROM talk WHERE username1 = ? OR username2 = ?', [username, username], cb);
+	connection.query('SELECT * FROM talk WHERE username1 = ? OR username2 = ? ', [username, username], cb);
 };
 
 model.getTalkMessages = function(id, cb) {
 	connection.query('SELECT * FROM message INNER JOIN talk ON talk.id=message.id_talk WHERE talk.id = ? ORDER BY message.date DESC LIMIT 50', [id], cb);
 };
 
-model.removeTalk = function(id, cb) {
-	connection.query('DELETE FROM message WHERE talk_id = ?; DELETE FROM talk WHERE id = ?', [id, id], cb);
+model.removeTalk = function(id) {
+	connection.query('DELETE FROM message WHERE id_talk = ?', [id]);
+	connection.query('DELETE FROM talk WHERE id = ?', [id]);
 };
 
 module.exports = model;

@@ -44,11 +44,17 @@ model.getTokenFromLogin = function(login, cb) {
 }
 
 model.insertUser = function(user, date, cb) {
-	connection.query('INSERT INTO user (login, email, fname, lname, password, gender, interested_in, bio, activated, rights, created_on) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [user.login, user.email, user.fname, user.lname, user.password, user.gender, user.int_in, user.bio, user.activated, user.rights, date], cb);
+	connection.query('\
+		INSERT INTO user (login, email, fname, lname, password, gender, interested_in, bio, activated, rights, created_on) \
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+		, [user.login, user.email, user.fname, user.lname, user.password, user.gender, user.int_in, user.bio, user.activated, user.rights, date], cb);
 }
 
 model.updateInfos = function(login, infos, cb) {
-	connection.query('UPDATE user SET email = ?, fname = ?, lname = ?, gender = ?, interested_in = ?, bio = ? WHERE login = ?', [infos.email, infos.fname, infos.lname, infos.gender, infos.int_in, infos.bio, login], cb);
+	connection.query('\
+		UPDATE user SET email = ?, fname = ?, lname = ?, gender = ?, interested_in = ?, bio = ? \
+		WHERE login = ? '
+		, [infos.email, infos.fname, infos.lname, infos.gender, infos.int_in, infos.bio, login], cb);
 }
 
 model.updateLocation = function(login, loc, cb) {
