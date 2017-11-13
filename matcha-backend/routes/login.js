@@ -30,7 +30,7 @@ apiRoutes.post('/', (req, res, next) => {
 				res.json({"status":"success", "token":token, "data":user});
 			}
 		} else {
-			res.json({"status":"error"});
+			res.json({"status":"error", "msg":"Incorrect login or password"});
 		}
 	});
 });

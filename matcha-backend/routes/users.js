@@ -73,25 +73,17 @@ router.post('/current_user/:login', function(req, res, next) {
 	if (logged && login) {
 		UserCtrl.getUser(login, function (user) {
 			if (user) {
-				LikesModel.getLikeFromUsers(logged.login, login, function(err, likes, fields) {
-					console.log("getting like", likes);
-					usersTab = [logged.login, login].sort();
-					TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
-						userToSend = {};
-						userToSend.login = user.login;
-						userToSend.gender = user.gender;
-						userToSend.bio = user.bio;
-						userToSend.liked = (likes.length > 0) ? true : false;
-						userToSend.has_talk = (talks.length > 0) ? true : false;
-						userToSend.photos = [];
-						ImageModel.getImagesFromUserId(userToSend.id, function(err, imgs, fields){
-							if (!err && imgs.length > 0) {
-								userToSend.photos = imgs;
-							}
-						});
-						console.log("usertosend", userToSend);
-						res.json({"status":"success", "data":userToSend});
-					});
+				usersTab = [logged.login, login].sort();
+				UserCtrl.getMatchStatus(logged.login, login, function (status) {
+					userToSend = {};
+					userToSend.login = user.login;
+					userToSend.gender = user.gender;
+					userToSend.bio = user.bio;
+					userToSend.match = status;
+					userToSend.has_talk = (talks.length > 0) ? true : false;
+					userToSend.photos = (userToSend.photos) ? userToSend.photos.split(",") : [];
+					console.log("usertosend", userToSend);
+					res.json({"status":"success", "data":userToSend});
 				});
 			} else {
 				res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
@@ -146,19 +138,23 @@ router.post('/toggle_like', function(req, res, next) {
 	var logged = req.logged_user;
 
 	if (logged && username) {
-		LikesModel.getLikeFromUsers(decoded.username, username, function(err, rows, fields) {
+		LikesModel.getLikeBetweenUsers(logged.login, username, function(err, rows, fields) {
 			if (rows[0]) {
-				LikesModel.unLike(decoded.username, username, function(err, rows, fields) {
+				LikesModel.unLike(logged.login, username, function(err, rows, fields) {
 					if (rows) {
-						res.json({"status":"success", "msg":"unliked"});
+						UserCtrl.getMatchStatus(logged.login, username, function (status) {
+							res.json({"status":"success", "data":status});
+						})
 					} else {
 						res.json({"status":"error"});
 					}
 				});
 			} else {
-				LikesModel.like(decoded.username, username, function(err, rows, fields) {
+				LikesModel.like(logged.login, username, function(err, rows, fields) {
 					if (rows) {
-						res.json({"status":"success", "msg":"liked"});
+						UserCtrl.getMatchStatus(logged.login, username, function (status) {
+							res.json({"status":"success", "data":status});
+						})
 					} else {
 						res.json({"status":"error"});
 					}

@@ -2,6 +2,7 @@ module Models exposing (..)
 
 import UserModel exposing (..)
 import FormUtils exposing (..)
+import Time exposing (..)
 
 
 type Route
@@ -36,6 +37,7 @@ type alias Model =
     , message : Maybe String
     , map_state : MapState
     , current_location : Maybe Localisation
+    , matchAnim : Maybe Time.Time
     }
 
 type alias Talk =
@@ -83,4 +85,5 @@ initialModel route =
     , message = Nothing
     , map_state = if (route == AccountRoute || route == EditAccountRoute ) then Loading else NoMap
     , current_location = Nothing
+    , matchAnim = Nothing
     }

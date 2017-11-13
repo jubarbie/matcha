@@ -17,7 +17,7 @@ model.unLike = function(user_from, user_to, cb) {
 	connection.query('DELETE FROM likes WHERE user_from = ? AND user_to = ?', [user_from, user_to], cb);
 };
 
-model.getLikeFromUsers = function(user_from, user_to, cb) {
+model.getLikeBetweenUsers = function(user_from, user_to, cb) {
 	connection.query('SELECT * FROM likes WHERE user_from = ? AND user_to = ?', [user_from, user_to], cb);
 };
 

@@ -11,7 +11,6 @@ import Models exposing (..)
 import UserModel exposing (..)
 import Msgs exposing (..)
 
-
 decodeLocalisationResponse : Decoder LocalisationApi
 decodeLocalisationResponse =
   JsonDec.map3 LocalisationApi
@@ -33,6 +32,17 @@ decodeGender =
         (\a -> case a of
             "M" -> JsonDec.succeed M
             "F" -> JsonDec.succeed F
+            _ -> JsonDec.fail "Gender must be M or F"
+        )
+
+decodeMatch : Decoder MatchStatus
+decodeMatch =
+    JsonDec.string |> JsonDec.andThen
+        (\a -> case a of
+            "none" -> JsonDec.succeed None
+            "from" -> JsonDec.succeed From
+            "to" -> JsonDec.succeed To
+            "match" -> JsonDec.succeed Match
             _ -> JsonDec.fail "Gender must be M or F"
         )
 
@@ -91,7 +101,7 @@ decodeCurrentUser =
   (at ["login"] JsonDec.string)
   (maybe (at ["gender"] decodeGender))
   (at ["bio"] JsonDec.string)
-  (at ["liked"] JsonDec.bool)
+  (at ["match"] decodeMatch)
   (at ["has_talk"] JsonDec.bool)
 
 
@@ -252,7 +262,7 @@ toggleLike username token =
             , ("token", JsonEnc.string token)
             ]
     in
-        Http.post "http://localhost:3001/api/users/toggle_like" body (decodeApiResponse Nothing)
+        Http.post "http://localhost:3001/api/users/toggle_like" body (decodeApiResponse <| Just decodeMatch)
         |> RemoteData.sendRequest
         |> Cmd.map (ToggleLikeResponse username)
 

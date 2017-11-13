@@ -14,7 +14,7 @@ type Msg
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
-    | ToggleLikeResponse String (WebData (ApiResponse (Maybe User)))
+    | ToggleLikeResponse String (WebData (ApiResponse (Maybe MatchStatus)))
     | GetTalkResponse (WebData (ApiResponse (Maybe (List Message))))
     | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
@@ -41,3 +41,4 @@ type Msg
     | Localize
     | UpdateEditAccountForm String String
     | SaveAccountUpdates
+    | UpdateAnim Time.Time

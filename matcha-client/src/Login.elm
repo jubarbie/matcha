@@ -15,7 +15,7 @@ view route model =
             Just msg -> msg
             _ -> ""
     in
-    div []
+    div [ class <| if msg /= "" then "wrong" else "" ]
         [ img [ src "/assets/images/DARKROOM_logo.svg", id "logo" ] []
         , div [][text msg]
         , (case route of

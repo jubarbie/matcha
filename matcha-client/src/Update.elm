@@ -137,15 +137,18 @@ update msg model =
         ToggleLikeResponse username response ->
             case Debug.log "resp" response of
                 Success rep ->
-                    case rep.status of
-                        "success" ->
+                    case (rep.status, rep.data) of
+                        ("success", Just m) ->
                             let
+                              anim = case m of
+                                Match -> Just 1.0
+                                _ -> Nothing
                               newCurrentUser =
                                 case model.current_user of
-                                  Just u -> Just { u | liked = (rep.message == Just "liked") }
+                                  Just u -> Just { u | match = m }
                                   _ -> Nothing
                             in
-                            ( { model  | current_user = newCurrentUser }, Cmd.none )
+                            ( { model  | current_user = newCurrentUser, matchAnim = anim }, Cmd.none )
                         _ -> ( model, Navigation.newUrl "/#/login")
                 _ ->
                     ( model, Navigation.newUrl "/#/login" )
@@ -398,6 +401,18 @@ update msg model =
               newForm = updateInput form id (Just value)
           in
               ( { model | editAccountForm = newForm }, Cmd.none)
+
+        UpdateAnim t ->
+          let
+              newAnim = case model.matchAnim of
+                Just t ->
+                  if (t - 0.01) > 0 then
+                    Just (t - 0.01)
+                  else
+                    Nothing
+                _ -> Nothing
+          in
+              ( { model | matchAnim = Debug.log "newAnim" newAnim }, Cmd.none)
 
         SaveAccountUpdates ->
           case model.session of

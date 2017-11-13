@@ -5,9 +5,9 @@ var LikesModel = require('../models/likes_model');
 var TalkModel = require('../models/talk_model');
 var ImageModel = require('../models/image_model');
 
-var model = {};
+var ctrl = {};
 
-model.getUser = function (login, callback) {
+ctrl.getUser = function (login, callback) {
 	UsersModel.getUserWithLogin(login, function(err, rows, fields) {
 		if (!err && rows.length > 0) {
 			var user = rows[0];
@@ -27,6 +27,7 @@ model.getUser = function (login, callback) {
 					if (loc = user.localisation) {
 						user.localisation = JSON.parse(loc);
 					}
+					this.getMatchStatus();
 					callback(user);
 				});
 			});
@@ -36,7 +37,7 @@ model.getUser = function (login, callback) {
 	});
 };
 
-model.getRelevantUsers = function (user, callback) {
+ctrl.getRelevantUsers = function (user, callback) {
 
   var gender = (user.int_in) ? user.int_in : "M";
   var int_in = (user.gender) ? user.gender : "M";
@@ -56,4 +57,21 @@ model.getRelevantUsers = function (user, callback) {
 	});
 };
 
-module.exports = model;
+ctrl.getMatchStatus = function (userFrom, userTo, cb) {
+
+	var matchStatus = "none";
+
+	LikesModel.getLikeBetweenUsers(userFrom, userTo, function (err, row1s, fields) {
+		if (!err && row1s.length > 0) {
+			matchStatus = "to";
+		}
+		LikesModel.getLikeBetweenUsers(userTo, userFrom, function (err, row2s, fields) {
+			if (!err && row2s.length > 0) {
+				matchStatus = (matchStatus == "to") ? "match" : "from";
+			}
+			cb(matchStatus);
+		});
+	});
+};
+
+module.exports = ctrl;

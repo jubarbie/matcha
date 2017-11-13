@@ -18,7 +18,7 @@ type alias CurrentUser =
     { username : String
     , gender : Maybe Gender
     , bio : String
-    , liked : Bool
+    , match : MatchStatus
     , has_talk : Bool
     }
 
@@ -36,6 +36,13 @@ type alias Localisation =
 type Gender
     = M
     | F
+
+type MatchStatus
+    = None
+    | From
+    | To
+    | Match
+
 
 type UserRole
   = ADMIN
@@ -56,3 +63,11 @@ stringToGender g =
         "M" -> Just M
         "F" -> Just F
         _ -> Nothing
+
+stringToMatch : String -> MatchStatus
+stringToMatch m =
+    case m of
+        "from" -> From
+        "to" -> To
+        "match" -> Match
+        _ -> None

@@ -26,15 +26,21 @@ init location =
 subscriptions : Model -> Sub Msg
 subscriptions model =
   let
-    sub =
+    subRoute =
       case model.route of
         ChatRoute a -> Time.every Time.second (FetchTalk a)
         AccountRoute -> Time.every Time.second LoadMap
         _ -> Sub.none
+
+    subAnim =
+      case model.matchAnim of
+        Just t -> Time.every Time.millisecond UpdateAnim
+        _ -> Sub.none
   in
     Sub.batch [ tokenRecieved SaveToken
               , newLocalisation SetNewLocalisation
-              , sub
+              , subAnim
+              , subRoute
               ]
 
 main : Program Never Model Msg

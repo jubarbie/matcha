@@ -21,6 +21,11 @@ view model =
       _ -> USER
   in
   div [ class "container" ]
+    [ (if (model.matchAnim /= Nothing) then 
+        div [ id "match-anim" ] []
+      else
+        div [] [])
+    , div []
        <|  case model.route of
             Connect a ->
                 [ Login.view a model ]
@@ -40,6 +45,7 @@ view model =
                 [viewMenu model.route role, Members.view model]
             NotFoundRoute ->
                 [view401]
+    ]
 
 view401 : Html msg
 view401 =

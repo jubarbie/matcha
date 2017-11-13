@@ -23,11 +23,22 @@ viewUser user =
         "Open talk"
       else
         "New talk"
+    likeBtn =
+      if ( user.match == None || user.match == From ) then
+        button [ onClick <| ToggleLike user.username ] [ text "Like" ]
+      else
+        div []
+          [ text <|
+              case user.match of
+                Match -> "Matched"
+                To -> "Liked"
+                _ -> ""
+          ]
   in
     div []
         [ button [ onClick <| GoBack 1 ][ text "Back" ]
         , h3 [] [ text user.username ]
-        , button [ onClick <| ToggleLike user.username ] [ text (if user.liked then "Unlike" else "Like") ]
+        , likeBtn
         , a [ href <| "http://localhost:3000/#/chat/" ++ user.username ] [ text talkTxt ]
         , div [] [ text <| genderToString user.gender ]
         , div [] [ text user.bio ]
