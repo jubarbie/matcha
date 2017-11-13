@@ -7,7 +7,22 @@ var ImageModel = require('../models/image_model');
 
 var ctrl = {};
 
-ctrl.getUser = function (login, callback) {
+ctrl.getFullUser = function (logged, login, callback) {
+	UsersModel.getFullDataUserWithLogin(logged.login, login, function(err, rows, fields) {
+		if (!err && rows.length > 0) {
+			var user = rows[0];
+			user.photos = (user.photos) ? user.photos.split(',') : [];
+			if (loc = user.localisation) {
+				user.localisation = JSON.parse(loc);
+			}
+			callback(user);
+		} else {
+			callback(null);
+		}
+	});
+};
+
+ctrl.getConnectedUser = function (login, callback) {
 	UsersModel.getUserWithLogin(login, function(err, rows, fields) {
 		if (!err && rows.length > 0) {
 			var user = rows[0];
@@ -27,7 +42,6 @@ ctrl.getUser = function (login, callback) {
 					if (loc = user.localisation) {
 						user.localisation = JSON.parse(loc);
 					}
-					this.getMatchStatus();
 					callback(user);
 				});
 			});

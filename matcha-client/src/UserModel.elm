@@ -20,6 +20,7 @@ type alias CurrentUser =
     , bio : String
     , match : MatchStatus
     , has_talk : Bool
+    , photos : List String
     }
 
 type alias LocalisationApi =

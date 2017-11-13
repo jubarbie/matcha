@@ -38,6 +38,7 @@ viewUser user =
     div []
         [ button [ onClick <| GoBack 1 ][ text "Back" ]
         , h3 [] [ text user.username ]
+        , div [] <| List.map (\i -> img [ src i ][]) user.photos
         , likeBtn
         , a [ href <| "http://localhost:3000/#/chat/" ++ user.username ] [ text talkTxt ]
         , div [] [ text <| genderToString user.gender ]

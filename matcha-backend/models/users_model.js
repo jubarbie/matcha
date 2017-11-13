@@ -27,7 +27,7 @@ model.getRelevantProfiles = function(gender, int_in, cb) {
 	, [gender, int_in], cb);
 }
 
-model.getUserWithLogin = function(login, cb) {
+model.getFullDataUserWithLogin = function(logged, login, cb) {
 	connection.query('\
 	SELECT u.*, GROUP_CONCAT(i.src) AS photos, \
 			( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks \
@@ -36,7 +36,11 @@ model.getUserWithLogin = function(login, cb) {
 		LEFT JOIN image AS i ON i.id = rel.id_image \
 		WHERE u.login = ? \
 		GROUP BY u.id'
-	, [login, login, login], cb);
+	, [...[logged, login].sort(), login], cb);
+}
+
+model.getUserWithLogin = function(login, cb) {
+	connection.query('SELECT * FROM user WHERE login = ?', [login], cb);
 }
 
 model.deleteUser = function(login, cb) {

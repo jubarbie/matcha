@@ -43,7 +43,7 @@ router.post('/user/:login', function(req, res, next) {
 	var logged = req.logged_user;
 
 	if (logged && login) {
-		UserCtrl.getUser(login, function (user) {
+		UserCtrl.getFullUser(login, function (user) {
 			if (user) {
 				res.json({"status":"success", "data":user});
 			} else {
@@ -71,19 +71,14 @@ router.post('/current_user/:login', function(req, res, next) {
 	var logged = req.logged_user;
 
 	if (logged && login) {
-		UserCtrl.getUser(login, function (user) {
+		UserCtrl.getFullUser(logged, login, function (user) {
 			if (user) {
 				usersTab = [logged.login, login].sort();
 				UserCtrl.getMatchStatus(logged.login, login, function (status) {
-					userToSend = {};
-					userToSend.login = user.login;
-					userToSend.gender = user.gender;
-					userToSend.bio = user.bio;
-					userToSend.match = status;
-					userToSend.has_talk = (talks.length > 0) ? true : false;
-					userToSend.photos = (userToSend.photos) ? userToSend.photos.split(",") : [];
-					console.log("usertosend", userToSend);
-					res.json({"status":"success", "data":userToSend});
+					user.match = status;
+					user.has_talk = (user.talks > 0) ? true : false;
+					console.log("usertosend", user);
+					res.json({"status":"success", "data":user});
 				});
 			} else {
 				res.json({"status":"error", "msg":"User " + login + " doesn't exists"});

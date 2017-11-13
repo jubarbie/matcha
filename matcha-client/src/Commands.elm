@@ -97,12 +97,13 @@ decodeUser =
 
 decodeCurrentUser : Decoder CurrentUser
 decodeCurrentUser =
-  JsonDec.map5 CurrentUser
-  (at ["login"] JsonDec.string)
-  (maybe (at ["gender"] decodeGender))
-  (at ["bio"] JsonDec.string)
-  (at ["match"] decodeMatch)
-  (at ["has_talk"] JsonDec.bool)
+  JsonDec.succeed CurrentUser
+    |: (field "login" JsonDec.string)
+    |: maybe (field "gender" decodeGender)
+    |: (field "bio" JsonDec.string)
+    |: (field "match" decodeMatch)
+    |: (field "has_talk" JsonDec.bool)
+    |: (field "photos" (JsonDec.list JsonDec.string))
 
 
 decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))

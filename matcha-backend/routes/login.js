@@ -9,7 +9,6 @@ var jwt = require('jsonwebtoken');
 
 var UserCtrl = require('../controllers/user_ctrl.js');
 
-var UsersModel = require('../models/users_model');
 var ImageModel = require('../models/image_model');
 
 apiRoutes.post('/', (req, res, next) => {
@@ -17,7 +16,7 @@ apiRoutes.post('/', (req, res, next) => {
 	var login = req.body.login;
 	var pwd = req.body.password;
 
-	UserCtrl.getUser(login, function (user) {
+	UserCtrl.getConnectedUser(login, function (user) {
 		if (user) {
 			if (bcrypt.compareSync(pwd, user.password) == false) {
 				res.json({"status":"error", "msg":"Incorrect login or password"});
