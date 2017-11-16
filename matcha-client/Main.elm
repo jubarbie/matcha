@@ -17,11 +17,8 @@ init location =
     let
         currentRoute =
             Routing.parseLocation location
-        cmd = case currentRoute of
-            UsersRoute -> Cmd.none
-            _ -> Cmd.none
     in
-        ( initialModel currentRoute, Cmd.batch [cmd, getToken ()])
+        ( initialModel currentRoute, getToken ())
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

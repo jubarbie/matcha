@@ -18,6 +18,15 @@ body {
 	margin: 0 auto;
 	margin-top: 80px;
 }
+.alert {
+	position: fixed;
+	top: 0;
+	text-align: center;
+	left: 0;
+	right: 0;
+	padding: 8px;
+	width: 100%;
+}
 .important-font {
 	font-size: 22px;
 	text-transform: uppercase;

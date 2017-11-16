@@ -20,12 +20,14 @@ type Msg
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
     | SaveLocRespone (WebData (ApiResponse (Maybe String)))
     | EditAccountResponse String String String String String String (WebData (ApiResponse (Maybe User)))
+    | ResetPwdResponse (WebData (ApiResponse (Maybe String)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
     | SetNewLocalisation (List Float)
     | UpdateNewUserForm String String
     | UpdateLoginForm String String
+    | UpdateResetPwdForm String String
     | NewUser
     | SendLogin
     | DeleteUser String
@@ -42,3 +44,4 @@ type Msg
     | UpdateEditAccountForm String String
     | SaveAccountUpdates
     | UpdateAnim Time.Time
+    | ResetPwd

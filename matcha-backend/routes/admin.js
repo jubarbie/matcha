@@ -6,16 +6,17 @@ var TalkModel = require('../models/talk_model');
 
 
 /* GET users listing. */
-router.post('/all_users', function(req, res, next) {
+router.post('/all_users', (req, res, next) => {
 
-	UsersModel.getAllUsers(function(err, rows, fields) {
+	UsersModel.getAllUsers( (err, rows, fields) => {
 		if (!err) {
-			console.log('Getting all users');
-			var users = rows.map(function (user) {
+			var users = rows.map((user) => {
 				user.talks = [];
 				user.photos = [];
+				user.localisation = [];
 				return user;
 			});
+			console.log('Getting all users', users);
 			res.json({"status":"success", "data":users});
 		}
 		else

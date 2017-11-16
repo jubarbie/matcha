@@ -21,10 +21,16 @@ view model =
       _ -> USER
   in
   div [ class "container" ]
-    [ (if (model.matchAnim /= Nothing) then 
+    [ (if (model.matchAnim /= Nothing) then
         div [ id "match-anim" ] []
       else
         div [] [])
+    , (case model.message of
+        Just msg ->
+          div [ class "alert" ] [ text msg ]
+        Nothing ->
+          div [][]
+      )
     , div []
        <|  case model.route of
             Connect a ->

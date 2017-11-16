@@ -2,6 +2,9 @@ module FormUtils exposing (..)
 
 import UserModel exposing (..)
 import Regex exposing (..)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 
 type alias Form = List Input
 
@@ -82,6 +85,12 @@ initLoginForm =
         , initInput Nothing "password" "Mot de passe" "pwd" (Just <| TextValidator 2 255) Nothing
         ]
 
+initResetPwdForm : Form
+initResetPwdForm =
+        [ initInput Nothing "text" "Login" "login" Nothing Nothing
+        , initInput Nothing "text" "Email" "email" (Just EmailValidator) Nothing
+        ]
+
 initNewUserForm : Form
 initNewUserForm =
        [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
@@ -145,3 +154,27 @@ validGender g =
                 "F" -> Valid "F"
                 _ -> NotValid "Must be F or M"
         _ -> Waiting
+
+
+viewInput : (String -> a) -> Input -> Html a
+viewInput mess i =
+    let
+        inputClass = case i.status of
+            NotValid err -> "input input-error"
+            Valid a -> "input input-success"
+            Waiting -> "input"
+    in
+        div [ class inputClass]
+            [ label [ for i.id ] [ text i.label ]
+            , input [
+                type_ i.typ,
+                id i.id,
+                onInput mess,
+                value <| case i.input of
+                  Just val -> val
+                  _ -> ""
+              ] []
+            , case i.tip of
+                Just tip -> div [ class "input-tip" ][ text tip ]
+                _ -> div [][]
+            ]

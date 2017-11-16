@@ -55,6 +55,16 @@ decodeRole =
             _ -> JsonDec.fail "Unknown role"
         )
 
+decodeUserStatus : Decoder UserStatus
+decodeUserStatus =
+    JsonDec.string |> JsonDec.andThen
+        (\a -> case a of
+            "activated" -> JsonDec.succeed Activated
+            "resetpwd" -> JsonDec.succeed ResetPassword
+            "incomplete" -> JsonDec.succeed Incomplete
+            _ -> JsonDec.succeed NotActivated
+        )
+
 decodeTalks : Decoder (List String)
 decodeTalks =
   JsonDec.list decodeTalkUsername
@@ -94,6 +104,7 @@ decodeUser =
     |: maybe (field "localisation" decodeLocalisation)
     |: (field "photos" (JsonDec.list JsonDec.string))
     |: (field "rights" decodeRole)
+    |: (field "activated" decodeUserStatus)
 
 decodeCurrentUser : Decoder CurrentUser
 decodeCurrentUser =
@@ -188,6 +199,16 @@ sendLogin login pwd =
         |> RemoteData.sendRequest
         |> Cmd.map LoginResponse
 
+resetPwd : String -> String -> Cmd Msg
+resetPwd login email =
+    let
+        body =
+            Http.jsonBody <| JsonEnc.object [("username", JsonEnc.string login), ("email", JsonEnc.string email)]
+    in
+        Http.post "http://localhost:3001/auth/reset_password" body (decodeApiResponse <| Nothing)
+        |> RemoteData.sendRequest
+        |> Cmd.map ResetPwdResponse
+
 sendFastNewUser : String -> String -> String -> String -> Cmd Msg
 sendFastNewUser username email pwd repwd =
     let
@@ -199,29 +220,10 @@ sendFastNewUser username email pwd repwd =
             , ("rePassword", JsonEnc.string repwd)
             ]
     in
-        Http.post "http://localhost:3001/api/users/newfast" body (decodeApiResponse Nothing)
+        Http.post "http://localhost:3001/auth/newfast" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
         |> Cmd.map NewUserResponse
 
-sendNewUser : String -> String -> String -> String -> String -> String -> String -> String -> String -> Cmd Msg
-sendNewUser username email fname lname pwd repwd gender intIn bio =
-    let
-        body =
-            Http.jsonBody <| JsonEnc.object
-            [ ("username", JsonEnc.string username)
-            , ("email", JsonEnc.string email)
-            , ("fname", JsonEnc.string fname)
-            , ("lname", JsonEnc.string lname)
-            , ("password", JsonEnc.string pwd)
-            , ("rePassword", JsonEnc.string repwd)
-            , ("gender", JsonEnc.string gender)
-            , ("int_in", JsonEnc.string intIn)
-            , ("bio", JsonEnc.string bio)
-            ]
-    in
-        Http.post "http://localhost:3001/api/users/newfast" body (decodeApiResponse Nothing)
-        |> RemoteData.sendRequest
-        |> Cmd.map NewUserResponse
 
 updateAccountInfos : String -> String -> String -> String -> String -> String -> String -> Cmd Msg
 updateAccountInfos token fname lname email gender intIn bio =

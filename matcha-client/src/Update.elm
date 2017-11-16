@@ -12,7 +12,10 @@ import FormUtils exposing (..)
 import UserModel exposing (..)
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
+update msg oldModel =
+  let
+    model = { oldModel | message = Nothing }
+  in
     case msg of
         Logout ->
             ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
@@ -32,43 +35,40 @@ update msg model =
         UsersResponse response ->
             case response of
                 Success rep ->
-                  case (rep.status == "success", rep.data) of
-                      (True, Just u) ->
-                          ( { model | users = u, current_user = Nothing }
-                          , Cmd.none )
-                      _ -> (model, Navigation.newUrl "/#/login")
+                  case (rep.status == "success", Debug.log "repsp" rep.data) of
+                      (True, Just u) -> ( { model | users = u, current_user = Nothing }, Cmd.none )
+                      _ -> ( { model | message = Just "Network errror. Please try again" }, Cmd.none)
                 _ ->
-                    ( model
-                    , Navigation.newUrl "/#/login" )
+                    ( { model | message = Just "Network error. Please try again" }, Cmd.none)
 
         ProfileResponse token response ->
             case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
-                          let
-                            newModel = { model | session = Just <| Session u token, editAccountForm = initEditAccountForm u }
-                            cmd = case model.route of
-                                  ChatRoute a ->
-                                    case newModel.session of
-                                        Just s -> getTalk a s.token
-                                        _ -> Navigation.newUrl "/#/login"
-                                  Members ->
-                                    case newModel.session of
-                                        Just s -> getUsers s.token
-                                        _ -> Navigation.newUrl "/#/login"
-                                  UsersRoute ->
-                                      case newModel.session of
-                                          Just s -> getRelevantUsers s.token
-                                          _ -> Navigation.newUrl "/#/login"
-                                  UserRoute a ->
-                                      case newModel.session of
-                                          Just s -> getCurrentUser a s.token
-                                          _ -> Navigation.newUrl "/#/login"
-                                  _ -> Cmd.none
-                              in
-                                ( newModel, cmd )
-                        _ -> (model, Navigation.newUrl "/#/login")
+                            let
+                              newSession = Session u token
+                              newModel = { model | session = Just newSession, editAccountForm = initEditAccountForm u }
+                            in
+                              case u.status of
+                                Activated ->
+                                  case (newModel.route) of
+                                      ChatsRoute -> ( newModel, getTalks newSession.token)
+                                      ChatRoute a -> ( newModel, getTalk a newSession.token)
+                                      Members -> ( newModel, getUsers newSession.token)
+                                      UsersRoute -> ( newModel, getRelevantUsers newSession.token)
+                                      UserRoute a -> ( newModel, getCurrentUser a newSession.token)
+                                      AccountRoute -> ( { newModel | map_state = Models.Loading }, Cmd.none)
+                                      EditAccountRoute -> ( { newModel | editAccountForm = initEditAccountForm newSession.user }, Cmd.none)
+                                      _ -> ( newModel, Cmd.none)
+
+                                ResetPassword ->
+                                  ( { newModel | message = Just "Please reset your password" }, Navigation.newUrl  "/#/account" )
+
+                                _ ->
+                                  ( newModel , Navigation.newUrl "/#/login")
+
+                        _ -> ( model, Navigation.newUrl "/#/login" )
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
@@ -79,7 +79,18 @@ update msg model =
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
                                 ( { model | current_user = Nothing }, Cmd.none )
-                        _ -> ( {model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
+                        _ -> ( { model | message = Just "User not found" }, Cmd.none)
+                _ ->
+                    ( model
+                    , Navigation.newUrl "/#/login" )
+
+        ResetPwdResponse response ->
+            case response of
+                Success rep ->
+                  if (rep.status == "success") then
+                    ( { model | message = Just "A email have been sent with your new password" }, Navigation.newUrl "/#/login" )
+                  else
+                    ( { model | message = Just "Unknown user" }, Cmd.none )
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
@@ -242,42 +253,21 @@ update msg model =
 
         OnLocationChange location ->
             let
-                newRoute =
-                    parseLocation location
-
-                ret = case newRoute of
-                    ChatsRoute ->
-                      case model.session of
-                          Just s -> ( { model | route = newRoute }, getTalks s.token)
-                          _ -> ( model, Navigation.newUrl "/#/login")
-                    ChatRoute a ->
-                      case model.session of
-                          Just s -> ( { model | route = newRoute }, getTalk a s.token)
-                          _ -> (model, Navigation.newUrl "/#/login")
-                    Members ->
-                      case model.session of
-                          Just s -> ( { model | route = newRoute }, getUsers s.token)
-                          _ -> (model, Navigation.newUrl "/#/login")
-                    UsersRoute ->
-                        case model.session of
-                            Just s -> ( { model | route = newRoute }, getRelevantUsers s.token)
-                            _ -> ( model, Navigation.newUrl "/#/login")
-                    UserRoute a ->
-                        case model.session of
-                            Just s -> ( { model | route = newRoute }, getCurrentUser a s.token)
-                            _ -> (model, Navigation.newUrl "/#/login")
-                    AccountRoute ->
-                        case model.session of
-                            Just s -> ( { model | route = newRoute, map_state = Models.Loading }, Cmd.none)
-                            _ -> ( model, Navigation.newUrl "/#/login")
-                    EditAccountRoute ->
-                        case model.session of
-                            Just s ->
-                              ( { model | route = newRoute, editAccountForm = initEditAccountForm s.user }, Cmd.none)
-                            _ -> ( model, Navigation.newUrl "/#/login")
-                    _ -> ( { model | route = newRoute }, Cmd.none)
+                newRoute = parseLocation location
+                session = model.session
             in
-                ret
+              case Debug.log "sessssssion" session of
+                Nothing -> ( model, Cmd.none)
+                Just s ->
+                  case newRoute of
+                      ChatsRoute -> ( { model | route = newRoute }, getTalks s.token)
+                      ChatRoute a -> ( { model | route = newRoute }, getTalk a s.token)
+                      Members -> ( { model | route = newRoute }, getUsers s.token)
+                      UsersRoute -> ( { model | route = newRoute }, getRelevantUsers s.token)
+                      UserRoute a -> ( { model | route = newRoute }, getCurrentUser a s.token)
+                      AccountRoute -> ( { model | route = newRoute, map_state = Models.Loading }, Cmd.none)
+                      EditAccountRoute -> ( { model | route = newRoute, editAccountForm = initEditAccountForm s.user }, Cmd.none)
+                      _ -> ( { model | route = newRoute }, Cmd.none)
 
         GoBack amount ->
           (model, Navigation.back amount)
@@ -288,6 +278,13 @@ update msg model =
                 newForm = updateInput form id (Just value)
             in
                 ( { model | loginForm = newForm }, Cmd.none)
+
+        UpdateResetPwdForm id value ->
+            let
+                form = model.resetPwdForm
+                newForm = updateInput form id (Just value)
+            in
+                ( { model | resetPwdForm = newForm }, Cmd.none)
 
         UpdateNewUserForm id value ->
             let
@@ -307,6 +304,15 @@ update msg model =
                 _ ->
                     (model, Cmd.none)
 
+        ResetPwd ->
+          let
+              values = List.map (\i -> i.status) model.resetPwdForm
+          in
+            case values of
+                [ Valid a, Valid b ] ->
+                    (model, resetPwd a b)
+                _ ->
+                    (model, Cmd.none)
 
         NewUser ->
             let

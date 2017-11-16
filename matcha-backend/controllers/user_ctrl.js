@@ -7,8 +7,8 @@ var ImageModel = require('../models/image_model');
 
 var ctrl = {};
 
-ctrl.getFullUser = function (logged, login, callback) {
-	UsersModel.getFullDataUserWithLogin(logged.login, login, function(err, rows, fields) {
+ctrl.getFullUser = (logged, login, callback) => {
+	UsersModel.getFullDataUserWithLogin(logged.login, login, (err, rows, fields) => {
 		if (!err && rows.length > 0) {
 			var user = rows[0];
 			user.photos = (user.photos) ? user.photos.split(',') : [];
@@ -51,7 +51,7 @@ ctrl.getConnectedUser = function (login, callback) {
 	});
 };
 
-ctrl.getRelevantUsers = function (user, callback) {
+ctrl.getRelevantUsers = (user, callback) => {
 
   var gender = (user.int_in) ? user.int_in : "M";
   var int_in = (user.gender) ? user.gender : "M";

@@ -3,12 +3,9 @@ var router = express.Router();
 
 const { check, validationResult } = require('express-validator/check');
 const { matchedData } = require('express-validator/filter');
-var bcrypt = require('bcrypt');
-var crypto = require('crypto');
-const saltRounds = 10;
+
 
 var config = require('../config');
-var Mailer = require('../middlewares/mailer');
 var UserCtrl = require('../controllers/user_ctrl.js');
 var UsersModel = require('../models/users_model');
 var LikesModel = require('../models/likes_model');
@@ -17,7 +14,7 @@ var ImageModel = require('../models/image_model');
 
 
 /* GET users listing. */
-router.post('/relevant_users', function(req, res, next) {
+router.post('/relevant_users', (req, res, next) => {
 
 	var logged = req.logged_user;
 
@@ -37,14 +34,15 @@ router.post('/relevant_users', function(req, res, next) {
 });
 
 /* GET user */
-router.post('/user/:login', function(req, res, next) {
+router.post('/user/:login', (req, res, next) => {
 
 	var login = req.params.login;
 	var logged = req.logged_user;
 
 	if (logged && login) {
-		UserCtrl.getFullUser(login, function (user) {
+		UserCtrl.getFullUser(logged, login, function (user) {
 			if (user) {
+				console.log(user);
 				res.json({"status":"success", "data":user});
 			} else {
 				res.json({"status":"error", "msg":"Error when fetching user"});
@@ -58,14 +56,14 @@ router.post('/user/:login', function(req, res, next) {
 });
 
 /* Add photo to connected user */
-router.post('/user/add_photo', function(req, res, next) {
+router.post('/user/add_photo', (req, res, next) => {
 
 	//TODO
 
 });
 
 /* GET user */
-router.post('/current_user/:login', function(req, res, next) {
+router.post('/current_user/:login', (req, res, next) => {
 
 	var login = req.params.login;
 	var logged = req.logged_user;
@@ -77,7 +75,6 @@ router.post('/current_user/:login', function(req, res, next) {
 				UserCtrl.getMatchStatus(logged.login, login, function (status) {
 					user.match = status;
 					user.has_talk = (user.talks > 0) ? true : false;
-					console.log("usertosend", user);
 					res.json({"status":"success", "data":user});
 				});
 			} else {
@@ -92,7 +89,7 @@ router.post('/current_user/:login', function(req, res, next) {
 
 
 /* Verify email */
-router.get('/user/:login/emailverif', function(req, res, next) {
+router.get('/user/:login/emailverif', (req, res, next) => {
 
 	var login = req.params.login;
 	var token = req.query.r;
@@ -100,7 +97,6 @@ router.get('/user/:login/emailverif', function(req, res, next) {
 	if (login && token) {
 		UsersModel.getTokenFromLogin(login, function(err, rows, fields) {
 			if (rows) {
-				console.log("User ", rows[0]);
 				var activated = rows[0].activated;
 				switch(activated) {
 				    case token:
@@ -127,7 +123,7 @@ router.get('/user/:login/emailverif', function(req, res, next) {
 
 
 /* Like or unlike user. */
-router.post('/toggle_like', function(req, res, next) {
+router.post('/toggle_like', (req, res, next) => {
 
 	var username = req.body.username;
 	var logged = req.logged_user;
@@ -159,82 +155,6 @@ router.post('/toggle_like', function(req, res, next) {
 	} else {
 		res.json({"status":"error"});
 	}
-});
-
-var buildUserFromRequest = function(req) {
-	var user = {};
-	user.login = req.body.username;
-	user.email = req.body.email;
-	user.fname = (req.body.fname) ? req.body.fname : "";
-	user.lname = (req.body.lname) ? req.body.lname : "";
-	user.gender = (req.body.gender) ? req.body.gender : "";
-	user.int_in = (req.body.int_in) ? req.body.int_in : "";
-	user.bio = (req.body.bio) ? req.body.bio : "";
-	user.password = bcrypt.hashSync(req.body.password, saltRounds);
-	user.activated = crypto.randomBytes(64).toString('hex');
-	user.rights = 1;
-	return user;
-};
-
-/* Insert new user with minimum infos */
-router.post('/newfast', [
-		check('username').exists(),
-		check('email').exists().isEmail(),
-		check('password').exists().isLength({ min: 5 }).matches(/\d/)
-], (req, res, next) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		res.status(422).json({"status":"error", "msg":errors});
-	}
-	UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
-		if (rows[0]) {
-			console.log(rows);
-			res.json({"status":"error", "msg":"Login already used"});
-		} else {
-			var user = buildUserFromRequest(req);
-			var now = Date.now();
-			UsersModel.insertUser(user, now, function(err, rows, fields) {
-				if (!err) {
-					console.log('User inserted');
-					Mailer.sendVerifEmail(user.email, user.login, user.activated);
-					res.json({"status":"success"});
-				}
-				else {
-					console.log('Error while puting new user', err);
-					res.json({"status":"error"});
-				}
-			});
-		}
-	});
-});
-
-/* PUT new user */
-router.post('/new', [
-		check('username').exists(),
-		check('email').exists().isEmail(),
-		check('fname').exists().isLength({min:1, max:250}),
-		check('lname').exists().isLength({min:1, max:250}),
-		check('gender').exists().isIn(['M', 'F']),
-		check('int_in').exists().matches('[FM]{1,2}'),
-		check('password').exists().isLength({ min: 5 }).matches(/\d/)
-], (req, res, next) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		res.status(422).json({"status":"error", "msg":errors});
-	}
-	var user = buildUserFromRequest(req);
-	var now = Date.now();
-	UsersModel.insertUser(user, now, function(err, rows, fields) {
-		if (!err) {
-			console.log('User inserted');
-			Mailer.sendVerifEmail(user.email, user.login, user.activated);
-			res.json({"status":"success"});
-		}
-		else {
-			console.log('Error while puting new user', err);
-			res.json({"status":"error"});
-		}
-	});
 });
 
 /* Update user infos */
@@ -273,7 +193,7 @@ router.post('/update', [
 });
 
 /* Like or unlike user. */
-router.post('/save_loc', function(req, res, next) {
+router.post('/save_loc', (req, res, next) => {
 
 	var lat = req.body.lat;
 	var lon = req.body.lon;
@@ -283,7 +203,7 @@ router.post('/save_loc', function(req, res, next) {
 		var loc = {};
 		loc.lon = lon;
 		loc.lat = lat;
-		UsersModel.updateLocation(logged.login, JSON.stringify(loc), function (err, rows, fields) {
+		UsersModel.updateLocation(logged.login, JSON.stringify(loc), (err, rows, fields) => {
 			if (!err) {
 				res.json({"status":"success"});
 			} else {

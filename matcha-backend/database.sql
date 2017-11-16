@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   `user_from` varchar(255) DEFAULT NULL,
   `user_to` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `message` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `created_on` varchar(255) DEFAULT NULL,
   `localisation` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `image` (`id`,`src`) VALUES (112,'http://popnhop.com/wp-content/uploads/2015/01/bigstock-LOS-ANGELES-NOVEMBER-Joc-58406525-400x242.jpg?a05');
 
@@ -57,6 +57,8 @@ INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (106,'undefined','tincid
 INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (108,'jubarbie','tincidunt');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (110,'jubarbie','facilisis');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (111,'jubarbie','eu');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (112,'marshall','jubarbie');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`) VALUES (113,'jubarbie','marshall');
 
 INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (131,109,'marshall','1509886447068','Hi mi, what a nice name you have ;)');
 
@@ -145,4 +147,5 @@ INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`in
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`,`created_on`,`localisation`) VALUES (99,'arcu.','LXF21APG8WR','Olympia','Cheyenne','egestas@idliberoDonec.co.uk','M','F','nonummy. Fusce fermentum fermentum arcu. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere','activated',1,'1509719024',NULL);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`,`created_on`,`localisation`) VALUES (100,'ipsum','MFA12BKM0HW','Xander','Matthew','cursus.et.eros@liberoat.ca','F','F','vel est tempor bibendum. Donec felis orci, adipiscing non, luctus sit amet, faucibus ut, nulla. Cras eu tellus eu augue porttitor interdum. Sed auctor odio a purus. Duis elementum, dui quis accumsan convallis, ante lectus convallis est,','activated',1,'1509719024',NULL);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`,`created_on`,`localisation`) VALUES (101,'jubarbie','$2a$10$vtdJOptKqDxpfK.nO5t7xO2hR4/vojekgQe.XBazhqXWsDlTWs97S','Jules','Barbier','jubarbie@student.42.fr','M','M','I\'m the administrator of this app','activated',0,'1509719024','{\"lon\":2.2258307403547803,\"lat\":48.88232963034292}');
-INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`,`created_on`,`localisation`) VALUES (107,'marshall','$2a$10$I3uyNX79m83lE0/uqCIE1eb82ELw6gfHmiCN2ZZIewWdJYUdh1UVK','','','marshall@marshall.com','','','','activated',1,'1509808921344','{\"lon\":2.3234807248280163,\"lat\":48.90160136802754}');
+INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`,`created_on`,`localisation`) VALUES (107,'marshall','$2a$10$7LtuxSqcCha8v6W0hn3If.Pt7jftS.bp6yithu4UHUTpA5RMUyVfa','','','marshall@marshall.com','M','M','','resetpwd',1,'1509808921344','{\"lon\":2.3234807248280163,\"lat\":48.90160136802754}');
+INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`interested_in`,`bio`,`activated`,`rights`,`created_on`,`localisation`) VALUES (108,'jules','$2a$10$5OBxvYhXt0eJgWUqeeazmurckn4ZSw1dzEkhDbBnpPuVm7h.KogSu','','','jules.barbier.fr@gmail.com','','','','0225f792cd7dec33b3eb90c2c5cd01c350145834ab193bf1104277ddc4563faf64dcf76b0c25db229875d0109a6ccc09008e392e073fbe6e5b9e4d6575d15eb2',1,'1510838824685',NULL);

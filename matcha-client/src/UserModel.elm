@@ -12,6 +12,7 @@ type alias User =
     , localisation : Maybe Localisation
     , photos : List String
     , role : UserRole
+    , status : UserStatus
     }
 
 type alias CurrentUser =
@@ -48,6 +49,12 @@ type MatchStatus
 type UserRole
   = ADMIN
   | USER
+
+type UserStatus
+  = Activated
+  | ResetPassword
+  | Incomplete
+  | NotActivated
 
 
 

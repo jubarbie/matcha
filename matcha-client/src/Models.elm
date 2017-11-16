@@ -19,6 +19,7 @@ type Route
 type LoginRoute
     = Login
     | Signin
+    | ResetPwdRoute
 
 type MapState
   = NoMap
@@ -31,6 +32,7 @@ type alias Model =
     , loginForm: Form
     , newUserForm : Form
     , editAccountForm : Form
+    , resetPwdForm : Form
     , users : List User
     , current_user : Maybe CurrentUser
     , current_talk : Maybe Talk
@@ -79,6 +81,7 @@ initialModel route =
     , loginForm =  initLoginForm
     , newUserForm = initFastNewUserForm
     , editAccountForm = []
+    , resetPwdForm = initResetPwdForm
     , users = []
     , current_user = Nothing
     , current_talk = Nothing
