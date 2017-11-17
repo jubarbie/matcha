@@ -14,22 +14,23 @@ model.getAllUsers = (cb) =>
 			GROUP BY u.id'
 	, cb);
 
-model.getRelevantProfiles = (gender, int_in, cb) =>
+model.getRelevantProfiles = (logged, gender, int_in, cb) =>
 	connection.query('\
-		SELECT u.*, GROUP_CONCAT(i.src) AS photos \
+		SELECT u.login AS login, u.gender AS gender, u.bio AS bio, GROUP_CONCAT(i.src) AS photos \
 			FROM user AS u \
 			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 			LEFT JOIN image AS i ON i.id = rel.id_image \
 			WHERE u.gender = ? \
 			AND u.interested_in = ? \
-			AND u.activated = "activated" \
+			AND (u.activated = "activated" OR u.activated = "resetpwd") \
+			AND u.login != ? \
 			GROUP BY u.id'
-	, [gender, int_in], cb);
+	, [gender, int_in, logged], cb);
 
 
 model.getFullDataUserWithLogin = (logged, login, cb) =>
 	connection.query('\
-		SELECT u.*, GROUP_CONCAT(i.src) AS photos, \
+		SELECT u.login AS login, u.gender AS gender, u.bio AS bio, GROUP_CONCAT(i.src) AS photos, \
 			( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks \
 		FROM user AS u \
 		LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
@@ -48,8 +49,8 @@ model.getUserWithLoginAndEmail = (login, email, cb) =>
 model.deleteUser = (login, cb) =>
 	connection.query('DELETE FROM user WHERE login = ?', [login], cb);
 
-model.activatedUserWithLogin = (login, cb) =>
-	connection.query('UPDATE user SET activated="activated" WHERE login = ?', [login], cb);
+model.activateUserWithLogin = (login, activated, cb) =>
+	connection.query('UPDATE user SET activated = ? WHERE login = ?', [activated, login], cb);
 
 model.getTokenFromLogin = (login, cb) =>
 	connection.query('SELECT activated FROM user WHERE login = ?', [login], cb);
@@ -62,9 +63,9 @@ model.insertUser = (user, date, cb) =>
 
 model.updateInfos = (login, infos, cb) =>
 	connection.query('\
-		UPDATE user SET email = ?, fname = ?, lname = ?, gender = ?, interested_in = ?, bio = ? \
+		UPDATE user SET email = ?, fname = ?, lname = ?, bio = ? \
 		WHERE login = ? '
-		, [infos.email, infos.fname, infos.lname, infos.gender, infos.int_in, infos.bio, login], cb);
+		, [infos.email, infos.fname, infos.lname, infos.bio, login], cb);
 
 model.updateLocation = (login, loc, cb) =>
 	connection.query('UPDATE user SET localisation = ? WHERE login = ?', [loc, login], cb);
@@ -72,5 +73,7 @@ model.updateLocation = (login, loc, cb) =>
 model.updatePassword = (login, password, activated, cb) =>
 	connection.query('UPDATE user SET password = ?, activated = ? WHERE login = ?', [password, activated, login], cb);
 
+model.updateField = (login, field, value) =>
+	connection.query('UPDATE user SET ? = ?, WHERE login = ?', [field, value, login], cb);
 
 module.exports = model;

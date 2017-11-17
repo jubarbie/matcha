@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
-
 const { check, validationResult } = require('express-validator/check');
 const { matchedData } = require('express-validator/filter');
-
-
+var bcrypt = require('bcrypt');
+var crypto = require('crypto');
+const saltRounds = 10;
 var config = require('../config');
 var UserCtrl = require('../controllers/user_ctrl.js');
 var UsersModel = require('../models/users_model');
@@ -63,7 +63,7 @@ router.post('/user/add_photo', (req, res, next) => {
 });
 
 /* GET user */
-router.post('/current_user/:login', (req, res, next) => {
+router.post('/user/:login', (req, res, next) => {
 
 	var login = req.params.login;
 	var logged = req.logged_user;
@@ -87,6 +87,25 @@ router.post('/current_user/:login', (req, res, next) => {
 
 });
 
+/* GET user */
+router.post('/connected_user', (req, res, next) => {
+
+	var logged = req.logged_user;
+
+	if (logged) {
+		UserCtrl.getConnectedUser(logged.login, function (user) {
+			if (user) {
+					res.json({"status":"success", "data":user});
+			} else {
+				res.json({"status":"error", "msg":"User " + login + " doesn't exists"});
+			}
+		});
+	} else {
+		res.json({"status":"error", "msg":"Missing login"});
+	}
+
+});
+
 
 /* Verify email */
 router.get('/user/:login/emailverif', (req, res, next) => {
@@ -100,7 +119,7 @@ router.get('/user/:login/emailverif', (req, res, next) => {
 				var activated = rows[0].activated;
 				switch(activated) {
 				    case token:
-				        UsersModel.activatedUserWithLogin(login, function(err, rows, fields) {
+				        UsersModel.activateUserWithLogin(login, "incomplete", (err, rows, fields) => {
 							if (rows) { res.send('Email verified. You can now <a href="http://localhost:3000">login</a>'); }
 							else { res.send('A problem occured, please try again'); }
 						});
@@ -162,8 +181,6 @@ router.post('/update', [
 		check('email').exists().isEmail(),
 		check('fname').exists().isLength({min:1, max:250}),
 		check('lname').exists().isLength({min:1, max:250}),
-		check('gender').exists().isIn(['M', 'F']),
-		check('int_in').exists().matches('[FM]{1,2}')
 ], (req, res, next) => {
 
 	const errors = validationResult(req);
@@ -177,8 +194,6 @@ router.post('/update', [
 			infos.email = req.body.email;
 			infos.fname = req.body.fname;
 			infos.lname = req.body.lname;
-			infos.gender = req.body.gender;
-			infos.int_in = req.body.int_in;
 			infos.bio = (req.body.bio) ? req.body.bio : "";
 
 			UsersModel.updateInfos(logged.login, infos, function (err, rows, fields) {
@@ -188,6 +203,76 @@ router.post('/update', [
 					res.json({"status":"error"});
 				}
 			});
+		}
+	}
+});
+
+/* Update specific field */
+router.post('/update_field', [
+		check('field').exists().isIn(['gender', 'interested_id']),
+		check('value').exists()
+], (req, res, next) => {
+
+	const errors = validationResult(req);
+	var logged = req.logged_user;
+
+	if (logged) {
+		if (!errors.isEmpty()) {
+			res.json({"status":"error", "msg":"invalid form"});
+		} else {
+			var value = req.body.value;
+			UsersModel.updateField(logged.login, field, value, (err, rows, fields) => {
+				if (rows && !err) {
+					UserCtrl.getConnectedUser(logged.login, function (user) {
+						if (user) {
+							res.json({"status":"success", "data":user});
+						} else {
+							res.json({"status":"error"});
+						}
+					});
+				} else {
+					res.json({"status":"error"});
+				}
+			});
+		}
+	}
+});
+
+/* Update user password */
+router.post('/change_password', [
+		check('oldPwd').exists(),
+		check('newPwd').exists().isLength({ min: 5 }).matches(/\d/)
+], (req, res, next) => {
+
+	const errors = validationResult(req);
+	var logged = req.logged_user;
+	var oldPwd = req.body.oldPwd;
+	var newPwd = req.body.newPwd;
+
+	if (logged && oldPwd && newPwd) {
+		if (!errors.isEmpty()) {
+			res.json({"status":"error", "msg":"invalid form"});
+		} else {
+			UsersModel.getUserWithLogin(logged.login, (err, users, fields) => {
+				if (!err && users.length > 0) {
+					var user = users[0];
+					if (bcrypt.compareSync(oldPwd, user.password) == false) {
+						res.json({"status":"error", "msg":"Incorrect password"});
+					} else {
+						var password = bcrypt.hashSync(newPwd, saltRounds);
+						UsersModel.updatePassword(logged.login, password, "activated",  (err, rows, fields) => {
+							if (rows && !err) {
+								res.json({"status":"success"});
+							} else {
+								res.json({"status":"error"});
+							}
+						});
+					}
+				} else {
+					res.json({"status":"error"});
+				}
+			})
+
 		}
 	}
 });

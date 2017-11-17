@@ -42,8 +42,8 @@ var buildUserFromRequest = function(req) {
 	var user = {};
 	user.login = req.body.username;
 	user.email = req.body.email;
-	user.fname = (req.body.fname) ? req.body.fname : "";
-	user.lname = (req.body.lname) ? req.body.lname : "";
+	user.fname = req.body.fname;
+	user.lname = req.body.lname;
 	user.gender = (req.body.gender) ? req.body.gender : "";
 	user.int_in = (req.body.int_in) ? req.body.int_in : "";
 	user.bio = (req.body.bio) ? req.body.bio : "";
@@ -56,6 +56,8 @@ var buildUserFromRequest = function(req) {
 /* Insert new user with minimum infos */
 apiRoutes.post('/newfast', [
 		check('username').exists(),
+		check('fname').exists(),
+		check('lname').exists(),
 		check('email').exists().isEmail(),
 		check('password').exists().isLength({ min: 5 }).matches(/\d/)
 ], (req, res, next) => {

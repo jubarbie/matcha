@@ -1,4 +1,4 @@
-module Members exposing (view)
+module AdminUsers exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -11,9 +11,9 @@ import UserModel exposing (..)
 
 view : Model -> Html Msg
 view model =
-    div [] [ viewUsers model.users ]
+    div [] [ viewUsers model.usersAdmin ]
 
-viewUsers : List User -> Html Msg
+viewUsers : List SessionUser -> Html Msg
 viewUsers users =
     div []
         [ h1 [] [ text "Members" ]
@@ -31,7 +31,7 @@ viewUsers users =
           ]
           ]
 
-viewUserRow : User -> Html Msg
+viewUserRow : SessionUser -> Html Msg
 viewUserRow user =
     tr [ ]
         [ td [] [ text user.username ]

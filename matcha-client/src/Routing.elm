@@ -18,6 +18,7 @@ matchers =
     , map ChatsRoute (s "chat")
     , map AccountRoute (s "account")
     , map EditAccountRoute (s "edit_account")
+    , map ChangePwdRoute (s "edit_password")
     , map Members (s "members")
     ]
 

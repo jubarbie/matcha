@@ -6,7 +6,7 @@ import Html.Events exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import Users exposing (view)
-import Members exposing (view)
+import AdminUsers exposing (view)
 import User exposing (view)
 import Chat exposing (view, allChatsView)
 import Login exposing (view)
@@ -47,8 +47,10 @@ view model =
                 [viewMenu model.route role, Account.view model]
             EditAccountRoute ->
                 [viewMenu model.route role, Account.viewEditAccount model]
+            ChangePwdRoute ->
+                [viewMenu model.route role, Account.viewChangePwd model]
             Members ->
-                [viewMenu model.route role, Members.view model]
+                [viewMenu model.route role, AdminUsers.view model]
             NotFoundRoute ->
                 [view401]
     ]

@@ -11,11 +11,18 @@ ctrl.getFullUser = (logged, login, callback) => {
 	UsersModel.getFullDataUserWithLogin(logged.login, login, (err, rows, fields) => {
 		if (!err && rows.length > 0) {
 			var user = rows[0];
+			user.has_talk = (user.talks > 0) ? true : false;
 			user.photos = (user.photos) ? user.photos.split(',') : [];
+			user.match = "none";
 			if (loc = user.localisation) {
 				user.localisation = JSON.parse(loc);
 			}
-			callback(user);
+			ctrl.getMatchStatus(logged.login, login, (status) => {
+				if (status) {
+					user.match = status;
+				}
+				callback(user);
+			})
 		} else {
 			callback(null);
 		}
@@ -51,19 +58,20 @@ ctrl.getConnectedUser = function (login, callback) {
 	});
 };
 
-ctrl.getRelevantUsers = (user, callback) => {
+ctrl.getRelevantUsers = (logged, callback) => {
 
-  var gender = (user.int_in) ? user.int_in : "M";
-  var int_in = (user.gender) ? user.gender : "M";
+  var gender = (logged.int_in) ? logged.int_in : "M";
+  var int_in = (logged.gender) ? logged.gender : "M";
 
-  UsersModel.getRelevantProfiles(gender, int_in, function(err, rows, fields) {
+  UsersModel.getRelevantProfiles(logged.login, gender, int_in, function(err, rows, fields) {
     if (!err) {
       var users = rows.map(function (u) {
-        u.talks = [];
+        u.has_talk = false;
+				u.match = "match";
         u.photos = (u.photos) ? u.photos.split(",") : [];
         return u;
       });
-      console.log(users);
+			console.log(users);
       callback(users);
 		} else {
 			callback(null);

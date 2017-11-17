@@ -8,12 +8,14 @@ var TalkModel = require('../models/talk_model');
 /* GET users listing. */
 router.post('/all_users', (req, res, next) => {
 
-	UsersModel.getAllUsers( (err, rows, fields) => {
+	UsersModel.getAllUsers((err, rows, fields) => {
 		if (!err) {
 			var users = rows.map((user) => {
 				user.talks = [];
-				user.photos = [];
-				user.localisation = [];
+				user.photos = (user.photos) ? user.photos.split(',') : [];
+				if (loc = user.localisation) {
+					user.localisation = JSON.parse(loc);
+				}
 				return user;
 			});
 			console.log('Getting all users', users);

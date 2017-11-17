@@ -15,6 +15,7 @@ type Route
     | EditAccountRoute
     | Members
     | NotFoundRoute
+    | ChangePwdRoute
 
 type LoginRoute
     = Login
@@ -33,8 +34,10 @@ type alias Model =
     , newUserForm : Form
     , editAccountForm : Form
     , resetPwdForm : Form
+    , changePwdForm : Form
     , users : List User
-    , current_user : Maybe CurrentUser
+    , usersAdmin : List SessionUser
+    , current_user : Maybe User
     , current_talk : Maybe Talk
     , message : Maybe String
     , map_state : MapState
@@ -56,7 +59,7 @@ type alias Message =
 
 
 type alias Session =
-    { user : User
+    { user : SessionUser
     , token : String
     }
 
@@ -64,7 +67,7 @@ type alias AuthResponse =
     { status : String
     , message : Maybe String
     , token : Maybe String
-    , user : Maybe User
+    , user : Maybe SessionUser
     }
 
 type alias ApiResponse a =
@@ -82,7 +85,9 @@ initialModel route =
     , newUserForm = initFastNewUserForm
     , editAccountForm = []
     , resetPwdForm = initResetPwdForm
+    , changePwdForm = initChangePwdForm
     , users = []
+    , usersAdmin = []
     , current_user = Nothing
     , current_talk = Nothing
     , message = Nothing

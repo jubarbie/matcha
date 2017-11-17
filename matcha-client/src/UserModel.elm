@@ -1,6 +1,6 @@
 module UserModel exposing (..)
 
-type alias User =
+type alias SessionUser =
     { username : String
     , fname : String
     , lname : String
@@ -15,7 +15,7 @@ type alias User =
     , status : UserStatus
     }
 
-type alias CurrentUser =
+type alias User =
     { username : String
     , gender : Maybe Gender
     , bio : String

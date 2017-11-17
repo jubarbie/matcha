@@ -69,13 +69,11 @@ findInput form id =
         a :: b -> Just a
         _ -> Nothing
 
-initEditAccountForm : User -> Form
+initEditAccountForm : SessionUser -> Form
 initEditAccountForm user =
        [ initInput (Just user.fname) "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
        , initInput (Just user.lname) "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
        , initInput (Just user.email) "text" "Email" "email" (Just EmailValidator) Nothing
-       , initInput (Just <| genderToString user.gender) "text" "Gender" "gender" (Just GenderValidator) Nothing
-       , initInput (Just <| genderToString user.intIn) "text" "Interested in" "int_in" (Just GenderValidator) Nothing
        , initInput (Just user.bio) "text" "Bio" "bio" Nothing Nothing
        ]
 
@@ -89,6 +87,13 @@ initResetPwdForm : Form
 initResetPwdForm =
         [ initInput Nothing "text" "Login" "login" Nothing Nothing
         , initInput Nothing "text" "Email" "email" (Just EmailValidator) Nothing
+        ]
+
+initChangePwdForm : Form
+initChangePwdForm =
+        [ initInput Nothing "password" "Ancien mot de passe" "old_pwd" Nothing Nothing
+        , initInput Nothing "password" "Nouveau mot de passe" "new_pwd" (Just PasswordValidator) (Just "At least 6 chars including 1 number")
+        , initInput Nothing "password" "Confirmer le mot de passe" "confirm_new_pwd" (Just <| PasswordConfirmValidator "new_pwd") (Just "Re-enter your password")
         ]
 
 initNewUserForm : Form
@@ -107,6 +112,8 @@ initNewUserForm =
 initFastNewUserForm : Form
 initFastNewUserForm =
        [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
+       , initInput Nothing "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
+       , initInput Nothing "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
        , initInput Nothing "text" "Email" "email" (Just EmailValidator) Nothing
        , initInput Nothing "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars and 1 number")
        , initInput Nothing "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-type your password")

@@ -75,7 +75,7 @@ body {
 .navbar .navbar-list li.active a {
 	color: white;
 }
-.input input {
+.input input, textarea {
 	border: none !important;
 	border-bottom: 1px solid white !important;
 	background-color: #252525 !important;

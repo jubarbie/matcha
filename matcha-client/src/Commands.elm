@@ -22,6 +22,10 @@ usersDecoder : Decoder (List User)
 usersDecoder =
     JsonDec.list decodeUser
 
+usersSessionDecoder : Decoder (List SessionUser)
+usersSessionDecoder =
+    JsonDec.list decodeSessionUser
+
 gendersDecoder : Decoder (List Gender)
 gendersDecoder =
     JsonDec.list decodeGender
@@ -79,20 +83,20 @@ talkDecoder =
 
 decodeMessage : Decoder Message
 decodeMessage =
-  JsonDec.map3 Message
-  (at ["date"] JsonDec.string)
-  (at ["message"] JsonDec.string)
-  (at ["username"] JsonDec.string)
+  JsonDec.succeed Message
+    |: (field "date" JsonDec.string)
+    |: (field "message" JsonDec.string)
+    |: (field "username" JsonDec.string)
 
 decodeLocalisation : Decoder Localisation
 decodeLocalisation =
-  JsonDec.map2 Localisation
-    (at ["lon"] JsonDec.float)
-    (at ["lat"] JsonDec.float)
+  JsonDec.succeed Localisation
+    |: (field "lon" JsonDec.float)
+    |: (field "lat" JsonDec.float)
 
-decodeUser : Decoder User
-decodeUser =
-  JsonDec.succeed User
+decodeSessionUser : Decoder SessionUser
+decodeSessionUser =
+  JsonDec.succeed SessionUser
     |: (field "login" JsonDec.string)
     |: (field "fname" JsonDec.string)
     |: (field "lname" JsonDec.string)
@@ -106,9 +110,9 @@ decodeUser =
     |: (field "rights" decodeRole)
     |: (field "activated" decodeUserStatus)
 
-decodeCurrentUser : Decoder CurrentUser
-decodeCurrentUser =
-  JsonDec.succeed CurrentUser
+decodeUser : Decoder User
+decodeUser =
+  JsonDec.succeed User
     |: (field "login" JsonDec.string)
     |: maybe (field "gender" decodeGender)
     |: (field "bio" JsonDec.string)
@@ -137,7 +141,7 @@ decodeAuthResponse =
     (at ["status"] JsonDec.string)
     (maybe (at ["msg"] JsonDec.string))
     (maybe (at ["token"] JsonDec.string))
-    (maybe (at ["data"] decodeUser))
+    (maybe (at ["data"] decodeSessionUser))
 
 getUsers : String -> Cmd Msg
 getUsers token  =
@@ -145,9 +149,9 @@ getUsers token  =
         body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
-        Http.post "http://localhost:3001/api/admin/all_users" body (decodeApiResponse <| Just usersDecoder)
+        Http.post "http://localhost:3001/api/admin/all_users" body (decodeApiResponse <| Just usersSessionDecoder)
         |> RemoteData.sendRequest
-        |> Cmd.map UsersResponse
+        |> Cmd.map UsersAdminResponse
 
 getRelevantUsers : String -> Cmd Msg
 getRelevantUsers token  =
@@ -169,25 +173,15 @@ getUser user token  =
         |> RemoteData.sendRequest
         |> Cmd.map UserResponse
 
-getCurrentUser : String -> String -> Cmd Msg
-getCurrentUser user token  =
+getSessionUser : String -> String -> Cmd Msg
+getSessionUser user token  =
     let
         body =
             Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
     in
-        Http.post ("http://localhost:3001/api/users/current_user/" ++ user) body (decodeApiResponse <| Just decodeCurrentUser)
+        Http.post ("http://localhost:3001/api/users/connected_user") body (decodeApiResponse <| Just decodeSessionUser)
         |> RemoteData.sendRequest
-        |> Cmd.map CurrentUserResponse
-
-getProfile : String -> String -> Cmd Msg
-getProfile user token  =
-    let
-        body =
-            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
-    in
-        Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map (ProfileResponse token)
+        |> Cmd.map (SessionUserResponse token)
 
 sendLogin : String -> String -> Cmd Msg
 sendLogin login pwd =
@@ -209,12 +203,14 @@ resetPwd login email =
         |> RemoteData.sendRequest
         |> Cmd.map ResetPwdResponse
 
-sendFastNewUser : String -> String -> String -> String -> Cmd Msg
-sendFastNewUser username email pwd repwd =
+sendFastNewUser : String -> String -> String -> String -> String -> String -> Cmd Msg
+sendFastNewUser username fname lname email pwd repwd =
     let
         body =
             Http.jsonBody <| JsonEnc.object
             [ ("username", JsonEnc.string username)
+            , ("fname", JsonEnc.string fname)
+            , ("lname", JsonEnc.string lname)
             , ("email", JsonEnc.string email)
             , ("password", JsonEnc.string pwd)
             , ("rePassword", JsonEnc.string repwd)
@@ -225,8 +221,8 @@ sendFastNewUser username email pwd repwd =
         |> Cmd.map NewUserResponse
 
 
-updateAccountInfos : String -> String -> String -> String -> String -> String -> String -> Cmd Msg
-updateAccountInfos token fname lname email gender intIn bio =
+updateAccountInfos : String -> String -> String -> String -> String -> Cmd Msg
+updateAccountInfos token fname lname email bio =
     let
         body =
             Http.jsonBody <| JsonEnc.object
@@ -234,14 +230,12 @@ updateAccountInfos token fname lname email gender intIn bio =
             , ("email", JsonEnc.string email)
             , ("fname", JsonEnc.string fname)
             , ("lname", JsonEnc.string lname)
-            , ("gender", JsonEnc.string gender)
-            , ("int_in", JsonEnc.string intIn)
             , ("bio", JsonEnc.string bio)
             ]
     in
         Http.post "http://localhost:3001/api/users/update" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
-        |> Cmd.map (EditAccountResponse email fname lname gender intIn bio)
+        |> Cmd.map (EditAccountResponse email fname lname bio)
 
 deleteUser : String -> String -> Cmd Msg
 deleteUser username token =
@@ -324,3 +318,32 @@ saveLocation token loc =
       Http.post "http://localhost:3001/api/users/save_loc" body (decodeApiResponse Nothing)
       |> RemoteData.sendRequest
       |> Cmd.map SaveLocRespone
+
+changePwd : String -> String -> String -> String -> Cmd Msg
+changePwd token oldPwd newPwd confirmNewPwd =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("oldPwd", JsonEnc.string oldPwd)
+          , ("newPwd", JsonEnc.string newPwd)
+          , ("reNewPwd", JsonEnc.string confirmNewPwd)
+          ]
+  in
+      Http.post "http://localhost:3001/api/users/change_password" body (decodeApiResponse Nothing)
+      |> RemoteData.sendRequest
+      |> Cmd.map ChangePwdRespone
+
+updateField : String -> String -> String -> Cmd Msg
+updateField token field value =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("value", JsonEnc.string field)
+          , ("field", JsonEnc.string value)
+          ]
+  in
+      Http.post "http://localhost:3001/api/users/update_field" body (decodeApiResponse <| Just decodeSessionUser)
+      |> RemoteData.sendRequest
+      |> Cmd.map (UpdateFieldResponse token)

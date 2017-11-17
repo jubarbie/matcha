@@ -8,9 +8,9 @@ import Time
 
 type Msg
     = UsersResponse (WebData (ApiResponse (Maybe (List User))))
-    | ProfileResponse String (WebData (ApiResponse (Maybe User)))
+    | UsersAdminResponse (WebData (ApiResponse (Maybe (List SessionUser))))
+    | SessionUserResponse String (WebData (ApiResponse (Maybe SessionUser)))
     | UserResponse (WebData (ApiResponse (Maybe User)))
-    | CurrentUserResponse (WebData (ApiResponse (Maybe CurrentUser)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
@@ -19,8 +19,10 @@ type Msg
     | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
     | SaveLocRespone (WebData (ApiResponse (Maybe String)))
-    | EditAccountResponse String String String String String String (WebData (ApiResponse (Maybe User)))
+    | EditAccountResponse String String String String (WebData (ApiResponse (Maybe User)))
     | ResetPwdResponse (WebData (ApiResponse (Maybe String)))
+    | ChangePwdRespone (WebData (ApiResponse (Maybe String)))
+    | UpdateFieldResponse String (WebData (ApiResponse (Maybe SessionUser)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -28,6 +30,7 @@ type Msg
     | UpdateNewUserForm String String
     | UpdateLoginForm String String
     | UpdateResetPwdForm String String
+    | UpdateEditPwdForm String String
     | NewUser
     | SendLogin
     | DeleteUser String
@@ -45,3 +48,4 @@ type Msg
     | SaveAccountUpdates
     | UpdateAnim Time.Time
     | ResetPwd
+    | ChangePwd

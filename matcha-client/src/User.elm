@@ -15,7 +15,7 @@ view model =
         Just u -> viewUser u
         _ -> div [][ text <| "user not found" ]
 
-viewUser : CurrentUser -> Html Msg
+viewUser : User -> Html Msg
 viewUser user =
   let
     talkTxt =

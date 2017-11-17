@@ -25,23 +25,53 @@ update msg oldModel =
                 case Debug.log "session" session of
                     [user, token] ->
                         if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then
-                            getProfile user token
+                            getSessionUser user token
                         else
                              Cmd.none
                     _ -> Cmd.none
             in
                 (model, cmd)
 
+        ChangePwdRespone response ->
+          case response of
+              Success rep ->
+                case (rep.status, rep.message) of
+                    ("success", _) -> ( { model | message = Just "The password was succefully updated" }, Navigation.newUrl "/#/account" )
+                    ("error", Just msg) -> ( { model | message = Just msg }, Cmd.none)
+                    _ -> ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+              _ ->
+                  ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+
+        UpdateFieldResponse token response ->
+          case response of
+              Success rep ->
+                case (rep.status, rep.data, rep.message) of
+                    ("success", Just u, _) ->
+                      ( { model | session = Just <| Session u token }, Cmd.none )
+                    ("error", _ , Just msg) -> ( { model | message = Just msg }, Cmd.none)
+                    _ -> ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+              _ ->
+                  ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+
         UsersResponse response ->
             case response of
                 Success rep ->
-                  case (rep.status == "success", Debug.log "repsp" rep.data) of
+                  case (rep.status == "success", rep.data) of
                       (True, Just u) -> ( { model | users = u, current_user = Nothing }, Cmd.none )
                       _ -> ( { model | message = Just "Network errror. Please try again" }, Cmd.none)
                 _ ->
                     ( { model | message = Just "Network error. Please try again" }, Cmd.none)
 
-        ProfileResponse token response ->
+        UsersAdminResponse response ->
+            case response of
+                Success rep ->
+                  case (rep.status == "success", Debug.log "repsp" rep.data) of
+                      (True, Just u) -> ( { model | usersAdmin = u, current_user = Nothing }, Cmd.none )
+                      _ -> ( { model | message = Just "Network errror. Please try again" }, Cmd.none)
+                _ ->
+                    ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+
+        SessionUserResponse token response ->
             case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
@@ -57,7 +87,7 @@ update msg oldModel =
                                       ChatRoute a -> ( newModel, getTalk a newSession.token)
                                       Members -> ( newModel, getUsers newSession.token)
                                       UsersRoute -> ( newModel, getRelevantUsers newSession.token)
-                                      UserRoute a -> ( newModel, getCurrentUser a newSession.token)
+                                      UserRoute a -> ( newModel, getUser a newSession.token)
                                       AccountRoute -> ( { newModel | map_state = Models.Loading }, Cmd.none)
                                       EditAccountRoute -> ( { newModel | editAccountForm = initEditAccountForm newSession.user }, Cmd.none)
                                       _ -> ( newModel, Cmd.none)
@@ -65,20 +95,22 @@ update msg oldModel =
                                 ResetPassword ->
                                   ( { newModel | message = Just "Please reset your password" }, Navigation.newUrl  "/#/account" )
 
+                                Incomplete ->
+                                  ( { newModel | message = Just "Please complete your profile" }, Navigation.newUrl  "/#/account" )
+
                                 _ ->
-                                  ( newModel , Navigation.newUrl "/#/login")
+                                  ( newModel, Navigation.newUrl "/#/login" )
 
                         _ -> ( model, Navigation.newUrl "/#/login" )
                 _ ->
-                    ( model
-                    , Navigation.newUrl "/#/login" )
+                    ( model, Navigation.newUrl "/#/login" )
 
         UserResponse response ->
             case Debug.log "response user" response of
                 Success rep ->
                     case (rep.status == "success", rep.data) of
                         (True, Just u) ->
-                                ( { model | current_user = Nothing }, Cmd.none )
+                                ( { model | current_user = Just u }, Cmd.none )
                         _ -> ( { model | message = Just "User not found" }, Cmd.none)
                 _ ->
                     ( model
@@ -95,38 +127,27 @@ update msg oldModel =
                     ( model
                     , Navigation.newUrl "/#/login" )
 
-        CurrentUserResponse response ->
-          case Debug.log "response currentUser" response of
-              Success rep ->
-                  case (rep.status == "success", rep.data) of
-                      (True, Just u) ->
-                              ( { model | current_user = Just u }, Cmd.none )
-                      _ -> ( { model | message = Just "user not found" }, Navigation.newUrl  "/#/users")
-              _ ->
-                  ( model
-                  , Navigation.newUrl "/#/login" )
-
         NewUserResponse response ->
             case Debug.log "resp" response of
                 Success rep ->
                     case rep.status of
                         "success" ->
-                            ( model , Navigation.newUrl "/#/users" )
+                            ( { model | message = Just "Your account has been created, check your emails"}, Navigation.newUrl "/#/login" )
                         _ -> ( { model | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none)
                 _ ->
                     ( model
                     , Navigation.newUrl "/#/login" )
 
-        EditAccountResponse email fname lname gender intIn bio response ->
+        EditAccountResponse email fname lname bio response ->
             case Debug.log "resp" response of
                 Success rep ->
                     case (rep.status, model.session ) of
                         ("success", Just s) ->
                           let
                             user = s.user
-                            newUser = { user | email = email, fname = fname, lname = lname, gender = stringToGender gender, intIn = stringToGender intIn, bio = bio }
+                            newUser = { user | email = email, fname = fname, lname = lname, bio = bio }
                           in
-                            ( { model | message = Just "Information saved", session = Just { s | user = newUser } }, Cmd.none )
+                            ( { model | message = Just "Information saved", session = Just { s | user = newUser } }, Navigation.newUrl "/#/account" )
                         _ -> ( { model | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none)
                 _ ->
                     ( model
@@ -171,9 +192,12 @@ update msg oldModel =
                         (True, Just t, Just user) ->
                             let
                                 session = Just <| Session user t
+                                (route, msg) = case user.status of
+                                  ResetPassword -> ("/#/account", Just "Please reset your password")
+                                  _ -> ("/#/users", Nothing)
                             in
-                            ( { model | session = session, loginForm = initLoginForm }
-                            , Cmd.batch [ Navigation.newUrl "/#/users", storeToken [ user.username,t ] ]
+                            ( { model | session = session, message = msg }
+                            , Cmd.batch [ Navigation.newUrl route, storeToken [ user.username,t ] ]
                             )
                         _ ->
                             ( { model | message = rep.message }, Navigation.newUrl "/#/login")
@@ -255,19 +279,24 @@ update msg oldModel =
             let
                 newRoute = parseLocation location
                 session = model.session
+                newModel = oldModel
             in
-              case Debug.log "sessssssion" session of
-                Nothing -> ( model, Cmd.none)
+              case session of
+                Nothing ->
+                  case newRoute of
+                    Connect a ->
+                      ( { newModel | route = newRoute }, Cmd.none)
+                    _ -> ( newModel, Cmd.none)
                 Just s ->
                   case newRoute of
-                      ChatsRoute -> ( { model | route = newRoute }, getTalks s.token)
-                      ChatRoute a -> ( { model | route = newRoute }, getTalk a s.token)
-                      Members -> ( { model | route = newRoute }, getUsers s.token)
-                      UsersRoute -> ( { model | route = newRoute }, getRelevantUsers s.token)
-                      UserRoute a -> ( { model | route = newRoute }, getCurrentUser a s.token)
-                      AccountRoute -> ( { model | route = newRoute, map_state = Models.Loading }, Cmd.none)
-                      EditAccountRoute -> ( { model | route = newRoute, editAccountForm = initEditAccountForm s.user }, Cmd.none)
-                      _ -> ( { model | route = newRoute }, Cmd.none)
+                      ChatsRoute -> ( { newModel | route = newRoute }, getTalks s.token)
+                      ChatRoute a -> ( { newModel | route = newRoute }, getTalk a s.token)
+                      Members -> ( { newModel | route = newRoute }, getUsers s.token)
+                      UsersRoute -> ( { newModel | route = newRoute }, getRelevantUsers s.token)
+                      UserRoute a -> ( { newModel | route = newRoute }, getUser a s.token)
+                      AccountRoute -> ( { newModel | route = newRoute, map_state = Models.Loading }, Cmd.none)
+                      EditAccountRoute -> ( { newModel | route = newRoute, editAccountForm = initEditAccountForm s.user }, Cmd.none)
+                      _ -> ( { newModel | route = newRoute }, Cmd.none)
 
         GoBack amount ->
           (model, Navigation.back amount)
@@ -319,8 +348,8 @@ update msg oldModel =
                 values = List.map (\i -> i.status) model.newUserForm
             in
             case values of
-                [Valid username, Valid email, Valid pwd, Valid repwd] ->
-                    (model, sendFastNewUser username email pwd repwd)
+                [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd] ->
+                    (model, sendFastNewUser username fname lname email pwd repwd)
                 _ ->
                     (model, Cmd.none)
 
@@ -426,9 +455,29 @@ update msg oldModel =
                 let
                     values = List.map (\i -> i.status) model.editAccountForm
                 in
-                case Debug.log "values" values of
-                    [Valid fname, Valid lname, Valid email, Valid gender, Valid int_in, Valid bio] ->
-                        (model, updateAccountInfos s.token fname lname email gender int_in bio)
+                case values of
+                    [Valid fname, Valid lname, Valid email, Valid bio] ->
+                        (model, updateAccountInfos s.token fname lname email bio)
+                    _ ->
+                        (model, Cmd.none)
+              _ -> (model, Navigation.newUrl "/#/login")
+
+        UpdateEditPwdForm id value ->
+          let
+              form = model.changePwdForm
+              newForm = updateInput form id (Just value)
+          in
+              ( { model | changePwdForm = newForm }, Cmd.none)
+
+        ChangePwd ->
+          case model.session of
+              Just s ->
+                let
+                    values = List.map (\i -> i.status) model.changePwdForm
+                in
+                case values of
+                    [Valid oldPwd, Valid newPwd, Valid confirmNewPwd] ->
+                        (model, changePwd s.token oldPwd newPwd confirmNewPwd )
                     _ ->
                         (model, Cmd.none)
               _ -> (model, Navigation.newUrl "/#/login")
