@@ -1,8 +1,6 @@
 module Commands exposing (..)
 
 import Http
-import Task
-import Time
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)
@@ -18,6 +16,10 @@ decodeLocalisationResponse =
   (maybe (at ["lon"] JsonDec.float))
   (maybe (at ["lat"] JsonDec.float))
 
+encodeIntIn : List Gender -> JsonEnc.Value
+encodeIntIn intIn =
+  JsonEnc.list (List.map (\g -> JsonEnc.string <| genderToString <| Just g) intIn)
+
 usersDecoder : Decoder (List User)
 usersDecoder =
     JsonDec.list decodeUser
@@ -26,8 +28,8 @@ usersSessionDecoder : Decoder (List SessionUser)
 usersSessionDecoder =
     JsonDec.list decodeSessionUser
 
-gendersDecoder : Decoder (List Gender)
-gendersDecoder =
+decodeIntIn : Decoder (List Gender)
+decodeIntIn =
     JsonDec.list decodeGender
 
 decodeGender : Decoder Gender
@@ -102,9 +104,10 @@ decodeSessionUser =
     |: (field "lname" JsonDec.string)
     |: (field "email" JsonDec.string)
     |: maybe (field "gender" decodeGender)
-    |: maybe (field "interested_in" decodeGender)
+    |: (field "interested_in" decodeIntIn)
     |: (field "bio" JsonDec.string)
     |: (field "talks" decodeTalks)
+    |: (field "tags" (JsonDec.list JsonDec.string))
     |: maybe (field "localisation" decodeLocalisation)
     |: (field "photos" (JsonDec.list JsonDec.string))
     |: (field "rights" decodeRole)
@@ -334,16 +337,67 @@ changePwd token oldPwd newPwd confirmNewPwd =
       |> RemoteData.sendRequest
       |> Cmd.map ChangePwdRespone
 
-updateField : String -> String -> String -> Cmd Msg
-updateField token field value =
+updateField : String -> Gender -> Cmd Msg
+updateField token gender =
   let
       body =
           Http.jsonBody <| JsonEnc.object
           [ ("token", JsonEnc.string token)
-          , ("value", JsonEnc.string field)
-          , ("field", JsonEnc.string value)
+          , ("gender", JsonEnc.string <| genderToString <| Just gender)
           ]
   in
-      Http.post "http://localhost:3001/api/users/update_field" body (decodeApiResponse <| Just decodeSessionUser)
+      Http.post "http://localhost:3001/api/users/update_gender" body (decodeApiResponse <| Just decodeSessionUser)
       |> RemoteData.sendRequest
       |> Cmd.map (UpdateFieldResponse token)
+
+updateIntIn : String -> List Gender -> Cmd Msg
+updateIntIn token genders =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("genders", encodeIntIn genders)
+          ]
+  in
+      Http.post "http://localhost:3001/api/users/update_int_in" body (decodeApiResponse <| Just decodeSessionUser)
+      |> RemoteData.sendRequest
+      |> Cmd.map (UpdateFieldResponse token)
+
+searchTag : String -> String -> Cmd Msg
+searchTag token search =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("search", JsonEnc.string search)
+          ]
+  in
+      Http.post "http://localhost:3001/api/tag/search" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
+      |> RemoteData.sendRequest
+      |> Cmd.map SearchTagResponse
+
+addTag : String -> String -> Cmd Msg
+addTag token tag_ =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("tag", JsonEnc.string tag_)
+          ]
+  in
+      Http.post "http://localhost:3001/api/tag/add" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
+      |> RemoteData.sendRequest
+      |> Cmd.map ReqTagResponse
+
+removeTag : String -> String -> Cmd Msg
+removeTag token tag_ =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("tag", JsonEnc.string tag_)
+          ]
+  in
+      Http.post "http://localhost:3001/api/tag/remove" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
+      |> RemoteData.sendRequest
+      |> Cmd.map ReqTagResponse

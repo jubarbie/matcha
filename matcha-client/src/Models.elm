@@ -35,6 +35,7 @@ type alias Model =
     , editAccountForm : Form
     , resetPwdForm : Form
     , changePwdForm : Form
+    , searchTag : List String
     , users : List User
     , usersAdmin : List SessionUser
     , current_user : Maybe User
@@ -86,6 +87,7 @@ initialModel route =
     , editAccountForm = []
     , resetPwdForm = initResetPwdForm
     , changePwdForm = initChangePwdForm
+    , searchTag = []
     , users = []
     , usersAdmin = []
     , current_user = Nothing

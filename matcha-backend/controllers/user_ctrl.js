@@ -14,16 +14,19 @@ ctrl.getFullUser = (logged, login, callback) => {
 			user.has_talk = (user.talks > 0) ? true : false;
 			user.photos = (user.photos) ? user.photos.split(',') : [];
 			user.match = "none";
-			if (loc = user.localisation) {
-				user.localisation = JSON.parse(loc);
+			if (user.localisation) {
+				user.localisation = JSON.parse(user.localisation);
 			}
+			user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
 			ctrl.getMatchStatus(logged.login, login, (status) => {
 				if (status) {
 					user.match = status;
 				}
+				console.log(user);
 				callback(user);
 			})
 		} else {
+			console.log(err);
 			callback(null);
 		}
 	});
@@ -40,15 +43,18 @@ ctrl.getConnectedUser = function (login, callback) {
 				});
 				user.talks = talkers;
 				user.photos = [];
+				user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
+				user.tags = (user.tags) ? user.tags.split(',') : [];
 				ImageModel.getImagesFromUserId(user.id, function(err, imgs, fields){
 					if (!err && imgs.length > 0) {
 						user.photos = imgs.map(function (img) {
 							return img.src;
 						});
 					}
-					if (loc = user.localisation) {
-						user.localisation = JSON.parse(loc);
+					if (user.localisation) {
+						user.localisation = JSON.parse(user.localisation);
 					}
+					console.log(user);
 					callback(user);
 				});
 			});
@@ -60,7 +66,7 @@ ctrl.getConnectedUser = function (login, callback) {
 
 ctrl.getRelevantUsers = (logged, callback) => {
 
-  var gender = (logged.int_in) ? logged.int_in : "M";
+  var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
   var int_in = (logged.gender) ? logged.gender : "M";
 
   UsersModel.getRelevantProfiles(logged.login, gender, int_in, function(err, rows, fields) {
@@ -71,7 +77,6 @@ ctrl.getRelevantUsers = (logged, callback) => {
         u.photos = (u.photos) ? u.photos.split(",") : [];
         return u;
       });
-			console.log(users);
       callback(users);
 		} else {
 			callback(null);

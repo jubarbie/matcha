@@ -6,6 +6,7 @@ var Auth = require('./middlewares/authentification');
 var Login = require('./routes/login');
 var Users = require('./routes/users');
 var Talks = require('./routes/talks');
+var Tag = require('./routes/tag');
 var Admin = require('./routes/admin');
 
 var app = express();
@@ -32,6 +33,7 @@ app.get('/', function(req, res) {
 app.use('/auth', Login);
 app.post('/api/*', Auth.hasRole(1));
 app.use('/api/users', Users);
+app.use('/api/tag', Tag);
 app.use('/api/talks', Talks);
 app.post('/api/admin/*', Auth.hasRole(0));
 app.use('/api/admin', Admin);

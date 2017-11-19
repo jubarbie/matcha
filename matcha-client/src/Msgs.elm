@@ -23,6 +23,8 @@ type Msg
     | ResetPwdResponse (WebData (ApiResponse (Maybe String)))
     | ChangePwdRespone (WebData (ApiResponse (Maybe String)))
     | UpdateFieldResponse String (WebData (ApiResponse (Maybe SessionUser)))
+    | SearchTagResponse (WebData (ApiResponse (Maybe (List String))))
+    | ReqTagResponse (WebData (ApiResponse (Maybe (List String))))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -49,3 +51,8 @@ type Msg
     | UpdateAnim Time.Time
     | ResetPwd
     | ChangePwd
+    | UpdateGender Gender
+    | UpdateIntIn (List Gender)
+    | SearchTag String
+    | AddTag String
+    | RemoveTag String

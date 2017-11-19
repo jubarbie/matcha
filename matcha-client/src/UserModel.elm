@@ -6,9 +6,10 @@ type alias SessionUser =
     , lname : String
     , email : String
     , gender : Maybe Gender
-    , intIn : Maybe Gender
+    , intIn : List Gender
     , bio : String
     , talks : List String
+    , tags : List String
     , localisation : Maybe Localisation
     , photos : List String
     , role : UserRole

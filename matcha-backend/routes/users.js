@@ -208,9 +208,8 @@ router.post('/update', [
 });
 
 /* Update specific field */
-router.post('/update_field', [
-		check('field').exists().isIn(['gender', 'interested_id']),
-		check('value').exists()
+router.post('/update_gender', [
+		check('gender').exists().isIn(['M','F'])
 ], (req, res, next) => {
 
 	const errors = validationResult(req);
@@ -220,10 +219,9 @@ router.post('/update_field', [
 		if (!errors.isEmpty()) {
 			res.json({"status":"error", "msg":"invalid form"});
 		} else {
-			var value = req.body.value;
-			UsersModel.updateField(logged.login, field, value, (err, rows, fields) => {
-				if (rows && !err) {
-					UserCtrl.getConnectedUser(logged.login, function (user) {
+			UsersModel.updateField(logged.login, "gender", req.body.gender, (err, rows, fields) => {
+				if (!err) {
+					UserCtrl.getConnectedUser(logged.login, (user) => {
 						if (user) {
 							res.json({"status":"success", "data":user});
 						} else {
@@ -231,6 +229,43 @@ router.post('/update_field', [
 						}
 					});
 				} else {
+					console.log("err in update_field", err);
+					res.json({"status":"error"});
+				}
+			});
+		}
+	}
+});
+
+/* Update specific field */
+router.post('/update_int_in', [
+		check('genders').exists().custom((value, { req }) => (value.length == 0 || value.includes('M') || value.includes('F'))),
+], (req, res, next) => {
+
+	const errors = validationResult(req);
+	var logged = req.logged_user;
+	var genders = req.body.genders;
+
+	if (logged) {
+		if (!errors.isEmpty()) {
+			console.log(errors.mapped())
+			res.json({"status":"error", "msg":"invalid form"});
+		} else {
+			genders = genders.map((gender) => {
+				return [logged.login, gender];
+			});
+			console.log(genders);
+			UsersModel.updateSexuality(logged.login, genders, (err, rows, fields) => {
+				if (!err) {
+					UserCtrl.getConnectedUser(logged.login, (user) => {
+						if (user) {
+							res.json({"status":"success", "data":user});
+						} else {
+							res.json({"status":"error"});
+						}
+					});
+				} else {
+					console.log("err in update_field", err);
 					res.json({"status":"error"});
 				}
 			});

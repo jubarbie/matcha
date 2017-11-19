@@ -21,16 +21,14 @@ update msg oldModel =
             ( initialModel (Connect Login), Cmd.batch [Navigation.newUrl "/#/login", deleteSession ()])
 
         SaveToken session ->
-            let cmd =
-                case Debug.log "session" session of
-                    [user, token] ->
-                        if (Debug.log "token" token /= "" && Debug.log "user" user /= "") then
-                            getSessionUser user token
-                        else
-                             Cmd.none
-                    _ -> Cmd.none
-            in
-                (model, cmd)
+            case session of
+                [user, token] ->
+                    if (token /= "" && user /= "") then
+                        (model, getSessionUser user token)
+                    else
+                        (model, Navigation.newUrl "/#/login")
+                _ -> (model, Navigation.newUrl "/#/login")
+
 
         ChangePwdRespone response ->
           case response of
@@ -41,6 +39,30 @@ update msg oldModel =
                     _ -> ( { model | message = Just "Network error. Please try again" }, Cmd.none)
               _ ->
                   ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+
+        ReqTagResponse response ->
+          case response of
+              Success rep ->
+                case (rep.status, rep.data, model.session) of
+                    ("success", Just d, Just s) ->
+                      let
+                        u = s.user
+                        newUser = { u | tags = d }
+                        newSession = { s | user = newUser }
+                      in
+                        ( { model | session = Just newSession }, Cmd.none )
+                    _ -> ( model, Cmd.none)
+              _ ->
+                  ( model, Cmd.none)
+
+        SearchTagResponse response ->
+          case response of
+              Success rep ->
+                case (rep.status, rep.data) of
+                    ("success", Just d) -> ( { model | searchTag = d }, Cmd.none )
+                    _ -> ( model, Cmd.none)
+              _ ->
+                  ( model, Cmd.none)
 
         UpdateFieldResponse token response ->
           case response of
@@ -481,3 +503,38 @@ update msg oldModel =
                     _ ->
                         (model, Cmd.none)
               _ -> (model, Navigation.newUrl "/#/login")
+
+        UpdateGender gender ->
+          case model.session of
+              Just s ->
+                ( model, updateField s.token gender)
+              _ ->
+                ( model, Cmd.none )
+
+        UpdateIntIn genders ->
+          case model.session of
+              Just s ->
+                ( model, updateIntIn s.token genders)
+              _ ->
+                ( model, Cmd.none )
+
+        SearchTag search ->
+          case (model.session, (String.length search) > 1) of
+              (Just s, True)->
+                ( model, searchTag s.token search)
+              _ ->
+                ({model | searchTag = []}, Cmd.none )
+
+        AddTag t ->
+          case model.session of
+              Just s ->
+                ( model, addTag s.token t)
+              _ ->
+                (model, Cmd.none )
+
+        RemoveTag t ->
+          case model.session of
+              Just s ->
+                ( model, removeTag s.token t)
+              _ ->
+                (model, Cmd.none )
