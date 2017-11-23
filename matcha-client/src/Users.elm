@@ -10,26 +10,26 @@ import UserModel exposing (..)
 
 view : Model -> Html Msg
 view model =
-    div [] [ viewUsers model.users ]
+    div [] [ viewUsers model.users model ]
 
-viewUsers : List User -> Html Msg
-viewUsers users =
+viewUsers : List User -> Model -> Html Msg
+viewUsers users model =
     div []
         [ ul [ class "users-list" ] <| List.map (\u ->
-            li [] [ viewUser u ]
+            li [] [ viewUser u model ]
             ) users
         ]
 
-viewUser : User -> Html Msg
-viewUser user =
+viewUser : User -> Model -> Html Msg
+viewUser user model =
   let
     imgSrc = case List.head user.photos of
       Just src -> src
       _ -> "http://profile.actionsprout.com/default.jpeg"
   in
     div [ class "user-box" ]
-        [ h3 [] [ text <| Debug.log "username" user.username ]
-        , div [ id "profile-img" ] [ img [ src imgSrc ] [] ]
+        [ h3 [] [ text user.username ]
+        , div [ style [("background", "url(" ++ imgSrc ++ ") center center no-repeat")], class "img-box" ][]
         , div [] [ text <| genderToString user.gender ]
         , div [] [ a [href <| "http://localhost:3000/#/user/" ++ user.username][ text "See profile" ] ]
         ]

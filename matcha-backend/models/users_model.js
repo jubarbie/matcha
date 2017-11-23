@@ -7,7 +7,7 @@ var model = {};
 
 model.getAllUsers = (cb) =>
 	connection.query('\
-		SELECT u.*, GROUP_CONCAT(i.src) AS photos \
+		SELECT u.*, GROUP_CONCAT(DISTINCT i.src) AS photos \
 			FROM user AS u \
 			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 			LEFT JOIN image AS i ON i.id = rel.id_image \
@@ -16,7 +16,7 @@ model.getAllUsers = (cb) =>
 
 model.getRelevantProfiles = (logged, gender, int_in, cb) =>
 	connection.query('\
-		SELECT u.login AS login, u.gender AS gender, u.bio AS bio, GROUP_CONCAT(i.src) AS photos, GROUP_CONCAT(relt.tag) AS tags \
+		SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, GROUP_CONCAT(DISTINCT i.src) AS photos, GROUP_CONCAT(DISTINCT relt.tag) AS tags \
 			FROM user AS u \
 			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 			LEFT JOIN image AS i ON i.id = rel.id_image \
@@ -32,8 +32,8 @@ model.getRelevantProfiles = (logged, gender, int_in, cb) =>
 
 model.getFullDataUserWithLogin = (logged, login, cb) =>
 	connection.query('\
-		SELECT u.login AS login, u.gender AS gender, u.bio AS bio, GROUP_CONCAT(i.src) AS photos, \
-			( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks, GROUP_CONCAT(relt.tag) AS tags \
+		SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, GROUP_CONCAT(DISTINCT i.src) AS photos, \
+			( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks, GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
 			GROUP_CONCAT(s.gender) AS interested_in \
 		FROM user AS u \
 		LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
@@ -78,6 +78,9 @@ model.updateInfos = (login, infos, cb) =>
 		UPDATE user SET email = ?, fname = ?, lname = ?, bio = ? \
 		WHERE login = ? '
 		, [infos.email, infos.fname, infos.lname, infos.bio, login], cb);
+
+model.updateConnectionDate = (id, date, cb) =>
+	connection.query('UPDATE user SET last_connection = ? WHERE id = ?', [date, id], cb);
 
 model.updateLocation = (login, loc, cb) =>
 	connection.query('UPDATE user SET localisation = ? WHERE login = ?', [loc, login], cb);

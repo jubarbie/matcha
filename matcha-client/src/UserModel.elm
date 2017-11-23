@@ -11,7 +11,7 @@ type alias SessionUser =
     , talks : List String
     , tags : List String
     , localisation : Maybe Localisation
-    , photos : List String
+    , photos : List (Int, String)
     , role : UserRole
     , status : UserStatus
     }
@@ -22,7 +22,9 @@ type alias User =
     , bio : String
     , match : MatchStatus
     , has_talk : Bool
+    , tags : List String
     , photos : List String
+    , lastOn : String
     }
 
 type alias LocalisationApi =

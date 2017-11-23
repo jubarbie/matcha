@@ -15,45 +15,43 @@ import UserModel exposing (..)
 
 view : Model -> Html Msg
 view model =
-  let
-    role = case model.session of
-      Just s -> s.user.role
-      _ -> USER
-  in
-  div [ class "container" ]
-    [ (if (model.matchAnim /= Nothing) then
-        div [ id "match-anim" ] []
-      else
-        div [] [])
-    , (case model.message of
-        Just msg ->
-          div [ class "alert" ] [ text msg ]
-        Nothing ->
-          div [][]
-      )
-    , div []
-       <|  case model.route of
-            Connect a ->
-                [ Login.view a model ]
-            UsersRoute ->
-                [viewMenu model.route role, Users.view model]
-            UserRoute a ->
-                [viewMenu model.route role, User.view model]
-            ChatsRoute ->
-                [viewMenu model.route role, Chat.allChatsView model]
-            ChatRoute a ->
-                [viewMenu model.route role, Chat.view model]
-            AccountRoute ->
-                [viewMenu model.route role, Account.view model]
-            EditAccountRoute ->
-                [viewMenu model.route role, Account.viewEditAccount model]
-            ChangePwdRoute ->
-                [viewMenu model.route role, Account.viewChangePwd model]
-            Members ->
-                [viewMenu model.route role, AdminUsers.view model]
-            NotFoundRoute ->
-                [view401]
-    ]
+  case model.session of
+      Just s ->
+        div [ class "container" ]
+          [ (if (model.matchAnim /= Nothing) then
+              div [ id "match-anim" ] []
+            else
+              div [] [])
+          , (case model.message of
+              Just msg ->
+                div [ class "alert" ] [ text msg ]
+              Nothing ->
+                div [][]
+            )
+          , div []
+             <|  case model.route of
+                  Connect a ->
+                      [ Login.view a model ]
+                  UsersRoute ->
+                      [viewMenu model.route s, Users.view model]
+                  UserRoute a ->
+                      [viewMenu model.route s, User.view model]
+                  ChatsRoute ->
+                      [viewMenu model.route s, Chat.allChatsView model]
+                  ChatRoute a ->
+                      [viewMenu model.route s, Chat.view model]
+                  AccountRoute ->
+                      [viewMenu model.route s, Account.view model]
+                  EditAccountRoute ->
+                      [viewMenu model.route s, Account.viewEditAccount model]
+                  ChangePwdRoute ->
+                      [viewMenu model.route s, Account.viewChangePwd model]
+                  Members ->
+                      [viewMenu model.route s, AdminUsers.view model]
+                  NotFoundRoute ->
+                      [view401]
+          ]
+      _ -> div [][]
 
 view401 : Html msg
 view401 =
@@ -62,21 +60,25 @@ view401 =
         , a [ href "http://localhost:3000/#/users" ] [ text "Back to homepage" ]
         ]
 
-viewMenu : Route -> UserRole -> Html Msg
-viewMenu route role =
+viewMenu : Route -> Session -> Html Msg
+viewMenu route session =
     nav [ class "navbar" ]
     [ ul [ class "navbar-list" ]
     <| [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
         , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
-        , li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
         ]
         ++
-        ( if role == ADMIN then
-          [ li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "MEMBERS" ] ] ]
+        ( if session.user.role == ADMIN then
+          [ li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "MEMBERS" ] ]
+          ]
         else
           [] )
         ++
-        [ li [ class "u-pull-right", onClick Logout ] [ text "LOGOUT"  ] ]
+        [ div [ class "u-pull-right" ]
+              [ li [ getMenuClass AccountRoute route] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
+              , li [ onClick Logout ] [ text "LOGOUT"  ]
+              ]
+        ]
     ]
 
 getMenuClass : Route -> Route -> Attribute msg

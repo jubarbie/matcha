@@ -30,7 +30,10 @@ apiRoutes.post('/', (req, res, next) => {
 				var token = jwt.sign({"username": user.login}, config.secret, {
 					expiresIn: "1 day"
 				});
-				res.json({"status":"success", "token":token, "data":user});
+				var now = Date.now();
+				UsersModel.updateConnectionDate(user.id, now, (err, rows, fields) => {
+					res.json({"status":"success", "token":token, "data":user});
+				});
 			}
 		} else {
 			res.json({"status":"error", "msg":"Incorrect login or password"});

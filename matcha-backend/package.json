@@ -14,11 +14,14 @@
     "express": "~4.15.2",
     "express-validator": "^4.1.1",
     "express-ws": "^3.0.0",
+    "fs": "0.0.1-security",
     "jsonwebtoken": "^8.0.1",
     "morgan": "~1.8.1",
     "mysql": "^2.14.1",
     "mysqldump": "^1.4.2",
+    "node-base64-image": "^1.0.4",
     "nodemailer": "^4.2.0",
+    "shortid": "^2.2.8",
     "websocket": "^1.0.25"
   },
   "devDependencies": {

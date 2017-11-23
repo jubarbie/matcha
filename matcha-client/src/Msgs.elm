@@ -5,6 +5,7 @@ import Navigation exposing (..)
 import Models exposing (..)
 import UserModel exposing (..)
 import Time
+import Ports exposing (ImagePortData)
 
 type Msg
     = UsersResponse (WebData (ApiResponse (Maybe (List User))))
@@ -55,4 +56,8 @@ type Msg
     | UpdateIntIn (List Gender)
     | SearchTag String
     | AddTag String
+    | AddNewTag
     | RemoveTag String
+    | ImageSelected
+    | ImageRead ImagePortData
+    | DeleteImg Int

@@ -9,7 +9,7 @@ import Views exposing (view)
 import Models exposing (..)
 import Msgs exposing (..)
 import Update exposing (..)
-import Ports exposing (getToken, tokenRecieved, localize, newLocalisation)
+import Ports exposing (..)
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -36,6 +36,7 @@ subscriptions model =
   in
     Sub.batch [ tokenRecieved SaveToken
               , newLocalisation SetNewLocalisation
+              , fileContentRead ImageRead
               , subAnim
               , subRoute
               ]

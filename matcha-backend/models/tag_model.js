@@ -6,7 +6,7 @@ var connection = mysql.createConnection(config.database);
 var model = {};
 
 model.searchTags = (search, cb) => {
-	connection.query('SELECT tag FROM rel_user_tag WHERE tag LIKE ?', [search], cb);
+	connection.query('SELECT DISTINCT tag FROM rel_user_tag WHERE tag LIKE ? LIMIT 10', [search], cb);
 };
 
 model.addTag = (login, tag, cb) => {

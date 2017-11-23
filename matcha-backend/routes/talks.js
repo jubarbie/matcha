@@ -52,7 +52,7 @@ router.post('/talk/:login', function(req, res, next) {
 				});
 			}
 		});
-		
+
 	} else {
 		res.json({"status":"error"});
 	}
@@ -71,7 +71,7 @@ router.post('/new_message', function(req, res, next) {
 		TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
 			if (talks.length > 0) {
 				talkId = talks[0].id;
-				now = Date.now();
+				var now = Date.now();
 				TalkModel.newMessage(talkId, message, userFrom, now, function(err, rows, fields) {
           TalkModel.getTalkMessages(talkId, function (err, mess, fields) {
             if (mess.length > 0) {

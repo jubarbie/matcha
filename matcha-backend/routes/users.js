@@ -4,7 +4,10 @@ const { check, validationResult } = require('express-validator/check');
 const { matchedData } = require('express-validator/filter');
 var bcrypt = require('bcrypt');
 var crypto = require('crypto');
+var fs = require('fs');
 const saltRounds = 10;
+var shortid = require('shortid');
+var base64 = require('node-base64-image');
 var config = require('../config');
 var UserCtrl = require('../controllers/user_ctrl.js');
 var UsersModel = require('../models/users_model');
@@ -42,7 +45,6 @@ router.post('/user/:login', (req, res, next) => {
 	if (logged && login) {
 		UserCtrl.getFullUser(logged, login, function (user) {
 			if (user) {
-				console.log(user);
 				res.json({"status":"success", "data":user});
 			} else {
 				res.json({"status":"error", "msg":"Error when fetching user"});
@@ -254,7 +256,6 @@ router.post('/update_int_in', [
 			genders = genders.map((gender) => {
 				return [logged.login, gender];
 			});
-			console.log(genders);
 			UsersModel.updateSexuality(logged.login, genders, (err, rows, fields) => {
 				if (!err) {
 					UserCtrl.getConnectedUser(logged.login, (user) => {
@@ -336,5 +337,97 @@ router.post('/save_loc', (req, res, next) => {
 	}
 
 });
+
+/* Like or unlike user. */
+router.post('/new_image', (req, res, next) => {
+
+	var logged = req.logged_user;
+	var b64string = req.body.img;
+
+	if (logged && b64string) {
+		ImageModel.getImagesFromUserId(logged.id, (err, imgs, fields) => {
+			if (!err) {
+				if (imgs.length < 5) {
+					var img = decodeBase64Image(b64string);
+					var type = '.' + img.type.split('/')[1];
+					var imgName = shortid.generate();
+					base64.decode(img.data, {filename : 'public/' + config.upload_path + imgName}, (err) => {
+						if (!err) {
+							ImageModel.addImage(logged.id, imgName + '.jpg', (err, rows, fields) => {
+								if (!err) {
+									UserCtrl.getConnectedUser(logged.login, (user) => {
+										if (user) {
+											res.json({"status":"success", "data":user});
+										} else {
+											res.json({"status":"error"});
+										}
+									});
+								} else {
+									res.json({"status":"error"});
+								}
+							});
+						} else {
+							res.json({"status":"error"});
+						}
+					});
+				} else {
+					res.json({"status":"error", "msg":"Too many images"});
+				}
+			} else {
+				res.json({"status":"error"});
+			}
+		});
+	} else {
+		res.json({"status":"error"});
+	}
+
+});
+
+/* Like or unlike user. */
+router.post('/del_image', (req, res, next) => {
+
+	var logged = req.logged_user;
+	var id_img = req.body.id_img;
+
+	if (logged && id_img) {
+		ImageModel.getImageFromId(id_img, (err, imgs, fields) => {
+			if (!err && imgs.length > 0) {
+				var path = "public/" + config.upload_path + imgs[0].src;
+				ImageModel.delImage(logged.id, id_img, (err, rows, fields) => {
+					if (!err) {
+						fs.unlink(path, (err) => {
+							UserCtrl.getConnectedUser(logged.login, (user) => {
+								if (user) {
+									res.json({"status":"success", "data":user});
+								} else {
+									res.json({"status":"error"});
+								}
+							});
+						});
+					} else {
+						res.json({"status":"error"});
+					}
+				});
+			}
+		});
+	} else {
+		res.json({"status":"error"});
+	}
+
+});
+
+function decodeBase64Image(dataString) {
+  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+    response = {};
+
+  if (matches.length !== 3) {
+    return new Error('Invalid input string');
+  }
+
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+
+  return response;
+}
 
 module.exports = router;

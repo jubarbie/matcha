@@ -109,9 +109,19 @@ decodeSessionUser =
     |: (field "talks" decodeTalks)
     |: (field "tags" (JsonDec.list JsonDec.string))
     |: maybe (field "localisation" decodeLocalisation)
-    |: (field "photos" (JsonDec.list JsonDec.string))
+    |: (field "photos" decodeImgs)
     |: (field "rights" decodeRole)
     |: (field "activated" decodeUserStatus)
+
+arrayAsTuple2 : Decoder a -> Decoder b -> Decoder (a, b)
+arrayAsTuple2 a b =
+    index 0 a
+        |> JsonDec.andThen (\aVal -> index 1 b
+        |> JsonDec.andThen (\bVal -> JsonDec.succeed (aVal, bVal)))
+
+decodeImgs : Decoder (List (Int, String))
+decodeImgs =
+  JsonDec.list <| arrayAsTuple2 JsonDec.int JsonDec.string
 
 decodeUser : Decoder User
 decodeUser =
@@ -121,7 +131,9 @@ decodeUser =
     |: (field "bio" JsonDec.string)
     |: (field "match" decodeMatch)
     |: (field "has_talk" JsonDec.bool)
+    |: (field "tags" (JsonDec.list JsonDec.string))
     |: (field "photos" (JsonDec.list JsonDec.string))
+    |: (field "last_connection" JsonDec.string)
 
 
 decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))
@@ -225,7 +237,7 @@ sendFastNewUser username fname lname email pwd repwd =
 
 
 updateAccountInfos : String -> String -> String -> String -> String -> Cmd Msg
-updateAccountInfos token fname lname email bio =
+updateAccountInfos fname lname email bio token =
     let
         body =
             Http.jsonBody <| JsonEnc.object
@@ -308,8 +320,8 @@ getIpLocalisation =
     |> RemoteData.sendRequest
     |> Cmd.map GetIpLocalisation
 
-saveLocation : String -> Localisation -> Cmd Msg
-saveLocation token loc =
+saveLocation : Localisation -> String -> Cmd Msg
+saveLocation loc token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
@@ -323,7 +335,7 @@ saveLocation token loc =
       |> Cmd.map SaveLocRespone
 
 changePwd : String -> String -> String -> String -> Cmd Msg
-changePwd token oldPwd newPwd confirmNewPwd =
+changePwd oldPwd newPwd confirmNewPwd token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
@@ -337,8 +349,8 @@ changePwd token oldPwd newPwd confirmNewPwd =
       |> RemoteData.sendRequest
       |> Cmd.map ChangePwdRespone
 
-updateField : String -> Gender -> Cmd Msg
-updateField token gender =
+updateField : Gender -> String -> Cmd Msg
+updateField gender token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
@@ -350,8 +362,8 @@ updateField token gender =
       |> RemoteData.sendRequest
       |> Cmd.map (UpdateFieldResponse token)
 
-updateIntIn : String -> List Gender -> Cmd Msg
-updateIntIn token genders =
+updateIntIn : List Gender -> String -> Cmd Msg
+updateIntIn genders token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
@@ -377,7 +389,7 @@ searchTag token search =
       |> Cmd.map SearchTagResponse
 
 addTag : String -> String -> Cmd Msg
-addTag token tag_ =
+addTag tag_ token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
@@ -390,7 +402,7 @@ addTag token tag_ =
       |> Cmd.map ReqTagResponse
 
 removeTag : String -> String -> Cmd Msg
-removeTag token tag_ =
+removeTag tag_ token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
@@ -401,3 +413,29 @@ removeTag token tag_ =
       Http.post "http://localhost:3001/api/tag/remove" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
       |> RemoteData.sendRequest
       |> Cmd.map ReqTagResponse
+
+uploadImage : String -> String -> Cmd Msg
+uploadImage img token =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("img", JsonEnc.string img)
+          ]
+  in
+      Http.post "http://localhost:3001/api/users/new_image" body (decodeApiResponse <| Just decodeSessionUser)
+      |> RemoteData.sendRequest
+      |> Cmd.map (UpdateFieldResponse token)
+
+delImg : Int -> String -> Cmd Msg
+delImg id_ token =
+  let
+      body =
+          Http.jsonBody <| JsonEnc.object
+          [ ("token", JsonEnc.string token)
+          , ("id_img", JsonEnc.int id_)
+          ]
+  in
+      Http.post "http://localhost:3001/api/users/del_image" body (decodeApiResponse <| Just decodeSessionUser)
+      |> RemoteData.sendRequest
+      |> Cmd.map (UpdateFieldResponse token)

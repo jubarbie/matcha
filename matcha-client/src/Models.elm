@@ -4,7 +4,6 @@ import UserModel exposing (..)
 import FormUtils exposing (..)
 import Time exposing (..)
 
-
 type Route
     = Connect LoginRoute
     | UsersRoute
@@ -27,6 +26,11 @@ type MapState
   | Loading
   | Rendered
 
+type alias Image =
+  { contents : String
+  , filename : String
+  }
+
 type alias Model =
     { route : Route
     , session : Maybe Session
@@ -35,6 +39,7 @@ type alias Model =
     , editAccountForm : Form
     , resetPwdForm : Form
     , changePwdForm : Form
+    , tagInput : String
     , searchTag : List String
     , users : List User
     , usersAdmin : List SessionUser
@@ -44,6 +49,8 @@ type alias Model =
     , map_state : MapState
     , current_location : Maybe Localisation
     , matchAnim : Maybe Time.Time
+    , idImg : String
+    , mImage : Maybe Image
     }
 
 type alias Talk =
@@ -57,7 +64,6 @@ type alias Message =
   , message : String
   , user : String
   }
-
 
 type alias Session =
     { user : SessionUser
@@ -77,7 +83,6 @@ type alias ApiResponse a =
     , data : a
     }
 
-
 initialModel : Route -> Model
 initialModel route =
     { route = route
@@ -87,6 +92,7 @@ initialModel route =
     , editAccountForm = []
     , resetPwdForm = initResetPwdForm
     , changePwdForm = initChangePwdForm
+    , tagInput = ""
     , searchTag = []
     , users = []
     , usersAdmin = []
@@ -96,4 +102,6 @@ initialModel route =
     , map_state = if (route == AccountRoute || route == EditAccountRoute ) then Loading else NoMap
     , current_location = Nothing
     , matchAnim = Nothing
+    , idImg = "ImageInputId"
+    , mImage = Nothing
     }

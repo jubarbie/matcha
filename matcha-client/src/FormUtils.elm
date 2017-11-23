@@ -30,6 +30,7 @@ type FormValidator
     | EmailValidator
     | PasswordValidator
     | PasswordConfirmValidator String
+    | TagValidator
 
 initInput : Maybe String -> String -> String -> String -> Maybe FormValidator -> Maybe String -> Input
 initInput value typ label id validator tip =
@@ -62,6 +63,7 @@ validationForm validator form value =
                 Just a -> validConfirmPassword a value
                 Nothing -> NotValid ("No input found with id : " ++ id)
         Just (TextValidator min max) -> validText min max value
+        Just TagValidator -> validTag value
 
 findInput : Form -> String -> Maybe Input
 findInput form id =
@@ -82,6 +84,7 @@ initLoginForm =
         [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
         , initInput Nothing "password" "Mot de passe" "pwd" (Just <| TextValidator 2 255) Nothing
         ]
+
 
 initResetPwdForm : Form
 initResetPwdForm =
@@ -124,6 +127,13 @@ validEmail value =
     case value of
         Nothing -> Waiting
         Just a -> if contains (regex "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$") a then Valid a else NotValid "Must be email"
+
+validTag : Maybe String -> FormStatus
+validTag value =
+    case value of
+        Nothing -> Waiting
+        Just a -> if contains (regex "^[a-zA-Z0-9_.+-]+$") a then Valid a else NotValid "Only numbers and chars"
+
 
 validPassword : Maybe String -> FormStatus
 validPassword value =

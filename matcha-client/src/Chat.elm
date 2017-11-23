@@ -8,11 +8,11 @@ import Date
 
 import Models exposing (..)
 import Msgs exposing (..)
-
+import DateUtils exposing (..)
 
 view : Model -> Html Msg
 view model =
-  case (model.route, Debug.log "current_talk" model.current_talk) of
+  case (model.route, model.current_talk) of
       (ChatRoute a, Just t) ->
         let
           messages = List.sortBy (\m -> m.date) t.messages
@@ -60,28 +60,3 @@ messageView to msg =
         ]
       , div [] [  text msg.message ]
       ]
-
-formatDate : Date.Date -> String
-formatDate date =
-  let
-    year = toString <| Date.year date
-    month =
-      case Date.month date of
-        Date.Jan -> "jan"
-        Date.Feb -> "feb"
-        Date.Mar -> "mar"
-        Date.Apr -> "apr"
-        Date.May -> "may"
-        Date.Jun -> "jun"
-        Date.Jul -> "jul"
-        Date.Aug -> "aug"
-        Date.Sep -> "sep"
-        Date.Oct -> "oct"
-        Date.Nov -> "nov"
-        Date.Dec -> "dec"
-    day = toString <| Date.day date
-    h = toString <| Date.hour date
-    m = toString <| Date.minute date
-    s = toString <| Date.second date
-  in
-    day ++ " " ++ month ++ " " ++ year ++ " " ++ h ++ ":" ++ m ++ ":" ++ s

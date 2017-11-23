@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Keyed exposing (..)
+import Json.Decode as JD
 import Models exposing (..)
 import Commands exposing (..)
 import Msgs exposing (..)
@@ -52,8 +53,8 @@ viewAccount model user =
           , div [] <| List.map (\t ->
               div [ class "tag" ]
                   [ text t
-                  , div [ class "del", onClick <| RemoveTag t ][ text "x"]
-                  ]) user.tags
+                  , div [ class "del pointer", onClick <| RemoveTag t ][ text "x"]
+                  ]) (List.sort user.tags)
           , viewTagForm model
           ]
       ]
@@ -61,8 +62,16 @@ viewAccount model user =
       [  hr [][]
         , h2 [] [ text "Photos" ]
         , (if List.length user.photos > 0 then
-           div [] <| List.map (\s -> img [ src s ] [] ) user.photos
+           div [] <| List.map (\(id_, s) ->
+             div [ style [("background", "url(" ++ s ++ ") center center no-repeat")], class "img-box" ]
+                  [ button [ class "del", onClick <| DeleteImg id_ ] [text "X"]
+                  ]
+            ) user.photos
            else div [] [ text "You haven't uploaded any pictures yet"] )
+      , (if (List.length user.photos) < 5 then
+         viewNewImgeForm model
+        else
+          div [][])
       ]
     , div [class "row"]
           [ hr [] []
@@ -73,13 +82,48 @@ viewAccount model user =
           ]
       ]
 
+viewNewImgeForm : Model -> Html Msg
+viewNewImgeForm model =
+    let
+        imagePreview =
+            case model.mImage of
+                Just i ->
+                    viewImagePreview i
+
+                Nothing ->
+                    text ""
+    in
+        div [ class "imageWrapper" ]
+            [ label [ for model.idImg, class "label-upload button" ]
+              [ input
+                [ type_ "file"
+                , accept "image/*"
+                , id model.idImg
+                , on "change"
+                    (JD.succeed ImageSelected)
+                ]
+                []
+                , text "Upload new image"
+              ]
+            ]
+
+
+viewImagePreview : Image -> Html Msg
+viewImagePreview image =
+    img
+        [ src image.contents
+        , title image.filename
+        ]
+        []
+
 viewTagForm : Model -> Html Msg
 viewTagForm model =
   div [ class "input" ]
     [ input [ type_ "text", onInput SearchTag ] []
+    , button [ onClick AddNewTag ] [ text "Add" ]
     , div []
-      [ Html.ul [] <|
-        List.map (\i -> li [ onClick <| AddTag i ] [ text i ]) model.searchTag
+      [ Html.ul [ class "search-list" ] <|
+        List.map (\i -> li [ onClick <| AddTag i, class "pointer" ] [ text i ]) model.searchTag
       ]
     ]
 

@@ -131,6 +131,40 @@ ul.users-list li {
   cursor: pointer;
 }
 
+.tag {
+	display: inline-block;
+	position: relative;
+	padding: 2px 18px 2px 4px;
+	border: 1px solid white;
+	margin-right: 2px;
+	border-radius: 2px;
+	font-size: 0.9em;
+}
+.tag .del {
+	position: absolute;
+	right: 4px;
+	top: 0;
+}
+.pointer {
+	cursor: pointer;
+}
+.search-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.img-box {
+	background-size: cover !important;
+	width: 200px;
+	height: 200px;
+	display: inline-block;
+	margin: 4px;
+}
+.label-upload input {
+	position: absolute;
+	opacity: 0;
+}
+
 /* Found on https://css-tricks.com/snippets/css/shake-css-keyframe-animation/ */
 .wrong {
   animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;

@@ -13,20 +13,22 @@ ctrl.getFullUser = (logged, login, callback) => {
 			var user = rows[0];
 			user.has_talk = (user.talks > 0) ? true : false;
 			user.photos = (user.photos) ? user.photos.split(',') : [];
+			user.photos = user.photos.map(function (img) {
+				return 'http://localhost:3001/' + config.upload_path + img;
+			});
 			user.match = "none";
 			if (user.localisation) {
 				user.localisation = JSON.parse(user.localisation);
 			}
+			user.tags = (user.tags) ? user.tags.split(',') : [];
 			user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
 			ctrl.getMatchStatus(logged.login, login, (status) => {
 				if (status) {
 					user.match = status;
 				}
-				console.log(user);
 				callback(user);
 			})
 		} else {
-			console.log(err);
 			callback(null);
 		}
 	});
@@ -48,13 +50,12 @@ ctrl.getConnectedUser = function (login, callback) {
 				ImageModel.getImagesFromUserId(user.id, function(err, imgs, fields){
 					if (!err && imgs.length > 0) {
 						user.photos = imgs.map(function (img) {
-							return img.src;
+							return [img.id, 'http://localhost:3001/' + config.upload_path + img.src];
 						});
 					}
 					if (user.localisation) {
 						user.localisation = JSON.parse(user.localisation);
 					}
-					console.log(user);
 					callback(user);
 				});
 			});
@@ -75,6 +76,10 @@ ctrl.getRelevantUsers = (logged, callback) => {
         u.has_talk = false;
 				u.match = "match";
         u.photos = (u.photos) ? u.photos.split(",") : [];
+				u.photos = u.photos.map(function (img) {
+					return 'http://localhost:3001/' + config.upload_path + img;
+				});
+				u.tags = (u.tags) ? u.tags.split(',') : [];
         return u;
       });
       callback(users);

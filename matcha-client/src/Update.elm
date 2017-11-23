@@ -15,6 +15,12 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg oldModel =
   let
     model = { oldModel | message = Nothing }
+    doIfConnected cmd =
+      case model.session of
+          Just s ->
+            cmd s.token
+          _ ->
+            Navigation.newUrl "/#/login"
   in
     case msg of
         Logout ->
@@ -29,7 +35,6 @@ update msg oldModel =
                         (model, Navigation.newUrl "/#/login")
                 _ -> (model, Navigation.newUrl "/#/login")
 
-
         ChangePwdRespone response ->
           case response of
               Success rep ->
@@ -39,6 +44,7 @@ update msg oldModel =
                     _ -> ( { model | message = Just "Network error. Please try again" }, Cmd.none)
               _ ->
                   ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+
 
         ReqTagResponse response ->
           case response of
@@ -69,11 +75,11 @@ update msg oldModel =
               Success rep ->
                 case (rep.status, rep.data, rep.message) of
                     ("success", Just u, _) ->
-                      ( { model | session = Just <| Session u token }, Cmd.none )
+                      ( { model | session = Just <| Session u token, mImage = Nothing }, Cmd.none )
                     ("error", _ , Just msg) -> ( { model | message = Just msg }, Cmd.none)
-                    _ -> ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+                    _ -> ( { model | message = Just "Network error. Please try again", mImage = Nothing }, Cmd.none)
               _ ->
-                  ( { model | message = Just "Network error. Please try again" }, Cmd.none)
+                  ( { model | message = Just "Network error. Please try again", mImage = Nothing }, Cmd.none)
 
         UsersResponse response ->
             case response of
@@ -297,6 +303,7 @@ update msg oldModel =
                     _ -> ( { model | message = Just "Error while saving localisation. Try again" }, Cmd.none )
               _ -> ( { model | message = Just "Error while saving localisation. Try again" }, Cmd.none )
 
+
         OnLocationChange location ->
             let
                 newRoute = parseLocation location
@@ -344,7 +351,6 @@ update msg oldModel =
             in
                 ( { model | newUserForm = newForm }, Cmd.none)
 
-
         SendLogin ->
             let
                 values = List.map (\i -> i.status) model.loginForm
@@ -376,18 +382,14 @@ update msg oldModel =
                     (model, Cmd.none)
 
         DeleteUser username ->
-          case model.session of
-            Just s -> (model, deleteUser username s.token)
-            _ -> (model, Navigation.newUrl "/#/login")
+          (model, doIfConnected <| deleteUser username)
 
         ToggleLike username ->
-            case model.session of
-              Just s -> (model, toggleLike username s.token)
-              _ -> (model, Navigation.newUrl "/#/login")
+          (model, doIfConnected <| toggleLike username)
 
         SaveLocation ->
-          case ( model.session, model.current_location ) of
-            (Just s, Just l) -> ( model, saveLocation s.token l )
+          case model.current_location of
+            Just l -> ( model, doIfConnected <| saveLocation l )
             _ -> ( model, Cmd.none )
 
         UpdateNewMessage msg ->
@@ -428,7 +430,7 @@ update msg oldModel =
               _ -> (model, Cmd.none)
 
         Localize ->
-          ( model, getIpLocalisation)
+          ( model, getIpLocalisation )
 
         SetNewLocalisation loc ->
          case Debug.log "new loc" loc of
@@ -472,17 +474,16 @@ update msg oldModel =
               ( { model | matchAnim = Debug.log "newAnim" newAnim }, Cmd.none)
 
         SaveAccountUpdates ->
-          case model.session of
-              Just s ->
-                let
-                    values = List.map (\i -> i.status) model.editAccountForm
-                in
+          let
+              values = List.map (\i -> i.status) model.editAccountForm
+              cmd =
                 case values of
                     [Valid fname, Valid lname, Valid email, Valid bio] ->
-                        (model, updateAccountInfos s.token fname lname email bio)
+                      doIfConnected <| updateAccountInfos fname lname email bio
                     _ ->
-                        (model, Cmd.none)
-              _ -> (model, Navigation.newUrl "/#/login")
+                      Cmd.none
+          in
+            (model,  cmd)
 
         UpdateEditPwdForm id value ->
           let
@@ -492,49 +493,53 @@ update msg oldModel =
               ( { model | changePwdForm = newForm }, Cmd.none)
 
         ChangePwd ->
-          case model.session of
-              Just s ->
-                let
-                    values = List.map (\i -> i.status) model.changePwdForm
-                in
+          let
+              values = List.map (\i -> i.status) model.changePwdForm
+              cmd =
                 case values of
                     [Valid oldPwd, Valid newPwd, Valid confirmNewPwd] ->
-                        (model, changePwd s.token oldPwd newPwd confirmNewPwd )
-                    _ ->
-                        (model, Cmd.none)
-              _ -> (model, Navigation.newUrl "/#/login")
+                        doIfConnected <| changePwd oldPwd newPwd confirmNewPwd
+                    _ -> Cmd.none
+          in
+            (model, cmd)
 
         UpdateGender gender ->
-          case model.session of
-              Just s ->
-                ( model, updateField s.token gender)
-              _ ->
-                ( model, Cmd.none )
+            ( model, doIfConnected <| updateField gender)
 
         UpdateIntIn genders ->
-          case model.session of
-              Just s ->
-                ( model, updateIntIn s.token genders)
-              _ ->
-                ( model, Cmd.none )
+            ( model, doIfConnected <| updateIntIn genders)
 
         SearchTag search ->
-          case (model.session, (String.length search) > 1) of
-              (Just s, True)->
-                ( model, searchTag s.token search)
+          case (model.session, (String.length search) > 1, validTag <| Just search) of
+              (Just s, True, Valid t)->
+                ( {model | tagInput = t }, searchTag s.token search)
               _ ->
                 ({model | searchTag = []}, Cmd.none )
 
         AddTag t ->
-          case model.session of
-              Just s ->
-                ( model, addTag s.token t)
-              _ ->
-                (model, Cmd.none )
+          ( model, doIfConnected (addTag t))
+
+        AddNewTag ->
+          case (validTag <| Just model.tagInput) of
+            Valid s -> ( model, doIfConnected (addTag s) )
+            _ -> (model , Cmd.none)
 
         RemoveTag t ->
-          case model.session of
-              Just s ->
-                ( model, removeTag s.token t)
-              _ ->
-                (model, Cmd.none )
+          ( model, doIfConnected <| removeTag t)
+
+        ImageSelected ->
+            ( model, fileSelected model.idImg)
+
+        ImageRead data ->
+            let
+                newImage =
+                    { contents = data.contents
+                    , filename = data.filename
+                    }
+            in
+                ( { model | mImage = Just newImage }
+                , doIfConnected <| uploadImage data.contents
+                )
+
+        DeleteImg id_ ->
+          (model, doIfConnected <| delImg id_)
