@@ -22,9 +22,11 @@ type alias User =
     , bio : String
     , match : MatchStatus
     , has_talk : Bool
+    , visitor : Bool
     , tags : List String
     , photos : List String
     , lastOn : String
+    , distance : Maybe Float
     }
 
 type alias LocalisationApi =

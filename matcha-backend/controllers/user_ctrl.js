@@ -18,14 +18,17 @@ ctrl.getFullUser = (logged, login, callback) => {
 			});
 			user.match = "none";
 			if (user.localisation) {
-				user.localisation = JSON.parse(user.localisation);
+				user.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(user.localisation))
 			}
+			user.localisation = "secret information";
 			user.tags = (user.tags) ? user.tags.split(',') : [];
 			user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
+			user.visitor = (user.visitor != null) ? true : false;
 			ctrl.getMatchStatus(logged.login, login, (status) => {
 				if (status) {
 					user.match = status;
 				}
+				console.log(user);
 				callback(user);
 			})
 		} else {
@@ -33,6 +36,27 @@ ctrl.getFullUser = (logged, login, callback) => {
 		}
 	});
 };
+
+function getDistance(pos_from, pos_to) {
+	console.log("pos1", pos_from);
+	console.log("pos2", pos_to);
+	var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(pos_to.lat - pos_from.lat);  // deg2rad below
+  var dLon = deg2rad(pos_to.lon - pos_from.lon);
+  var a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(pos_from.lat)) * Math.cos(deg2rad(pos_to.lat)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ;
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c; // Distance in km
+  return d;
+
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}
 
 ctrl.getConnectedUser = function (login, callback) {
 	UsersModel.getUserWithLogin(login, function(err, rows, fields) {
@@ -71,6 +95,35 @@ ctrl.getRelevantUsers = (logged, callback) => {
   var int_in = (logged.gender) ? logged.gender : "M";
 
   UsersModel.getRelevantProfiles(logged.login, gender, int_in, function(err, rows, fields) {
+    if (!err) {
+      var users = rows.map(function (u) {
+        u.has_talk = false;
+				u.match = "match";
+        u.photos = (u.photos) ? u.photos.split(",") : [];
+				u.photos = u.photos.map(function (img) {
+					return 'http://localhost:3001/' + config.upload_path + img;
+				});
+				u.tags = (u.tags) ? u.tags.split(',') : [];
+				u.visitor = (u.visitor != null) ? true : false;
+				if (u.localisation) {
+					u.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(u.localisation))
+				}
+				u.localisation = "secret information";
+        return u;
+      });
+      callback(users);
+		} else {
+			callback(null);
+		}
+	});
+};
+
+ctrl.Visitors = (logged, callback) => {
+
+  var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+  var int_in = (logged.gender) ? logged.gender : "M";
+
+  UsersModel.getVisitors(logged.login, gender, int_in, function(err, rows, fields) {
     if (!err) {
       var users = rows.map(function (u) {
         u.has_talk = false;

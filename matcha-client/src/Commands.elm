@@ -131,9 +131,11 @@ decodeUser =
     |: (field "bio" JsonDec.string)
     |: (field "match" decodeMatch)
     |: (field "has_talk" JsonDec.bool)
+    |: (field "visitor" JsonDec.bool)
     |: (field "tags" (JsonDec.list JsonDec.string))
     |: (field "photos" (JsonDec.list JsonDec.string))
     |: (field "last_connection" JsonDec.string)
+    |: maybe (field "distance" JsonDec.float)
 
 
 decodeApiResponse : Maybe (Decoder a) -> Decoder (ApiResponse (Maybe a))

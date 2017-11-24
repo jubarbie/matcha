@@ -17,7 +17,7 @@ view model =
         let
           messages = List.sortBy (\m -> m.date) t.messages
         in
-          div []
+          div [class "content"]
             [ button [ onClick <| GoBack 1 ][ text "Back" ]
             , h1 [] [text <| "Chat with " ++ a ]
             , div [] (List.map (messageView a) messages)
@@ -32,12 +32,12 @@ allChatsView model =
   case model.session of
         Just s ->
           if List.length s.user.talks > 0 then
-            div [] <|
+            div [class "content"] <|
                 List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t] [ text t ] ] ) s.user.talks
           else
-            div [] [ text "You haven't talk to anyone yet" ]
+            div [class "content"] [ text "You haven't talk to anyone yet" ]
         _ ->
-          div [] [ text "No session..." ]
+          div [class "content"] [ text "No session..." ]
 
 
 messageView : String -> Message -> Html Msg

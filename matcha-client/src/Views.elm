@@ -15,8 +15,6 @@ import UserModel exposing (..)
 
 view : Model -> Html Msg
 view model =
-  case model.session of
-      Just s ->
         div [ class "container" ]
           [ (if (model.matchAnim /= Nothing) then
               div [ id "match-anim" ] []
@@ -29,29 +27,26 @@ view model =
                 div [][]
             )
           , div []
-             <|  case model.route of
-                  Connect a ->
+             <|  case (model.route, model.session) of
+                  (Connect a, _) ->
                       [ Login.view a model ]
-                  UsersRoute ->
+                  (UsersRoute, Just s) ->
                       [viewMenu model.route s, Users.view model]
-                  UserRoute a ->
+                  (UserRoute a, Just s) ->
                       [viewMenu model.route s, User.view model]
-                  ChatsRoute ->
+                  (ChatsRoute, Just s) ->
                       [viewMenu model.route s, Chat.allChatsView model]
-                  ChatRoute a ->
+                  (ChatRoute a, Just s) ->
                       [viewMenu model.route s, Chat.view model]
-                  AccountRoute ->
+                  (AccountRoute, Just s) ->
                       [viewMenu model.route s, Account.view model]
-                  EditAccountRoute ->
+                  (EditAccountRoute, Just s) ->
                       [viewMenu model.route s, Account.viewEditAccount model]
-                  ChangePwdRoute ->
+                  (ChangePwdRoute, Just s) ->
                       [viewMenu model.route s, Account.viewChangePwd model]
-                  Members ->
-                      [viewMenu model.route s, AdminUsers.view model]
-                  NotFoundRoute ->
+                  _ ->
                       [view401]
           ]
-      _ -> div [][]
 
 view401 : Html msg
 view401 =
@@ -62,19 +57,11 @@ view401 =
 
 viewMenu : Route -> Session -> Html Msg
 viewMenu route session =
-    nav [ class "navbar" ]
+    nav [ class "navbar container" ]
     [ ul [ class "navbar-list" ]
     <| [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
         , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
-        ]
-        ++
-        ( if session.user.role == ADMIN then
-          [ li [ getMenuClass Members route ] [ a [ href "http://localhost:3000/#/members" ] [ text "MEMBERS" ] ]
-          ]
-        else
-          [] )
-        ++
-        [ div [ class "u-pull-right" ]
+        , div [ class "u-pull-right" ]
               [ li [ getMenuClass AccountRoute route] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
               , li [ onClick Logout ] [ text "LOGOUT"  ]
               ]

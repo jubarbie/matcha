@@ -20,7 +20,7 @@ view model =
 
 viewAccount : Model -> SessionUser -> Html Msg
 viewAccount model user =
-  div []
+  div [class "content"]
     [ div [ class "row" ]
       [ div [class "twelve columns"] <|
         [ div [] <|
@@ -140,7 +140,7 @@ viewEditAccount model =
     case model.session of
       Nothing -> text "no session..."
       Just s ->
-        div []
+        div [class "content"]
           [ viewEditAccountForm model.editAccountForm
           ]
 
@@ -205,7 +205,7 @@ viewEditAccountForm accountForm =
 
 viewEditPwdForm : Form -> Html Msg
 viewEditPwdForm formm =
-  div []
+  div [class "content"]
     [ h1 [] [ text <| "Edit password" ]
     , div [] <| List.map (\i -> viewInput (UpdateEditPwdForm i.id) i) formm
       ++ [ div [ onClick ChangePwd, class "important-font" ][ text "CHANGE PASSWORD" ]

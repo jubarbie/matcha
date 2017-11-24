@@ -140,7 +140,6 @@ app.ports.localize.subscribe(function(loc) {
 	map.addControl(new mapboxgl.NavigationControl());
 });
 
-
 app.ports.fileSelected.subscribe(function (id) {
       var node = document.getElementById(id);
       if (node === null) {

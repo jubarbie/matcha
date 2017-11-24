@@ -24,6 +24,27 @@ router.post('/relevant_users', (req, res, next) => {
 	if (logged) {
 		UserCtrl.getRelevantUsers(logged, function (users) {
 			if (users) {
+				console.log(users);
+				res.json({ "status":"success", "data": users });
+			} else {
+				res.json({ "status":"error", "msg": "A problem occur while fetching users" });
+			}
+		});
+	} else {
+		res.status(401).json({ "status":"error" });
+	}
+
+
+});
+
+/* GET users listing. */
+router.post('/relevant_users', (req, res, next) => {
+
+	var logged = req.logged_user;
+
+	if (logged) {
+		UserCtrl.getVisitors(logged, function (users) {
+			if (users) {
 				res.json({ "status":"success", "data": users });
 			} else {
 				res.json({ "status":"error", "msg": "A problem occur while fetching users" });
@@ -45,7 +66,9 @@ router.post('/user/:login', (req, res, next) => {
 	if (logged && login) {
 		UserCtrl.getFullUser(logged, login, function (user) {
 			if (user) {
-				res.json({"status":"success", "data":user});
+				UsersModel.addVisit(logged.login, login, (err, rows, fields) => {
+					res.json({"status":"success", "data":user});
+				});
 			} else {
 				res.json({"status":"error", "msg":"Error when fetching user"});
 			}
@@ -53,7 +76,6 @@ router.post('/user/:login', (req, res, next) => {
 	} else {
 		res.status(401).json({ "status":"error" });
 	}
-
 
 });
 

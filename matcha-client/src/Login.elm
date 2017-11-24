@@ -15,14 +15,14 @@ view route model =
             Just msg -> msg
             _ -> ""
     in
-    div [ class <| if msg /= "" then "wrong" else "" ]
-        [ img [ src "/assets/images/DARKROOM_logo.svg", id "logo" ] []
-        , div [][text msg]
-        , (case route of
-            Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
-            Signin -> Html.Keyed.node "sign" [] [("div", viewNewUserForm model)]
-            ResetPwdRoute -> Html.Keyed.node "rest" [] [("div", viewResetPwdForm model)])
-        ]
+      div [ class <| if msg /= "" then "wrong" else "" ]
+          [ img [ src "/assets/images/DARKROOM_logo.svg", id "logo" ] []
+          , div [][text msg]
+          , (case route of
+              Login -> Html.Keyed.node "div" [] [("div", viewLoginForm model)]
+              Signin -> Html.Keyed.node "sign" [] [("div", viewNewUserForm model)]
+              ResetPwdRoute -> Html.Keyed.node "rest" [] [("div", viewResetPwdForm model)])
+          ]
 
 viewLoginForm : Model -> Html Msg
 viewLoginForm model =

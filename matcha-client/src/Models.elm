@@ -12,7 +12,6 @@ type Route
     | ChatRoute String
     | AccountRoute
     | EditAccountRoute
-    | Members
     | NotFoundRoute
     | ChangePwdRoute
 
@@ -51,6 +50,7 @@ type alias Model =
     , matchAnim : Maybe Time.Time
     , idImg : String
     , mImage : Maybe Image
+    , currentTime : Maybe Time.Time
     }
 
 type alias Talk =
@@ -83,6 +83,14 @@ type alias ApiResponse a =
     , data : a
     }
 
+type FilterUsers
+  = F_Visitors
+  | F_Liked
+
+type SortUsers
+  = S_Age
+  | S_LastOn
+
 initialModel : Route -> Model
 initialModel route =
     { route = route
@@ -104,4 +112,5 @@ initialModel route =
     , matchAnim = Nothing
     , idImg = "ImageInputId"
     , mImage = Nothing
+    , currentTime = Nothing
     }

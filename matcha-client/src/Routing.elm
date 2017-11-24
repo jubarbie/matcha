@@ -8,9 +8,9 @@ import UrlParser exposing (..)
 matchers : Parser (Route -> a) a
 matchers =
     oneOf
-    [ map (Connect Login)  top
+    [ map (Connect Login) top
     , map (Connect Login) (s "login")
-    , map (Connect Signin) (s "signin")
+    , map (Connect Signin) (s "signup")
     , map (Connect ResetPwdRoute) (s "password_reset")
     , map (UsersRoute) (s "users")
     , map (UserRoute) (s "user" </> string )
@@ -19,7 +19,6 @@ matchers =
     , map AccountRoute (s "account")
     , map EditAccountRoute (s "edit_account")
     , map ChangePwdRoute (s "edit_password")
-    , map Members (s "members")
     ]
 
 

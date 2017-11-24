@@ -13,11 +13,11 @@ import Date
 view : Model -> Html Msg
 view model =
     case (model.current_user, model.session) of
-        (Just u, Just s)-> viewUser u s
+        (Just u, Just s)-> viewUser u s model
         _ -> div [][ text <| "user not found" ]
 
-viewUser : User -> Session -> Html Msg
-viewUser user session =
+viewUser : User -> Session -> Model -> Html Msg
+viewUser user session model =
   let
     talkTxt =
       if user.has_talk then
@@ -35,12 +35,22 @@ viewUser user session =
                 To -> "Liked"
                 _ -> ""
           ]
+
     last_connection =
       case String.toFloat user.lastOn of
         Ok d -> Date.fromTime d
         _ -> Date.fromTime 0
+
+    online =
+      case (String.toFloat user.lastOn, model.currentTime) of
+        (Ok l, Just ct) ->
+          if (l > ct - 900000) then
+            True
+          else False
+        _ -> False
+
   in
-    div []
+    div [class "content"]
         [ button [ onClick <| GoBack 1 ][ text "Back" ]
         , h3 [] [ text user.username ]
         , likeBtn
@@ -49,7 +59,15 @@ viewUser user session =
           else
             div [][ text "You haven't matched (yet) with this profile, you can't open a talk" ]
         , div [] [ text <| genderToString user.gender ]
-        , div [] [ text <| "Last time seen: " ++ (formatDate last_connection) ]
+        , div []
+          [ text <| case user.distance of
+              Just d -> (++) (toString <| round (d * 1000 )) " meters away"
+              _ -> ""
+          ]
+        , if online then
+            div [][ text "Online"]
+          else
+            div [] [ text <| "Last time seen: " ++ (formatDate last_connection) ]
         , div [] <| List.map (\t ->
             div [ class "tag" ]
                 [ text t ]) (List.sort user.tags)

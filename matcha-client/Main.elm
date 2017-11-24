@@ -10,6 +10,7 @@ import Models exposing (..)
 import Msgs exposing (..)
 import Update exposing (..)
 import Ports exposing (..)
+import Task exposing (..)
 
 
 init : Location -> ( Model, Cmd Msg )
@@ -18,7 +19,7 @@ init location =
         currentRoute =
             Routing.parseLocation location
     in
-        ( initialModel currentRoute, getToken ())
+        (initialModel currentRoute, getToken ())
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -39,6 +40,7 @@ subscriptions model =
               , fileContentRead ImageRead
               , subAnim
               , subRoute
+              , Time.every Time.second UpdateCurrentTime
               ]
 
 main : Program Never Model Msg

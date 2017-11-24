@@ -10,6 +10,7 @@ import Ports exposing (..)
 import Task
 import FormUtils exposing (..)
 import UserModel exposing (..)
+import Time
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg oldModel =
@@ -113,7 +114,6 @@ update msg oldModel =
                                   case (newModel.route) of
                                       ChatsRoute -> ( newModel, getTalks newSession.token)
                                       ChatRoute a -> ( newModel, getTalk a newSession.token)
-                                      Members -> ( newModel, getUsers newSession.token)
                                       UsersRoute -> ( newModel, getRelevantUsers newSession.token)
                                       UserRoute a -> ( newModel, getUser a newSession.token)
                                       AccountRoute -> ( { newModel | map_state = Models.Loading }, Cmd.none)
@@ -314,13 +314,12 @@ update msg oldModel =
                 Nothing ->
                   case newRoute of
                     Connect a ->
-                      ( { newModel | route = newRoute }, Cmd.none)
+                      ( { newModel | route = Debug.log "newRoute" newRoute }, Cmd.none)
                     _ -> ( newModel, Cmd.none)
                 Just s ->
                   case newRoute of
                       ChatsRoute -> ( { newModel | route = newRoute }, getTalks s.token)
                       ChatRoute a -> ( { newModel | route = newRoute }, getTalk a s.token)
-                      Members -> ( { newModel | route = newRoute }, getUsers s.token)
                       UsersRoute -> ( { newModel | route = newRoute }, getRelevantUsers s.token)
                       UserRoute a -> ( { newModel | route = newRoute }, getUser a s.token)
                       AccountRoute -> ( { newModel | route = newRoute, map_state = Models.Loading }, Cmd.none)
@@ -543,3 +542,13 @@ update msg oldModel =
 
         DeleteImg id_ ->
           (model, doIfConnected <| delImg id_)
+
+        SetCurrentTime t ->
+          ({model | currentTime = t}, Cmd.none)
+
+        UpdateCurrentTime t ->
+          (model, now)
+
+now : Cmd Msg
+now =
+  Task.perform (Just >> SetCurrentTime) Time.now

@@ -18,6 +18,9 @@ body {
 	margin: 0 auto;
 	margin-top: 80px;
 }
+div {
+	box-sizing: border-box;
+}
 .alert {
 	position: fixed;
 	top: 0;
@@ -41,10 +44,17 @@ body {
 			    -1px 0px 0 white,
 			    1px 0px 0 white;
 }
+.content {
+	padding-top: 120px;
+}
 .navbar {
 	border-top: 1px solid grey;
 	border-bottom: 1px solid grey;
 	margin: 20px 0;
+	position: fixed;
+	max-width: 920px;
+	z-index: 50;
+	background: #252525;
 }
 .navbar .navbar-list {
 	list-style-type: none;
@@ -62,7 +72,7 @@ body {
 }
 .navbar .navbar-list li a {
 	text-decoration: none;
-	color: black;
+	color: white;
 	display: block;
 	height: 100%;
 }
@@ -112,9 +122,18 @@ ul.users-list li {
 	border: 1px solid black;
 	padding: 10px;
 	overflow-y: auto;
+	position: relative;
+}
+.user-box .user-link {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
 }
 .user-box #profile-img img {
 	width: 100%;
+	margin: 0;
 }
 #map {
 	height: 500px;
@@ -155,10 +174,9 @@ ul.users-list li {
 }
 .img-box {
 	background-size: cover !important;
-	width: 200px;
-	height: 200px;
+	width: 100%;
+	padding-bottom: 100%;
 	display: inline-block;
-	margin: 4px;
 }
 .label-upload input {
 	position: absolute;
@@ -171,6 +189,17 @@ ul.users-list li {
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+@media screen and (max-width: 840px) {
+	ul.users-list li {
+		width: 50%; {
+  }
+}
+@media screen and (max-width: 480px) {
+	ul.users-list li {
+		width: 100%; {
+  }
 }
 
 #match-anim {
@@ -187,6 +216,7 @@ ul.users-list li {
 	animation-name: matchanim;
 	z-index: 200;
 }
+
 
 @keyframes matchanim {
 	from, to {

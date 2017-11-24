@@ -61,3 +61,5 @@ type Msg
     | ImageSelected
     | ImageRead ImagePortData
     | DeleteImg Int
+    | SetCurrentTime (Maybe Time.Time)
+    | UpdateCurrentTime Time.Time

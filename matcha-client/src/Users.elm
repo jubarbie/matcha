@@ -10,15 +10,33 @@ import UserModel exposing (..)
 
 view : Model -> Html Msg
 view model =
-    div [] [ viewUsers model.users model ]
+    div [ class "content"]
+        [ userMenuView model
+        , viewUsers model.users model
+        ]
+
+userMenuView : Model -> Html Msg
+userMenuView model =
+  div []
+      [ ul []
+        [ li [][ ]
+        , li [][ ]
+        ]
+      ]
 
 viewUsers : List User -> Model -> Html Msg
 viewUsers users model =
     div []
         [ ul [ class "users-list" ] <| List.map (\u ->
             li [] [ viewUser u model ]
-            ) users
+            ) <| List.sortWith distanceCmp users
         ]
+
+distanceCmp a b =
+    case (a.distance, b.distance) of
+      (Just d1, Just d2) -> compare d1 d2
+      (Just d1, _ ) -> LT
+      _ -> EQ
 
 viewUser : User -> Model -> Html Msg
 viewUser user model =
@@ -30,6 +48,14 @@ viewUser user model =
     div [ class "user-box" ]
         [ h3 [] [ text user.username ]
         , div [ style [("background", "url(" ++ imgSrc ++ ") center center no-repeat")], class "img-box" ][]
-        , div [] [ text <| genderToString user.gender ]
-        , div [] [ a [href <| "http://localhost:3000/#/user/" ++ user.username][ text "See profile" ] ]
+        , div []
+          [ div [class "u-pull-right"] [text <| genderToString user.gender]
+          , text <| case user.distance of
+                Just d ->
+                    case d < 1 of
+                      True -> (++) (toString <| round (d * 1000 )) " m away"
+                      _ -> (++) (toString <| round d) " km away"
+                _ -> ""
+          ]
+        , a [href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link"][ ]
         ]
