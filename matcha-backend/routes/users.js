@@ -24,7 +24,6 @@ router.post('/relevant_users', (req, res, next) => {
 	if (logged) {
 		UserCtrl.getRelevantUsers(logged, function (users) {
 			if (users) {
-				console.log(users);
 				res.json({ "status":"success", "data": users });
 			} else {
 				res.json({ "status":"error", "msg": "A problem occur while fetching users" });

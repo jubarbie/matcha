@@ -28,7 +28,6 @@ ctrl.getFullUser = (logged, login, callback) => {
 				if (status) {
 					user.match = status;
 				}
-				console.log(user);
 				callback(user);
 			})
 		} else {
@@ -38,8 +37,6 @@ ctrl.getFullUser = (logged, login, callback) => {
 };
 
 function getDistance(pos_from, pos_to) {
-	console.log("pos1", pos_from);
-	console.log("pos2", pos_to);
 	var R = 6371; // Radius of the earth in km
   var dLat = deg2rad(pos_to.lat - pos_from.lat);  // deg2rad below
   var dLon = deg2rad(pos_to.lon - pos_from.lon);

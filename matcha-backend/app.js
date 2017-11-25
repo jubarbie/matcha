@@ -42,11 +42,12 @@ app.post('/api/admin/*', Auth.hasRole(0));
 app.use('/api/admin', Admin);
 
 app.ws('/talking', function(ws, req) {
+	console.log("connected");
+
   ws.on('message', function(msg) {
     console.log(msg);
 		ws.send('test');
   });
-  console.log('socket', req.testing);
 });
 
 module.exports = app;

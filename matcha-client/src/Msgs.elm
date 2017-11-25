@@ -63,3 +63,5 @@ type Msg
     | DeleteImg Int
     | SetCurrentTime (Maybe Time.Time)
     | UpdateCurrentTime Time.Time
+    | Notification String
+    | Test

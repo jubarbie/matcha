@@ -11,6 +11,7 @@ import Task
 import FormUtils exposing (..)
 import UserModel exposing (..)
 import Time
+import WebSocket
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg oldModel =
@@ -354,11 +355,11 @@ update msg oldModel =
             let
                 values = List.map (\i -> i.status) model.loginForm
             in
-            case values of
-                [ Valid a, Valid b ] ->
-                    (model, sendLogin a b)
-                _ ->
-                    (model, Cmd.none)
+              case values of
+                  [ Valid a, Valid b ] ->
+                      (model, sendLogin a b)
+                  _ ->
+                      (model, Cmd.none)
 
         ResetPwd ->
           let
@@ -371,9 +372,9 @@ update msg oldModel =
                     (model, Cmd.none)
 
         NewUser ->
-            let
-                values = List.map (\i -> i.status) model.newUserForm
-            in
+          let
+              values = List.map (\i -> i.status) model.newUserForm
+          in
             case values of
                 [Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd] ->
                     (model, sendFastNewUser username fname lname email pwd repwd)
@@ -548,6 +549,14 @@ update msg oldModel =
 
         UpdateCurrentTime t ->
           (model, now)
+
+        Notification str ->
+          let
+            s = Debug.log "recieve" str
+          in
+            (model, Cmd.none)
+        Test ->
+          (model, WebSocket.send "ws://localhost:3001/talking" "Hello, server!")
 
 now : Cmd Msg
 now =
