@@ -41,7 +41,7 @@ subscriptions model =
               , subAnim
               , subRoute
               , Time.every Time.second UpdateCurrentTime
-              , WebSocket.listen "ws://localhost:3001/talking" Notification
+              , WebSocket.listen "ws://localhost:3001/ws" Notification
               ]
 
 main : Program Never Model Msg

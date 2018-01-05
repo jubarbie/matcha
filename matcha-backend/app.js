@@ -1,6 +1,7 @@
 var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
+var url = require('url');
 
 var Auth = require('./middlewares/authentification');
 var Login = require('./routes/login');
@@ -41,12 +42,20 @@ app.use('/api/talks', Talks);
 app.post('/api/admin/*', Auth.hasRole(0));
 app.use('/api/admin', Admin);
 
-app.ws('/talking', function(ws, req) {
-	console.log("connected");
+
+app.ws('/ws', function(ws, req) {
+	console.log('yo');
 
   ws.on('message', function(msg) {
     console.log(msg);
-		ws.send('test');
+		var data = JSON.parse(msg);
+		try {
+			jwt.verify(data.jwt, config.secret);
+			ws.send('test');
+		} catch (err) {
+			console.log(err)
+		}
+
   });
 });
 

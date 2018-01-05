@@ -771,7 +771,11 @@ update msg oldModel =
             ( model, Cmd.none )
 
         Test ->
-            ( model, WebSocket.send "ws://localhost:3001/talking" "Hello, server!" )
+          case model.session of
+            Just s ->
+              ( model, WebSocket.send "ws://localhost:3001/ws" <| "{\"jwt\": \"" ++ s.token ++ "\", \"message\": \"Hello World\"}"  )
+            _ ->
+              ( model, WebSocket.send "ws://localhost:3001/ws" "Hello, server!" )
 
 
 now : Cmd Msg

@@ -1,7 +1,7 @@
 {
   "name": "matcha-client",
   "version": "1.0.0",
-  "description": "",
+  "description": "Client app for matcha",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,13 +9,14 @@
     "client": "webpack-dev-server --port 3000",
     "watch": "chokidar '**/*.elm' -c './node_modules/elm/binwrappers/elm-make Main.elm --output=matcha.js' --initial"
   },
-  "author": "",
+  "author": "jubarbie",
   "license": "ISC",
   "devDependencies": {
     "chokidar-cli": "^1.2.0"
   },
   "dependencies": {
     "css-loader": "^0.28.7",
+    "elm": "^0.18.0",
     "elm-format": "^0.6.1-alpha",
     "elm-oracle": "^1.1.1",
     "elm-webpack-loader": "^4.3.1",
