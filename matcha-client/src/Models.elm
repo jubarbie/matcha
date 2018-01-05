@@ -1,8 +1,9 @@
 module Models exposing (..)
 
-import UserModel exposing (..)
 import FormUtils exposing (..)
 import Time exposing (..)
+import UserModel exposing (..)
+
 
 type Route
     = Connect LoginRoute
@@ -15,32 +16,36 @@ type Route
     | NotFoundRoute
     | ChangePwdRoute
 
+
 type LoginRoute
     = Login
     | Signin
     | ResetPwdRoute
 
+
 type MapState
-  = NoMap
-  | Loading
-  | Rendered
+    = NoMap
+    | Loading
+    | Rendered
+
 
 type alias Image =
-  { contents : String
-  , filename : String
-  }
+    { contents : String
+    , filename : String
+    }
+
 
 type alias Model =
     { route : Route
     , session : Maybe Session
-    , loginForm: Form
+    , loginForm : Form
     , newUserForm : Form
     , editAccountForm : Form
     , resetPwdForm : Form
     , changePwdForm : Form
     , tagInput : String
     , searchTag : List String
-    , users : List User
+    , users : Users
     , usersAdmin : List SessionUser
     , current_user : Maybe User
     , current_talk : Maybe Talk
@@ -53,22 +58,26 @@ type alias Model =
     , currentTime : Maybe Time.Time
     }
 
+
 type alias Talk =
-  { messages : List Message
-  , username_with : String
-  , new_message : String
-  }
+    { messages : List Message
+    , username_with : String
+    , new_message : String
+    }
+
 
 type alias Message =
-  { date : String
-  , message : String
-  , user : String
-  }
+    { date : String
+    , message : String
+    , user : String
+    }
+
 
 type alias Session =
     { user : SessionUser
     , token : String
     }
+
 
 type alias AuthResponse =
     { status : String
@@ -77,25 +86,29 @@ type alias AuthResponse =
     , user : Maybe SessionUser
     }
 
+
 type alias ApiResponse a =
     { status : String
     , message : Maybe String
     , data : a
     }
 
+
 type FilterUsers
-  = F_Visitors
-  | F_Liked
+    = F_Visitors
+    | F_Liked
+
 
 type SortUsers
-  = S_Age
-  | S_LastOn
+    = S_Age
+    | S_LastOn
+
 
 initialModel : Route -> Model
 initialModel route =
     { route = route
     , session = Nothing
-    , loginForm =  initLoginForm
+    , loginForm = initLoginForm
     , newUserForm = initFastNewUserForm
     , editAccountForm = []
     , resetPwdForm = initResetPwdForm
@@ -107,7 +120,11 @@ initialModel route =
     , current_user = Nothing
     , current_talk = Nothing
     , message = Nothing
-    , map_state = if (route == AccountRoute || route == EditAccountRoute ) then Loading else NoMap
+    , map_state =
+        if route == AccountRoute || route == EditAccountRoute then
+            Loading
+        else
+            NoMap
     , current_location = Nothing
     , matchAnim = Nothing
     , idImg = "ImageInputId"

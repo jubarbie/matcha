@@ -1,5 +1,6 @@
 module UserModel exposing (..)
 
+
 type alias SessionUser =
     { username : String
     , fname : String
@@ -11,10 +12,11 @@ type alias SessionUser =
     , talks : List String
     , tags : List String
     , localisation : Maybe Localisation
-    , photos : List (Int, String)
+    , photos : List ( Int, String )
     , role : UserRole
     , status : UserStatus
     }
+
 
 type alias User =
     { username : String
@@ -29,20 +31,28 @@ type alias User =
     , distance : Maybe Float
     }
 
+
+type alias Users =
+    List User
+
+
 type alias LocalisationApi =
-  { status: String
-  , lon: Maybe Float
-  , lat: Maybe Float
-  }
+    { status : String
+    , lon : Maybe Float
+    , lat : Maybe Float
+    }
+
 
 type alias Localisation =
-  { lon: Float
-  , lat: Float
-  }
+    { lon : Float
+    , lat : Float
+    }
+
 
 type Gender
     = M
     | F
+
 
 type MatchStatus
     = None
@@ -52,35 +62,54 @@ type MatchStatus
 
 
 type UserRole
-  = ADMIN
-  | USER
+    = ADMIN
+    | USER
+
 
 type UserStatus
-  = Activated
-  | ResetPassword
-  | Incomplete
-  | NotActivated
-
+    = Activated
+    | ResetPassword
+    | Incomplete
+    | NotActivated
 
 
 genderToString : Maybe Gender -> String
 genderToString g =
     case g of
-        Just M -> "M"
-        Just F -> "F"
-        _ -> "No gender"
+        Just M ->
+            "M"
+
+        Just F ->
+            "F"
+
+        _ ->
+            "No gender"
+
 
 stringToGender : String -> Maybe Gender
 stringToGender g =
     case g of
-        "M" -> Just M
-        "F" -> Just F
-        _ -> Nothing
+        "M" ->
+            Just M
+
+        "F" ->
+            Just F
+
+        _ ->
+            Nothing
+
 
 stringToMatch : String -> MatchStatus
 stringToMatch m =
     case m of
-        "from" -> From
-        "to" -> To
-        "match" -> Match
-        _ -> None
+        "from" ->
+            From
+
+        "to" ->
+            To
+
+        "match" ->
+            Match
+
+        _ ->
+            None
