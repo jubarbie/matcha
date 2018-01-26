@@ -14,6 +14,14 @@ docker run --name matcha_db -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_US
 docker exec -it matcha_db mysql -u root -p
 ```
 
+### To solve the ER_NOT_SUPPORTED_AUTH_MODE error
+```sh
+mysql> use mysql;
+mysql> update user set authentication_string=password('root'), plugin='mysql_native_password' where user='root';
+mysql> flush privileges;
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+```
+
 ## Building app
 ### Build backend server (dev)
 ```sh
