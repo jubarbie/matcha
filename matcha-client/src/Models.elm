@@ -103,6 +103,17 @@ type SortUsers
     = S_Age
     | S_LastOn
 
+type alias Notif =
+  { type_ : NotificationType
+  , to : String
+  , from : String
+  }
+
+type NotificationType
+    = NotifMessage
+    | NotifVisit
+    | NotifLike
+
 
 initialModel : Route -> Model
 initialModel route =

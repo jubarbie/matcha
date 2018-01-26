@@ -9,6 +9,7 @@ import Date
 import Models exposing (..)
 import Msgs exposing (..)
 import DateUtils exposing (..)
+import Json.Decode
 
 view : Model -> Html Msg
 view model =
@@ -20,9 +21,21 @@ view model =
           div [class "content"]
             [ button [ onClick <| GoBack 1 ][ text "Back" ]
             , h1 [] [text <| "Chat with " ++ a ]
-            , div [] (List.map (messageView a) messages)
-            , div [] [ textarea [ onInput UpdateNewMessage, value t.new_message ] [] ]
-            , div [] [ button [ onClick SendNewMessage ] [ text "Send" ] ]
+            , div [ class "message-list" ] (List.map (messageView a) messages)
+            , Html.form [ class "message-form" ]
+              [ div [ class "message-input" ]
+                [ input [ type_ "text", onInput UpdateNewMessage, value t.new_message ] []
+                , button
+                [ class "send-btn"
+                , type_ "submit"
+                , onWithOptions
+                    "click"
+                    { preventDefault = True
+                    , stopPropagation = False
+                    }
+                    (Json.Decode.succeed SendNewMessage)
+                ] [ text "Send" ] ]
+              ]
             ]
 
       _ -> div [] [ text "No chat" ]
@@ -49,14 +62,14 @@ messageView to msg =
         _ -> Date.fromTime 0
     pos =
       if (to == msg.user) then
-        "left"
+        "them"
       else
-        "right"
+        "me"
   in
-    div [ style [("text-align", pos)]]
-      [ div []
-        [ text <| formatDate date
+    div [ class <| "message message-" ++ pos]
+      [ div [ class "message-infos" ]
+        [ text <| formatDate date ++ " - "
         , text msg.user
         ]
-      , div [] [  text msg.message ]
+      , div [ class "message-bubble" ] [  text msg.message ]
       ]

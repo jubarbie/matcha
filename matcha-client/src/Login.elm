@@ -81,7 +81,19 @@ viewResetPwdForm : Model -> Html Msg
 viewResetPwdForm model =
     div []
         [ p [] [ text "In order to reset your password, please give us your login and the email you used when you created your account. You'll recieve an email with your new password" ]
-        , div [] <|
+        , Html.form [] <|
             List.map (\i -> viewInput (UpdateResetPwdForm i.id) i) model.resetPwdForm
-                ++ [ div [ onClick ResetPwd, class "important-font" ] [ text "Reset my password" ] ]
+                ++ [ input
+                        [ onWithOptions
+                            "click"
+                            { preventDefault = True
+                            , stopPropagation = False
+                            }
+                            (Json.Decode.succeed ResetPwd)
+                        , class "important-font"
+                        , type_ "submit"
+                        , value "Reset my password"
+                        ]
+                        []
+                        ]
         ]

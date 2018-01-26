@@ -75,7 +75,6 @@ viewMenu route session =
             , div [ class "u-pull-right" ]
                 [ li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
                 , li [ onClick Logout ] [ text "LOGOUT" ]
-                , li [ onClick Test ] [ text "test" ]
                 ]
             ]
         ]

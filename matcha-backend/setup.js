@@ -11,6 +11,7 @@ var connection = mysql.createConnection({
 	port     : db.port,
 	user     : db.user,
 	password : db.password,
+	insecureAuth : true,
 	multipleStatements : true,
 });
 
@@ -19,6 +20,7 @@ var dataset = fs.readFileSync('./database.sql', "utf8");
 var create_database = 'DROP DATABASE IF EXISTS matcha_db ;';
 create_database += 'CREATE DATABASE matcha_db ; USE matcha_db;';
 create_database += dataset;
+
 connection.query(create_database, function(err, rows, fields) {
 	connection.end();
 	if (!err) {

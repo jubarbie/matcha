@@ -8,6 +8,7 @@ import RemoteData exposing (..)
 import Models exposing (..)
 import UserModel exposing (..)
 import Msgs exposing (..)
+import WebSocket
 
 decodeLocalisationResponse : Decoder LocalisationApi
 decodeLocalisationResponse =
@@ -23,6 +24,23 @@ encodeIntIn intIn =
 usersDecoder : Decoder (List User)
 usersDecoder =
     JsonDec.list decodeUser
+
+notificationDecoder : Decoder Notif
+notificationDecoder =
+    JsonDec.succeed Notif
+      |: (field "message" notifTypeDecoder)
+      |: (field "to" JsonDec.string)
+      |: (field "from" JsonDec.string)
+
+notifTypeDecoder : Decoder NotificationType
+notifTypeDecoder =
+    JsonDec.string |> JsonDec.andThen
+        (\a -> case a of
+            "message" -> JsonDec.succeed NotifMessage
+            "visit" -> JsonDec.succeed NotifVisit
+            "like" -> JsonDec.succeed NotifLike
+            _ -> JsonDec.fail "Notif unknown"
+        )
 
 usersSessionDecoder : Decoder (List SessionUser)
 usersSessionDecoder =
@@ -303,18 +321,17 @@ getTalks token =
       |> Cmd.map GetTalksResponse
 
 sendMessage : String -> String -> String -> Cmd Msg
-sendMessage token username message =
+sendMessage token to message =
   let
       body =
-          Http.jsonBody <| JsonEnc.object
-          [ ("token", JsonEnc.string token)
-          , ("username", JsonEnc.string username)
+          JsonEnc.encode 0 <| JsonEnc.object
+          [ ("jwt", JsonEnc.string token)
+          , ("action", JsonEnc.string "new_message")
+          , ("to", JsonEnc.string to)
           , ("message", JsonEnc.string message)
           ]
   in
-      Http.post "http://localhost:3001/api/talks/new_message/" body (decodeApiResponse <| Just talkDecoder )
-      |> RemoteData.sendRequest
-      |> Cmd.map GetTalkResponse
+      WebSocket.send "ws://localhost:3001/ws" body
 
 getIpLocalisation : Cmd Msg
 getIpLocalisation =

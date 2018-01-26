@@ -197,8 +197,19 @@ viewEditAccountForm : Form -> Html Msg
 viewEditAccountForm accountForm =
   div []
     [ h1 [] [ text <| "Edit account" ]
-    , div [] <| List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
-      ++ [ div [ onClick SaveAccountUpdates, class "important-font" ][ text "SAVE" ]
+    , Html.form [] <| List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
+      ++ [ input
+              [ onWithOptions
+                  "click"
+                  { preventDefault = True
+                  , stopPropagation = False
+                  }
+                  (JD.succeed SaveAccountUpdates)
+              , class "important-font"
+              , type_ "submit"
+              , value "SAVE"
+              ]
+              []
          , a [ href "/#/account" ][ text "Cancel" ]
          ]
     ]
@@ -207,8 +218,19 @@ viewEditPwdForm : Form -> Html Msg
 viewEditPwdForm formm =
   div [class "content"]
     [ h1 [] [ text <| "Edit password" ]
-    , div [] <| List.map (\i -> viewInput (UpdateEditPwdForm i.id) i) formm
-      ++ [ div [ onClick ChangePwd, class "important-font" ][ text "CHANGE PASSWORD" ]
+    , Html.form [] <| List.map (\i -> viewInput (UpdateEditPwdForm i.id) i) formm
+      ++ [ input
+              [ onWithOptions
+                  "click"
+                  { preventDefault = True
+                  , stopPropagation = False
+                  }
+                  (JD.succeed ChangePwd)
+              , class "important-font"
+              , type_ "submit"
+              , value "CHANGE PASSWORD"
+              ]
+              []
          , a [ href "/#/account" ][ text "Cancel" ]
          ]
     ]

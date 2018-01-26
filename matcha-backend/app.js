@@ -10,6 +10,8 @@ var Talks = require('./routes/talks');
 var Tag = require('./routes/tag');
 var Admin = require('./routes/admin');
 
+var Ctrl_talks = require('./controllers/talk_ctrl');
+
 var app = express();
 var expressWs = require('express-ws')(app);
 
@@ -42,16 +44,26 @@ app.use('/api/talks', Talks);
 app.post('/api/admin/*', Auth.hasRole(0));
 app.use('/api/admin', Admin);
 
-
+var aWss = expressWs.getWss('/');
 app.ws('/ws', function(ws, req) {
-	console.log('yo');
 
   ws.on('message', function(msg) {
-    console.log(msg);
 		var data = JSON.parse(msg);
 		try {
-			jwt.verify(data.jwt, config.secret);
-			ws.send('test');
+			var decoded = jwt.verify(data.jwt, config.secret);
+			switch (data.action) {
+				case "new_message":
+				console.log('newmessage');
+				Ctrl_talks.new_message(decoded.username, data.to, data.message);
+				aWss.clients.forEach(function each(client) {
+		       client.send(JSON.stringify({message: 'message', to: data.to, from: decoded.username}));
+		    });
+				break;
+				default:
+				aWss.clients.forEach(function each(client) {
+		       client.send('somethign!');
+		    });
+			}
 		} catch (err) {
 			console.log(err)
 		}

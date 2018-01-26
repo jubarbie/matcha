@@ -6,7 +6,8 @@ module.exports = {
 		port	 : '3306',
 		user     : 'root',
 		password : 'root',
-		database : 'matcha_db'
+		database : 'matcha_db',
+		insecureAuth : true,
 	},
 	'upload_path': 'upload/images/',
 

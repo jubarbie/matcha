@@ -12,7 +12,7 @@ import Task
 import Time
 import UserModel exposing (..)
 import WebSocket
-
+import Json.Decode
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg oldModel =
@@ -764,11 +764,15 @@ update msg oldModel =
             ( model, now )
 
         Notification str ->
-            let
-                s =
-                    Debug.log "recieve" str
-            in
-            ( model, Cmd.none )
+              case (Json.Decode.decodeString notificationDecoder str, model.session) of
+                (Ok notif, Just s) ->
+                  if notif.to == s.user.username then
+                    ( model, getTalk notif.from s.token )
+                  else if  notif.from == s.user.username then
+                    ( model, getTalk notif.to s.token )
+                  else
+                    ( model, Cmd.none  )
+                _ -> ( model, Cmd.none )
 
         Test ->
           case model.session of
