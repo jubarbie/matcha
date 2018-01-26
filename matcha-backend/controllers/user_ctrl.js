@@ -14,7 +14,7 @@ ctrl.getFullUser = (logged, login, callback) => {
 			user.has_talk = (user.talks > 0) ? true : false;
 			user.photos = (user.photos) ? user.photos.split(',') : [];
 			user.photos = user.photos.map(function (img) {
-				return 'http://localhost:3001/' + config.upload_path + img;
+				return config.root_url + config.upload_path + img;
 			});
 			user.match = "none";
 			if (user.localisation) {
@@ -71,7 +71,7 @@ ctrl.getConnectedUser = function (login, callback) {
 				ImageModel.getImagesFromUserId(user.id, function(err, imgs, fields){
 					if (!err && imgs.length > 0) {
 						user.photos = imgs.map(function (img) {
-							return [img.id, 'http://localhost:3001/' + config.upload_path + img.src];
+							return [img.id, config.root_url + config.upload_path + img.src];
 						});
 					}
 					if (user.localisation) {
@@ -98,7 +98,7 @@ ctrl.getRelevantUsers = (logged, callback) => {
 				u.match = "match";
         u.photos = (u.photos) ? u.photos.split(",") : [];
 				u.photos = u.photos.map(function (img) {
-					return 'http://localhost:3001/' + config.upload_path + img;
+					return config.root_url + config.upload_path + img;
 				});
 				u.tags = (u.tags) ? u.tags.split(',') : [];
 				u.visitor = (u.visitor != null) ? true : false;
@@ -127,7 +127,7 @@ ctrl.Visitors = (logged, callback) => {
 				u.match = "match";
         u.photos = (u.photos) ? u.photos.split(",") : [];
 				u.photos = u.photos.map(function (img) {
-					return 'http://localhost:3001/' + config.upload_path + img;
+					return config.root_url + config.upload_path + img;
 				});
 				u.tags = (u.tags) ? u.tags.split(',') : [];
         return u;

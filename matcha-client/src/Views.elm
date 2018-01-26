@@ -17,18 +17,16 @@ import Users exposing (view)
 view : Model -> Html Msg
 view model =
     div [ class "container" ]
-        [ if model.matchAnim /= Nothing then
-            div [ id "match-anim" ] []
+        <| (if model.matchAnim /= Nothing then
+            [ div [ id "match-anim" ] [] ]
           else
-            div [] []
-        , case model.message of
+            [])
+        ++ (case model.message of
             Just msg ->
-                div [ class "alert" ] [ text msg ]
-
+              [ div [ class "alert" ] [ text msg ] ]
             Nothing ->
-                div [] []
-        , div [] <|
-            case ( model.route, model.session ) of
+              [])
+        ++ (case ( model.route, model.session ) of
                 ( Connect a, _ ) ->
                     [ Login.view a model ]
 
@@ -42,7 +40,7 @@ view model =
                     [ viewMenu model.route s, Chat.allChatsView model ]
 
                 ( ChatRoute a, Just s ) ->
-                    [ viewMenu model.route s, Chat.view model ]
+                    [ viewMenu model.route s ] ++  Chat.view model 
 
                 ( AccountRoute, Just s ) ->
                     [ viewMenu model.route s, Account.view model ]
@@ -54,8 +52,7 @@ view model =
                     [ viewMenu model.route s, Account.viewChangePwd model ]
 
                 _ ->
-                    [ view401 ]
-        ]
+                    [ view401 ])
 
 
 view401 : Html msg
@@ -68,7 +65,7 @@ view401 =
 
 viewMenu : Route -> Session -> Html Msg
 viewMenu route session =
-    nav [ class "navbar container" ]
+    nav [ class "navbar" ]
         [ ul [ class "navbar-list" ] <|
             [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
             , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]

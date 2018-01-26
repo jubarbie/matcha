@@ -11,34 +11,39 @@ import Msgs exposing (..)
 import DateUtils exposing (..)
 import Json.Decode
 
-view : Model -> Html Msg
+view : Model -> List (Html Msg)
 view model =
   case (model.route, model.current_talk) of
       (ChatRoute a, Just t) ->
         let
           messages = List.sortBy (\m -> m.date) t.messages
         in
-          div [class "content"]
+          [ div []
             [ button [ onClick <| GoBack 1 ][ text "Back" ]
             , h1 [] [text <| "Chat with " ++ a ]
-            , div [ class "message-list" ] (List.map (messageView a) messages)
-            , Html.form [ class "message-form" ]
-              [ div [ class "message-input" ]
-                [ input [ type_ "text", onInput UpdateNewMessage, value t.new_message ] []
-                , button
-                [ class "send-btn"
-                , type_ "submit"
-                , onWithOptions
-                    "click"
-                    { preventDefault = True
-                    , stopPropagation = False
-                    }
-                    (Json.Decode.succeed SendNewMessage)
-                ] [ text "Send" ] ]
-              ]
             ]
+            ] ++
+          [ div [ class "message-list content" ] (List.map (messageView a) messages) ]
+          ++ viewMessageForm t
+      _ -> [ div [] [ text "No chat" ] ]
 
-      _ -> div [] [ text "No chat" ]
+viewMessageForm : Talk -> List (Html Msg)
+viewMessageForm t =
+  [ Html.form [ class "footer message-form" ]
+    [ div [ class "message-input" ]
+      [ input [ type_ "text", onInput UpdateNewMessage, value t.new_message ] []
+      , button
+      [ class "send-btn"
+      , type_ "submit"
+      , onWithOptions
+          "click"
+          { preventDefault = True
+          , stopPropagation = False
+          }
+          (Json.Decode.succeed SendNewMessage)
+      ] [ i [ class "fas fa-share"][] ] ]
+    ]
+  ]
 
 allChatsView : Model -> Html Msg
 allChatsView model =

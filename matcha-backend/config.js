@@ -10,5 +10,6 @@ module.exports = {
 		insecureAuth : true,
 	},
 	'upload_path': 'upload/images/',
+	'root_url': 'http://localhost:3001/'
 
 };

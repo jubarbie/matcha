@@ -19,8 +19,8 @@ userMenuView : Model -> Html Msg
 userMenuView model =
   div []
       [ ul []
-        [ li [][ ]
-        , li [][ ]
+        [ li [][ text "Visitors" ]
+        , li [][ text "Likers" ]
         ]
       ]
 
