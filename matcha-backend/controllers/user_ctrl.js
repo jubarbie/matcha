@@ -115,7 +115,7 @@ ctrl.getRelevantUsers = (logged, callback) => {
 	});
 };
 
-ctrl.Visitors = (logged, callback) => {
+ctrl.getVisitors = (logged, callback) => {
 
   var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
   var int_in = (logged.gender) ? logged.gender : "M";
@@ -130,10 +130,46 @@ ctrl.Visitors = (logged, callback) => {
 					return config.root_url + config.upload_path + img;
 				});
 				u.tags = (u.tags) ? u.tags.split(',') : [];
+				u.visitor = (u.visitor != null) ? true : false;
+				if (u.localisation) {
+					u.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(u.localisation))
+				}
+				u.localisation = "secret information";
         return u;
       });
       callback(users);
 		} else {
+			callback(null);
+		}
+	});
+};
+
+ctrl.getLikers = (logged, callback) => {
+
+  var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+  var int_in = (logged.gender) ? logged.gender : "M";
+
+  UsersModel.getLikers(logged.login, gender, int_in, function(err, rows, fields) {
+    if (!err) {
+      var users = rows.map(function (u) {
+        u.has_talk = false;
+				u.match = "match";
+        u.photos = (u.photos) ? u.photos.split(",") : [];
+				u.photos = u.photos.map(function (img) {
+					return config.root_url + config.upload_path + img;
+				});
+				u.tags = (u.tags) ? u.tags.split(',') : [];
+				u.visitor = (u.visitor != null) ? true : false;
+				if (u.localisation) {
+					u.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(u.localisation))
+				}
+				u.localisation = "secret information";
+        return u;
+      });
+			console.log(users);
+      callback(users);
+		} else {
+			console.log("no");
 			callback(null);
 		}
 	});

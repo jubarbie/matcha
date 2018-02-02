@@ -30,7 +30,7 @@ view model =
                 ( Connect a, _ ) ->
                     [ Login.view a model ]
 
-                ( UsersRoute, Just s ) ->
+                ( UsersRoute a, Just s ) ->
                     [ viewMenu model.route s, Users.view model ]
 
                 ( UserRoute a, Just s ) ->
@@ -40,7 +40,7 @@ view model =
                     [ viewMenu model.route s, Chat.allChatsView model ]
 
                 ( ChatRoute a, Just s ) ->
-                    [ viewMenu model.route s ] ++  Chat.view model 
+                    [ viewMenu model.route s ] ++  Chat.view model
 
                 ( AccountRoute, Just s ) ->
                     [ viewMenu model.route s, Account.view model ]
@@ -67,7 +67,7 @@ viewMenu : Route -> Session -> Html Msg
 viewMenu route session =
     nav [ class "navbar" ]
         [ ul [ class "navbar-list" ] <|
-            [ li [ getMenuClass UsersRoute route ] [ a [ href "http://localhost:3000/#/users" ] [ text "BROWSE" ] ]
+            [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ text "BROWSE" ] ]
             , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
             , div [ class "u-pull-right" ]
                 [ li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]

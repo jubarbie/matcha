@@ -33,7 +33,7 @@ type alias User =
 
 
 type alias Users =
-    List User
+  List User
 
 
 type alias LocalisationApi =
@@ -48,6 +48,18 @@ type alias Localisation =
     , lat : Float
     }
 
+type FilterUsers
+    = F_Visitors
+    | F_Liked
+
+type SortUsers
+    = S_Age
+    | S_LastOn
+    | S_Dist
+
+type OrderSort
+  = ASC
+  | DESC
 
 type Gender
     = M

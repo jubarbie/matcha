@@ -188,13 +188,18 @@ getUsers token  =
         |> RemoteData.sendRequest
         |> Cmd.map UsersAdminResponse
 
-getRelevantUsers : String -> Cmd Msg
-getRelevantUsers token  =
+getRelevantUsers : String -> String -> Cmd Msg
+getRelevantUsers users token  =
     let
         body =
-            Http.jsonBody <| JsonEnc.object [("token", JsonEnc.string token)]
+            Http.jsonBody <| JsonEnc.object
+            [ ("token", JsonEnc.string token)]
+        url = case users of
+          "visitors" -> "http://localhost:3001/api/users/visitors"
+          "likers" -> "http://localhost:3001/api/users/likers"
+          _ -> "http://localhost:3001/api/users/relevant_users"
     in
-        Http.post "http://localhost:3001/api/users/relevant_users" body (decodeApiResponse <| Just usersDecoder)
+        Http.post url body (decodeApiResponse <| Just usersDecoder)
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
 

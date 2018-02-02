@@ -158,8 +158,8 @@ update msg oldModel =
                                         ChatRoute a ->
                                             ( newModel, getTalk a newSession.token )
 
-                                        UsersRoute ->
-                                            ( newModel, getRelevantUsers newSession.token )
+                                        UsersRoute a ->
+                                            ( newModel, getRelevantUsers a newSession.token )
 
                                         UserRoute a ->
                                             ( newModel, getUser a newSession.token )
@@ -460,8 +460,8 @@ update msg oldModel =
                         ChatRoute a ->
                             ( { newModel | route = newRoute }, getTalk a s.token )
 
-                        UsersRoute ->
-                            ( { newModel | route = newRoute }, getRelevantUsers s.token )
+                        UsersRoute a ->
+                            ( { newModel | route = newRoute }, getRelevantUsers a s.token )
 
                         UserRoute a ->
                             ( { newModel | route = newRoute }, getUser a s.token )
@@ -571,9 +571,12 @@ update msg oldModel =
             ( { model | current_talk = newTalk }, Cmd.none )
 
         SendNewMessage ->
-            case ( model.session, model.current_talk ) of
+            case ( model.session, model.current_talk) of
                 ( Just s, Just t ) ->
+                  if (String.trim t.new_message /= "") then
                     ( model, sendMessage s.token t.username_with t.new_message )
+                  else
+                    (model, Cmd.none)
 
                 _ ->
                     ( model, Cmd.none )

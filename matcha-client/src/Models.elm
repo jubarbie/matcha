@@ -7,7 +7,7 @@ import UserModel exposing (..)
 
 type Route
     = Connect LoginRoute
-    | UsersRoute
+    | UsersRoute String
     | UserRoute String
     | ChatsRoute
     | ChatRoute String
@@ -46,6 +46,8 @@ type alias Model =
     , tagInput : String
     , searchTag : List String
     , users : Users
+    , userFilter : Maybe FilterUsers
+    , userSort : SortUsers
     , usersAdmin : List SessionUser
     , current_user : Maybe User
     , current_talk : Maybe Talk
@@ -94,15 +96,6 @@ type alias ApiResponse a =
     }
 
 
-type FilterUsers
-    = F_Visitors
-    | F_Liked
-
-
-type SortUsers
-    = S_Age
-    | S_LastOn
-
 type alias Notif =
   { type_ : NotificationType
   , to : String
@@ -127,6 +120,8 @@ initialModel route =
     , tagInput = ""
     , searchTag = []
     , users = []
+    , userFilter = Nothing
+    , userSort = S_Dist
     , usersAdmin = []
     , current_user = Nothing
     , current_talk = Nothing

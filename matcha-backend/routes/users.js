@@ -37,7 +37,7 @@ router.post('/relevant_users', (req, res, next) => {
 });
 
 /* GET users listing. */
-router.post('/relevant_users', (req, res, next) => {
+router.post('/visitors', (req, res, next) => {
 
 	var logged = req.logged_user;
 
@@ -53,6 +53,24 @@ router.post('/relevant_users', (req, res, next) => {
 		res.status(401).json({ "status":"error" });
 	}
 
+});
+
+/* GET users listing. */
+router.post('/likers', (req, res, next) => {
+
+	var logged = req.logged_user;
+
+	if (logged) {
+		UserCtrl.getLikers(logged, function (users) {
+			if (users) {
+				res.json({ "status":"success", "data": users });
+			} else {
+				res.json({ "status":"error", "msg": "A problem occur while fetching users" });
+			}
+		});
+	} else {
+		res.status(401).json({ "status":"error" });
+	}
 
 });
 
