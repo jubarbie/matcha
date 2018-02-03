@@ -13,12 +13,12 @@ router.post('/all_talks', function(req, res, next) {
 
 	if (logged) {
 		TalkModel.getUserTalks(logged.login, function(err, talks, fields) {
-			var talkers = [];
-			talkers = talks.map(function (talk) {
-				 return (talk.username1 == logged.login) ? talk.username2 : talk.username1;
+			talks.map(function (talk) {
+				talk.messages = [];
+				talk.new_message = "";
+				return talk;
 			});
-			console.log("talkers", talkers);
-			res.json({"status":"success", "data":talkers});
+			res.json({"status":"success", "data":talks});
 		});
 	} else {
 		res.json({"status":"error", "msg":"Missing login"});
@@ -29,21 +29,27 @@ router.post('/all_talks', function(req, res, next) {
 router.post('/talk/:login', function(req, res, next) {
 
 	var userTo = req.params.login;
+	var updateLast = req.body.update;
 	var logged = req.logged_user;
 
 	if (logged && userTo) {
 
 		var usersTab = [logged.login, userTo].sort();
+		var userNb = "user" + (usersTab.indexOf(logged.login) + 1) + "_last";
+		var now = Date.now();
 
 		TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
+			console.log(updateLast);
 			if (talks.length > 0) {
-				TalkModel.getTalkMessages(talks[0].id, function(err, mess, fields) {
-					res.json({ "status":"success", "data":mess });
+				if (updateLast) TalkModel.updateLast(talks[0].id, userNb, now);
+				TalkModel.getTalkMessages(talks[0].id, userNb, function(err, mess, fields) {
+					res.json({ "status":"success", "data": mess });
 				});
+
 			} else {
 				UserModel.getUserWithLogin(userTo, function(err, rows, fields) {
 					if (rows.length > 0) {
-						TalkModel.newTalk(usersTab[0], usersTab[1], function(err, rows, fields) {
+						TalkModel.newTalk(usersTab[0], usersTab[1], now, function(err, rows, fields) {
 							res.json({ "status":"success", "data":[]} );
 						});
 					} else {

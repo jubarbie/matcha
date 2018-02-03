@@ -60,11 +60,12 @@ ctrl.getConnectedUser = function (login, callback) {
 		if (!err && rows.length > 0) {
 			var user = rows[0];
 			TalkModel.getUserTalks(login, function(err, talks, fields) {
-				var talkers = [];
-				talkers = talks.map(function (talk) {
-					 return (talk.username1 == login) ? talk.username2 : talk.username1;
+				talks.map(function (talk) {
+					talk.messages = [];
+					talk.new_message = "";
+					return talk;
 				});
-				user.talks = talkers;
+				user.talks = talks;
 				user.photos = [];
 				user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
 				user.tags = (user.tags) ? user.tags.split(',') : [];
@@ -166,10 +167,8 @@ ctrl.getLikers = (logged, callback) => {
 				u.localisation = "secret information";
         return u;
       });
-			console.log(users);
       callback(users);
 		} else {
-			console.log("no");
 			callback(null);
 		}
 	});

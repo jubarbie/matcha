@@ -89,13 +89,17 @@ decodeUserStatus =
             _ -> JsonDec.succeed NotActivated
         )
 
-decodeTalks : Decoder (List String)
+decodeTalks : Decoder (List Talk)
 decodeTalks =
-  JsonDec.list decodeTalkUsername
+  JsonDec.list decodeTalk
 
-decodeTalkUsername : Decoder String
-decodeTalkUsername =
-  JsonDec.string
+decodeTalk : Decoder Talk
+decodeTalk =
+  JsonDec.succeed Talk
+    |: (field "username" JsonDec.string)
+    |: (field "unread" JsonDec.int)
+    |: (field "messages" (JsonDec.list decodeMessage))
+    |: (field "new_message" JsonDec.string)
 
 talkDecoder : Decoder (List Message)
 talkDecoder =
@@ -303,12 +307,13 @@ toggleLike username token =
         |> RemoteData.sendRequest
         |> Cmd.map (ToggleLikeResponse username)
 
-getTalk : String -> String -> Cmd Msg
-getTalk username token =
+getTalk : String -> Bool -> String -> Cmd Msg
+getTalk username update token =
   let
       body =
           Http.jsonBody <| JsonEnc.object
-          [ ("token", JsonEnc.string token) ]
+          [ ("token", JsonEnc.string token)
+          , ("update", JsonEnc.bool update) ]
   in
       Http.post ("http://localhost:3001/api/talks/talk/" ++ username) body (decodeApiResponse <| Just talkDecoder )
       |> RemoteData.sendRequest

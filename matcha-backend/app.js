@@ -53,7 +53,6 @@ app.ws('/ws', function(ws, req) {
 			var decoded = jwt.verify(data.jwt, config.secret);
 			switch (data.action) {
 				case "new_message":
-				console.log('newmessage');
 				Ctrl_talks.new_message(decoded.username, data.to, data.message);
 				aWss.clients.forEach(function each(client) {
 		       client.send(JSON.stringify({message: 'message', to: data.to, from: decoded.username}));

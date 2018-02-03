@@ -13,6 +13,7 @@ import Time
 import UserModel exposing (..)
 import WebSocket
 import Json.Decode
+import Dom.Scroll as Scroll
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg oldModel =
@@ -29,6 +30,7 @@ update msg oldModel =
                     Navigation.newUrl "/#/login"
     in
     case msg of
+        NoOp -> (model, Cmd.none)
         Logout ->
             ( initialModel (Connect Login), Cmd.batch [ Navigation.newUrl "/#/login", deleteSession () ] )
 
@@ -156,7 +158,7 @@ update msg oldModel =
                                             ( newModel, getTalks newSession.token )
 
                                         ChatRoute a ->
-                                            ( newModel, getTalk a newSession.token )
+                                            ( newModel, getTalk a True newSession.token )
 
                                         UsersRoute a ->
                                             ( newModel, getRelevantUsers a newSession.token )
@@ -338,12 +340,12 @@ update msg oldModel =
                                 ctalk =
                                     case ( mess, model.route ) of
                                         ( Just t, ChatRoute u ) ->
-                                            Just <| Talk t u ""
+                                            Just <| Talk u 0 t ""
 
                                         _ ->
                                             Nothing
                             in
-                            ( { model | current_talk = ctalk }, Cmd.none )
+                            ( { model | current_talk = ctalk }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list")
 
                         _ ->
                             ( { model | message = Just "user not found" }, Navigation.newUrl "/#/users" )
@@ -458,7 +460,7 @@ update msg oldModel =
                             ( { newModel | route = newRoute }, getTalks s.token )
 
                         ChatRoute a ->
-                            ( { newModel | route = newRoute }, getTalk a s.token )
+                            ( { newModel | route = newRoute }, getTalk a True s.token )
 
                         UsersRoute a ->
                             ( { newModel | route = newRoute }, getRelevantUsers a s.token )
@@ -769,12 +771,23 @@ update msg oldModel =
         Notification str ->
               case (Json.Decode.decodeString notificationDecoder str, model.session) of
                 (Ok notif, Just s) ->
-                  if notif.to == s.user.username then
-                    ( model, getTalk notif.from s.token )
-                  else if  notif.from == s.user.username then
-                    ( model, getTalk notif.to s.token )
-                  else
-                    ( model, Cmd.none  )
+                  case notif.type_ of
+                    NotifMessage ->
+                      let
+                        update =
+                          if model.route == ChatRoute notif.from then
+                            True
+                          else
+                            False
+                      in
+                        if notif.to == s.user.username then
+                          ( model, Cmd.batch [ getTalk notif.from update s.token, getTalks s.token] )
+                        else if  notif.from == s.user.username then
+                          ( model, getTalk notif.to update s.token )
+                        else
+                          ( model, Cmd.none  )
+                    NotifLike -> ( model, Cmd.none )
+                    NotifVisit -> ( model, Cmd.none )
                 _ -> ( model, Cmd.none )
 
         Test ->

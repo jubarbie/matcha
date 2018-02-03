@@ -30,6 +30,18 @@ div {
 	padding: 8px;
 	width: 100%;
 }
+.notif {
+	background: red;
+	color: white;
+	font-size: 0.7em;
+	border-radius: 9px;
+	display: inline-block;
+	min-width: 18px;
+	height: 18px;
+	text-align: center;
+	line-height: 18px;
+	margin: 3px;
+}
 .important-font {
 	font-size: 22px;
 	text-transform: uppercase;
@@ -55,6 +67,19 @@ html, body, #main {
 .content {
 	flex: 1;
 	overflow-y: auto;
+}
+h1 {
+	font-size: 1em;
+}
+.layout {
+	display: flex;
+}
+.layout-column {
+	display: flex;
+	flex-direction: column;
+}
+.flex {
+	flex: 1;
 }
 .navbar {
 	border-bottom: 1px solid grey;
@@ -256,7 +281,7 @@ ul.users-list li {
 	color: #252525;
 }
 .message-list {
-	padding-bottom: 120px;
+	padding-bottom: 24px;
 }
 .send-btn {
 	padding: inherit;

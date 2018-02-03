@@ -68,7 +68,12 @@ viewMenu route session =
     nav [ class "navbar" ]
         [ ul [ class "navbar-list" ] <|
             [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ text "BROWSE" ] ]
-            , li [ getMenuClass ChatsRoute route ] [ a [ href "http://localhost:3000/#/chat" ] [ text "CHAT" ] ]
+            , li [ getMenuClass ChatsRoute route ]
+              [ a [ href "http://localhost:3000/#/chat" ]
+                [ text "CHAT"
+                , span [ class "notif" ] [ text <| getChatNotif session.user.talks ] 
+                ]
+              ]
             , div [ class "u-pull-right" ]
                 [ li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
                 , li [ onClick Logout ] [ text "LOGOUT" ]
@@ -76,6 +81,9 @@ viewMenu route session =
             ]
         ]
 
+getChatNotif : List Talk -> String
+getChatNotif talks =
+  toString <| List.sum <| List.map .unreadMsgs talks
 
 getMenuClass : Route -> Route -> Attribute msg
 getMenuClass menuRoute currentRoute =

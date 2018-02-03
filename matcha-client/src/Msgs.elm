@@ -8,7 +8,8 @@ import Time
 import Ports exposing (ImagePortData)
 
 type Msg
-    = UsersResponse (WebData (ApiResponse (Maybe (List User))))
+    = NoOp
+    | UsersResponse (WebData (ApiResponse (Maybe (List User))))
     | UsersAdminResponse (WebData (ApiResponse (Maybe (List SessionUser))))
     | SessionUserResponse String (WebData (ApiResponse (Maybe SessionUser)))
     | UserResponse (WebData (ApiResponse (Maybe User)))
@@ -17,7 +18,7 @@ type Msg
     | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
     | ToggleLikeResponse String (WebData (ApiResponse (Maybe MatchStatus)))
     | GetTalkResponse (WebData (ApiResponse (Maybe (List Message))))
-    | GetTalksResponse (WebData (ApiResponse (Maybe (List String))))
+    | GetTalksResponse (WebData (ApiResponse (Maybe (List Talk))))
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
     | SaveLocRespone (WebData (ApiResponse (Maybe String)))
     | EditAccountResponse String String String String (WebData (ApiResponse (Maybe User)))

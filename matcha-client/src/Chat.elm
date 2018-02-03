@@ -7,6 +7,7 @@ import String
 import Date
 
 import Models exposing (..)
+import UserModel exposing (..)
 import Msgs exposing (..)
 import DateUtils exposing (..)
 import Json.Decode
@@ -18,12 +19,12 @@ view model =
         let
           messages = List.sortBy (\m -> m.date) t.messages
         in
-          [ div []
-            [ button [ onClick <| GoBack 1 ][ text "Back" ]
-            , h1 [] [text <| "Chat with " ++ a ]
+          [ div [ class "layout" ]
+            [ button [ onClick <| GoBack 1 ][ i [class "fas fa-caret-left"] [], text " Back" ]
+            , h1 [ class "flex"] [text <| "Chat with " ++ a ]
             ]
             ] ++
-          [ div [ class "message-list content" ] (List.map (messageView a) messages) ]
+          [ div [ id "talk-list", class "message-list content" ] (List.map (messageView a) messages) ]
           ++ viewMessageForm t
       _ -> [ div [] [ text "No chat" ] ]
 
@@ -51,12 +52,18 @@ allChatsView model =
         Just s ->
           if List.length s.user.talks > 0 then
             div [class "content"] <|
-                List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t] [ text t ] ] ) s.user.talks
+                List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t.username_with] [ text <| t.username_with,  notif t.unreadMsgs] ] ) s.user.talks
           else
             div [class "content"] [ text "You haven't talk to anyone yet" ]
         _ ->
           div [class "content"] [ text "No session..." ]
 
+notif : Int -> Html Msg
+notif notif =
+  if notif > 0 then
+    span [ class "notif" ] [ text <| toString notif ]
+  else
+    span [][]
 
 messageView : String -> Message -> Html Msg
 messageView to msg =

@@ -9,7 +9,7 @@ type alias SessionUser =
     , gender : Maybe Gender
     , intIn : List Gender
     , bio : String
-    , talks : List String
+    , talks : List Talk
     , tags : List String
     , localisation : Maybe Localisation
     , photos : List ( Int, String )
@@ -31,6 +31,19 @@ type alias User =
     , distance : Maybe Float
     }
 
+type alias Talk =
+      { username_with : String
+      , unreadMsgs : Int
+      , messages : List Message
+      , new_message : String
+      }
+
+
+type alias Message =
+      { date : String
+      , message : String
+      , user : String
+      }
 
 type alias Users =
   List User

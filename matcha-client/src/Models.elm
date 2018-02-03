@@ -61,18 +61,7 @@ type alias Model =
     }
 
 
-type alias Talk =
-    { messages : List Message
-    , username_with : String
-    , new_message : String
-    }
 
-
-type alias Message =
-    { date : String
-    , message : String
-    , user : String
-    }
 
 
 type alias Session =
