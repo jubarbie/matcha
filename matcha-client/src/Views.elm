@@ -16,43 +16,47 @@ import Users exposing (view)
 
 view : Model -> Html Msg
 view model =
-    div [ class "container" ]
-        <| (if model.matchAnim /= Nothing then
+    div [ class "container" ] <|
+        (if model.matchAnim /= Nothing then
             [ div [ id "match-anim" ] [] ]
-          else
-            [])
-        ++ (case model.message of
-            Just msg ->
-              [ div [ class "alert" ] [ text msg ] ]
-            Nothing ->
-              [])
-        ++ (case ( model.route, model.session ) of
-                ( Connect a, _ ) ->
-                    [ Login.view a model ]
+         else
+            []
+        )
+            ++ (case model.message of
+                    Just msg ->
+                        [ div [ class "alert" ] [ text msg ] ]
 
-                ( UsersRoute a, Just s ) ->
-                    [ viewMenu model.route s, Users.view model ]
+                    Nothing ->
+                        []
+               )
+            ++ (case ( model.route, model.session ) of
+                    ( Connect a, _ ) ->
+                        [ Login.view a model ]
 
-                ( UserRoute a, Just s ) ->
-                    [ viewMenu model.route s, User.view model ]
+                    ( UsersRoute a, Just s ) ->
+                        [ viewMenu model.route s, Users.view model ]
 
-                ( ChatsRoute, Just s ) ->
-                    [ viewMenu model.route s, Chat.allChatsView model ]
+                    ( UserRoute a, Just s ) ->
+                        [ viewMenu model.route s, User.view model ]
 
-                ( ChatRoute a, Just s ) ->
-                    [ viewMenu model.route s ] ++  Chat.view model
+                    ( ChatsRoute, Just s ) ->
+                        [ viewMenu model.route s, Chat.allChatsView model ]
 
-                ( AccountRoute, Just s ) ->
-                    [ viewMenu model.route s, Account.view model ]
+                    ( ChatRoute a, Just s ) ->
+                        [ viewMenu model.route s ] ++ Chat.view model
 
-                ( EditAccountRoute, Just s ) ->
-                    [ viewMenu model.route s, Account.viewEditAccount model ]
+                    ( AccountRoute, Just s ) ->
+                        [ viewMenu model.route s, Account.view model ]
 
-                ( ChangePwdRoute, Just s ) ->
-                    [ viewMenu model.route s, Account.viewChangePwd model ]
+                    ( EditAccountRoute, Just s ) ->
+                        [ viewMenu model.route s, Account.viewEditAccount model ]
 
-                _ ->
-                    [ view401 ])
+                    ( ChangePwdRoute, Just s ) ->
+                        [ viewMenu model.route s, Account.viewChangePwd model ]
+
+                    _ ->
+                        [ view401 ]
+               )
 
 
 view401 : Html msg
@@ -69,11 +73,14 @@ viewMenu route session =
         [ ul [ class "navbar-list" ] <|
             [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ text "BROWSE" ] ]
             , li [ getMenuClass ChatsRoute route ]
-              [ a [ href "http://localhost:3000/#/chat" ]
-                [ text "CHAT"
-                , span [ class "notif" ] [ text <| getChatNotif session.user.talks ] 
+                [ a [ href "http://localhost:3000/#/chat" ]
+                    [ text "CHAT"
+                    , if getChatNotif session.user.talks /= "0" then
+                        span [ class "notif" ] [ text <| getChatNotif session.user.talks ]
+                      else
+                        span [] []
+                    ]
                 ]
-              ]
             , div [ class "u-pull-right" ]
                 [ li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
                 , li [ onClick Logout ] [ text "LOGOUT" ]
@@ -81,9 +88,11 @@ viewMenu route session =
             ]
         ]
 
+
 getChatNotif : List Talk -> String
 getChatNotif talks =
-  toString <| List.sum <| List.map .unreadMsgs talks
+    toString <| List.sum <| List.map .unreadMsgs talks
+
 
 getMenuClass : Route -> Route -> Attribute msg
 getMenuClass menuRoute currentRoute =

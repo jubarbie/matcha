@@ -1,11 +1,12 @@
 module Msgs exposing (..)
 
-import RemoteData exposing (..)
-import Navigation exposing (..)
 import Models exposing (..)
-import UserModel exposing (..)
-import Time
+import Navigation exposing (..)
 import Ports exposing (ImagePortData)
+import RemoteData exposing (..)
+import Time
+import UserModel exposing (..)
+
 
 type Msg
     = NoOp
@@ -17,7 +18,7 @@ type Msg
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
     | ToggleLikeResponse String (WebData (ApiResponse (Maybe MatchStatus)))
-    | GetTalkResponse (WebData (ApiResponse (Maybe (List Message))))
+    | GetTalkResponse (WebData (ApiResponse (Maybe Talk)))
     | GetTalksResponse (WebData (ApiResponse (Maybe (List Talk))))
     | NewMessageResponse (WebData (ApiResponse (Maybe Talk)))
     | SaveLocRespone (WebData (ApiResponse (Maybe String)))
