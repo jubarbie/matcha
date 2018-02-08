@@ -1,11 +1,9 @@
-var config = require('../config');
-var jwt = require('jsonwebtoken');
-var UsersModel = require('../models/users_model');
-
-var midd = {};
+const config = require('../config');
+const jwt = require('jsonwebtoken');
+const UsersModel = require('../models/users_model');
 
 // Check if token is provided, user role
-midd.hasRole = function (role) {
+exports.hasRole = function (role) {
 
 	return function (req, res, next) {
 
@@ -23,11 +21,10 @@ midd.hasRole = function (role) {
 					res.status(401).send();
 				}
       });
+
 		} catch (err) {
 			res.status(401).send();
 		}
 	}
 
 };
-
-module.exports = midd;

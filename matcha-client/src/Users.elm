@@ -6,21 +6,31 @@ import Models exposing (..)
 import Msgs exposing (..)
 import List
 import UserModel exposing (..)
+import Helper exposing (..)
 
 
 view : Model -> Html Msg
 view model =
-    div [ class "content"]
+    div [ class "content" ]
         [ userMenuView model
         , viewUsers model.users model
         ]
 
 userMenuView : Model -> Html Msg
 userMenuView model =
-  div []
-      [ ul []
-        [ li [ ][ a [ href "http://localhost:3000/#/users/visitors"] [text "Visitors" ]]
-        , li [ ][ a [ href "http://localhost:3000/#/users/likers"] [ text "Likers" ]]
+  div [ class "center" ]
+      [ ul [ class "group-btn" ]
+        [ li [ ][ a [ class "button", href "http://localhost:3000/#/users/" ]
+                [ text "Around me"]
+                ]
+        , li [ ][ a [ class "button", href "http://localhost:3000/#/users/visitors" ]
+                [ text "Visitors "
+                , notif model.notifVisit ]
+                ]
+        , li [ ][ a [ class "button", href "http://localhost:3000/#/users/likers" ]
+                [ text "Likers "
+                , notif model.notifLike ]
+                ]
         ]
       ]
 
@@ -49,7 +59,7 @@ viewUser user model =
         [ h3 [] [ text user.username ]
         , div [ style [("background", "url(" ++ imgSrc ++ ") center center no-repeat")], class "img-box" ][]
         , div []
-          [ div [class "u-pull-right"] [text <| genderToString user.gender]
+          [ div [class "u-pull-right"] [ genderToIcon user.gender ]
           , text <| case user.distance of
                 Just d ->
                     case d < 1 of

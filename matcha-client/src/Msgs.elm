@@ -66,4 +66,3 @@ type Msg
     | SetCurrentTime (Maybe Time.Time)
     | UpdateCurrentTime Time.Time
     | Notification String
-    | Test

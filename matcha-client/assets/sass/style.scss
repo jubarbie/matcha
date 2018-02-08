@@ -1,0 +1,153 @@
+@import 'colors';
+@import 'login';
+@import 'chat';
+@import 'form';
+@import 'users';
+@import 'map';
+
+/* GENERIC STUFF */
+body {
+	background: $clr-back;
+	font-family: 'futura';
+	color: $clr-txt;
+}
+
+/* LAYOUT */
+html, body, #main {
+	height: 100%;
+}
+div {
+	box-sizing: border-box;
+}
+.container {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+}
+.content {
+	flex: 1;
+	overflow-y: auto;
+}
+.layout {
+	display: flex;
+}
+.layout-column {
+	display: flex;
+	flex-direction: column;
+}
+.flex {
+	flex: 1;
+}
+.center {
+  text-align: center;
+}
+
+/* TYPO */
+h1 {
+	font-size: 1em;
+}
+.important-font {
+	font-size: 22px;
+	text-transform: uppercase;
+	font-style: italic;
+	color: $clr-back;
+	text-shadow: 1px 1px 0 white,
+			    -1px 1px 0 white,
+			    1px -1px 0 white,
+			    -1px -1px 0 white,
+			    0px 1px 0 white,
+			    0px -1px 0 white,
+			    -1px 0px 0 white,
+			    1px 0px 0 white;
+}
+
+/* ALERT AND NOTIF */
+.alert {
+	position: fixed;
+	top: 0;
+	text-align: center;
+	left: 0;
+	right: 0;
+	padding: 8px;
+	width: 100%;
+}
+.notif {
+	background: red;
+	color: white;
+	font-size: 0.7em;
+	border-radius: 9px;
+	display: inline-block;
+	min-width: 18px;
+	height: 18px;
+	text-align: center;
+	line-height: 18px;
+	margin: 3px;
+}
+
+/* NAVBAR */
+.navbar {
+	border-bottom: 1px solid grey;
+	background: $clr-back;
+
+  .navbar-list {
+  	list-style-type: none;
+  	margin: 0;
+  	padding: 0;
+  	width: 100%;
+  }
+  .navbar-list li {
+  	display: inline-block;
+  	margin: 0;
+  	cursor: pointer;
+  	padding: 20px;
+  	line-height: normal;
+  	box-sizing: border-box;
+  }
+  .navbar-list li a {
+  	text-decoration: none;
+  	color: white;
+  	display: block;
+  	height: 100%;
+  }
+  .navbar-list li:hover {
+  	background: grey;
+  }
+  .navbar-list li.active {
+  	background: black;
+  }
+  .navbar-list li.active a {
+  	color: white;
+  }
+}
+
+/* FOOTER */
+.footer {
+	border-top: 1px solid grey;
+}
+
+.pointer {
+	cursor: pointer;
+}
+ul.group-btn {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: inline-block;
+    .button {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 1px;
+    }
+    &:first-child .button {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-left: 1px;
+    }
+    &:last-child .button {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+  }
+}

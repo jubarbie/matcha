@@ -110,7 +110,6 @@ genderToString g =
         _ ->
             "No gender"
 
-
 stringToGender : String -> Maybe Gender
 stringToGender g =
     case g of

@@ -165,7 +165,7 @@ update msg oldModel =
                                             ( newModel, getTalk a True newSession.token )
 
                                         UsersRoute a ->
-                                            ( newModel, getRelevantUsers a newSession.token )
+                                            ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token] )
 
                                         UserRoute a ->
                                             ( newModel, getUser a newSession.token )
@@ -177,7 +177,7 @@ update msg oldModel =
                                             ( { newModel | editAccountForm = initEditAccountForm newSession.user }, Cmd.none )
 
                                         _ ->
-                                            ( newModel, Cmd.none )
+                                            ( newModel, sendLikeNotif newSession.token u.username )
 
                                 ResetPassword ->
                                     ( { newModel | message = Just "Please reset your password" }, Navigation.newUrl "/#/account" )
@@ -197,9 +197,9 @@ update msg oldModel =
         UserResponse response ->
             case Debug.log "response user" response of
                 Success rep ->
-                    case ( rep.status == "success", rep.data ) of
-                        ( True, Just u ) ->
-                            ( { model | current_user = Just u }, Cmd.none )
+                    case ( rep.status == "success", rep.data, model.session ) of
+                        ( True, Just u, Just s ) ->
+                            ( { model | current_user = Just u }, sendVisitNotif s.token u.username )
 
                         _ ->
                             ( { model | message = Just "User not found" }, Cmd.none )
@@ -279,8 +279,8 @@ update msg oldModel =
         ToggleLikeResponse username response ->
             case Debug.log "resp" response of
                 Success rep ->
-                    case ( rep.status, rep.data ) of
-                        ( "success", Just m ) ->
+                    case ( rep.status, rep.data, model.session ) of
+                        ( "success", Just m, Just s ) ->
                             let
                                 anim =
                                     case m of
@@ -298,7 +298,7 @@ update msg oldModel =
                                         _ ->
                                             Nothing
                             in
-                            ( { model | current_user = newCurrentUser, matchAnim = anim }, Cmd.none )
+                            ( { model | current_user = newCurrentUser, matchAnim = anim }, sendLikeNotif s.token username )
 
                         _ ->
                             ( model, Navigation.newUrl "/#/login" )
@@ -471,7 +471,13 @@ update msg oldModel =
                             ( { newModel | route = newRoute }, getTalk a True s.token )
 
                         UsersRoute a ->
-                            ( { newModel | route = newRoute }, getRelevantUsers a s.token )
+                          let
+                            likeNotif =
+                              if a == "likers" then 0 else model.notifLike
+                            visitNotif =
+                              if a == "visitors" then 0 else model.notifVisit
+                          in
+                            ( { newModel | route = newRoute, notifLike = likeNotif, notifVisit = visitNotif }, getRelevantUsers a s.token )
 
                         UserRoute a ->
                             ( { newModel | route = newRoute }, getUser a s.token )
@@ -815,21 +821,23 @@ update msg oldModel =
                                 ( model, Cmd.none )
 
                         NotifLike ->
-                            ( model, Cmd.none )
+                          if (notif.to == s.user.username && model.route /= UsersRoute "likers") then
+                            ( { model | notifLike = notif.notif }, Cmd.none )
+                          else if (notif.to == s.user.username && model.route == UsersRoute "likers") then
+                            ( model, getRelevantUsers "likers" s.token )
+                          else
+                              ( model, Cmd.none )
 
                         NotifVisit ->
-                            ( model, Cmd.none )
+                            if (notif.to == s.user.username && model.route /= UsersRoute "visitors") then
+                              ( { model | notifVisit = notif.notif }, Cmd.none )
+                            else if (notif.to == s.user.username && model.route == UsersRoute "visitors") then
+                              ( model, getRelevantUsers "visitors" s.token )
+                            else
+                                ( model, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
-
-        Test ->
-            case model.session of
-                Just s ->
-                    ( model, WebSocket.send "ws://localhost:3001/ws" <| "{\"jwt\": \"" ++ s.token ++ "\", \"message\": \"Hello World\"}" )
-
-                _ ->
-                    ( model, WebSocket.send "ws://localhost:3001/ws" "Hello, server!" )
 
 
 now : Cmd Msg

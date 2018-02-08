@@ -11,20 +11,20 @@ var mountNode = document.getElementById('main');
 var app = Elm.Main.embed(mountNode);
 
 app.ports.storeToken.subscribe(function(session) {
-	window.localStorage.setItem('user', session[0]);
-	window.localStorage.setItem('token', session[1]);
+	window.sessionStorage.setItem('user', session[0]);
+	window.sessionStorage.setItem('token', session[1]);
 });
 app.ports.getToken.subscribe(function() {
-	var token = window.localStorage.getItem('token');
-	var user = window.localStorage.getItem('user');
+	var token = window.sessionStorage.getItem('token');
+	var user = window.sessionStorage.getItem('user');
 
 	if (!token) token = "";
 	if (!user) user = "";
 	app.ports.tokenRecieved.send([user, token]);
 });
 app.ports.deleteSession.subscribe(function() {
-	window.localStorage.removeItem('user');
-	window.localStorage.removeItem('token');
+	window.sessionStorage.removeItem('user');
+	window.sessionStorage.removeItem('token');
 });
 
 app.ports.localize.subscribe(function(loc) {

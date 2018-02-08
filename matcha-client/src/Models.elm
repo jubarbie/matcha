@@ -46,6 +46,8 @@ type alias Model =
     , tagInput : String
     , searchTag : List String
     , users : Users
+    , notifVisit: Int
+    , notifLike: Int
     , userFilter : Maybe FilterUsers
     , userSort : SortUsers
     , usersAdmin : List SessionUser
@@ -59,9 +61,6 @@ type alias Model =
     , mImage : Maybe Image
     , currentTime : Maybe Time.Time
     }
-
-
-
 
 
 type alias Session =
@@ -89,6 +88,7 @@ type alias Notif =
   { type_ : NotificationType
   , to : String
   , from : String
+  , notif : Int
   }
 
 type NotificationType
@@ -109,6 +109,8 @@ initialModel route =
     , tagInput = ""
     , searchTag = []
     , users = []
+    , notifVisit = 0
+    , notifLike = 0
     , userFilter = Nothing
     , userSort = S_Dist
     , usersAdmin = []

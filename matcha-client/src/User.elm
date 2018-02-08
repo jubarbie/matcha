@@ -9,6 +9,7 @@ import FormUtils exposing (..)
 import UserModel exposing (..)
 import DateUtils exposing (..)
 import Date
+import Helper exposing (..)
 
 view : Model -> Html Msg
 view model =
@@ -21,11 +22,13 @@ viewUser user session model =
   let
     talkTxt =
       if user.has_talk then
-        "Open talk"
+        "fas fa-comments"
       else
-        "New talk"
+        "far fa-comments"
     likeBtn =
-      if ( (user.match == None || user.match == From) && List.length session.user.photos > 0) then
+      if (List.length session.user.photos <= 0) then
+        div [] [ text "You have to upload at least one image to be able to like this person" ]
+      else if (user.match == None || user.match == From) then
         button [ onClick <| ToggleLike user.username ] [ text "Like" ]
       else
         div []
@@ -55,10 +58,10 @@ viewUser user session model =
         , h3 [] [ text user.username ]
         , likeBtn
         , if user.match == Match then
-            a [ href <| "http://localhost:3000/#/chat/" ++ user.username ] [ text talkTxt ]
+            a [ href <| "http://localhost:3000/#/chat/" ++ user.username ] [ i [ class talkTxt ] [] ]
           else
             div [][ text "You haven't matched (yet) with this profile, you can't open a talk" ]
-        , div [] [ text <| genderToString user.gender ]
+        , genderToIcon user.gender
         , div []
           [ text <| case user.distance of
               Just d -> (++) (toString <| round (d * 1000 )) " meters away"

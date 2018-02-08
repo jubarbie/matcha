@@ -1,19 +1,16 @@
-var express = require('express');
-var apiRoutes = express.Router();
+const express = require('express');
+const apiRoutes = express.Router();
 const { check, validationResult } = require('express-validator/check');
 const { matchedData } = require('express-validator/filter');
-var bcrypt = require('bcrypt');
-var crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const saltRounds = 10;
-var config = require('../config');
-var jwt = require('jsonwebtoken');
-var Mailer = require('../middlewares/mailer');
-
-
-var UserCtrl = require('../controllers/user_ctrl.js');
-var UsersModel = require('../models/users_model.js');
-
-var ImageModel = require('../models/image_model');
+const config = require('../config');
+const jwt = require('jsonwebtoken');
+const Mailer = require('../middlewares/mailer');
+const UserCtrl = require('../controllers/user_ctrl.js');
+const UsersModel = require('../models/users_model.js');
+const ImageModel = require('../models/image_model');
 
 apiRoutes.post('/', (req, res, next) => {
 
@@ -80,6 +77,7 @@ apiRoutes.post('/newfast', [
 					res.json({"status":"success"});
 				}
 				else {
+					console.log('Error insert new user', err);
 					res.json({"status":"error"});
 				}
 			});

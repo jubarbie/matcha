@@ -59,7 +59,7 @@ viewLoginForm model =
                     ]
                     []
                , div [ class "row" ]
-                    [ div [ class "twelve columns" ] [ a [ href "#/signin" ] [ text "Create new account" ] ]
+                    [ div [ class "twelve columns" ] [ a [ href "#/signup" ] [ text "Create new account" ] ]
                     , div [ class "twelve columns" ] [ a [ href "#/password_reset" ] [ text "Forgot password ?" ] ]
                     ]
                ]

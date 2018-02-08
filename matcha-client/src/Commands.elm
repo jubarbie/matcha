@@ -35,6 +35,7 @@ notificationDecoder =
         |: field "message" notifTypeDecoder
         |: field "to" JsonDec.string
         |: field "from" JsonDec.string
+        |: field "notif" JsonDec.int
 
 
 notifTypeDecoder : Decoder NotificationType
@@ -438,6 +439,34 @@ sendMessage token to message =
                     ]
     in
     WebSocket.send "ws://localhost:3001/ws" body
+
+
+sendLikeNotif : String -> String -> Cmd Msg
+sendLikeNotif token to =
+    let
+        body =
+            JsonEnc.encode 0 <|
+                JsonEnc.object
+                    [ ( "jwt", JsonEnc.string token )
+                    , ( "action", JsonEnc.string "like" )
+                    , ( "to", JsonEnc.string to )
+                    ]
+    in
+    WebSocket.send "ws://localhost:3001/ws" body
+
+
+sendVisitNotif : String -> String -> Cmd Msg
+sendVisitNotif token to =
+    let
+        body =
+            JsonEnc.encode 0 <|
+                JsonEnc.object
+                    [ ( "jwt", JsonEnc.string token )
+                    , ( "action", JsonEnc.string "visit" )
+                    , ( "to", JsonEnc.string to )
+                    ]
+    in
+    WebSocket.send "ws://localhost:3001/ws" <| Debug.log "notif" body
 
 
 getIpLocalisation : Cmd Msg

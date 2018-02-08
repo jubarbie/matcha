@@ -1,23 +1,20 @@
-var express = require('express');
-var morgan = require('morgan');
-var bodyParser = require('body-parser');
-var url = require('url');
-
-var Auth = require('./middlewares/authentification');
-var Login = require('./routes/login');
-var Users = require('./routes/users');
-var Talks = require('./routes/talks');
-var Tag = require('./routes/tag');
-var Admin = require('./routes/admin');
-
-var Ctrl_talks = require('./controllers/talk_ctrl');
-
-var app = express();
-var expressWs = require('express-ws')(app);
-
-var config = require('./config');
-var jwt = require('jsonwebtoken');
-var UsersModel = require('./models/users_model');
+const express = require('express');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const url = require('url');
+const Auth = require('./middlewares/authentification');
+const Login = require('./routes/login');
+const Users = require('./routes/users');
+const Talks = require('./routes/talks');
+const Tag = require('./routes/tag');
+const Ctrl_talks = require('./controllers/talk_ctrl');
+const app = express();
+const expressWs = require('express-ws')(app);
+const config = require('./config');
+const jwt = require('jsonwebtoken');
+const UsersModel = require('./models/users_model');
+const LikesModel = require('./models/likes_model');
+const VisitsModel = require('./models/visits_model');
 
 
 app.use(express.static('public'));
@@ -46,8 +43,6 @@ app.post('/api/*', Auth.hasRole(1));
 app.use('/api/users', Users);
 app.use('/api/tag', Tag);
 app.use('/api/talks', Talks);
-app.post('/api/admin/*', Auth.hasRole(0));
-app.use('/api/admin', Admin);
 
 var aWss = expressWs.getWss('/');
 app.ws('/ws', function(ws, req) {
@@ -63,19 +58,40 @@ app.ws('/ws', function(ws, req) {
                         client.send(JSON.stringify({
                             message: 'message',
                             to: data.to,
-                            from: decoded.username
+                            from: decoded.username,
+                            notif: 0
                         }));
                     });
                     break;
-                case "visit":
-                    aWss.clients.forEach(function each(client) {
-                        client.send(JSON.stringify({
-                            message: 'visit',
-                            to: data.to,
-                            from: decoded.username
-                        }));
+                case "like":
+                    LikesModel.getNotifLike(data.to, (err, rows, fields) => {
+                      if (rows.length > 0) {
+                        aWss.clients.forEach(function each(client) {
+                            client.send(JSON.stringify({
+                                message: 'like',
+                                to: data.to,
+                                from: decoded.username,
+                                notif: rows[0].notif
+                            }));
+                        });
+                      }
                     });
                     break;
+                  case "visit":
+                      VisitsModel.getNotifVisit(data.to, (err, rows, fields) => {
+                        if (rows.length > 0) {
+                          console.log(rows);
+                          aWss.clients.forEach(function each(client) {
+                              client.send(JSON.stringify({
+                                  message: 'visit',
+                                  to: data.to,
+                                  from: decoded.username,
+                                  notif: rows[0].notif
+                              }));
+                          });
+                        }
+                      });
+                      break;
                 default:
                     aWss.clients.forEach(function each(client) {
                         client.send('somethign!');

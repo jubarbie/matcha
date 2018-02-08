@@ -1,0 +1,106 @@
+@import 'colors';
+
+ul.users-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+
+  li {
+	   width: 33.333%;
+	   display: inline-block;
+	   padding: 10px;
+	   box-sizing: border-box;
+  }
+}
+
+.user-box {
+	border: 1px solid black;
+	padding: 10px;
+	overflow-y: auto;
+	position: relative;
+
+  .user-link {
+  	position: absolute;
+  	width: 100%;
+  	height: 100%;
+  	top: 0;
+  	left: 0;
+  }
+  #profile-img img {
+  	width: 100%;
+  	margin: 0;
+  }
+}
+
+.tag {
+	display: inline-block;
+	position: relative;
+	padding: 2px 18px 2px 4px;
+	border: 1px solid white;
+	margin-right: 2px;
+	border-radius: 2px;
+	font-size: 0.9em;
+  .del {
+  	position: absolute;
+  	right: 4px;
+  	top: 0;
+  }
+}
+
+.search-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.img-box {
+	background-size: cover !important;
+	width: 100%;
+	padding-bottom: 100%;
+	display: inline-block;
+}
+
+.gender-icon {
+  font-size: 2em;
+}
+
+/* MATCH ANIMATION */
+#match-anim {
+	position: fixed;
+	background: url('../images/DARKROOM_logo.svg') center center no-repeat;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+  animation-duration: 1s;
+  animation-fill-mode: both;
+	animation-name: matchanim;
+	z-index: 200;
+}
+
+@keyframes matchanim {
+	from, to {
+    opacity: 0;
+  }
+
+	from {
+		transform: scale3d(.3, .3, .3);
+	}
+
+  50% {
+    opacity: 1;
+  }
+
+}
+
+@media screen and (max-width: 840px) {
+  	ul.users-list li {
+  		width: 50%;
+    }
+  }
+@media screen and (max-width: 480px) {
+  	ul.users-list li {
+  		width: 100%;
+    }
+  }

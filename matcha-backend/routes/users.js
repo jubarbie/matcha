@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const {
     check,
     validationResult
@@ -7,201 +7,131 @@ const {
 const {
     matchedData
 } = require('express-validator/filter');
-var bcrypt = require('bcrypt');
-var crypto = require('crypto');
-var fs = require('fs');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const fs = require('fs');
 const saltRounds = 10;
-var shortid = require('shortid');
-var base64 = require('node-base64-image');
-var config = require('../config');
-var UserCtrl = require('../controllers/user_ctrl.js');
-var UsersModel = require('../models/users_model');
-var LikesModel = require('../models/likes_model');
-var TalkModel = require('../models/talk_model');
-var ImageModel = require('../models/image_model');
+const shortid = require('shortid');
+const base64 = require('node-base64-image');
+const config = require('../config');
+const UserCtrl = require('../controllers/user_ctrl.js');
+const UsersModel = require('../models/users_model');
+const VisitsModel = require('../models/visits_model');
+const LikesModel = require('../models/likes_model');
+const TalkModel = require('../models/talk_model');
+const ImageModel = require('../models/image_model');
 
 
-/* GET users listing. */
+/* GET users */
 router.post('/relevant_users', (req, res, next) => {
 
-    var logged = req.logged_user;
+    const logged = req.logged_user;
 
-    if (logged) {
-        UserCtrl.getRelevantUsers(logged, function(users) {
-            if (users) {
-                res.json({
-                    "status": "success",
-                    "data": users
-                });
-            } else {
-                res.json({
-                    "status": "error",
-                    "msg": "A problem occur while fetching users"
-                });
-            }
-        });
-    } else {
-        res.status(401).json({
-            "status": "error"
-        });
-    }
-
+    UserCtrl.getRelevantUsers(logged, function(users) {
+        if (users) {
+            res.json({
+                "status": "success",
+                "data": users
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "A problem occur while fetching users"
+            });
+        }
+    });
 
 });
 
-/* GET users listing. */
+/* GET users that visited connect user */
 router.post('/visitors', (req, res, next) => {
 
-    var logged = req.logged_user;
+    const logged = req.logged_user;
 
-    if (logged) {
-        var now = Date.now();
-        UserCtrl.getVisitors(logged, function(users) {
-            if (users) {
-                UsersModel.updateVisitLast(logged.login, now);
-                res.json({
-                    "status": "success",
-                    "data": users
-                });
-            } else {
-                res.json({
-                    "status": "error",
-                    "msg": "A problem occur while fetching users"
-                });
-            }
-        });
-    } else {
-        res.status(401).json({
-            "status": "error"
-        });
-    }
+    var now = Date.now();
+    UserCtrl.getVisitors(logged, function(users) {
+        if (users) {
+            VisitsModel.updateVisitLast(logged.login, now);
+            res.json({
+                "status": "success",
+                "data": users
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "A problem occur while fetching users"
+            });
+        }
+    });
 
 });
 
-/* GET users listing. */
+/* GET users that liked connected user */
 router.post('/likers', (req, res, next) => {
 
-    var logged = req.logged_user;
+    const logged = req.logged_user;
+    const now = Date.now();
 
-    if (logged) {
-        UserCtrl.getLikers(logged, function(users) {
-            if (users) {
-                res.json({
-                    "status": "success",
-                    "data": users
-                });
-            } else {
-                res.json({
-                    "status": "error",
-                    "msg": "A problem occur while fetching users"
-                });
-            }
-        });
-    } else {
-        res.status(401).json({
-            "status": "error"
-        });
-    }
+    UserCtrl.getLikers(logged, function(users) {
+        if (users) {
+          LikesModel.updateLikeLast(logged.login, now);
+            res.json({
+                "status": "success",
+                "data": users
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "A problem occur while fetching users"
+            });
+        }
+    });
 
 });
 
-/* GET user */
+/* GET user with login */
 router.post('/user/:login', (req, res, next) => {
 
-    var login = req.params.login;
-    var logged = req.logged_user;
+    const login = req.params.login;
+    const logged = req.logged_user;
+    const now = Date.now();
 
-    if (logged && login) {
-        var now = Date.now();
-        UserCtrl.getFullUser(logged, login, function(user) {
-            if (user) {
-                UsersModel.addVisit(logged.login, login, now, (err, rows, fields) => {
-                    res.json({
-                        "status": "success",
-                        "data": user
-                    });
-                });
-            } else {
-                res.json({
-                    "status": "error",
-                    "msg": "Error when fetching user"
-                });
-            }
-        });
-    } else {
-        res.status(401).json({
-            "status": "error"
-        });
-    }
-
-});
-
-/* Add photo to connected user */
-router.post('/user/add_photo', (req, res, next) => {
-
-    //TODO
-
-});
-
-/* GET user */
-router.post('/user/:login', (req, res, next) => {
-
-    var login = req.params.login;
-    var logged = req.logged_user;
-
-    if (logged && login) {
-        UserCtrl.getFullUser(logged, login, function(user) {
-            if (user) {
-                usersTab = [logged.login, login].sort();
-                UserCtrl.getMatchStatus(logged.login, login, function(status) {
-                    user.match = status;
-                    user.has_talk = (user.talks > 0) ? true : false;
-                    res.json({
-                        "status": "success",
-                        "data": user
-                    });
-                });
-            } else {
-                res.json({
-                    "status": "error",
-                    "msg": "User " + login + " doesn't exists"
-                });
-            }
-        });
-    } else {
-        res.json({
-            "status": "error",
-            "msg": "Missing login"
-        });
-    }
-
-});
-
-/* GET user */
-router.post('/connected_user', (req, res, next) => {
-
-    var logged = req.logged_user;
-
-    if (logged) {
-        UserCtrl.getConnectedUser(logged.login, function(user) {
-            if (user) {
+    UserCtrl.getFullUser(logged, login, function(user) {
+        if (user) {
+            VisitsModel.addVisit(logged.login, login, now, (err, rows, fields) => {
                 res.json({
                     "status": "success",
                     "data": user
                 });
-            } else {
-                res.json({
-                    "status": "error",
-                    "msg": "User " + login + " doesn't exists"
-                });
-            }
-        });
-    } else {
-        res.json({
-            "status": "error",
-            "msg": "Missing login"
-        });
-    }
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "Error when fetching user"
+            });
+        }
+    });
+
+});
+
+/* GET connected user */
+router.post('/connected_user', (req, res, next) => {
+
+    const logged = req.logged_user;
+
+    UserCtrl.getConnectedUser(logged.login, function(user) {
+        if (user) {
+            res.json({
+                "status": "success",
+                "data": user
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "User " + login + " doesn't exists"
+            });
+        }
+    });
 
 });
 
@@ -209,8 +139,8 @@ router.post('/connected_user', (req, res, next) => {
 /* Verify email */
 router.get('/user/:login/emailverif', (req, res, next) => {
 
-    var login = req.params.login;
-    var token = req.query.r;
+    const login = req.params.login;
+    const token = req.query.r;
 
     if (login && token) {
         UsersModel.getTokenFromLogin(login, function(err, rows, fields) {
@@ -220,7 +150,7 @@ router.get('/user/:login/emailverif', (req, res, next) => {
                     case token:
                         UsersModel.activateUserWithLogin(login, "incomplete", (err, rows, fields) => {
                             if (rows) {
-                                res.send('Email verified. You can now <a href="http://localhost:3000">login</a>');
+                                res.send('Email verified. You can now <a href="' + config.home_root + '">login</a>');
                             } else {
                                 res.send('A problem occured, please try again');
                             }
@@ -302,6 +232,9 @@ router.post('/update', [
         min: 1,
         max: 250
     }),
+    check('bio').exists().isLength({
+        min: 1
+    }),
 ], (req, res, next) => {
 
     const errors = validationResult(req);
@@ -318,9 +251,9 @@ router.post('/update', [
             infos.email = req.body.email;
             infos.fname = req.body.fname;
             infos.lname = req.body.lname;
-            infos.bio = (req.body.bio) ? req.body.bio : "";
+            infos.bio = req.body.bio;
 
-            UsersModel.updateInfos(logged.login, infos, function(err, rows, fields) {
+            UsersModel.updateInfos(logged.login, infos, "activated", function(err, rows, fields) {
                 if (rows && !err) {
                     res.json({
                         "status": "success"

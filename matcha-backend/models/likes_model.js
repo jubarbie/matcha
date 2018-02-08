@@ -1,28 +1,22 @@
-var mysql = require('mysql');
-var config = require('../config');
-var connection = mysql.createConnection(config.database);
+const mysql = require('mysql');
+const config = require('../config');
 
+let connection = mysql.createConnection(config.database);
 
-var model = {};
-
-model.getNumberOfLikes = function(username, cb) {
+exports.getNumberOfLikes = (username, cb) =>
     connection.query('SELECT COUNT(*) FROM likes WHERE user_to = ?', [username], cb);
-};
 
-model.like = function(user_from, user_to, date, cb) {
-    connection.query('INSERT INTO likes (user_from, user_to, date) VALUES ( ?, ?, ?)', [user_from, user_to, date], cb);
-};
+exports.like = (user_from, user_to, date, cb) =>
+    connection.query('INSERT INTO likes (user_from, user_to, date, last) VALUES ( ?, ?, ?, 0)', [user_from, user_to, date], cb);
 
-model.unLike = function(user_from, user_to, cb) {
+exports.unLike = (user_from, user_to, cb) =>
     connection.query('DELETE FROM likes WHERE user_from = ? AND user_to = ?', [user_from, user_to], cb);
-};
 
-model.getLikeBetweenUsers = function(user_from, user_to, cb) {
+exports.getLikeBetweenUsers = (user_from, user_to, cb) =>
     connection.query('SELECT * FROM likes WHERE user_from = ? AND user_to = ?', [user_from, user_to], cb);
-};
 
-model.updateLikeLast = (to, date) =>
+exports.updateLikeLast = (to, date) =>
     connection.query('UPDATE likes SET last = ? WHERE user_to = ?', [date, to]);
 
-
-module.exports = model;
+exports.getNotifLike = (logged, cb) =>
+    connection.query('SELECT COUNT(id) AS notif FROM likes WHERE user_to = ? AND last < date', [logged], cb);

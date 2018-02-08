@@ -38,7 +38,6 @@ viewAccount model user =
       [ div [class "six columns"]
           [ h2 [] [text "Infos"]
           , div [] [text user.username]
-          , div [] [text <| genderToString user.gender]
           , div [] [text user.fname, text " ",text user.lname]
           , div [] [text user.email]
           , div [] [text user.bio]
@@ -146,23 +145,27 @@ viewEditAccount model =
 
 viewGenderForm : Maybe Gender -> Html Msg
 viewGenderForm gender =
-  div []
-    [ label [ for "male" ] [ text "Male" ]
-      , input
-          [ name "gender"
-          , type_ "radio"
-          , id "male"
-          , onClick <| UpdateGender M
-          , checked (gender == Just M)
-          ] []
-      , label [ for "female" ] [ text "Female" ]
-      , input
-          [ name "gender"
-          , type_ "radio"
-          , id "female"
-          , onClick <| UpdateGender F
-          , checked (gender == Just F)
-          ] []
+  div [ class "row" ]
+    [ label [ for "male", class "six columns" ]
+            [ i [class "fas fa-mars"] []
+            , input
+                [ name "gender"
+                , type_ "radio"
+                , id "male"
+                , onClick <| UpdateGender M
+                , checked (gender == Just M)
+                ] []
+            ]
+      , label [ for "female", class "six columns" ]
+              [ i [class "fas fa-venus"] []
+              , input
+                  [ name "gender"
+                  , type_ "radio"
+                  , id "female"
+                  , onClick <| UpdateGender F
+                  , checked (gender == Just F)
+                  ] []
+              ]
       ]
 
 viewIntInForm : List Gender -> Html Msg
@@ -174,23 +177,27 @@ viewIntInForm intIn =
       else
         a :: intIn
   in
-    div []
-      [ label [ for "male" ] [ text "Male" ]
-        , input
-            [ name "intIn"
-            , type_ "checkbox"
-            , id "male"
-            , onClick <| UpdateIntIn (getGenderList M)
-            , checked <| List.member M intIn
-            ] []
-        , label [ for "female" ] [ text "Female" ]
-        , input
-            [ name "intIn"
-            , type_ "checkbox"
-            , id "female"
-            , onClick <| UpdateIntIn (getGenderList F)
-            , checked <| List.member F intIn
-            ] []
+    div [ class "row"]
+      [ label [ for "male", class "six columns" ]
+              [ i [class "fas fa-mars"] []
+              , input
+                  [ name "intIn"
+                  , type_ "checkbox"
+                  , id "male"
+                  , onClick <| UpdateIntIn (getGenderList M)
+                  , checked <| List.member M intIn
+                  ] []
+              ]
+        , label [ for "female", class "six columns" ]
+                [ i [class "fas fa-venus"] []
+                , input
+                    [ name "intIn"
+                    , type_ "checkbox"
+                    , id "female"
+                    , onClick <| UpdateIntIn (getGenderList F)
+                    , checked <| List.member F intIn
+                    ] []
+                ]
         ]
 
 viewEditAccountForm : Form -> Html Msg

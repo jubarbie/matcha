@@ -12,6 +12,7 @@ import Msgs exposing (..)
 import User exposing (view)
 import UserModel exposing (..)
 import Users exposing (view)
+import Helper exposing (..)
 
 
 view : Model -> Html Msg
@@ -75,10 +76,7 @@ viewMenu route session =
             , li [ getMenuClass ChatsRoute route ]
                 [ a [ href "http://localhost:3000/#/chat" ]
                     [ text "CHAT"
-                    , if getChatNotif session.user.talks /= "0" then
-                        span [ class "notif" ] [ text <| getChatNotif session.user.talks ]
-                      else
-                        span [] []
+                    , notif <| getChatNotif session.user.talks
                     ]
                 ]
             , div [ class "u-pull-right" ]
@@ -88,10 +86,9 @@ viewMenu route session =
             ]
         ]
 
-
-getChatNotif : List Talk -> String
+getChatNotif : List Talk -> Int
 getChatNotif talks =
-    toString <| List.sum <| List.map .unreadMsgs talks
+    List.sum <| List.map .unreadMsgs talks
 
 
 getMenuClass : Route -> Route -> Attribute msg
