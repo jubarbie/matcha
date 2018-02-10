@@ -37,7 +37,6 @@ type alias Image =
     , filename : String
     }
 
-
 type alias Model =
     { route : Route
     , session : Maybe Session
