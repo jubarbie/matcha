@@ -11,6 +11,9 @@ body {
 	font-family: 'futura';
 	color: $clr-txt;
 }
+.blur {
+	filter: blur(5px);
+}
 
 /* LAYOUT */
 html, body, #main {

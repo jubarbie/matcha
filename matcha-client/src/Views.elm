@@ -1,18 +1,18 @@
 module Views exposing (view)
 
-import Account exposing (view, viewEditAccount)
-import AdminUsers exposing (view)
-import Chat exposing (allChatsView, view)
+import User.UserAccountView exposing (view, viewEditAccount)
+import Talk.TalkView exposing (allChatsView, view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Login exposing (view)
 import Models exposing (..)
 import Msgs exposing (..)
-import User exposing (view)
-import UserModel exposing (..)
-import Users exposing (view)
-import Helper exposing (..)
+import User.UserModel exposing (..)
+import User.UsersView exposing (view)
+import Utils exposing (..)
+import Talk.TalkModel exposing (..)
+import Talk.TalkUtils exposing (..)
 
 
 view : Model -> Html Msg
@@ -35,25 +35,25 @@ view model =
                         [ Login.view a model ]
 
                     ( UsersRoute a, Just s ) ->
-                        [ viewMenu model.route s, Users.view model ]
+                        [ viewMenu model ] ++ User.UsersView.view model
 
                     ( UserRoute a, Just s ) ->
-                        [ viewMenu model.route s, User.view model ]
+                        [ viewMenu model ] ++ User.UsersView.view model
 
-                    ( ChatsRoute, Just s ) ->
-                        [ viewMenu model.route s, Chat.allChatsView model ]
+                    ( TalksRoute, Just s ) ->
+                        [ viewMenu model, Talk.TalkView.allChatsView model ]
 
-                    ( ChatRoute a, Just s ) ->
-                        [ viewMenu model.route s ] ++ Chat.view model
+                    ( TalkRoute a, Just s ) ->
+                        [ viewMenu model ] ++ (Talk.TalkView.view <| getTalkWith a model.talks)
 
                     ( AccountRoute, Just s ) ->
-                        [ viewMenu model.route s, Account.view model ]
+                        [ viewMenu model, User.UserAccountView.view model ]
 
                     ( EditAccountRoute, Just s ) ->
-                        [ viewMenu model.route s, Account.viewEditAccount model ]
+                        [ viewMenu model, User.UserAccountView.viewEditAccount model ]
 
                     ( ChangePwdRoute, Just s ) ->
-                        [ viewMenu model.route s, Account.viewChangePwd model ]
+                        [ viewMenu model, User.UserAccountView.viewChangePwd model ]
 
                     _ ->
                         [ view401 ]
@@ -68,28 +68,23 @@ view401 =
         ]
 
 
-viewMenu : Route -> Session -> Html Msg
-viewMenu route session =
+viewMenu : Model -> Html Msg
+viewMenu model =
     nav [ class "navbar" ]
         [ ul [ class "navbar-list" ] <|
-            [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ text "BROWSE" ] ]
-            , li [ getMenuClass ChatsRoute route ]
+            [ li [ getMenuClass (UsersRoute "all") model.route ] [ a [ href "http://localhost:3000/#/users/all" ] [ text "BROWSE" ] ]
+            , li [ getMenuClass TalksRoute model.route ]
                 [ a [ href "http://localhost:3000/#/chat" ]
                     [ text "CHAT"
-                    , notif <| getChatNotif session.user.talks
+                    , notif <| Talk.TalkUtils.getTalkNotif model.talks
                     ]
                 ]
             , div [ class "u-pull-right" ]
-                [ li [ getMenuClass AccountRoute route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
+                [ li [ getMenuClass AccountRoute model.route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
                 , li [ onClick Logout ] [ text "LOGOUT" ]
                 ]
             ]
         ]
-
-getChatNotif : List Talk -> Int
-getChatNotif talks =
-    List.sum <| List.map .unreadMsgs talks
-
 
 getMenuClass : Route -> Route -> Attribute msg
 getMenuClass menuRoute currentRoute =

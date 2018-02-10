@@ -1,20 +1,28 @@
-module Users exposing (view)
+module User.UsersView exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import List
-import UserModel exposing (..)
-import Helper exposing (..)
+import User.UserModel exposing (..)
+import Utils exposing (..)
+import User.UserView exposing (..)
 
 
-view : Model -> Html Msg
+view : Model -> List (Html Msg)
 view model =
-    div [ class "content" ]
+  let
+    (cur, classCur ) =
+      case (model.current_user, model.session) of
+        (Just u, Just s) -> ([ fullUserView u s model ], " blur")
+        _ -> ([], "")
+  in
+    [ div [ class <| "content" ++ classCur ]
         [ userMenuView model
         , viewUsers model.users model
         ]
+    ] ++ cur
 
 userMenuView : Model -> Html Msg
 userMenuView model =
@@ -37,9 +45,10 @@ userMenuView model =
 viewUsers : List User -> Model -> Html Msg
 viewUsers users model =
     div []
-        [ ul [ class "users-list" ] <| List.map (\u ->
-            li [] [ viewUser u model ]
-            ) <| List.sortWith distanceCmp users
+        [ ul [ class <| "users-list" ] <|
+          List.map (\u ->
+              li [] [ cardUserView u model ]
+              ) <| List.sortWith distanceCmp users
         ]
 
 distanceCmp a b =
@@ -48,8 +57,8 @@ distanceCmp a b =
       (Just d1, _ ) -> LT
       _ -> EQ
 
-viewUser : User -> Model -> Html Msg
-viewUser user model =
+cardUserView : User -> Model -> Html Msg
+cardUserView user model =
   let
     imgSrc = case List.head user.photos of
       Just src -> src
@@ -67,5 +76,5 @@ viewUser user model =
                       _ -> (++) (toString <| round d) " km away"
                 _ -> ""
           ]
-        , a [href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link"][ ]
+        , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ][ ]
         ]

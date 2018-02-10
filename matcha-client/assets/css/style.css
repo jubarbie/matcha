@@ -131,21 +131,21 @@ ul.users-list {
     display: inline-block;
     padding: 10px;
     box-sizing: border-box; }
-
-.user-box {
-  border: 1px solid black;
-  padding: 10px;
-  overflow-y: auto;
-  position: relative; }
-  .user-box .user-link {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0; }
-  .user-box #profile-img img {
-    width: 100%;
-    margin: 0; }
+    ul.users-list li .user-box {
+      border: 1px solid black;
+      padding: 10px;
+      overflow-y: auto;
+      position: relative;
+      background: black; }
+      ul.users-list li .user-box .user-link {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0; }
+      ul.users-list li .user-box #profile-img img {
+        width: 100%;
+        margin: 0; }
 
 .tag {
   display: inline-block;
@@ -221,6 +221,9 @@ body {
   background: #252525;
   font-family: 'futura';
   color: white; }
+
+.blur {
+  filter: blur(5px); }
 
 /* LAYOUT */
 html, body, #main {

@@ -2,15 +2,18 @@ module Models exposing (..)
 
 import FormUtils exposing (..)
 import Time exposing (..)
-import UserModel exposing (..)
+import User.UserModel exposing (..)
+import Talk.TalkModel exposing (..)
+import Notif.NotifModel exposing (..)
+import Api.ApiModel exposing (..)
 
 
 type Route
     = Connect LoginRoute
     | UsersRoute String
     | UserRoute String
-    | ChatsRoute
-    | ChatRoute String
+    | TalksRoute
+    | TalkRoute String
     | AccountRoute
     | EditAccountRoute
     | NotFoundRoute
@@ -46,6 +49,7 @@ type alias Model =
     , tagInput : String
     , searchTag : List String
     , users : Users
+    , talks : List Talk
     , notifVisit: Int
     , notifLike: Int
     , userFilter : Maybe FilterUsers
@@ -77,26 +81,6 @@ type alias AuthResponse =
     }
 
 
-type alias ApiResponse a =
-    { status : String
-    , message : Maybe String
-    , data : a
-    }
-
-
-type alias Notif =
-  { type_ : NotificationType
-  , to : String
-  , from : String
-  , notif : Int
-  }
-
-type NotificationType
-    = NotifMessage
-    | NotifVisit
-    | NotifLike
-
-
 initialModel : Route -> Model
 initialModel route =
     { route = route
@@ -109,6 +93,7 @@ initialModel route =
     , tagInput = ""
     , searchTag = []
     , users = []
+    , talks = []
     , notifVisit = 0
     , notifLike = 0
     , userFilter = Nothing

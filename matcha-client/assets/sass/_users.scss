@@ -10,25 +10,27 @@ ul.users-list {
 	   display: inline-block;
 	   padding: 10px;
 	   box-sizing: border-box;
-  }
-}
 
-.user-box {
-	border: 1px solid black;
-	padding: 10px;
-	overflow-y: auto;
-	position: relative;
+		 .user-box {
+			 	border: 1px solid black;
+			 	padding: 10px;
+			 	overflow-y: auto;
+			 	position: relative;
+				background: black;
 
-  .user-link {
-  	position: absolute;
-  	width: 100%;
-  	height: 100%;
-  	top: 0;
-  	left: 0;
-  }
-  #profile-img img {
-  	width: 100%;
-  	margin: 0;
+		   .user-link {
+		   	position: absolute;
+		   	width: 100%;
+		   	height: 100%;
+		   	top: 0;
+		   	left: 0;
+		   }
+		   #profile-img img {
+		   	width: 100%;
+		   	margin: 0;
+		   }
+		 }
+
   }
 }
 

@@ -1,7 +1,9 @@
 module Update exposing (..)
 
-import Chat
+import Talk.TalkUtils exposing (..)
 import Commands exposing (..)
+import User.UserCommands exposing (..)
+import Talk.TalkCommands exposing (..)
 import Dom.Scroll as Scroll
 import FormUtils exposing (..)
 import Json.Decode
@@ -13,8 +15,11 @@ import RemoteData exposing (..)
 import Routing exposing (parseLocation)
 import Task
 import Time
-import UserModel exposing (..)
-import WebSocket
+import User.UserModel exposing (..)
+import User.UserHelper exposing (..)
+import Talk.TalkModel exposing (..)
+import Notif.NotifModel exposing (..)
+import Notif.NotifDecoder exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -158,17 +163,17 @@ update msg oldModel =
                             case u.status of
                                 Activated ->
                                     case newModel.route of
-                                        ChatsRoute ->
+                                        TalksRoute ->
                                             ( newModel, getTalks newSession.token )
 
-                                        ChatRoute a ->
+                                        TalkRoute a ->
                                             ( newModel, getTalk a True newSession.token )
 
                                         UsersRoute a ->
                                             ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token] )
 
                                         UserRoute a ->
-                                            ( newModel, getUser a newSession.token )
+                                            ( { newModel | current_user = findUserByName a model.users }, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token] )
 
                                         AccountRoute ->
                                             ( { newModel | map_state = Models.Loading }, Cmd.none )
@@ -195,11 +200,11 @@ update msg oldModel =
                     ( model, Navigation.newUrl "/#/login" )
 
         UserResponse response ->
-            case Debug.log "response user" response of
+            case response of
                 Success rep ->
                     case ( rep.status == "success", rep.data, model.session ) of
                         ( True, Just u, Just s ) ->
-                            ( { model | current_user = Just u }, sendVisitNotif s.token u.username )
+                            ( { model | users = updateUser u model.users }, sendVisitNotif s.token u.username )
 
                         _ ->
                             ( { model | message = Just "User not found" }, Cmd.none )
@@ -258,23 +263,6 @@ update msg oldModel =
                     ( model
                     , Navigation.newUrl "/#/login"
                     )
-
-        DeleteUserResponse username response ->
-            case Debug.log "resp" response of
-                Success rep ->
-                    case rep.status of
-                        "success" ->
-                            let
-                                newUsers =
-                                    List.filter (\u -> u.username /= username) model.users
-                            in
-                            ( { model | users = newUsers }, Cmd.none )
-
-                        _ ->
-                            ( { model | message = rep.message }, Navigation.newUrl "/#/login" )
-
-                _ ->
-                    ( model, Navigation.newUrl "/#/login" )
 
         ToggleLikeResponse username response ->
             case Debug.log "resp" response of
@@ -338,22 +326,9 @@ update msg oldModel =
         GetTalkResponse response ->
             case Debug.log "response talk" response of
                 Success rep ->
-                    case ( rep.status == "success", rep.data, model.session ) of
-                        ( True, talk, Just s ) ->
-                            let
-                                user =
-                                    s.user
-
-                                newTalks =
-                                    Chat.updateTalks talk s.user.talks
-
-                                newUserSession =
-                                    { user | talks = newTalks }
-
-                                newSession =
-                                    Just { s | user = newUserSession }
-                            in
-                            ( { model | session = newSession }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list" )
+                    case ( rep.status, rep.data ) of
+                        ( "success", talk ) ->
+                            ( { model | talks = updateTalks talk model.talks }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list" )
 
                         _ ->
                             ( { model | message = Just "user not found" }, Navigation.newUrl "/#/users" )
@@ -368,23 +343,7 @@ update msg oldModel =
                 Success rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just talks ) ->
-                            let
-                                newSess =
-                                    case model.session of
-                                        Just s ->
-                                            let
-                                                user =
-                                                    s.user
-
-                                                newUser =
-                                                    { user | talks = talks }
-                                            in
-                                            Just { s | user = newUser }
-
-                                        _ ->
-                                            Nothing
-                            in
-                            ( { model | session = newSess }, Cmd.none )
+                            ( { model | talks = talks }, Cmd.none )
 
                         _ ->
                             ( { model | message = Just "user not found" }, Navigation.newUrl "/#/users" )
@@ -464,10 +423,10 @@ update msg oldModel =
 
                 Just s ->
                     case newRoute of
-                        ChatsRoute ->
+                        TalksRoute ->
                             ( { newModel | route = newRoute }, getTalks s.token )
 
-                        ChatRoute a ->
+                        TalkRoute a ->
                             ( { newModel | route = newRoute }, getTalk a True s.token )
 
                         UsersRoute a ->
@@ -480,7 +439,7 @@ update msg oldModel =
                             ( { newModel | route = newRoute, notifLike = likeNotif, notifVisit = visitNotif }, getRelevantUsers a s.token )
 
                         UserRoute a ->
-                            ( { newModel | route = newRoute }, getUser a s.token )
+                            ( { newModel | route = newRoute, current_user = findUserByName a model.users }, Cmd.none ) --getUser a s.token )
 
                         AccountRoute ->
                             ( { newModel | route = newRoute, map_state = Models.Loading }, Cmd.none )
@@ -560,9 +519,6 @@ update msg oldModel =
                 _ ->
                     ( model, Cmd.none )
 
-        DeleteUser username ->
-            ( model, doIfConnected <| deleteUser username )
-
         ToggleLike username ->
             ( model, doIfConnected <| toggleLike username )
 
@@ -575,11 +531,11 @@ update msg oldModel =
                     ( model, Cmd.none )
 
         UpdateNewMessage msg ->
-            case ( model.session, model.route ) of
-                ( Just s, ChatRoute u ) ->
+            case ( model.route ) of
+                ( TalkRoute u ) ->
                     let
                         newTalk =
-                            case Chat.getTalkWith u s.user.talks of
+                            case getTalkWith u model.talks of
                                 Just t ->
                                     Just { t | new_message = msg }
 
@@ -587,23 +543,17 @@ update msg oldModel =
                                     Nothing
 
                         newTalks =
-                            Chat.updateTalks newTalk s.user.talks
-
-                        user =
-                            s.user
-
-                        newSession =
-                            { s | user = { user | talks = newTalks } }
+                            updateTalks newTalk model.talks
                     in
-                    ( { model | session = Just newSession }, Cmd.none )
+                    ( { model | talks = newTalks }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         SendNewMessage ->
             case ( model.session, model.route ) of
-                ( Just s, ChatRoute u ) ->
-                    case Chat.getTalkWith u s.user.talks of
+                ( Just s, TalkRoute u ) ->
+                    case getTalkWith u model.talks of
                         Just t ->
                             if String.trim t.new_message /= "" then
                                 ( model, sendMessage s.token t.username_with t.new_message )
@@ -808,7 +758,7 @@ update msg oldModel =
                         NotifMessage ->
                             let
                                 update =
-                                    if model.route == ChatRoute notif.from || model.route == ChatRoute notif.to then
+                                    if model.route == TalkRoute notif.from || model.route == TalkRoute notif.to then
                                         True
                                     else
                                         False

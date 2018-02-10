@@ -1,5 +1,9 @@
-module DateUtils exposing (..)
+module Utils exposing (..)
 
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import User.UserModel exposing (..)
+import Msgs exposing (..)
 import Date
 import String
 
@@ -27,3 +31,26 @@ formatDate date =
     s = toString <| Date.second date
   in
     day ++ " " ++ month ++ " " ++ year ++ " " ++ h ++ ":" ++ m ++ ":" ++ s
+    
+notif : Int -> Html Msg
+notif notif =
+  if notif > 0 then
+      span [ class "notif" ] [ text <| toString notif ]
+    else
+      span [] []
+
+icon : String -> Html Msg
+icon fa =
+  i [ class <| fa ++ " gender-icon" ] []
+
+genderToIcon : Maybe Gender -> Html Msg
+genderToIcon g =
+    case g of
+        Just M ->
+            icon "fas fa-mars"
+
+        Just F ->
+            icon "fas fa-venus"
+
+        _ ->
+            span [] []

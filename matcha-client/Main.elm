@@ -26,7 +26,6 @@ subscriptions model =
   let
     subRoute =
       case model.route of
-        ChatRoute a -> Time.every Time.second (FetchTalk a)
         AccountRoute -> Time.every Time.second LoadMap
         _ -> Sub.none
 
@@ -47,8 +46,8 @@ subscriptions model =
 main : Program Never Model Msg
 main =
     Navigation.program OnLocationChange
-    { init = init
-    , subscriptions = subscriptions
-    , view = view
-    , update = Update.update
-    }
+      { init = init
+      , subscriptions = subscriptions
+      , view = view
+      , update = Update.update
+      }

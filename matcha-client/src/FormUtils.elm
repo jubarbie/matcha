@@ -1,6 +1,6 @@
 module FormUtils exposing (..)
 
-import UserModel exposing (..)
+import User.UserModel exposing (..)
 import Regex exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)

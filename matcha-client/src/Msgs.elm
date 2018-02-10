@@ -5,7 +5,9 @@ import Navigation exposing (..)
 import Ports exposing (ImagePortData)
 import RemoteData exposing (..)
 import Time
-import UserModel exposing (..)
+import User.UserModel exposing (..)
+import Talk.TalkModel exposing (..)
+import Api.ApiModel exposing (..)
 
 
 type Msg
@@ -16,7 +18,6 @@ type Msg
     | UserResponse (WebData (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
-    | DeleteUserResponse String (WebData (ApiResponse (Maybe User)))
     | ToggleLikeResponse String (WebData (ApiResponse (Maybe MatchStatus)))
     | GetTalkResponse (WebData (ApiResponse (Maybe Talk)))
     | GetTalksResponse (WebData (ApiResponse (Maybe (List Talk))))
@@ -38,7 +39,6 @@ type Msg
     | UpdateEditPwdForm String String
     | NewUser
     | SendLogin
-    | DeleteUser String
     | SaveLocation
     | GoBack Int
     | ToggleLike String

@@ -1,4 +1,4 @@
-module Account exposing (view, viewEditAccount, viewChangePwd)
+module User.UserAccountView exposing (view, viewEditAccount, viewChangePwd)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -9,7 +9,7 @@ import Models exposing (..)
 import Commands exposing (..)
 import Msgs exposing (..)
 import FormUtils exposing (..)
-import UserModel exposing (..)
+import User.UserModel exposing (..)
 
 
 view : Model ->  Html Msg
