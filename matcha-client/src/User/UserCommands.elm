@@ -1,5 +1,6 @@
 module User.UserCommands exposing (..)
 
+import Api.ApiDecoder exposing (..)
 import Http
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
@@ -7,10 +8,9 @@ import Json.Encode as JsonEnc exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import RemoteData exposing (..)
+import User.UserDecoder exposing (..)
 import User.UserModel exposing (..)
 import WebSocket
-import User.UserDecoder exposing (..)
-import Api.ApiDecoder exposing (..)
 
 
 getRelevantUsers : String -> String -> Cmd Msg
@@ -37,15 +37,27 @@ getRelevantUsers users token =
         |> Cmd.map UsersResponse
 
 
+authHeader : String -> Http.Header
+authHeader token =
+    Http.header "Authorization" ("Bearer " ++ token)
+
+
+authGetRequest : Decoder a -> String -> String -> Http.Request a
+authGetRequest apiDecoder token url =
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson apiDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
+
+
 getUser : String -> String -> Cmd Msg
 getUser user token =
-    let
-        body =
-            Http.jsonBody <| JsonEnc.object [ ( "token", JsonEnc.string token ) ]
-    in
-    Http.post ("http://localhost:3001/api/users/user/" ++ user) body (decodeApiResponse <| Just decodeUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map UserResponse
+    Http.send UserResponse (authGetRequest (decodeApiResponse <| Just decodeUser) token ("http://localhost:3001/api/users/user/" ++ user))
 
 
 getSessionUser : String -> String -> Cmd Msg

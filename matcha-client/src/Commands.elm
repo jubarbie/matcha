@@ -1,18 +1,17 @@
 module Commands exposing (..)
 
+import Api.ApiDecoder exposing (..)
 import Http
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)
-
+import Models exposing (..)
 import Msgs exposing (..)
 import RemoteData exposing (..)
-import Models exposing (..)
-import User.UserModel exposing (..)
+import Talk.TalkDecoder exposing (..)
 import Talk.TalkModel exposing (..)
 import User.UserDecoder exposing (..)
-import Talk.TalkDecoder exposing (..)
-import Api.ApiDecoder exposing (..)
+import User.UserModel exposing (..)
 
 
 decodeAuthResponse : Decoder AuthResponse
@@ -22,6 +21,7 @@ decodeAuthResponse =
         (maybe (at [ "msg" ] JsonDec.string))
         (maybe (at [ "token" ] JsonDec.string))
         (maybe (at [ "data" ] decodeSessionUser))
+
 
 sendLogin : String -> String -> Cmd Msg
 sendLogin login pwd =

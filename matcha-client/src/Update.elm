@@ -1,25 +1,25 @@
 module Update exposing (..)
 
-import Talk.TalkUtils exposing (..)
 import Commands exposing (..)
-import User.UserCommands exposing (..)
-import Talk.TalkCommands exposing (..)
 import Dom.Scroll as Scroll
 import FormUtils exposing (..)
 import Json.Decode
 import Models exposing (..)
 import Msgs exposing (..)
 import Navigation exposing (..)
+import Notif.NotifDecoder exposing (..)
+import Notif.NotifModel exposing (..)
 import Ports exposing (..)
 import RemoteData exposing (..)
 import Routing exposing (parseLocation)
+import Talk.TalkCommands exposing (..)
+import Talk.TalkModel exposing (..)
+import Talk.TalkUtils exposing (..)
 import Task
 import Time
-import User.UserModel exposing (..)
+import User.UserCommands exposing (..)
 import User.UserHelper exposing (..)
-import Talk.TalkModel exposing (..)
-import Notif.NotifModel exposing (..)
-import Notif.NotifDecoder exposing (..)
+import User.UserModel exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -170,10 +170,10 @@ update msg oldModel =
                                             ( newModel, getTalk a True newSession.token )
 
                                         UsersRoute a ->
-                                            ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token] )
+                                            ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token ] )
 
                                         UserRoute a ->
-                                            ( { newModel | current_user = findUserByName a model.users }, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token] )
+                                            ( { newModel | current_user = findUserByName a model.users }, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token ] )
 
                                         AccountRoute ->
                                             ( { newModel | map_state = Models.Loading }, Cmd.none )
@@ -201,7 +201,7 @@ update msg oldModel =
 
         UserResponse response ->
             case response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status == "success", rep.data, model.session ) of
                         ( True, Just u, Just s ) ->
                             ( { model | users = updateUser u model.users }, sendVisitNotif s.token u.username )
@@ -430,17 +430,25 @@ update msg oldModel =
                             ( { newModel | route = newRoute }, getTalk a True s.token )
 
                         UsersRoute a ->
-                          let
-                            likeNotif =
-                              if a == "likers" then 0 else model.notifLike
-                            visitNotif =
-                              if a == "visitors" then 0 else model.notifVisit
-                          in
+                            let
+                                likeNotif =
+                                    if a == "likers" then
+                                        0
+                                    else
+                                        model.notifLike
+
+                                visitNotif =
+                                    if a == "visitors" then
+                                        0
+                                    else
+                                        model.notifVisit
+                            in
                             ( { newModel | route = newRoute, notifLike = likeNotif, notifVisit = visitNotif }, getRelevantUsers a s.token )
 
                         UserRoute a ->
-                            ( { newModel | route = newRoute, current_user = findUserByName a model.users }, Cmd.none ) --getUser a s.token )
+                            ( { newModel | route = newRoute, current_user = findUserByName a model.users }, Cmd.none )
 
+                        --getUser a s.token )
                         AccountRoute ->
                             ( { newModel | route = newRoute, map_state = Models.Loading }, Cmd.none )
 
@@ -531,8 +539,8 @@ update msg oldModel =
                     ( model, Cmd.none )
 
         UpdateNewMessage msg ->
-            case ( model.route ) of
-                ( TalkRoute u ) ->
+            case model.route of
+                TalkRoute u ->
                     let
                         newTalk =
                             case getTalkWith u model.talks of
@@ -771,18 +779,18 @@ update msg oldModel =
                                 ( model, Cmd.none )
 
                         NotifLike ->
-                          if (notif.to == s.user.username && model.route /= UsersRoute "likers") then
-                            ( { model | notifLike = notif.notif }, Cmd.none )
-                          else if (notif.to == s.user.username && model.route == UsersRoute "likers") then
-                            ( model, getRelevantUsers "likers" s.token )
-                          else
-                              ( model, Cmd.none )
+                            if notif.to == s.user.username && model.route /= UsersRoute "likers" then
+                                ( { model | notifLike = notif.notif }, Cmd.none )
+                            else if notif.to == s.user.username && model.route == UsersRoute "likers" then
+                                ( model, getRelevantUsers "likers" s.token )
+                            else
+                                ( model, Cmd.none )
 
                         NotifVisit ->
-                            if (notif.to == s.user.username && model.route /= UsersRoute "visitors") then
-                              ( { model | notifVisit = notif.notif }, Cmd.none )
-                            else if (notif.to == s.user.username && model.route == UsersRoute "visitors") then
-                              ( model, getRelevantUsers "visitors" s.token )
+                            if notif.to == s.user.username && model.route /= UsersRoute "visitors" then
+                                ( { model | notifVisit = notif.notif }, Cmd.none )
+                            else if notif.to == s.user.username && model.route == UsersRoute "visitors" then
+                                ( model, getRelevantUsers "visitors" s.token )
                             else
                                 ( model, Cmd.none )
 

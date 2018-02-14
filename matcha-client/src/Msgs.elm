@@ -1,13 +1,14 @@
 module Msgs exposing (..)
 
+import Api.ApiModel exposing (..)
+import Http
 import Models exposing (..)
 import Navigation exposing (..)
 import Ports exposing (ImagePortData)
 import RemoteData exposing (..)
+import Talk.TalkModel exposing (..)
 import Time
 import User.UserModel exposing (..)
-import Talk.TalkModel exposing (..)
-import Api.ApiModel exposing (..)
 
 
 type Msg
@@ -15,7 +16,7 @@ type Msg
     | UsersResponse (WebData (ApiResponse (Maybe (List User))))
     | UsersAdminResponse (WebData (ApiResponse (Maybe (List SessionUser))))
     | SessionUserResponse String (WebData (ApiResponse (Maybe SessionUser)))
-    | UserResponse (WebData (ApiResponse (Maybe User)))
+    | UserResponse (Result Http.Error (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | ToggleLikeResponse String (WebData (ApiResponse (Maybe MatchStatus)))
