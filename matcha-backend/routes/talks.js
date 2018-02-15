@@ -7,7 +7,7 @@ var TalkModel = require('../models/talk_model');
 var UserModel = require('../models/users_model');
 
 /* Getting all connected user talks */
-router.post('/all_talks', function(req, res, next) {
+router.get('/all_talks', function(req, res, next) {
 
     var logged = req.logged_user;
 

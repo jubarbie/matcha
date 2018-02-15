@@ -23,11 +23,8 @@ import User.UserModel exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg oldModel =
+update msg model =
     let
-        model =
-            { oldModel | message = Nothing }
-
         doIfConnected cmd =
             case model.session of
                 Just s ->
@@ -56,7 +53,7 @@ update msg oldModel =
 
         ChangePwdRespone response ->
             case response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status, rep.message ) of
                         ( "success", _ ) ->
                             ( { model | message = Just "The password was succefully updated" }, Navigation.newUrl "/#/account" )
@@ -72,7 +69,7 @@ update msg oldModel =
 
         ReqTagResponse response ->
             case response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status, rep.data, model.session ) of
                         ( "success", Just d, Just s ) ->
                             let
@@ -95,7 +92,7 @@ update msg oldModel =
 
         SearchTagResponse response ->
             case response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( "success", Just d ) ->
                             ( { model | searchTag = d }, Cmd.none )
@@ -108,7 +105,7 @@ update msg oldModel =
 
         UpdateFieldResponse token response ->
             case response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status, rep.data, rep.message ) of
                         ( "success", Just u, _ ) ->
                             ( { model | session = Just <| Session u token, mImage = Nothing }, Cmd.none )
@@ -124,7 +121,7 @@ update msg oldModel =
 
         UsersResponse response ->
             case response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just u ) ->
                             ( { model | users = u, current_user = Nothing }, Cmd.none )
@@ -150,7 +147,7 @@ update msg oldModel =
 
         SessionUserResponse token response ->
             case Debug.log "response user" response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just u ) ->
                             let
@@ -244,7 +241,7 @@ update msg oldModel =
 
         EditAccountResponse email fname lname bio response ->
             case Debug.log "resp" response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status, model.session ) of
                         ( "success", Just s ) ->
                             let
@@ -266,7 +263,7 @@ update msg oldModel =
 
         ToggleLikeResponse username response ->
             case Debug.log "resp" response of
-                Success rep ->
+                Ok rep ->
                     case ( rep.status, rep.data, model.session ) of
                         ( "success", Just m, Just s ) ->
                             let
@@ -377,7 +374,7 @@ update msg oldModel =
 
         SaveLocRespone response ->
             case Debug.log "response new message" response of
-                Success rep ->
+                Ok rep ->
                     case rep.status of
                         "success" ->
                             let
@@ -410,7 +407,7 @@ update msg oldModel =
                     model.session
 
                 newModel =
-                    oldModel
+                    model
             in
             case session of
                 Nothing ->

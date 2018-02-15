@@ -9,25 +9,6 @@ import Msgs exposing (..)
 import String
 import User.UserModel exposing (..)
 
-
-authHeader : String -> Http.Header
-authHeader token =
-    Http.header "Authorization" ("Bearer " ++ token)
-
-
-authGetRequest : Decoder a -> String -> String -> Http.Request a
-authGetRequest apiDecoder token url =
-    Http.request
-        { method = "GET"
-        , headers = [ authHeader token ]
-        , url = url
-        , body = Http.emptyBody
-        , expect = Http.expectJson apiDecoder
-        , timeout = Nothing
-        , withCredentials = False
-        }
-
-
 formatDate : Date.Date -> String
 formatDate date =
     let

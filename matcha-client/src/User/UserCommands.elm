@@ -10,18 +10,13 @@ import Msgs exposing (..)
 import RemoteData exposing (..)
 import User.UserDecoder exposing (..)
 import User.UserModel exposing (..)
-import Utils exposing (..)
+import Api.ApiRequest exposing (..)
 import WebSocket
 
 
 getRelevantUsers : String -> String -> Cmd Msg
 getRelevantUsers users token =
     let
-        body =
-            Http.jsonBody <|
-                JsonEnc.object
-                    [ ( "token", JsonEnc.string token ) ]
-
         url =
             case users of
                 "visitors" ->
@@ -33,58 +28,50 @@ getRelevantUsers users token =
                 _ ->
                     "http://localhost:3001/api/users/relevant_users"
     in
-    Http.post url body (decodeApiResponse <| Just usersDecoder)
-        |> RemoteData.sendRequest
-        |> Cmd.map UsersResponse
-
+      Http.send UsersResponse (apiGetRequest (Just usersDecoder) token url)
 
 getUser : String -> String -> Cmd Msg
 getUser user token =
-    Http.send UserResponse (authGetRequest (decodeApiResponse <| Just decodeUser) token ("http://localhost:3001/api/users/user/" ++ user))
+  let
+    url = "http://localhost:3001/api/users/user/" ++ user
+  in
+    Http.send UserResponse (apiGetRequest (Just decodeUser) token url)
 
 
 getSessionUser : String -> String -> Cmd Msg
 getSessionUser user token =
     let
-        body =
-            Http.jsonBody <| JsonEnc.object [ ( "token", JsonEnc.string token ) ]
+        url = "http://localhost:3001/api/users/connected_user"
     in
-    Http.post "http://localhost:3001/api/users/connected_user" body (decodeApiResponse <| Just decodeSessionUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map (SessionUserResponse token)
+      Http.send (SessionUserResponse token) (apiGetRequest (Just decodeSessionUser) token url)
 
 
 updateAccountInfos : String -> String -> String -> String -> String -> Cmd Msg
 updateAccountInfos fname lname email bio token =
     let
+        url = "http://localhost:3001/api/users/update"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "email", JsonEnc.string email )
+                    [ ( "email", JsonEnc.string email )
                     , ( "fname", JsonEnc.string fname )
                     , ( "lname", JsonEnc.string lname )
                     , ( "bio", JsonEnc.string bio )
                     ]
     in
-    Http.post "http://localhost:3001/api/users/update" body (decodeApiResponse Nothing)
-        |> RemoteData.sendRequest
-        |> Cmd.map (EditAccountResponse email fname lname bio)
+      Http.send (EditAccountResponse email fname lname bio) (apiPostRequest Nothing token url body)
 
 
 toggleLike : String -> String -> Cmd Msg
 toggleLike username token =
     let
-        body =
-            Http.jsonBody <|
-                JsonEnc.object
-                    [ ( "username", JsonEnc.string username )
-                    , ( "token", JsonEnc.string token )
-                    ]
+      url = "http://localhost:3001/api/users/toggle_like"
+      body =
+          Http.jsonBody <|
+              JsonEnc.object
+                  [ ( "username", JsonEnc.string username ) ]
     in
-    Http.post "http://localhost:3001/api/users/toggle_like" body (decodeApiResponse <| Just decodeMatch)
-        |> RemoteData.sendRequest
-        |> Cmd.map (ToggleLikeResponse username)
+      Http.send (ToggleLikeResponse username) (apiPostRequest (Just decodeMatch) token url body)
 
 
 sendLikeNotif : String -> String -> Cmd Msg
@@ -98,7 +85,7 @@ sendLikeNotif token to =
                     , ( "to", JsonEnc.string to )
                     ]
     in
-    WebSocket.send "ws://localhost:3001/ws" body
+      WebSocket.send "ws://localhost:3001/ws" body
 
 
 sendVisitNotif : String -> String -> Cmd Msg
@@ -112,7 +99,7 @@ sendVisitNotif token to =
                     , ( "to", JsonEnc.string to )
                     ]
     in
-    WebSocket.send "ws://localhost:3001/ws" <| Debug.log "notif" body
+      WebSocket.send "ws://localhost:3001/ws" <| Debug.log "notif" body
 
 
 getIpLocalisation : Cmd Msg
@@ -125,136 +112,112 @@ getIpLocalisation =
 saveLocation : Localisation -> String -> Cmd Msg
 saveLocation loc token =
     let
+        url = "http://localhost:3001/api/users/save_loc"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "lat", JsonEnc.float loc.lat )
+                    [ ( "lat", JsonEnc.float loc.lat )
                     , ( "lon", JsonEnc.float loc.lon )
                     ]
     in
-    Http.post "http://localhost:3001/api/users/save_loc" body (decodeApiResponse Nothing)
-        |> RemoteData.sendRequest
-        |> Cmd.map SaveLocRespone
+      Http.send SaveLocRespone (apiPostRequest Nothing token url body)
 
 
 changePwd : String -> String -> String -> String -> Cmd Msg
 changePwd oldPwd newPwd confirmNewPwd token =
     let
+        url = "http://localhost:3001/api/users/change_password"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "oldPwd", JsonEnc.string oldPwd )
+                    [ ( "oldPwd", JsonEnc.string oldPwd )
                     , ( "newPwd", JsonEnc.string newPwd )
                     , ( "reNewPwd", JsonEnc.string confirmNewPwd )
                     ]
     in
-    Http.post "http://localhost:3001/api/users/change_password" body (decodeApiResponse Nothing)
-        |> RemoteData.sendRequest
-        |> Cmd.map ChangePwdRespone
+      Http.send ChangePwdRespone (apiPostRequest Nothing token url body)
 
 
 updateField : Gender -> String -> Cmd Msg
 updateField gender token =
     let
+        url = "http://localhost:3001/api/users/update_gender"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "gender", JsonEnc.string <| genderToString <| Just gender )
-                    ]
+                    [ ( "gender", JsonEnc.string <| genderToString <| Just gender ) ]
     in
-    Http.post "http://localhost:3001/api/users/update_gender" body (decodeApiResponse <| Just decodeSessionUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map (UpdateFieldResponse token)
+      Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
 
 
 updateIntIn : List Gender -> String -> Cmd Msg
 updateIntIn genders token =
     let
+        url = "http://localhost:3001/api/users/update_int_in"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "genders", encodeIntIn genders )
-                    ]
+                    [ ( "genders", encodeIntIn genders ) ]
     in
-    Http.post "http://localhost:3001/api/users/update_int_in" body (decodeApiResponse <| Just decodeSessionUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map (UpdateFieldResponse token)
+        Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
 
 
 searchTag : String -> String -> Cmd Msg
 searchTag token search =
     let
+        url = "http://localhost:3001/api/tag/search"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "search", JsonEnc.string search )
-                    ]
+                    [ ( "search", JsonEnc.string search ) ]
     in
-    Http.post "http://localhost:3001/api/tag/search" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
-        |> RemoteData.sendRequest
-        |> Cmd.map SearchTagResponse
+        Http.send SearchTagResponse (apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body)
 
 
 addTag : String -> String -> Cmd Msg
 addTag tag_ token =
     let
+        url = "http://localhost:3001/api/tag/add"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "tag", JsonEnc.string tag_ )
-                    ]
+                    [ ( "tag", JsonEnc.string tag_ ) ]
     in
-    Http.post "http://localhost:3001/api/tag/add" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
-        |> RemoteData.sendRequest
-        |> Cmd.map ReqTagResponse
+        Http.send ReqTagResponse (apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body)
 
 
 removeTag : String -> String -> Cmd Msg
 removeTag tag_ token =
     let
+        url = "http://localhost:3001/api/tag/remove"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "tag", JsonEnc.string tag_ )
-                    ]
+                    [ ( "tag", JsonEnc.string tag_ ) ]
     in
-    Http.post "http://localhost:3001/api/tag/remove" body (decodeApiResponse <| Just (JsonDec.list JsonDec.string))
-        |> RemoteData.sendRequest
-        |> Cmd.map ReqTagResponse
+      Http.send ReqTagResponse (apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body)
+
 
 
 uploadImage : String -> String -> Cmd Msg
 uploadImage img token =
     let
+        url = "http://localhost:3001/api/users/new_image"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "img", JsonEnc.string img )
-                    ]
+                    [ ( "img", JsonEnc.string img ) ]
     in
-    Http.post "http://localhost:3001/api/users/new_image" body (decodeApiResponse <| Just decodeSessionUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map (UpdateFieldResponse token)
+      Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
 
 
 delImg : Int -> String -> Cmd Msg
 delImg id_ token =
     let
+        url = "http://localhost:3001/api/users/del_image"
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "id_img", JsonEnc.int id_ )
-                    ]
+                    [ ( "id_img", JsonEnc.int id_ ) ]
     in
-    Http.post "http://localhost:3001/api/users/del_image" body (decodeApiResponse <| Just decodeSessionUser)
-        |> RemoteData.sendRequest
-        |> Cmd.map (UpdateFieldResponse token)
+      Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)

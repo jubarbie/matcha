@@ -23,7 +23,7 @@ const ImageModel = require('../models/image_model');
 
 
 /* GET users */
-router.post('/relevant_users', (req, res, next) => {
+router.get('/relevant_users', (req, res, next) => {
 
     const logged = req.logged_user;
 
@@ -90,7 +90,7 @@ router.post('/likers', (req, res, next) => {
 });
 
 /* GET user with login */
-router.post('/user/:login', (req, res, next) => {
+router.get('/user/:login', (req, res, next) => {
 
     const login = req.params.login;
     const logged = req.logged_user;
