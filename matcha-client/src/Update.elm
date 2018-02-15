@@ -20,6 +20,7 @@ import Time
 import User.UserCommands exposing (..)
 import User.UserHelper exposing (..)
 import User.UserModel exposing (..)
+import User.UserUpdate exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -124,7 +125,7 @@ update msg model =
                 Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just u ) ->
-                            ( { model | users = u, current_user = Nothing }, Cmd.none )
+                            ( { model | users = u }, Cmd.none )
 
                         _ ->
                             ( { model | message = Just "Network errror. Please try again" }, Cmd.none )
@@ -137,7 +138,7 @@ update msg model =
                 Success rep ->
                     case ( rep.status == "success", Debug.log "repsp" rep.data ) of
                         ( True, Just u ) ->
-                            ( { model | usersAdmin = u, current_user = Nothing }, Cmd.none )
+                            ( { model | usersAdmin = u }, Cmd.none )
 
                         _ ->
                             ( { model | message = Just "Network errror. Please try again" }, Cmd.none )
@@ -146,7 +147,7 @@ update msg model =
                     ( { model | message = Just "Network error. Please try again" }, Cmd.none )
 
         SessionUserResponse token response ->
-            case Debug.log "response user" response of
+            case response of
                 Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just u ) ->
@@ -164,13 +165,13 @@ update msg model =
                                             ( newModel, getTalks newSession.token )
 
                                         TalkRoute a ->
-                                            ( newModel, getTalk a True newSession.token )
+                                            ( newModel, Cmd.batch [getTalks newSession.token, getTalk a True newSession.token] )
 
                                         UsersRoute a ->
                                             ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token ] )
 
                                         UserRoute a ->
-                                            ( { newModel | current_user = findUserByName a model.users }, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token ] )
+                                            ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token ] )
 
                                         AccountRoute ->
                                             ( { newModel | map_state = Models.Loading }, Cmd.none )
@@ -240,7 +241,7 @@ update msg model =
                     )
 
         EditAccountResponse email fname lname bio response ->
-            case Debug.log "resp" response of
+            case response of
                 Ok rep ->
                     case ( rep.status, model.session ) of
                         ( "success", Just s ) ->
@@ -275,15 +276,8 @@ update msg model =
                                         _ ->
                                             Nothing
 
-                                newCurrentUser =
-                                    case model.current_user of
-                                        Just u ->
-                                            Just { u | match = m }
-
-                                        _ ->
-                                            Nothing
                             in
-                            ( { model | current_user = newCurrentUser, matchAnim = anim }, sendLikeNotif s.token username )
+                            ( { model | matchAnim = anim }, sendLikeNotif s.token username )
 
                         _ ->
                             ( model, Navigation.newUrl "/#/login" )
@@ -292,7 +286,7 @@ update msg model =
                     ( model, Navigation.newUrl "/#/login" )
 
         LoginResponse response ->
-            case Debug.log "Login response" response of
+            case response of
                 Success rep ->
                     case ( rep.status == "success", rep.token, rep.user ) of
                         ( True, Just t, Just user ) ->
@@ -321,8 +315,8 @@ update msg model =
                     )
 
         GetTalkResponse response ->
-            case Debug.log "response talk" response of
-                Success rep ->
+            case  response of
+                Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( "success", talk ) ->
                             ( { model | talks = updateTalks talk model.talks }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list" )
@@ -336,8 +330,8 @@ update msg model =
                     )
 
         GetTalksResponse response ->
-            case Debug.log "response talk" response of
-                Success rep ->
+            case response of
+                Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just talks ) ->
                             ( { model | talks = talks }, Cmd.none )
@@ -349,28 +343,6 @@ update msg model =
                     ( model
                     , Navigation.newUrl "/#/login"
                     )
-
-        NewMessageResponse response ->
-            case Debug.log "response new message" response of
-                Success rep ->
-                    case rep.status == "success" of
-                        True ->
-                            let
-                                newTalk =
-                                    case model.current_talk of
-                                        Just t ->
-                                            Just { t | messages = Message "date" t.new_message "user" :: t.messages, new_message = "" }
-
-                                        _ ->
-                                            Nothing
-                            in
-                            ( { model | current_talk = newTalk }, Cmd.none )
-
-                        _ ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( { model | message = Just "Error while sending new message. Try again baby" }, Cmd.none )
 
         SaveLocRespone response ->
             case Debug.log "response new message" response of
@@ -443,9 +415,8 @@ update msg model =
                             ( { newModel | route = newRoute, notifLike = likeNotif, notifVisit = visitNotif }, getRelevantUsers a s.token )
 
                         UserRoute a ->
-                            ( { newModel | route = newRoute, current_user = findUserByName a model.users }, Cmd.none )
+                            ( { newModel | route = newRoute }, getUser a s.token )
 
-                        --getUser a s.token )
                         AccountRoute ->
                             ( { newModel | route = newRoute, map_state = Models.Loading }, Cmd.none )
 

@@ -119,6 +119,7 @@ function formatUser(row, logged) {
 		row.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(row.localisation))
 	}
 	row.localisation = "secret information";
+
 	return row;
 }
 

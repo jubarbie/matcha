@@ -28,14 +28,16 @@ getRelevantUsers users token =
                 _ ->
                     "http://localhost:3001/api/users/relevant_users"
     in
-      Http.send UsersResponse (apiGetRequest (Just usersDecoder) token url)
+      apiGetRequest (Just usersDecoder) token url
+      |> Http.send UsersResponse
 
 getUser : String -> String -> Cmd Msg
 getUser user token =
   let
     url = "http://localhost:3001/api/users/user/" ++ user
   in
-    Http.send UserResponse (apiGetRequest (Just decodeUser) token url)
+    apiGetRequest (Just decodeUser) token url
+    |> Http.send UserResponse
 
 
 getSessionUser : String -> String -> Cmd Msg
@@ -43,7 +45,8 @@ getSessionUser user token =
     let
         url = "http://localhost:3001/api/users/connected_user"
     in
-      Http.send (SessionUserResponse token) (apiGetRequest (Just decodeSessionUser) token url)
+      apiGetRequest (Just decodeSessionUser) token url
+      |> Http.send (SessionUserResponse token)
 
 
 updateAccountInfos : String -> String -> String -> String -> String -> Cmd Msg
@@ -59,7 +62,8 @@ updateAccountInfos fname lname email bio token =
                     , ( "bio", JsonEnc.string bio )
                     ]
     in
-      Http.send (EditAccountResponse email fname lname bio) (apiPostRequest Nothing token url body)
+      apiPostRequest Nothing token url body
+      |> Http.send (EditAccountResponse email fname lname bio)
 
 
 toggleLike : String -> String -> Cmd Msg
@@ -71,7 +75,8 @@ toggleLike username token =
               JsonEnc.object
                   [ ( "username", JsonEnc.string username ) ]
     in
-      Http.send (ToggleLikeResponse username) (apiPostRequest (Just decodeMatch) token url body)
+      apiPostRequest (Just decodeMatch) token url body
+      |> Http.send (ToggleLikeResponse username)
 
 
 sendLikeNotif : String -> String -> Cmd Msg
@@ -120,7 +125,8 @@ saveLocation loc token =
                     , ( "lon", JsonEnc.float loc.lon )
                     ]
     in
-      Http.send SaveLocRespone (apiPostRequest Nothing token url body)
+      apiPostRequest Nothing token url body
+      |> Http.send SaveLocRespone
 
 
 changePwd : String -> String -> String -> String -> Cmd Msg
@@ -135,7 +141,8 @@ changePwd oldPwd newPwd confirmNewPwd token =
                     , ( "reNewPwd", JsonEnc.string confirmNewPwd )
                     ]
     in
-      Http.send ChangePwdRespone (apiPostRequest Nothing token url body)
+      apiPostRequest Nothing token url body
+      |> Http.send ChangePwdRespone
 
 
 updateField : Gender -> String -> Cmd Msg
@@ -147,7 +154,8 @@ updateField gender token =
                 JsonEnc.object
                     [ ( "gender", JsonEnc.string <| genderToString <| Just gender ) ]
     in
-      Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
+      apiPostRequest (Just decodeSessionUser) token url body
+      |> Http.send (UpdateFieldResponse token)
 
 
 updateIntIn : List Gender -> String -> Cmd Msg
@@ -159,7 +167,8 @@ updateIntIn genders token =
                 JsonEnc.object
                     [ ( "genders", encodeIntIn genders ) ]
     in
-        Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
+      apiPostRequest (Just decodeSessionUser) token url body
+      |> Http.send (UpdateFieldResponse token)
 
 
 searchTag : String -> String -> Cmd Msg
@@ -171,7 +180,8 @@ searchTag token search =
                 JsonEnc.object
                     [ ( "search", JsonEnc.string search ) ]
     in
-        Http.send SearchTagResponse (apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body)
+      apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body
+      |> Http.send SearchTagResponse
 
 
 addTag : String -> String -> Cmd Msg
@@ -183,7 +193,8 @@ addTag tag_ token =
                 JsonEnc.object
                     [ ( "tag", JsonEnc.string tag_ ) ]
     in
-        Http.send ReqTagResponse (apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body)
+      apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body
+      |> Http.send ReqTagResponse
 
 
 removeTag : String -> String -> Cmd Msg
@@ -195,7 +206,8 @@ removeTag tag_ token =
                 JsonEnc.object
                     [ ( "tag", JsonEnc.string tag_ ) ]
     in
-      Http.send ReqTagResponse (apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body)
+      apiPostRequest (Just (JsonDec.list JsonDec.string)) token url body
+      |> Http.send ReqTagResponse
 
 
 
@@ -208,7 +220,8 @@ uploadImage img token =
                 JsonEnc.object
                     [ ( "img", JsonEnc.string img ) ]
     in
-      Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
+       apiPostRequest (Just decodeSessionUser) token url body
+       |> Http.send (UpdateFieldResponse token)
 
 
 delImg : Int -> String -> Cmd Msg
@@ -220,4 +233,5 @@ delImg id_ token =
                 JsonEnc.object
                     [ ( "id_img", JsonEnc.int id_ ) ]
     in
-      Http.send (UpdateFieldResponse token) (apiPostRequest (Just decodeSessionUser) token url body)
+      apiPostRequest (Just decodeSessionUser) token url body
+      |> Http.send (UpdateFieldResponse token)

@@ -67,7 +67,12 @@ router.post('/talk/:login', function(req, res, next) {
                         TalkModel.newTalk(usersTab[0], usersTab[1], now, function(err, rows, fields) {
                             res.json({
                                 "status": "success",
-                                "data": []
+                                "data": {
+                                    "username": userTo,
+                                    "messages": [],
+                                    "unread": 0,
+                                    "new_message": ""
+                                }
                             });
                         });
                     } else {

@@ -7,34 +7,27 @@ import WebSocket
 import Msgs exposing (..)
 import RemoteData exposing (..)
 import Api.ApiDecoder exposing (..)
+import Api.ApiRequest exposing (..)
 
 
 getTalk : String -> Bool -> String -> Cmd Msg
 getTalk username update token =
     let
+        url = "http://localhost:3001/api/talks/talk/" ++ username
         body =
             Http.jsonBody <|
                 JsonEnc.object
-                    [ ( "token", JsonEnc.string token )
-                    , ( "update", JsonEnc.bool update )
-                    ]
+                    [ ( "update", JsonEnc.bool update ) ]
     in
-    Http.post ("http://localhost:3001/api/talks/talk/" ++ username) body (decodeApiResponse <| Just decodeTalk)
-        |> RemoteData.sendRequest
-        |> Cmd.map GetTalkResponse
+      Http.send GetTalkResponse (apiPostRequest (Just decodeTalk) token url body)
 
 
 getTalks : String -> Cmd Msg
 getTalks token =
     let
-        body =
-            Http.jsonBody <|
-                JsonEnc.object
-                    [ ( "token", JsonEnc.string token ) ]
+        url = "http://localhost:3001/api/talks/all_talks/"
     in
-    Http.post "http://localhost:3001/api/talks/all_talks/" body (decodeApiResponse <| Just decodeTalks)
-        |> RemoteData.sendRequest
-        |> Cmd.map GetTalksResponse
+        Http.send GetTalksResponse (apiGetRequest (Just decodeTalks) token url)
 
 
 sendMessage : String -> String -> String -> Cmd Msg

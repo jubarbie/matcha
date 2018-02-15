@@ -1,7 +1,7 @@
 module Views exposing (view)
 
 import User.UserAccountView exposing (view, viewEditAccount)
-import Talk.TalkView exposing (allChatsView, view)
+import Talk.TalkView exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -10,6 +10,7 @@ import Models exposing (..)
 import Msgs exposing (..)
 import User.UserModel exposing (..)
 import User.UsersView exposing (view)
+import User.UserView exposing (view)
 import Utils exposing (..)
 import Talk.TalkModel exposing (..)
 import Talk.TalkUtils exposing (..)
@@ -35,16 +36,16 @@ view model =
                         [ Login.view a model ]
 
                     ( UsersRoute a, Just s ) ->
-                        [ viewMenu model ] ++ User.UsersView.view model
+                        [ viewMenu model ] ++ (User.UsersView.view model)
 
                     ( UserRoute a, Just s ) ->
-                        [ viewMenu model ] ++ User.UsersView.view model
+                        [ viewMenu model, User.UserView.view a model]
 
                     ( TalksRoute, Just s ) ->
-                        [ viewMenu model, Talk.TalkView.allChatsView model ]
+                        [ viewMenu model, Talk.TalkView.talksListView model ]
 
                     ( TalkRoute a, Just s ) ->
-                        [ viewMenu model ] ++ (Talk.TalkView.view <| getTalkWith a model.talks)
+                        [ viewMenu model ] ++ Talk.TalkView.view a model
 
                     ( AccountRoute, Just s ) ->
                         [ viewMenu model, User.UserAccountView.view model ]

@@ -12,17 +12,11 @@ import User.UserView exposing (..)
 
 view : Model -> List (Html Msg)
 view model =
-  let
-    (cur, classCur ) =
-      case (model.current_user, model.session) of
-        (Just u, Just s) -> ([ fullUserView u s model ], " blur")
-        _ -> ([], "")
-  in
-    [ div [ class <| "content" ++ classCur ]
+    [ div [ class <| "content" ]
         [ userMenuView model
         , viewUsers model.users model
         ]
-    ] ++ cur
+    ]
 
 userMenuView : Model -> Html Msg
 userMenuView model =

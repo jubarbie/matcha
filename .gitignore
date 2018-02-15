@@ -1,6 +1,6 @@
 matcha-client/elm-stuff
+**.DS_Store
 */node_modules
-**.DS_STORE
-**npm-debug.log*
+**.log*
 **.sass-cache*
 

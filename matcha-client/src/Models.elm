@@ -54,8 +54,6 @@ type alias Model =
     , userFilter : Maybe FilterUsers
     , userSort : SortUsers
     , usersAdmin : List SessionUser
-    , current_user : Maybe User
-    , current_talk : Maybe Talk
     , message : Maybe String
     , map_state : MapState
     , current_location : Maybe Localisation
@@ -98,8 +96,6 @@ initialModel route =
     , userFilter = Nothing
     , userSort = S_Dist
     , usersAdmin = []
-    , current_user = Nothing
-    , current_talk = Nothing
     , message = Nothing
     , map_state =
         if route == AccountRoute || route == EditAccountRoute then

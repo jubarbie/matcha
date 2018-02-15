@@ -44,7 +44,7 @@ router.get('/relevant_users', (req, res, next) => {
 });
 
 /* GET users that visited connect user */
-router.post('/visitors', (req, res, next) => {
+router.get('/visitors', (req, res, next) => {
 
     const logged = req.logged_user;
 
@@ -67,7 +67,7 @@ router.post('/visitors', (req, res, next) => {
 });
 
 /* GET users that liked connected user */
-router.post('/likers', (req, res, next) => {
+router.get('/likers', (req, res, next) => {
 
     const logged = req.logged_user;
     const now = Date.now();
@@ -115,7 +115,7 @@ router.get('/user/:login', (req, res, next) => {
 });
 
 /* GET connected user */
-router.post('/connected_user', (req, res, next) => {
+router.get('/connected_user', (req, res, next) => {
 
     const logged = req.logged_user;
 

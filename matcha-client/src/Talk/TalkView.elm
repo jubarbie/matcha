@@ -10,11 +10,12 @@ import Models exposing (..)
 import Msgs exposing (..)
 import String
 import Talk.TalkModel exposing (..)
+import Talk.TalkUtils exposing (..)
 
 
-view : Maybe Talk -> List (Html Msg)
-view talk =
-  case talk of
+view : String -> Model -> List (Html Msg)
+view talk model =
+  case getTalkWith talk model.talks of
     Just t ->
       let
           messages =
@@ -52,22 +53,13 @@ viewMessageForm t =
     ]
 
 
-allChatsView : Model -> Html Msg
-allChatsView model =
+talksListView : Model -> Html Msg
+talksListView model =
     if List.length model.talks > 0 then
         div [ class "content" ] <|
             List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]) model.talks
     else
         div [ class "content" ] [ text "You haven't talk to anyone yet" ]
-
-
-
-notif : Int -> Html Msg
-notif notif =
-    if notif > 0 then
-        span [ class "notif" ] [ text <| toString notif ]
-    else
-        span [] []
 
 
 messageView : String -> Message -> Html Msg

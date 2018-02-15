@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
@@ -39,6 +39,7 @@ app.get('/', function(req, res) {
 });
 
 app.use('/auth', Login);
+app.get('/api/*', Auth.hasRole(1));
 app.post('/api/*', Auth.hasRole(1));
 app.use('/api/users', Users);
 app.use('/api/tag', Tag);

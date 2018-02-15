@@ -7,23 +7,30 @@ import Models exposing (..)
 import Msgs exposing (..)
 import FormUtils exposing (..)
 import User.UserModel exposing (..)
+import User.UserHelper exposing (..)
 import Utils exposing (..)
 import Date
 
 
-fullUserView : User -> Session -> Model -> Html Msg
-fullUserView user session model =
-    div [ ]
-        [ h3 [] [ text user.username ]
-        , userLikeButtonView session user
-        , userMatchStatusView user
-        , genderToIcon user.gender
-        , userDistanceView user
-        , userOnlineStatusView model user
-        , userTagsView user
-        , userBioView user
-        , userImagesView user
-        ]
+view : String -> Model -> Html Msg
+view username model =
+  case (findUserByName username model.users, model.session) of
+    (Just user, Just s) ->
+      div [ ]
+          [ h3 [] [ text user.username ]
+          , button [onClick <| GoBack 1][text "back"]
+          , userLikeButtonView s user
+          , userMatchStatusView user
+          , genderToIcon user.gender
+          , userDistanceView user
+          , userOnlineStatusView model user
+          , userTagsView user
+          , userBioView user
+          , userImagesView user
+          ]
+    _ ->
+      div [] [ text <| "No user with name " ++ username ]
+
 
 userLikeButtonView : Session -> User -> Html Msg
 userLikeButtonView session user =
