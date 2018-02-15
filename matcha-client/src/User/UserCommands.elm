@@ -10,6 +10,7 @@ import Msgs exposing (..)
 import RemoteData exposing (..)
 import User.UserDecoder exposing (..)
 import User.UserModel exposing (..)
+import Utils exposing (..)
 import WebSocket
 
 
@@ -35,24 +36,6 @@ getRelevantUsers users token =
     Http.post url body (decodeApiResponse <| Just usersDecoder)
         |> RemoteData.sendRequest
         |> Cmd.map UsersResponse
-
-
-authHeader : String -> Http.Header
-authHeader token =
-    Http.header "Authorization" ("Bearer " ++ token)
-
-
-authGetRequest : Decoder a -> String -> String -> Http.Request a
-authGetRequest apiDecoder token url =
-    Http.request
-        { method = "GET"
-        , headers = [ authHeader token ]
-        , url = url
-        , body = Http.emptyBody
-        , expect = Http.expectJson apiDecoder
-        , timeout = Nothing
-        , withCredentials = False
-        }
 
 
 getUser : String -> String -> Cmd Msg
