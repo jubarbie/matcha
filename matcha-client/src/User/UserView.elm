@@ -1,6 +1,7 @@
 module User.UserView exposing (..)
 
 import Html exposing (..)
+import Html.Keyed exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Models exposing (..)
@@ -16,8 +17,9 @@ view : String -> Model -> Html Msg
 view username model =
   case (findUserByName username model.users, model.session) of
     (Just user, Just s) ->
-      div [ ]
-          [ h3 [] [ text user.username ]
+      Html.Keyed.node username [ ]
+        [ ( "div",
+          div [][ h3 [] [ text user.username ]
           , button [onClick <| GoBack 1][text "back"]
           , userLikeButtonView s user
           , userMatchStatusView user
@@ -28,6 +30,7 @@ view username model =
           , userBioView user
           , userImagesView user
           ]
+          )]
     _ ->
       div [] [ text <| "No user with name " ++ username ]
 
