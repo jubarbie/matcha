@@ -1,26 +1,66 @@
 @import 'colors';
 
+.input {
+	margin-bottom: 1rem;
+}
 .input input, textarea {
-	border: none !important;
-	border-bottom: 1px solid white !important;
-	background-color: $clr-back !important;
-	border-radius: 0 !important;
 	position: relative;
+	margin-bottom: 2px;
+	color: black;
 }
 .input .input-tip {
 	font-size: 0.8em;
 	text-align: left;
 }
-.input.input-error input {
+.input.input-error input, .input.input-error textarea {
 	border-bottom: 1px solid red !important;
 }
 .input.input-error .input-tip {
 	color: red;
 }
-.input.input-success input {
+.input.input-success input, .input.input-success textarea {
 	border: 1px solid green;
 }
 .label-upload input {
 	position: absolute;
 	opacity: 0;
+}
+
+.edit-form {
+	width: 400px;
+	max-width: 100%;
+	text-align: center;
+	margin: 3rem auto;
+
+	form {
+		padding: 8px;
+		border: 1px solid $grey;
+		border-radius: 8px;
+		.input {
+			text-align: left;
+			width: 100%;
+		}
+		input, textarea {
+			width: 100%;
+		}
+		label {
+			color: $grey;
+		}
+	}
+}
+
+.gallery {
+	.img-box {
+		display: inline-block;
+		width: 33.333%;
+		height: 0;
+		padding-top: 30%;
+		position: relative;
+		background-size: cover !important;
+		.del {
+			position: absolute;
+			top: 0;
+			right: 0;
+		}
+	}
 }

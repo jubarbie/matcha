@@ -75,7 +75,7 @@ div {
 
 /* TYPO */
 h1 {
-	font-size: 1em;
+	font-size: 2em;
 }
 .important-font {
 	font-size: 22px;
@@ -117,28 +117,41 @@ h1 {
 
 /* NAVBAR */
 .navbar {
-	border-bottom: 1px solid $grey;
 	background: $clr-back;
+	position: fixed;
+	left: 0;
+	top: 0;
+	height: 100%;
 
   .navbar-list {
   	list-style-type: none;
   	margin: 0;
   	padding: 0;
-  	width: 100%;
+		display: flex;
+	  flex-direction: column;
+		justify-content: space-between;
+	  height: 100%;
+
+		ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+		}
   }
   .navbar-list li {
-  	display: inline-block;
-  	margin: 0;
-  	cursor: pointer;
-  	line-height: normal;
-  	box-sizing: border-box;
+		margin: 0;
+		height: 58px;
+		width: 58px;
+		//border-radius: 29px;
+		text-align: center;
+		line-height: 58px;
   }
   .navbar-list li a {
   	text-decoration: none;
   	color: white;
-		padding: 20px;
   	display: block;
   	height: 100%;
+		font-size: 1.4em;
   }
   .navbar-list li:hover {
   	background: grey;
@@ -149,18 +162,19 @@ h1 {
   .navbar-list li.active a {
   	color: white;
   }
-	.account-menu {
-		position: absolute;
-		top: 65px;
-		right: 10px;
-		background: black;
-		padding: 8px;
-		border-radius: 8px;
-		z-index: 300;
-		width: 400px;
-		max-width: 100%;
-		border: 1px solid $grey;
-	}
+}
+
+.account-menu {
+	position: fixed;
+	bottom: 10px;
+	left: 63px;
+	background: black;
+	padding: 8px;
+	border-radius: 8px;
+	z-index: 300;
+	width: 400px;
+	max-width: 100%;
+	border: 1px solid $grey;
 }
 
 /* FOOTER */
@@ -194,4 +208,38 @@ ul.group-btn {
       border-bottom-right-radius: 4px;
     }
   }
+}
+
+@media screen and (max-width: 840px) {
+	#main {
+		padding-bottom: 64px;
+	}
+	.container {
+		width: 90%;
+	}
+	.navbar {
+		bottom: 0;
+		top: inherit;
+		width: 100%;
+		height: inherit;
+		background: $clr-back;
+		border-top: 1px solid $grey;
+		z-index: 200;
+
+		.navbar-list {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			width: 100%;
+			height: inherit;
+			ul {
+				flex: 1;
+				flex-direction: row;
+				justify-content: space-between;
+				li {
+					display: inline-block;
+				}
+			}
+  }
+}
 }

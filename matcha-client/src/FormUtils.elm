@@ -76,7 +76,7 @@ initEditAccountForm user =
        [ initInput (Just user.fname) "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
        , initInput (Just user.lname) "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
        , initInput (Just user.email) "text" "Email" "email" (Just EmailValidator) Nothing
-       , initInput (Just user.bio) "text" "Bio" "bio" Nothing Nothing
+       , initInput (Just user.bio) "textarea" "Bio" "bio" Nothing Nothing
        ]
 
 initLoginForm : Form
@@ -183,15 +183,32 @@ viewInput mess i =
     in
         div [ class inputClass]
             [ label [ for i.id ] [ text i.label ]
-            , input [
-                type_ i.typ,
-                id i.id,
-                onInput mess,
-                value <| case i.input of
-                  Just val -> val
-                  _ -> ""
-              ] []
+            , (if i.typ == "textarea" then
+                viewTextareaField mess i
+              else
+                viewInputField mess i)
             , case i.tip of
                 Just tip -> div [ class "input-tip" ][ text tip ]
                 _ -> div [][]
             ]
+
+viewInputField : (String -> a) -> Input -> Html a
+viewInputField mess i =
+  input
+    [ type_ i.typ
+    , id i.id
+    ,  onInput mess
+    , value <| case i.input of
+        Just val -> val
+        _ -> ""
+    ] []
+
+viewTextareaField : (String -> a) -> Input -> Html a
+viewTextareaField mess i =
+  textarea
+    [ id i.id
+    , onInput mess
+    , value <| case i.input of
+        Just val -> val
+        _ -> ""
+    ] []

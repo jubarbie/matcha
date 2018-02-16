@@ -36,25 +36,25 @@ view model =
                         [ Login.view a model ]
 
                     ( UsersRoute a, Just s ) ->
-                        [ viewMenu model ] ++ (User.UsersView.view model)
+                        [ viewMenu model s ] ++ (User.UsersView.view model)
 
                     ( UserRoute a, Just s ) ->
-                        [ div [ class "blur" ] <| [ viewMenu model ] ++ (User.UsersView.view model) ] ++ (User.UserView.view a model)
+                        [ div [ class "blur" ] <| [ viewMenu model s ] ++ (User.UsersView.view model) ] ++ (User.UserView.view a model)
 
                     ( TalksRoute, Just s ) ->
-                        [ viewMenu model, Talk.TalkView.talksListView model ]
+                        [ viewMenu model s, Talk.TalkView.talksListView model ]
 
                     ( TalkRoute a, Just s ) ->
-                        [ viewMenu model ] ++ Talk.TalkView.view a model
+                        [ viewMenu model s ] ++ Talk.TalkView.view a model
 
                     ( AccountRoute, Just s ) ->
-                        [ viewMenu model, User.UserAccountView.view model ]
+                        [ viewMenu model s, User.UserAccountView.view model ]
 
                     ( EditAccountRoute, Just s ) ->
-                        [ viewMenu model, User.UserAccountView.viewEditAccount model ]
+                        [ viewMenu model s, User.UserAccountView.viewEditAccount model ]
 
                     ( ChangePwdRoute, Just s ) ->
-                        [ viewMenu model, User.UserAccountView.viewChangePwd model ]
+                        [ viewMenu model s, User.UserAccountView.viewChangePwd model ]
 
                     _ ->
                         [ view401 ]
@@ -69,34 +69,33 @@ view401 =
         ]
 
 
-viewMenu : Model -> Html Msg
-viewMenu model =
-    nav [ class "navbar" ]
-        [ ul [ class "navbar-list" ] <|
-            [ li [ getMenuClass (UsersRoute "all") model.route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
-            , li [ getMenuClass TalksRoute model.route ]
-                [ a [ href "http://localhost:3000/#/chat" ]
-                    [ icon "fas fa-comments"
-                    , notif <| Talk.TalkUtils.getTalkNotif model.talks
+viewMenu : Model -> Session -> Html Msg
+viewMenu model session =
+  div []
+    <| [ nav [ class "navbar" ]
+            [ ul [ class "navbar-list" ] <|
+                [ ul []
+                    [ li [ getMenuClass (UsersRoute "all") model.route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
+                    , li [ getMenuClass TalksRoute model.route ]
+                        [ a [ href "http://localhost:3000/#/chat" ]
+                            [ icon "fas fa-comments"
+                            , notif <| Talk.TalkUtils.getTalkNotif model.talks
+                            ]
+                        ]
                     ]
+                , viewAccountMenu model
                 ]
-            , viewAccountMenu model
             ]
-        ]
+      ] ++ viewAccountBox model session
 
 viewAccountMenu : Model -> Html Msg
 viewAccountMenu model =
-  case model.session of
-    Just s->
-      div [ class "u-pull-right" ]
-          <| [ li [ onClick ToggleAccountMenu ] [ a [] [ text s.user.username, text " ", icon "fas fa-user" ] ]
-          ] ++ viewAccountBox model.showAccountMenu s
-    _ ->
-      div [] [ text "Not connected"]
+      li [ onClick ToggleAccountMenu ] [ a [] [ icon "fas fa-user" ] ]
 
-viewAccountBox : Bool -> Session -> List (Html Msg)
-viewAccountBox shw s =
-  if shw then
+
+viewAccountBox : Model -> Session -> List (Html Msg)
+viewAccountBox model s =
+  if model.showAccountMenu then
     [ div [ class "account-menu" ]
         [ div [] [ text s.user.username ]
         , div [ onClick ToggleAccountMenu ] [ icon "far fa-times-circle" ]

@@ -58,21 +58,7 @@ viewAccount model user =
           , viewTagForm model
           ]
       ]
-    , div [class "row"]
-      [  hr [][]
-        , h2 [] [ text "Photos" ]
-        , (if List.length user.photos > 0 then
-           div [] <| List.map (\(id_, s) ->
-             div [ style [("background", "url(" ++ s ++ ") center center no-repeat")], class "img-box" ]
-                  [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
-                  ]
-            ) user.photos
-           else div [] [ text "You haven't uploaded any pictures yet"] )
-      , (if (List.length user.photos) < 5 then
-         viewNewImgeForm model
-        else
-          div [][])
-      ]
+    , viewImages model user
     , div [class "row"]
           [ hr [] []
           , h2 [] [text "Localisation"]
@@ -81,6 +67,24 @@ viewAccount model user =
           , button [ onClick Localize ][ text "Localize me" ]
           ]
       ]
+
+viewImages : Model -> SessionUser -> Html Msg
+viewImages model user =
+  div [ class "row gallery" ]
+      [  hr [][]
+      , h2 [] [ text "Photos" ]
+      , (if List.length user.photos > 0 then
+         div [] <| List.map (\(id_, s) ->
+           div [ style [("background", "url(" ++ s ++ ") center center no-repeat")], class "img-box" ]
+                [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
+                ]
+          ) user.photos
+         else div [] [ text "You haven't uploaded any pictures yet"] )
+    , (if (List.length user.photos) < 5 then
+       viewNewImgeForm model
+      else
+        div [][])
+    ]
 
 viewNewImgeForm : Model -> Html Msg
 viewNewImgeForm model =
@@ -203,9 +207,9 @@ viewIntInForm intIn =
 
 viewEditAccountForm : Form -> Html Msg
 viewEditAccountForm accountForm =
-  div []
+  div [ class "edit-form" ]
     [ h1 [] [ text <| "Edit account" ]
-    , Html.form [] <| List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
+    , Html.form [ ] <| List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
       ++ [ input
               [ onWithOptions
                   "click"
@@ -218,13 +222,13 @@ viewEditAccountForm accountForm =
               , value "SAVE"
               ]
               []
-         , a [ href "/#/account" ][ text "Cancel" ]
          ]
+    , a [ href "/#/account" ][ text "Cancel" ]
     ]
 
 viewEditPwdForm : Form -> Html Msg
 viewEditPwdForm formm =
-  div [class "content"]
+  div [ class "edit-form" ]
     [ h1 [] [ text <| "Edit password" ]
     , Html.form [] <| List.map (\i -> viewInput (UpdateEditPwdForm i.id) i) formm
       ++ [ input
@@ -239,6 +243,6 @@ viewEditPwdForm formm =
               , value "CHANGE PASSWORD"
               ]
               []
-         , a [ href "/#/account" ][ text "Cancel" ]
          ]
+    , a [ href "/#/account" ][ text "Cancel" ]
     ]

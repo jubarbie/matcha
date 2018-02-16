@@ -166,10 +166,9 @@ ul.users-list {
 	width: 100%;
 	left: 0;
 
-	&.container {
-		height: auto;
+	.group-btn {
+		margin: 0 auto;
 	}
-
 	.button {
 		height: 24px;
 		line-height: 24px;

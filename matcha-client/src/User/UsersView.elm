@@ -22,7 +22,7 @@ view model =
 
 userMenuView : Model -> Html Msg
 userMenuView model =
-  div [ class "filter-menu center container" ]
+  div [ class "filter-menu center" ]
       [ ul [ class "group-btn" ]
         [ li [ ][ a [ class "button", href "http://localhost:3000/#/users/" ]
                 [ text "Around me"]
