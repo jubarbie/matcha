@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Keyed exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Json.Decode as Decode
 import Models exposing (..)
 import Msgs exposing (..)
 import FormUtils exposing (..)
@@ -13,27 +14,30 @@ import Utils exposing (..)
 import Date
 
 
-view : String -> Model -> Html Msg
+view : String -> Model -> List (Html Msg)
 view username model =
   case (findUserByName username model.users, model.session) of
-    (Just user, Just s) ->
-      Html.Keyed.node username [ ]
-        [ ( "div",
-          div []
-          [ h3 [] [ text user.username ]
-          , button [onClick <| GoBack 1][text "back"]
-          , userLikeButtonView s user
-          , userMatchStatusView user
-          , genderToIcon user.gender
-          , userDistanceView user
-          , userOnlineStatusView model user
-          , userTagsView user
-          , userBioView user
-          , userImagesView user
-          ]
-          )]
-    _ ->
-      div [] [ text <| "No user with name " ++ username ]
+      (Just user, Just s) ->
+        [ Html.Keyed.node "div" [ id "single-user", onClick <| GoBack 1 ]
+          [ ( "div",
+            div [ class "container" ]
+                [ div [ class "user-box appear" ]
+                      [ userImagesView user model
+                      , div [ class "user-infos" ]
+                            [ userNameView user
+                            , userLikeButtonView s user
+                            , userMatchStatusView user
+                            , userTagsView user
+                            , userBioView user
+                            , userDistanceView user
+                            , userOnlineStatusView model user
+                            ]
+                      ]
+                ]
+                )]
+            ]
+      _ ->
+        [ div [] [ text <| "No user with name " ++ username ] ]
 
 
 userLikeButtonView : Session -> User -> Html Msg
@@ -45,11 +49,18 @@ userLikeButtonView session user =
         " liked"
       else
         ""
+    options =
+        { stopPropagation = True
+        , preventDefault = False
+        }
   in
     if (List.length session.user.photos <= 0) then
-      div [] [ text "You have to upload at least one image to be able to like this person" ]
+      div [] []
     else
-      button [ onClick <| ToggleLike user.username, class <| "like-btn" ++ likeClass ] [ icon "fas fa-heart" ]
+      button
+        [ onWithOptions "click" options ( Decode.succeed <| ToggleLike user.username )
+        , class <| "like-btn" ++ likeClass ] [ icon "fas fa-heart"
+        ]
 
 userMatchStatusView : User -> Html Msg
 userMatchStatusView user =
@@ -59,19 +70,17 @@ userMatchStatusView user =
         "fas fa-comments"
       else
         "far fa-comments"
+    options =
+      { stopPropagation = True
+      , preventDefault = False
+      }
   in
    if getMatchStatus user == Match then
-      a [ href <| "http://localhost:3000/#/chat/" ++ user.username ] [ i [ class talkTxt ] [] ]
+      button
+        [ onWithOptions "click" options ( Decode.succeed <| GoTo <| "http://localhost:3000/#/chat/" ++ user.username ), class "talk-btn" ]
+        [ i [ class talkTxt ] [] ]
     else
-      div [][ text "You haven't matched (yet) with this profile, you can't open a talk" ]
-
-userDistanceView : User -> Html Msg
-userDistanceView user =
-  div []
-    [ text <| case user.distance of
-        Just d -> (++) (toString <| round (d * 1000 )) " meters away"
-        _ -> ""
-    ]
+      div [][]
 
 userOnlineStatusView : Model -> User -> Html Msg
 userOnlineStatusView model user =
@@ -89,13 +98,29 @@ userOnlineStatusView model user =
           _ -> False
   in
       if online then
-          div [][ text "Online"]
+          div [ class "online-status on" ] [ text "Online ", icon "fas fa-circle" ]
         else
-          div [] [ text <| "Last time seen: " ++ (formatDate last_connection) ]
+          div [ class "online-status off" ] [ text <| "Last time seen: " ++ (formatDate last_connection) ++ " ", icon "fas fa-circle" ]
+
+userNameView : User -> Html Msg
+userNameView user =
+  h3 [] [ text user.username, div [ class "u-pull-right" ] [ genderToIcon user.gender ] ]
+
+userDistanceView : User -> Html Msg
+userDistanceView user =
+  div [ class "info-dist" ]
+        [ icon "fas fa-location-arrow"
+        , text <| case user.distance of
+            Just d ->
+                case d < 1 of
+                  True -> " " ++ (toString <| round (d * 1000 )) ++ " m away"
+                  _ -> " " ++ (toString <| round d) ++ " km away"
+            _ -> ""
+        ]
 
 userBioView : User -> Html Msg
 userBioView user =
-  div [] [ text user.bio ]
+  div [ class "user-bio" ] [ text user.bio ]
 
 userTagsView : User -> Html Msg
 userTagsView user =
@@ -103,10 +128,32 @@ userTagsView user =
       div [ class "tag" ]
           [ text t ]) (List.sort user.tags)
 
-userImagesView : User -> Html Msg
-userImagesView user =
-  div [] <|
-    List.map (\s ->
-       div [ style [("background", "url(" ++ s ++ ") center center no-repeat")], class "img-box" ]
-            []
-      ) user.photos
+userImagesView : User -> Model -> Html Msg
+userImagesView user model =
+  let
+    imgSrc = case List.head user.photos of
+      Just src -> src
+      _ -> "http://profile.actionsprout.com/default.jpeg"
+  in
+    case model.session of
+      Just s ->
+        div [ style [("background", "url(" ++ imgSrc ++ ") center center no-repeat")], class "img-box" ]
+            <| (galleryButtonView user.photos user)
+      _ -> div [][]
+
+galleryButtonView : List String -> User -> List (Html Msg)
+galleryButtonView gal user =
+  let
+    options =
+      { stopPropagation = True
+      , preventDefault = False
+      }
+  in
+    if List.length gal > 1 then
+      [ div [ class "gal-btn " ]
+            [ button [ onWithOptions "click" options ( Decode.succeed <| ChangeImage user -1 ) ] [ icon "fas fa-chevron-left" ]
+            , button [ onWithOptions "click" options ( Decode.succeed <| ChangeImage user 1 ) ] [ icon "fas fa-chevron-right" ]
+            ]
+      ]
+    else
+      []

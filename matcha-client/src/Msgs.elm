@@ -66,3 +66,5 @@ type Msg
     | SetCurrentTime (Maybe Time.Time)
     | UpdateCurrentTime Time.Time
     | Notification String
+    | ChangeImage User Int
+    | GoTo String

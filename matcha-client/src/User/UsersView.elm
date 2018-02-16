@@ -2,6 +2,7 @@ module User.UsersView exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import List
@@ -13,7 +14,7 @@ import User.UserHelper exposing (..)
 
 view : Model -> List (Html Msg)
 view model =
-    [ div [ class <| "content" ]
+    [ div [ ]
         [ userMenuView model
         , viewUsers model.users model
         ]
@@ -21,7 +22,7 @@ view model =
 
 userMenuView : Model -> Html Msg
 userMenuView model =
-  div [ class "filter-menu center" ]
+  div [ class "filter-menu center container" ]
       [ ul [ class "group-btn" ]
         [ li [ ][ a [ class "button", href "http://localhost:3000/#/users/" ]
                 [ text "Around me"]
@@ -50,19 +51,16 @@ cardUserView : User -> Model -> Html Msg
 cardUserView user model =
     div [ class "user-box" ]
         [ userImageView user model
-        , div [ class "user-infos" ]
-          [ h3 [] [ text user.username ]
-          , div [class "u-pull-right"] [ genderToIcon user.gender ]
-          , icon "fas fa-location-arrow"
-          , text <| case user.distance of
-                Just d ->
-                    case d < 1 of
-                      True -> (++) (toString <| round (d * 1000 )) " m away"
-                      _ -> (++) (toString <| round d) " km away"
-                _ -> ""
-          ]
+        , userInfosView user model
         , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ][ ]
         ]
+
+userInfosView : User -> Model -> Html Msg
+userInfosView user model =
+  div [ class "user-infos" ]
+      [ userNameView user
+      , userDistanceView user
+      ]
 
 userImageView : User -> Model -> Html Msg
 userImageView user model =

@@ -10,6 +10,7 @@ import Commands exposing (..)
 import Msgs exposing (..)
 import FormUtils exposing (..)
 import User.UserModel exposing (..)
+import Utils exposing (..)
 
 
 view : Model ->  Html Msg
@@ -50,9 +51,9 @@ viewAccount model user =
           , viewGenderForm user.gender
           , viewIntInForm user.intIn
           , div [] <| List.map (\t ->
-              div [ class "tag" ]
+              div [ class "tag dismissable" ]
                   [ text t
-                  , div [ class "del pointer", onClick <| RemoveTag t ][ text "x"]
+                  , div [ class "del pointer", onClick <| RemoveTag t ][ icon "fas fa-times" ]
                   ]) (List.sort user.tags)
           , viewTagForm model
           ]
@@ -63,7 +64,7 @@ viewAccount model user =
         , (if List.length user.photos > 0 then
            div [] <| List.map (\(id_, s) ->
              div [ style [("background", "url(" ++ s ++ ") center center no-repeat")], class "img-box" ]
-                  [ button [ class "del", onClick <| DeleteImg id_ ] [text "X"]
+                  [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
                   ]
             ) user.photos
            else div [] [ text "You haven't uploaded any pictures yet"] )

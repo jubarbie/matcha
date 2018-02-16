@@ -39,7 +39,7 @@ view model =
                         [ viewMenu model ] ++ (User.UsersView.view model)
 
                     ( UserRoute a, Just s ) ->
-                        [ viewMenu model, User.UserView.view a model]
+                        [ div [ class "blur" ] <| [ viewMenu model ] ++ (User.UsersView.view model) ] ++ (User.UserView.view a model)
 
                     ( TalksRoute, Just s ) ->
                         [ viewMenu model, Talk.TalkView.talksListView model ]
@@ -73,10 +73,10 @@ viewMenu : Model -> Html Msg
 viewMenu model =
     nav [ class "navbar" ]
         [ ul [ class "navbar-list" ] <|
-            [ li [ getMenuClass (UsersRoute "all") model.route ] [ a [ href "http://localhost:3000/#/users/all" ] [ text "BROWSE" ] ]
+            [ li [ getMenuClass (UsersRoute "all") model.route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
             , li [ getMenuClass TalksRoute model.route ]
                 [ a [ href "http://localhost:3000/#/chat" ]
-                    [ text "CHAT"
+                    [ icon "fas fa-comments"
                     , notif <| Talk.TalkUtils.getTalkNotif model.talks
                     ]
                 ]

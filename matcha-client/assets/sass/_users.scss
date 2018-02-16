@@ -1,9 +1,20 @@
 @import 'colors';
 
+#single-user {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	padding-top: 6rem;
+	background: rgba(255, 255, 255, 0.2);
+}
+
 ul.users-list {
 	list-style-type: none;
 	margin: 0;
-	padding: 50px 0;
+	padding: 40px 0;
+	transition: all 0.2s ease;
 
   li {
 	   width: 33.333%;
@@ -13,58 +24,7 @@ ul.users-list {
 		 margin: 0;
 		 transition: all 0.2s ease;
 
-		 .user-box {
-			 	border: 1px solid black;
-			 	overflow-y: auto;
-			 	position: relative;
-				background: black;
-				border-radius: 8px;
-				box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, .2);
-				transition: all 0.5s ease;
 
-				.img-box {
-					background-size: cover !important;
-					width: 100%;
-					padding-bottom: 70%;
-					display: inline-block;
-
-					.user-menu {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						bottom: 0;
-						right: 0;
-						background: rgba(0,0,0,0.4);
-						opacity: 0;
-						transition: all 0.2s ease;
-						text-align: center;
-						display: flex;
-					  align-items: center;
-  					justify-content: center;
-					}
-				}
-				.user-infos {
-
-					h3 {
-						font-size: 2em;
-					}
-					padding: 8px;
-				}
-
-		   .user-link {
-		   	position: absolute;
-		   	width: 100%;
-		   	height: 100%;
-		   	top: 0;
-		   	left: 0;
-		   }
-		   #profile-img img {
-		   	width: 100%;
-		   	margin: 0;
-		   }
-		 }
 		 &:hover {
 			 transform: translate(0, -5px);
 
@@ -80,6 +40,109 @@ ul.users-list {
   }
 }
 
+.user-box {
+	 border: 1px solid black;
+	 overflow-y: auto;
+	 position: relative;
+	 background: black;
+	 border-radius: 8px;
+	 box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, .2);
+	 transition: all 0.5s ease;
+
+	 &.appear {
+		  animation: userApparition 0.2s ease;
+	 }
+	 .img-box {
+		 background-size: cover !important;
+		 width: 100%;
+		 padding-bottom: 70%;
+		 position: relative;
+
+		 .user-menu {
+			 position: absolute;
+			 top: 0;
+			 left: 0;
+			 width: 100%;
+			 height: 100%;
+			 bottom: 0;
+			 right: 0;
+			 background: rgba(0,0,0,0.4);
+			 opacity: 0;
+			 transition: all 0.2s ease;
+			 text-align: center;
+			 display: flex;
+			align-items: center;
+			justify-content: center;
+
+		 }
+		 .close {
+			 padding: 5px;
+			 font-size: 2em;
+			 border: 0;
+			 color: white;
+		 }
+		 .gal-btn {
+				position: absolute;
+	 			 top: 0;
+	 			 left: 0;
+	 			 width: 100%;
+	 			 height: 100%;
+	 			 bottom: 0;
+	 			 right: 0;
+				display: flex;
+ 			 	align-items: center;
+				justify-content: space-between;
+
+				button {
+					border: 0;
+					padding: 5px;
+					font-size: 1.5em;
+					color: white;
+				}
+
+		 }
+	 }
+	 .user-infos {
+		 padding: 8px;
+
+		 h3 {
+			 font-size: 1.4em;
+		 }
+		 .user-bio {
+			 margin: 10px 0;
+		 }
+		 .info-dist {
+			 font-size: 0.8em;
+			 color: $grey;
+			 display: inline-block;
+			 width: 50%;
+		 }
+		 .online-status {
+			 display: inline-block;
+			 font-size: 0.8em;
+			 color: $grey;
+			 width: 50%;
+			 text-align: right;
+
+			 &.on {
+				 color: $green;
+			 }
+		 }
+	 }
+
+	.user-link {
+	 position: absolute;
+	 width: 100%;
+	 height: 100%;
+	 top: 0;
+	 left: 0;
+	}
+	#profile-img img {
+	 width: 100%;
+	 margin: 0;
+	}
+}
+
 .like-btn {
 	padding: 0;
 	font-size: 2em;
@@ -89,30 +152,61 @@ ul.users-list {
 		color: $red;
 	}
 }
+.talk-btn {
+	padding: 0;
+	font-size: 2em;
+	border: 0;
+}
 
 .filter-menu {
 	position: fixed;
 	z-index: 200;
 	padding: 10px;
 	display: flex;
+	width: 100%;
+	left: 0;
+
+	&.container {
+		height: auto;
+	}
 
 	.button {
+		height: 24px;
+		line-height: 24px;
 		background: $clr-back;
+		padding: 0 20px;
+		color: $grey;
 	}
 }
 
 .tag {
 	display: inline-block;
 	position: relative;
-	padding: 2px 18px 2px 4px;
-	border: 1px solid white;
-	margin-right: 2px;
-	border-radius: 2px;
+	padding: 0 8px;
+	background: $clr-back;
+	color: $grey;
+	border: 1px solid $grey;
+	margin-right: 8px;
+	border-radius: 14px;
 	font-size: 0.9em;
+	height: 26px;
+	line-height: 24px;
+	font-size: 0.8em;
+
+	&.dismissable {
+		padding-right: 28px;
+	}
   .del {
-  	position: absolute;
-  	right: 4px;
-  	top: 0;
+		position: absolute;
+		right: 2px;
+		top: 2px;
+		background: grey;
+		height: 20px;
+		width: 20px;
+		text-align: center;
+		color: $clr-back;
+		border-radius: 10px;
+		line-height: 20px;
   }
 }
 
@@ -141,6 +235,17 @@ ul.users-list {
   animation-fill-mode: both;
 	animation-name: matchanim;
 	z-index: 200;
+}
+
+@keyframes userApparition {
+    0%   {
+				opacity: 0;
+				transform: scale(0.8);
+		}
+		100%   {
+				opacity: 1;
+				transform: scale(1);
+		}
 }
 
 @keyframes matchanim {

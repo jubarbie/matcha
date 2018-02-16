@@ -22,7 +22,7 @@ mailer.sendVerifEmail = function (mailTo, login, key) {
         from: '"DARKROOM" <noreply@darkroom.com>', // sender address
         to: mailTo, // list of receivers
         subject: 'Welcome into the DARKROOM', // Subject line
-        html: '<b>Please verify you email by clicking on this <a href="http://localhost:3001/api/users/user/'+login+'/emailverif?r='+key+'">link</a></b>' // html body
+        html: '<b>Please verify you email by clicking on this <a href="http://localhost:3001/auth/emailverif/'+login+'?r='+key+'">link</a></b>' // html body
     };
 
     // send mail with defined transport object

@@ -98,12 +98,10 @@ router.get('/user/:login', (req, res, next) => {
 
     UserCtrl.getFullUser(logged, login, function(user) {
         if (user) {
-            VisitsModel.addVisit(logged.login, login, now, (err, rows, fields) => {
                 res.json({
                     "status": "success",
                     "data": user
                 });
-            });
         } else {
             res.json({
                 "status": "error",
@@ -133,43 +131,6 @@ router.get('/connected_user', (req, res, next) => {
         }
     });
 
-});
-
-
-/* Verify email */
-router.get('/user/:login/emailverif', (req, res, next) => {
-
-    const login = req.params.login;
-    const token = req.query.r;
-
-    if (login && token) {
-        UsersModel.getTokenFromLogin(login, function(err, rows, fields) {
-            if (rows) {
-                var activated = rows[0].activated;
-                switch (activated) {
-                    case token:
-                        UsersModel.activateUserWithLogin(login, "incomplete", (err, rows, fields) => {
-                            if (rows) {
-                                res.send('Email verified. You can now <a href="' + config.home_root + '">login</a>');
-                            } else {
-                                res.send('A problem occured, please try again');
-                            }
-                        });
-                        break;
-                    case "activated":
-                        res.send('Email already verified');
-                        break;
-                    default:
-                        res.send('A problem occured, please try again');
-                }
-
-            } else {
-                res.send('Invalid link');
-            }
-        });
-    } else {
-        res.send('Invalid link');
-    }
 });
 
 function sendUser(logged, login, res) {

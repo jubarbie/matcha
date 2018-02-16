@@ -9,6 +9,7 @@ type alias SessionUser =
     , gender : Maybe Gender
     , intIn : List Gender
     , bio : String
+    , date_of_birth : Int
     , tags : List String
     , localisation : Maybe Localisation
     , photos : List ( Int, String )
@@ -21,6 +22,7 @@ type alias User =
     { username : String
     , gender : Maybe Gender
     , bio : String
+    , date_of_birth : Int
     , liking : Bool
     , liked : Bool
     , has_talk : Bool

@@ -202,7 +202,7 @@ update msg model =
                 Ok rep ->
                     case ( rep.status == "success", rep.data, model.session ) of
                         ( True, Just u, Just s ) ->
-                            ( { model | users = updateUser u model.users }, sendVisitNotif s.token u.username )
+                            ( { model | users = updateUser u model.users }, Cmd.none )
 
                         _ ->
                             ( { model | message = Just "User not found" }, Cmd.none )
@@ -392,7 +392,7 @@ update msg model =
                             ( { newModel | route = newRoute, notifLike = likeNotif, notifVisit = visitNotif }, getRelevantUsers a s.token )
 
                         UserRoute a ->
-                            ( { newModel | route = newRoute }, getUser a s.token )
+                            ( { newModel | route = newRoute }, Cmd.batch [ sendVisitNotif s.token a, getUser a s.token ] )
 
                         AccountRoute ->
                             ( { newModel | route = newRoute, map_state = Models.Loading }, Cmd.none )
@@ -706,6 +706,15 @@ update msg model =
 
         ToggleAccountMenu ->
             ( { model | showAccountMenu = not model.showAccountMenu }, Cmd.none )
+
+        ChangeImage user to ->
+          let
+            newUsers = showImage to user model.users
+          in
+            ( { model | users = newUsers }, Cmd.none )
+
+        GoTo url ->
+          ( model, Navigation.newUrl url)
 
         Notification str ->
             case ( Json.Decode.decodeString notificationDecoder str, model.session ) of

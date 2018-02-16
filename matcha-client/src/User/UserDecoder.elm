@@ -86,6 +86,7 @@ decodeSessionUser =
         |: maybe (field "gender" decodeGender)
         |: field "interested_in" decodeIntIn
         |: field "bio" JsonDec.string
+        |: field "birth" JsonDec.int
         |: field "tags" (JsonDec.list JsonDec.string)
         |: maybe (field "localisation" decodeLocalisation)
         |: field "photos" decodeImgs
@@ -103,6 +104,7 @@ decodeUser =
         |: field "login" JsonDec.string
         |: maybe (field "gender" decodeGender)
         |: field "bio" JsonDec.string
+        |: field "birth" JsonDec.int
         |: field "liking" JsonDec.bool
         |: field "liked" JsonDec.bool
         |: field "has_talk" JsonDec.bool
@@ -111,6 +113,7 @@ decodeUser =
         |: field "photos" (JsonDec.list JsonDec.string)
         |: field "last_connection" JsonDec.string
         |: maybe (field "distance" JsonDec.float)
+
 
 decodeRole : Decoder UserRole
 decodeRole =

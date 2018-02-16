@@ -56,8 +56,8 @@ viewMessageForm t =
 talksListView : Model -> Html Msg
 talksListView model =
     if List.length model.talks > 0 then
-        div [ class "content" ] <|
-            List.map (\t -> div [] [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]) model.talks
+        ul [ class "content talk-list" ] <|
+            List.map (\t -> li [] [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]) model.talks
     else
         div [ class "content" ] [ text "You haven't talk to anyone yet" ]
 

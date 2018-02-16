@@ -79,3 +79,21 @@
 	font-size: 14px;
 	margin-left: 5px;
 }
+
+ul.talk-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		padding: 8px;
+		border-bottom: 1px solid black;
+
+		a {
+			display: block;
+			height: 100%;
+			text-decoration: none;
+		}
+	}
+
+}

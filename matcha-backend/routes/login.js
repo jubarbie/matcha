@@ -85,7 +85,7 @@ apiRoutes.post('/newfast', [
 	});
 });
 
-/* Insert new user with minimum infos */
+/* Send verification email */
 apiRoutes.post('/send_email_verification', (req, res, next) => {
 
 	var username = req.body.username;
@@ -126,6 +126,42 @@ apiRoutes.post('/reset_password', (req, res, next) => {
 			});
 		}
 	});
+});
+
+/* Verify email */
+apiRoutes.get('/emailverif/:login', (req, res, next) => {
+
+    const login = req.params.login;
+    const token = req.query.r;
+
+    if (login && token) {
+        UsersModel.getTokenFromLogin(login, function(err, rows, fields) {
+            if (rows) {
+                var activated = rows[0].activated;
+                switch (activated) {
+                    case token:
+                        UsersModel.activateUserWithLogin(login, "incomplete", (err, rows, fields) => {
+                            if (rows) {
+                                res.send('Email verified. You can now <a href="' + config.home_url + '">login</a>');
+                            } else {
+                                res.send('A problem occured, please try again');
+                            }
+                        });
+                        break;
+                    case "activated":
+                        res.send('Email already verified');
+                        break;
+                    default:
+                        res.send('A problem occured, please try again');
+                }
+
+            } else {
+                res.send('Invalid link');
+            }
+        });
+    } else {
+        res.send('Invalid link');
+    }
 });
 
 module.exports = apiRoutes;

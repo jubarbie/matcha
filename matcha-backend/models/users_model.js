@@ -13,7 +13,7 @@ exports.getAllUsers = (cb) =>
 
 exports.getRelevantProfiles = (logged, gender, int_in, cb) =>
     connection.query('\
-		SELECT u.login AS login, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+		SELECT u.login AS login, u.birth AS birth, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
     ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
     ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
 		GROUP_CONCAT(DISTINCT i.src) AS photos, \
@@ -33,7 +33,7 @@ exports.getRelevantProfiles = (logged, gender, int_in, cb) =>
 
 exports.getVisitors = (logged, gender, int_in, cb) =>
     connection.query('\
-			SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+			SELECT u.login AS login, u.birth AS birth, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
       GROUP_CONCAT(DISTINCT i.src) AS photos, \
@@ -53,7 +53,7 @@ exports.getVisitors = (logged, gender, int_in, cb) =>
 
 exports.getLikers = (logged, gender, int_in, cb) =>
     connection.query('\
-					SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+					SELECT u.login AS login, u.birth AS birth, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
           GROUP_CONCAT(DISTINCT i.src) AS photos, \
@@ -73,7 +73,7 @@ exports.getLikers = (logged, gender, int_in, cb) =>
 
 exports.getFullDataUserWithLogin = (logged, login, cb) =>
     connection.query('\
-		SELECT u.login AS login, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+		SELECT u.login AS login, u.birth AS birth, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
     GROUP_CONCAT(DISTINCT i.src) AS photos, \
     ( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks, GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
     ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \

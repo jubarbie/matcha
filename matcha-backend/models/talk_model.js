@@ -44,6 +44,10 @@ exports.getUnseenMessagesForTalk = (talk_id, user, cb) => {
 	connection.query('SELECT COUNT(message.id) AS unread FROM message INNER JOIN talk ON talk.id=message.id_talk WHERE talk.id = ? AND ?? < date', [talk_id, user], cb);
 }
 
+exports.getTalkNotif = (users, user, cb) => {
+	connection.query('SELECT COUNT(message.id) AS unread FROM message INNER JOIN talk ON talk.id=message.id_talk WHERE talk.username1 = ? AND talk.username2 = ? AND ?? < date', [users[0], users[1], user], cb);
+}
+
 exports.updateLast = (id, user, date) => {
 	connection.query('UPDATE talk SET ?? = ? WHERE id = ?', [user, date, id]);
 }

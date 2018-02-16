@@ -11,7 +11,7 @@ updateTalks : Maybe Talk -> List Talk -> List Talk
 updateTalks newTalk talks =
     case newTalk of
         Just nt ->
-          if (List.member nt talks) then
+          if (List.any (\t -> t.username_with == nt.username_with) talks) then
             List.map
                 (\t ->
                     if nt.username_with == t.username_with then
