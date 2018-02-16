@@ -38,7 +38,6 @@ type Msg
     | UpdateEditPwdForm String String
     | NewUser
     | SendLogin
-    | SaveLocation
     | GoBack Int
     | ToggleLike String
     | ToggleAccountMenu
@@ -68,3 +67,4 @@ type Msg
     | Notification String
     | ChangeImage User Int
     | GoTo String
+    | ChangeSort SortUsers

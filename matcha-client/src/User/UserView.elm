@@ -1,7 +1,6 @@
 module User.UserView exposing (..)
 
 import Html exposing (..)
-import Html.Keyed exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Decode
@@ -18,8 +17,8 @@ view : String -> Model -> List (Html Msg)
 view username model =
   case (findUserByName username model.users, model.session) of
       (Just user, Just s) ->
-        [ Html.Keyed.node "div" [ id "single-user", onClick <| GoBack 1 ]
-          [ ( "div",
+        [ div [ id "single-user", onClick <| GoBack 1 ]
+          [
             div [ class "container" ]
                 [ div [ class "user-box appear" ]
                       [ userImagesView user model
@@ -34,8 +33,8 @@ view username model =
                             ]
                       ]
                 ]
-                )]
             ]
+        ]
       _ ->
         [ div [] [ text <| "No user with name " ++ username ] ]
 
@@ -104,7 +103,7 @@ userOnlineStatusView model user =
 
 userNameView : User -> Html Msg
 userNameView user =
-  h3 [] [ text user.username, div [ class "u-pull-right" ] [ genderToIcon user.gender ] ]
+  h3 [] [ text user.username, div [ class "u-pull-right" ] [ text <| genderToString user.gender ] ]
 
 userDistanceView : User -> Html Msg
 userDistanceView user =

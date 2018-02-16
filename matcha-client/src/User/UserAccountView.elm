@@ -16,7 +16,7 @@ import Utils exposing (..)
 view : Model ->  Html Msg
 view model =
     case model.session of
-        Just s -> Html.Keyed.node "accnt" [] [("div", viewAccount model s.user)]
+        Just s -> Html.Keyed.node "div" [] [("div", viewAccount model s.user)]
         _ -> text "no session..."
 
 viewAccount : Model -> SessionUser -> Html Msg
@@ -63,7 +63,6 @@ viewAccount model user =
           [ hr [] []
           , h2 [] [text "Localisation"]
           , div [ id "map" ] []
-          , button [ onClick SaveLocation ][ text "Use this location" ]
           , button [ onClick Localize ][ text "Localize me" ]
           ]
       ]

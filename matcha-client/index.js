@@ -28,12 +28,12 @@ app.ports.deleteSession.subscribe(function() {
 });
 
 app.ports.localize.subscribe(function(loc) {
+
 	mapboxgl.accessToken = 'pk.eyJ1IjoianViYXJiaWUiLCJhIjoiY2o4cjV1YmY0MHJtaDJ3cDFhbGZ4aHd2ZCJ9.T1ztr8SLVvZymkDPHCUcBQ';
 
 	// Holds mousedown state for events. if this
 	// flag is active, we move the point on `mousemove`.
 	var isDragging;
-	console.log(loc);
 	// Is the cursor over a point? if this
 	// flag is active, we listen for a mousedown event.
 	var isCursorOverPoint;

@@ -475,13 +475,6 @@ update msg model =
         ToggleLike username ->
             ( model, doIfConnected <| toggleLike username )
 
-        SaveLocation ->
-            case model.current_location of
-                Just l ->
-                    ( model, doIfConnected <| saveLocation l )
-
-                _ ->
-                    ( model, Cmd.none )
 
         UpdateNewMessage msg ->
             case model.route of
@@ -558,7 +551,7 @@ update msg model =
         SetNewLocalisation loc ->
             case Debug.log "new loc" loc of
                 [ long, lat ] ->
-                    ( { model | current_location = Just <| Localisation long lat }, Cmd.none )
+                    ( { model | current_location = Just <| Localisation long lat }, doIfConnected <| saveLocation (Localisation long lat) )
 
                 _ ->
                     ( model, Cmd.none )
@@ -574,16 +567,15 @@ update msg model =
 
                                 _ ->
                                     Nothing
-                    in
-                    ( { model | current_location = loc }
-                    , localize <|
-                        case loc of
-                            Just l ->
-                                [ l.lon, l.lat ]
 
+                        cmd =
+                          case loc of
+                            Just l ->
+                                Cmd.batch [ localize [ l.lon, l.lat ], doIfConnected <| saveLocation (Localisation l.lon l.lat) ]
                             _ ->
-                                []
-                    )
+                                Cmd.none
+                    in
+                      ( { model | current_location = loc }, cmd)
 
                 _ ->
                     ( model, Cmd.none )
@@ -715,6 +707,9 @@ update msg model =
 
         GoTo url ->
           ( model, Navigation.newUrl url)
+
+        ChangeSort s ->
+          ( { model | userSort = s }, Cmd.none )
 
         Notification str ->
             case ( Json.Decode.decodeString notificationDecoder str, model.session ) of

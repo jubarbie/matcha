@@ -78,7 +78,7 @@ notif notif =
 
 icon : String -> Html Msg
 icon fa =
-    i [ class <| fa ] []
+    i [ class fa ] []
 
 
 genderToIcon : Maybe Gender -> Html Msg
