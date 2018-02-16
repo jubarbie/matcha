@@ -75,8 +75,8 @@ toggleLike username token =
               JsonEnc.object
                   [ ( "username", JsonEnc.string username ) ]
     in
-      apiPostRequest (Just decodeMatch) token url body
-      |> Http.send (ToggleLikeResponse username)
+      apiPostRequest (Just decodeUser) token url body
+      |> Http.send UserResponse
 
 
 sendLikeNotif : String -> String -> Cmd Msg

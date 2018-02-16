@@ -8,6 +8,7 @@ import List
 import User.UserModel exposing (..)
 import Utils exposing (..)
 import User.UserView exposing (..)
+import User.UserHelper exposing (..)
 
 
 view : Model -> List (Html Msg)
@@ -20,7 +21,7 @@ view model =
 
 userMenuView : Model -> Html Msg
 userMenuView model =
-  div [ class "center" ]
+  div [ class "filter-menu center" ]
       [ ul [ class "group-btn" ]
         [ li [ ][ a [ class "button", href "http://localhost:3000/#/users/" ]
                 [ text "Around me"]
@@ -45,24 +46,14 @@ viewUsers users model =
               ) <| List.sortWith distanceCmp users
         ]
 
-distanceCmp a b =
-    case (a.distance, b.distance) of
-      (Just d1, Just d2) -> compare d1 d2
-      (Just d1, _ ) -> LT
-      _ -> EQ
-
 cardUserView : User -> Model -> Html Msg
 cardUserView user model =
-  let
-    imgSrc = case List.head user.photos of
-      Just src -> src
-      _ -> "http://profile.actionsprout.com/default.jpeg"
-  in
     div [ class "user-box" ]
-        [ h3 [] [ text user.username ]
-        , div [ style [("background", "url(" ++ imgSrc ++ ") center center no-repeat")], class "img-box" ][]
-        , div []
-          [ div [class "u-pull-right"] [ genderToIcon user.gender ]
+        [ userImageView user model
+        , div [ class "user-infos" ]
+          [ h3 [] [ text user.username ]
+          , div [class "u-pull-right"] [ genderToIcon user.gender ]
+          , icon "fas fa-location-arrow"
           , text <| case user.distance of
                 Just d ->
                     case d < 1 of
@@ -72,3 +63,18 @@ cardUserView user model =
           ]
         , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ][ ]
         ]
+
+userImageView : User -> Model -> Html Msg
+userImageView user model =
+  let
+    imgSrc = case List.head user.photos of
+      Just src -> src
+      _ -> "http://profile.actionsprout.com/default.jpeg"
+  in
+    case model.session of
+      Just s ->
+        div [ style [("background", "url(" ++ imgSrc ++ ") center center no-repeat")], class "img-box" ]
+            [ div [ class "user-menu"]
+                  [ userLikeButtonView s user ]
+            ]
+      _ -> div [][]

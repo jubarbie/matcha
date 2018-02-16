@@ -80,12 +80,31 @@ viewMenu model =
                     , notif <| Talk.TalkUtils.getTalkNotif model.talks
                     ]
                 ]
-            , div [ class "u-pull-right" ]
-                [ li [ getMenuClass AccountRoute model.route ] [ a [ href "http://localhost:3000/#/account" ] [ text "MY ACCOUNT" ] ]
-                , li [ onClick Logout ] [ text "LOGOUT" ]
-                ]
+            , viewAccountMenu model
             ]
         ]
+
+viewAccountMenu : Model -> Html Msg
+viewAccountMenu model =
+  case model.session of
+    Just s->
+      div [ class "u-pull-right" ]
+          <| [ li [ onClick ToggleAccountMenu ] [ a [] [ text s.user.username, text " ", icon "fas fa-user" ] ]
+          ] ++ viewAccountBox model.showAccountMenu s
+    _ ->
+      div [] [ text "Not connected"]
+
+viewAccountBox : Bool -> Session -> List (Html Msg)
+viewAccountBox shw s =
+  if shw then
+    [ div [ class "account-menu" ]
+        [ div [] [ text s.user.username ]
+        , div [ onClick ToggleAccountMenu ] [ icon "far fa-times-circle" ]
+        , div [ onClick Logout ] [ icon "fas fa-power-off" ]
+        , div [ ] [ a [ href "http://localhost:3000/#/account" ] [ text "Edit" ] ]
+        ]
+    ]
+  else []
 
 getMenuClass : Route -> Route -> Attribute msg
 getMenuClass menuRoute currentRoute =

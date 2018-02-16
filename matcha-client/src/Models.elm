@@ -61,6 +61,7 @@ type alias Model =
     , idImg : String
     , mImage : Maybe Image
     , currentTime : Maybe Time.Time
+    , showAccountMenu : Bool
     }
 
 
@@ -107,4 +108,5 @@ initialModel route =
     , idImg = "ImageInputId"
     , mImage = Nothing
     , currentTime = Nothing
+    , showAccountMenu = False
     }

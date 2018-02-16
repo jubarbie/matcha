@@ -19,7 +19,6 @@ type Msg
     | UserResponse (Result Http.Error (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
-    | ToggleLikeResponse String (Result Http.Error (ApiResponse (Maybe MatchStatus)))
     | GetTalkResponse (Result Http.Error (ApiResponse (Maybe Talk)))
     | GetTalksResponse (Result Http.Error (ApiResponse (Maybe (List Talk))))
     | SaveLocRespone (Result Http.Error (ApiResponse (Maybe String)))
@@ -42,6 +41,7 @@ type Msg
     | SaveLocation
     | GoBack Int
     | ToggleLike String
+    | ToggleAccountMenu
     | UpdateNewMessage String
     | SendNewMessage
     | NewMessage String

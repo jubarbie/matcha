@@ -10,27 +10,10 @@ var ctrl = {};
 ctrl.getFullUser = (logged, login, callback) => {
 	UsersModel.getFullDataUserWithLogin(logged.login, login, (err, rows, fields) => {
 		if (!err && rows.length > 0) {
-			var user = rows[0];
-			user.has_talk = (user.talks > 0) ? true : false;
-			user.photos = (user.photos) ? user.photos.split(',') : [];
-			user.photos = user.photos.map(function (img) {
-				return config.root_url + config.upload_path + img;
-			});
-			user.match = "none";
-			if (user.localisation && logged.localisation) {
-				user.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(user.localisation))
-			}
-			user.localisation = "secret information";
-			user.tags = (user.tags) ? user.tags.split(',') : [];
-			user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
-			user.visitor = (user.visitor != null) ? true : false;
-			ctrl.getMatchStatus(logged.login, login, (status) => {
-				if (status) {
-					user.match = status;
-				}
-				callback(user);
-			})
+			var user = formatUser(rows[0], logged);
+			callback(user);
 		} else {
+			console.log(err);
 			callback(null);
 		}
 	});
@@ -100,7 +83,6 @@ ctrl.getRelevantUsers = (logged, callback) => {
       });
       callback(users);
 		} else {
-			console.log(err);
 			callback(null);
 		}
 	});
@@ -108,7 +90,6 @@ ctrl.getRelevantUsers = (logged, callback) => {
 
 function formatUser(row, logged) {
 	row.has_talk = false;
-	row.match = "match";
 	row.photos = (row.photos) ? row.photos.split(",") : [];
 	row.photos = row.photos.map(function (img) {
 		return config.root_url + config.upload_path + img;
@@ -119,6 +100,8 @@ function formatUser(row, logged) {
 		row.distance = getDistance(JSON.parse(logged.localisation), JSON.parse(row.localisation))
 	}
 	row.localisation = "secret information";
+	row.liked = (row.liked > 0);
+	row.liking = (row.liking > 0);
 
 	return row;
 }
@@ -154,23 +137,6 @@ ctrl.getLikers = (logged, callback) => {
 		} else {
 			callback(null);
 		}
-	});
-};
-
-ctrl.getMatchStatus = function (userFrom, userTo, cb) {
-
-	var matchStatus = "none";
-
-	LikesModel.getLikeBetweenUsers(userFrom, userTo, function (err, row1s, fields) {
-		if (!err && row1s.length > 0) {
-			matchStatus = "to";
-		}
-		LikesModel.getLikeBetweenUsers(userTo, userFrom, function (err, row2s, fields) {
-			if (!err && row2s.length > 0) {
-				matchStatus = (matchStatus == "to") ? "match" : "from";
-			}
-			cb(matchStatus);
-		});
 	});
 };
 

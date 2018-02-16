@@ -21,7 +21,8 @@ type alias User =
     { username : String
     , gender : Maybe Gender
     , bio : String
-    , match : MatchStatus
+    , liking : Bool
+    , liked : Bool
     , has_talk : Bool
     , visitor : Bool
     , tags : List String

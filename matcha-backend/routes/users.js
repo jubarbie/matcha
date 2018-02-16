@@ -172,6 +172,21 @@ router.get('/user/:login/emailverif', (req, res, next) => {
     }
 });
 
+function sendUser(logged, login, res) {
+  UserCtrl.getFullUser(logged, login, function(user) {
+      if (user) {
+          res.json({
+              "status": "success",
+              "data": user
+          });
+      } else {
+          res.json({
+              "status": "error",
+              "msg": "Error when fetching user"
+          });
+      }
+  });
+}
 
 /* Like or unlike user. */
 router.post('/toggle_like', (req, res, next) => {
@@ -184,12 +199,7 @@ router.post('/toggle_like', (req, res, next) => {
             if (rows[0]) {
                 LikesModel.unLike(logged.login, username, function(err, rows, fields) {
                     if (rows) {
-                        UserCtrl.getMatchStatus(logged.login, username, function(status) {
-                            res.json({
-                                "status": "success",
-                                "data": status
-                            });
-                        })
+                      sendUser(logged, username, res);
                     } else {
                         res.json({
                             "status": "error"
@@ -200,12 +210,7 @@ router.post('/toggle_like', (req, res, next) => {
                 var now = Date.now();
                 LikesModel.like(logged.login, username, now, function(err, rows, fields) {
                     if (rows) {
-                        UserCtrl.getMatchStatus(logged.login, username, function(status) {
-                            res.json({
-                                "status": "success",
-                                "data": status
-                            });
-                        })
+                        sendUser(logged, username, res)
                     } else {
                         res.json({
                             "status": "error"

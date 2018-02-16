@@ -14,7 +14,11 @@ exports.getAllUsers = (cb) =>
 exports.getRelevantProfiles = (logged, gender, int_in, cb) =>
     connection.query('\
 		SELECT u.login AS login, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
-		GROUP_CONCAT(DISTINCT i.src) AS photos, GROUP_CONCAT(DISTINCT relt.tag) AS tags, GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
+    ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
+    ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
+		GROUP_CONCAT(DISTINCT i.src) AS photos, \
+    GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
+    GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
 			FROM user AS u \
 			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 			LEFT JOIN image AS i ON i.id = rel.id_image \
@@ -25,11 +29,15 @@ exports.getRelevantProfiles = (logged, gender, int_in, cb) =>
 			AND s.gender = ? \
 			AND (u.activated = "activated" OR u.activated = "resetpwd") \
 			AND u.login != ? \
-			GROUP BY u.id', [logged, gender, int_in, logged], cb);
+			GROUP BY u.id', [logged, logged, logged, gender, int_in, logged], cb);
 
 exports.getVisitors = (logged, gender, int_in, cb) =>
     connection.query('\
-			SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, GROUP_CONCAT(DISTINCT i.src) AS photos, GROUP_CONCAT(DISTINCT relt.tag) AS tags \
+			SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+      ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
+      ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
+      GROUP_CONCAT(DISTINCT i.src) AS photos, \
+      GROUP_CONCAT(DISTINCT relt.tag) AS tags \
 				FROM user AS u \
 				LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 				LEFT JOIN image AS i ON i.id = rel.id_image \
@@ -41,11 +49,15 @@ exports.getVisitors = (logged, gender, int_in, cb) =>
 				AND s.gender = ? \
 				AND (u.activated = "activated" OR u.activated = "resetpwd") \
 				AND u.login != ? \
-				GROUP BY u.id', [logged, gender, logged, int_in, logged], cb);
+				GROUP BY u.id', [logged, logged, logged, gender, logged, int_in, logged], cb);
 
 exports.getLikers = (logged, gender, int_in, cb) =>
     connection.query('\
-					SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, GROUP_CONCAT(DISTINCT i.src) AS photos, GROUP_CONCAT(DISTINCT relt.tag) AS tags \
+					SELECT u.login AS login, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+          ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
+          ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
+          GROUP_CONCAT(DISTINCT i.src) AS photos, \
+          GROUP_CONCAT(DISTINCT relt.tag) AS tags \
 						FROM user AS u \
 						LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 						LEFT JOIN image AS i ON i.id = rel.id_image \
@@ -57,13 +69,17 @@ exports.getLikers = (logged, gender, int_in, cb) =>
 						AND s.gender = ? \
 						AND (u.activated = "activated" OR u.activated = "resetpwd") \
 						AND u.login != ? \
-						GROUP BY u.id', [logged, gender, logged, int_in, logged], cb);
+						GROUP BY u.id', [logged, logged, logged, gender, logged, int_in, logged], cb);
 
 exports.getFullDataUserWithLogin = (logged, login, cb) =>
     connection.query('\
-		SELECT u.login AS login, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, GROUP_CONCAT(DISTINCT i.src) AS photos, \
-			( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks, GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
-			GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
+		SELECT u.login AS login, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
+    GROUP_CONCAT(DISTINCT i.src) AS photos, \
+    ( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks, GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
+    ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
+    ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
+		GROUP_CONCAT(DISTINCT s.gender) AS interested_in, \
+    GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
 		FROM user AS u \
 		LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
 		LEFT JOIN image AS i ON i.id = rel.id_image \
@@ -71,7 +87,7 @@ exports.getFullDataUserWithLogin = (logged, login, cb) =>
 		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
 		LEFT JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
 		WHERE u.login = ? \
-		GROUP BY u.id', [...[logged, login].sort(), logged, login], cb);
+		GROUP BY u.id', [...[logged, login].sort(), logged, logged, logged, login], cb);
 
 exports.getUserWithLogin = (login, cb) =>
     connection.query(' \

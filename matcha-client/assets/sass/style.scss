@@ -8,7 +8,7 @@
 /* GENERIC STUFF */
 body {
 	background: $clr-back;
-	font-family: 'futura';
+	font-family: 'Open Sans', sans-serif;
 	color: $clr-txt;
 }
 .blur {
@@ -89,7 +89,7 @@ h1 {
 
 /* NAVBAR */
 .navbar {
-	border-bottom: 1px solid grey;
+	border-bottom: 1px solid $grey;
 	background: $clr-back;
 
   .navbar-list {
@@ -102,13 +102,13 @@ h1 {
   	display: inline-block;
   	margin: 0;
   	cursor: pointer;
-  	padding: 20px;
   	line-height: normal;
   	box-sizing: border-box;
   }
   .navbar-list li a {
   	text-decoration: none;
   	color: white;
+		padding: 20px;
   	display: block;
   	height: 100%;
   }
@@ -121,6 +121,18 @@ h1 {
   .navbar-list li.active a {
   	color: white;
   }
+	.account-menu {
+		position: absolute;
+		top: 65px;
+		right: 10px;
+		background: black;
+		padding: 8px;
+		border-radius: 8px;
+		z-index: 300;
+		width: 400px;
+		max-width: 100%;
+		border: 1px solid $grey;
+	}
 }
 
 /* FOOTER */
@@ -142,6 +154,7 @@ ul.group-btn {
       border-radius: 0;
       border-left: 0;
       border-right: 1px;
+			border-color: white;
     }
     &:first-child .button {
         border-top-left-radius: 4px;

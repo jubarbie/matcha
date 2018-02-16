@@ -19,7 +19,8 @@ view username model =
     (Just user, Just s) ->
       Html.Keyed.node username [ ]
         [ ( "div",
-          div [][ h3 [] [ text user.username ]
+          div []
+          [ h3 [] [ text user.username ]
           , button [onClick <| GoBack 1][text "back"]
           , userLikeButtonView s user
           , userMatchStatusView user
@@ -37,18 +38,18 @@ view username model =
 
 userLikeButtonView : Session -> User -> Html Msg
 userLikeButtonView session user =
-  if (List.length session.user.photos <= 0) then
-    div [] [ text "You have to upload at least one image to be able to like this person" ]
-  else if (user.match == None || user.match == From) then
-    button [ onClick <| ToggleLike user.username ] [ text "Like" ]
-  else
-    div []
-      [ text <|
-          case user.match of
-            Match -> "Matched"
-            To -> "Liked"
-            _ -> ""
-      ]
+  let
+    match = getMatchStatus user
+    likeClass =
+      if (match == To || match == Match) then
+        " liked"
+      else
+        ""
+  in
+    if (List.length session.user.photos <= 0) then
+      div [] [ text "You have to upload at least one image to be able to like this person" ]
+    else
+      button [ onClick <| ToggleLike user.username, class <| "like-btn" ++ likeClass ] [ icon "fas fa-heart" ]
 
 userMatchStatusView : User -> Html Msg
 userMatchStatusView user =
@@ -59,7 +60,7 @@ userMatchStatusView user =
       else
         "far fa-comments"
   in
-   if user.match == Match then
+   if getMatchStatus user == Match then
       a [ href <| "http://localhost:3000/#/chat/" ++ user.username ] [ i [ class talkTxt ] [] ]
     else
       div [][ text "You haven't matched (yet) with this profile, you can't open a talk" ]

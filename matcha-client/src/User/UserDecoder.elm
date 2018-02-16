@@ -49,29 +49,6 @@ decodeGender =
             )
 
 
-decodeMatch : Decoder MatchStatus
-decodeMatch =
-    JsonDec.string
-        |> JsonDec.andThen
-            (\a ->
-                case a of
-                    "none" ->
-                        JsonDec.succeed None
-
-                    "from" ->
-                        JsonDec.succeed From
-
-                    "to" ->
-                        JsonDec.succeed To
-
-                    "match" ->
-                        JsonDec.succeed Match
-
-                    _ ->
-                        JsonDec.fail "Gender must be M or F"
-            )
-
-
 decodeUserStatus : Decoder UserStatus
 decodeUserStatus =
     JsonDec.string
@@ -126,7 +103,8 @@ decodeUser =
         |: field "login" JsonDec.string
         |: maybe (field "gender" decodeGender)
         |: field "bio" JsonDec.string
-        |: field "match" decodeMatch
+        |: field "liking" JsonDec.bool
+        |: field "liked" JsonDec.bool
         |: field "has_talk" JsonDec.bool
         |: field "visitor" JsonDec.bool
         |: field "tags" (JsonDec.list JsonDec.string)

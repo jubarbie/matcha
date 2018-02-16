@@ -198,7 +198,7 @@ update msg model =
                     ( model, Navigation.newUrl "/#/login" )
 
         UserResponse response ->
-            case response of
+            case Debug.log "User" response of
                 Ok rep ->
                     case ( rep.status == "success", rep.data, model.session ) of
                         ( True, Just u, Just s ) ->
@@ -261,29 +261,6 @@ update msg model =
                     ( model
                     , Navigation.newUrl "/#/login"
                     )
-
-        ToggleLikeResponse username response ->
-            case Debug.log "resp" response of
-                Ok rep ->
-                    case ( rep.status, rep.data, model.session ) of
-                        ( "success", Just m, Just s ) ->
-                            let
-                                anim =
-                                    case m of
-                                        Match ->
-                                            Just 1.0
-
-                                        _ ->
-                                            Nothing
-
-                            in
-                            ( { model | matchAnim = anim }, sendLikeNotif s.token username )
-
-                        _ ->
-                            ( model, Navigation.newUrl "/#/login" )
-
-                _ ->
-                    ( model, Navigation.newUrl "/#/login" )
 
         LoginResponse response ->
             case response of
@@ -726,6 +703,9 @@ update msg model =
 
         UpdateCurrentTime t ->
             ( model, now )
+
+        ToggleAccountMenu ->
+            ( { model | showAccountMenu = not model.showAccountMenu }, Cmd.none )
 
         Notification str ->
             case ( Json.Decode.decodeString notificationDecoder str, model.session ) of
