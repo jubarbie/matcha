@@ -53,6 +53,7 @@ type alias Model =
     , notifLike: Int
     , userFilter : Maybe FilterUsers
     , userSort : SortUsers
+    , orderSort : OrderSort
     , usersAdmin : List SessionUser
     , message : Maybe String
     , map_state : MapState
@@ -96,6 +97,7 @@ initialModel route =
     , notifLike = 0
     , userFilter = Nothing
     , userSort = S_Dist
+    , orderSort = ASC
     , usersAdmin = []
     , message = Nothing
     , map_state =

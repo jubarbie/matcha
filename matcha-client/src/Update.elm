@@ -704,7 +704,11 @@ update msg model =
           ( model, Navigation.newUrl url)
 
         ChangeSort s ->
-          ( { model | userSort = s }, Cmd.none )
+          let
+            orderSort =
+              if (s == model.userSort) then toggleOrder model.orderSort else ASC
+          in
+              ( { model | userSort = s, orderSort = orderSort }, Cmd.none )
 
         Notification str ->
             case ( Json.Decode.decodeString notificationDecoder str, model.session ) of

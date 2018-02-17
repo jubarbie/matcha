@@ -68,15 +68,17 @@ viewUsers model s =
     list =
       case model.userSort of
         S_Dist -> List.sortBy .distance model.users
-        S_Age -> List.sortBy .date_of_birth model.users
+        S_Age ->  List.sortBy .date_of_birth model.users
         S_LastOn -> List.sortBy .lastOn model.users
-        S_Afin -> List.sortBy (\u -> getAffinityScore s.user u) model.users
+        S_Afin ->  List.sortBy (\u -> getAffinityScore s.user u) model.users
+    listOrdered =
+      if ( model.orderSort == DESC ) then List.reverse list else list
   in
     div []
         [ ul [ class <| "users-list" ] <|
           List.map (\u ->
               li [] [ cardUserView u model s ]
-              ) <| list
+              ) <| listOrdered
         ]
 
 
