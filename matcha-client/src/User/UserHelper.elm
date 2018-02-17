@@ -21,7 +21,7 @@ getCommonTags tags1 tags2 =
 
 getAffinityScore : SessionUser -> User -> Float
 getAffinityScore me user =
-  (1 / (user.distance + 1)) * (40.0 / 100.0) + (toFloat ((user.likes) * (getCommonTags me.tags user.tags)) * 50.0 / 100) + ((toFloat user.likes) * 10.0 / 100)
+  (1 / (user.distance + 1) * 0.4) + (toFloat ((user.likes) * (getCommonTags me.tags user.tags)) * 0.5) + ((toFloat user.likes) * 0.1)
 
 toggleOrder : OrderSort -> OrderSort
 toggleOrder order =

@@ -339,6 +339,8 @@ ul.users-list {
   font-size: 0.8em; }
   .tag.dismissable {
     padding-right: 28px; }
+  .tag.metoo {
+    background: white; }
   .tag .del {
     position: absolute;
     right: 2px;

@@ -63,6 +63,7 @@ type alias Model =
     , mImage : Maybe Image
     , currentTime : Maybe Time.Time
     , showAccountMenu : Bool
+    , showEmoList : Bool
     }
 
 
@@ -96,8 +97,8 @@ initialModel route =
     , notifVisit = 0
     , notifLike = 0
     , userFilter = Nothing
-    , userSort = S_Dist
-    , orderSort = ASC
+    , userSort = S_Afin
+    , orderSort = DESC
     , usersAdmin = []
     , message = Nothing
     , map_state =
@@ -111,4 +112,5 @@ initialModel route =
     , mImage = Nothing
     , currentTime = Nothing
     , showAccountMenu = False
+    , showEmoList = False
     }

@@ -11,6 +11,7 @@ import Msgs exposing (..)
 import String
 import Talk.TalkModel exposing (..)
 import Talk.TalkUtils exposing (..)
+import Regex exposing (..)
 
 
 view : String -> Model -> List (Html Msg)
@@ -30,6 +31,7 @@ view talk model =
         ]
             ++ [ div [ id "talk-list", class "message-list" ] (List.map (messageView t.username_with) messages) ]
             ++ viewMessageForm t
+            ++ (if model.showEmoList then [ div [ id "emo-list" ] <| emoListView emoticonList talk ] else [])
     _ -> [ text "No talk" ]
 
 
@@ -38,7 +40,8 @@ viewMessageForm : Talk -> List (Html Msg)
 viewMessageForm t =
     [ Html.form [ class "footer message-form" ]
         [ div [ class "message-input" ]
-            [ input [ type_ "text", onInput UpdateNewMessage, value t.new_message ] []
+            [ button [ onClick ToggleEmoList ] [text "E"]
+            , input [ type_ "text", onInput UpdateNewMessage, value t.new_message ] []
             , button
                 [ class "send-btn"
                 , type_ "submit"
@@ -86,5 +89,25 @@ messageView to msg =
             [ text <| formatDate date ++ " - "
             , text msg.user
             ]
-        , div [ class "message-bubble" ] [ text msg.message ]
+        , div [ class "message-bubble" ] (messageEmoticonView msg.message)
         ]
+
+messageEmoticonView : String -> List (Html Msg)
+messageEmoticonView msg =
+  let
+    reg = regex "::(__em-.*?__)::"
+    listStr =
+      split All reg msg
+  in
+    List.map (\s ->
+      if (contains (regex "__em-.*?__") s) then
+        emoticon (String.slice 2 -2 s)
+      else
+        text s
+    ) listStr
+
+emoListView : List String -> String -> List (Html Msg)
+emoListView emo talk =
+  List.map (\em ->
+    i [ class <| "em " ++ em, onClick <| AddEmo talk em ] []
+  ) emo

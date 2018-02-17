@@ -26,7 +26,7 @@ view username model =
                             [ userNameView user
                             , userLikeButtonView s user
                             , userMatchStatusView user
-                            , userTagsView user
+                            , userTagsView user s
                             , userBioView user
                             , userDistanceView user
                             , userOnlineStatusView model user
@@ -120,11 +120,15 @@ userBioView : User -> Html Msg
 userBioView user =
   div [ class "user-bio" ] [ text user.bio ]
 
-userTagsView : User -> Html Msg
-userTagsView user =
+userTagsView : User -> Session ->  Html Msg
+userTagsView user s =
   div [] <| List.map (\t ->
-      div [ class "tag" ]
-          [ text t ]) (List.sort user.tags)
+    let
+      me = if List.member t s.user.tags then " metoo" else ""
+    in
+      div [ class <| "tag" ++ me ]
+          [ text t ]
+  ) (List.sort user.tags)
 
 userImagesView : User -> Model -> Html Msg
 userImagesView user model =

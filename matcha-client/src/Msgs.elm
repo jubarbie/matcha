@@ -68,3 +68,5 @@ type Msg
     | ChangeImage User Int
     | GoTo String
     | ChangeSort SortUsers
+    | ToggleEmoList
+    | AddEmo String String

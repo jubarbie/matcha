@@ -706,7 +706,7 @@ update msg model =
         ChangeSort s ->
           let
             orderSort =
-              if (s == model.userSort) then toggleOrder model.orderSort else ASC
+              if (s == model.userSort) then toggleOrder model.orderSort else ( if (s == S_Afin) then ASC else DESC )
           in
               ( { model | userSort = s, orderSort = orderSort }, Cmd.none )
 
@@ -747,6 +747,20 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        ToggleEmoList ->
+          ( { model | showEmoList = not model.showEmoList }, Cmd.none )
+
+        AddEmo talk em ->
+          case getTalkWith talk model.talks of
+            Just t ->
+              let
+                newTalk = { t | new_message = t.new_message ++ " ::__" ++ em ++ "__::" }
+                newTalks = updateTalks (Just newTalk) model.talks
+              in
+                ( {model | talks = newTalks}, Cmd.none)
+            _ ->
+              ( model, Cmd.none )
 
 
 now : Cmd Msg
