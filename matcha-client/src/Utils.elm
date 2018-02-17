@@ -3,6 +3,7 @@ module Utils exposing (..)
 import Date
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Keyed exposing (..)
 import Http
 import Json.Decode exposing (..)
 import Msgs exposing (..)
@@ -85,10 +86,10 @@ genderToIcon : Maybe Gender -> Html Msg
 genderToIcon g =
     case g of
         Just M ->
-            icon "fas fa-mars"
+          Html.Keyed.node "male" [ class "fas fa-mars" ] []
 
         Just F ->
-            icon "fas fa-venus"
+          Html.Keyed.node "female" [ class "fas fa-venus" ] []
 
         _ ->
             span [] []

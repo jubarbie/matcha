@@ -334,7 +334,7 @@ update msg model =
                                                 user =
                                                     s.user
                                             in
-                                            Just { s | user = { user | localisation = Just l } }
+                                            Just { s | user = { user | localisation = l } }
 
                                         _ ->
                                             Nothing
@@ -530,12 +530,7 @@ update msg model =
                         cmd =
                             case model.session of
                                 Just s ->
-                                    case s.user.localisation of
-                                        Just l ->
-                                            localize [ l.lon, l.lat ]
-
-                                        _ ->
-                                            getIpLocalisation
+                                    localize [ s.user.localisation.lon, s.user.localisation.lat ]
 
                                 _ ->
                                     Cmd.none

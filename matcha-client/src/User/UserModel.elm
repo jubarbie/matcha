@@ -11,7 +11,7 @@ type alias SessionUser =
     , bio : String
     , date_of_birth : Int
     , tags : List String
-    , localisation : Maybe Localisation
+    , localisation : Localisation
     , photos : List ( Int, String )
     , role : UserRole
     , status : UserStatus
@@ -25,12 +25,13 @@ type alias User =
     , date_of_birth : Int
     , liking : Bool
     , liked : Bool
+    , likes : Int
     , has_talk : Bool
     , visitor : Bool
     , tags : List String
     , photos : List String
     , lastOn : String
-    , distance : Maybe Float
+    , distance : Float
     }
 
 type alias Users =
@@ -57,6 +58,7 @@ type SortUsers
     = S_Age
     | S_LastOn
     | S_Dist
+    | S_Afin
 
 type OrderSort
   = ASC

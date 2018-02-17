@@ -103,19 +103,18 @@ userOnlineStatusView model user =
 
 userNameView : User -> Html Msg
 userNameView user =
-  h3 [] [ text user.username, div [ class "u-pull-right" ] [ text <| genderToString user.gender ] ]
+  h3 [] [ text user.username, div [ class "u-pull-right" ] [ genderToIcon user.gender ] ]
+
 
 userDistanceView : User -> Html Msg
 userDistanceView user =
   div [ class "info-dist" ]
-        [ icon "fas fa-location-arrow"
-        , text <| case user.distance of
-            Just d ->
-                case d < 1 of
-                  True -> " " ++ (toString <| round (d * 1000 )) ++ " m away"
-                  _ -> " " ++ (toString <| round d) ++ " km away"
-            _ -> ""
-        ]
+      [ icon "fas fa-location-arrow"
+      , text <| if user.distance < 1 then
+                  " " ++ (toString <| round (user.distance * 1000 )) ++ " m away"
+                else
+                  " " ++ (toString <| round user.distance) ++ " km away"
+      ]
 
 userBioView : User -> Html Msg
 userBioView user =

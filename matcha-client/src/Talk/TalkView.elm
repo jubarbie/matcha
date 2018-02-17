@@ -21,12 +21,14 @@ view talk model =
           messages =
               List.sortBy (\m -> m.date) t.messages
       in
-        [ div [ class "layout" ]
-            [ button [ onClick <| GoBack 1 ] [ i [ class "fas fa-caret-left" ] [], text " Back" ]
-            , h1 [ class "flex" ] [ text <| "Chat with " ++ t.username_with ]
-            ]
+        [ div [ class "chat-title" ]
+              [ div [ class "container" ]
+                    [ button [ onClick <| GoBack 1, class "pull-left" ] [ i [ class "fas fa-caret-left" ] [], text " Back" ]
+                    , h1 [] [ text <| "Chat with " ++ t.username_with ]
+                    ]
+              ]
         ]
-            ++ [ div [ id "talk-list", class "message-list content" ] (List.map (messageView t.username_with) messages) ]
+            ++ [ div [ id "talk-list", class "message-list" ] (List.map (messageView t.username_with) messages) ]
             ++ viewMessageForm t
     _ -> [ text "No talk" ]
 

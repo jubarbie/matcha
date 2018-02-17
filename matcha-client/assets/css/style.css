@@ -19,6 +19,22 @@
     transform: translate3d(-4px, 0, 0); }
   40%, 60% {
     transform: translate3d(4px, 0, 0); } }
+.chat-title {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: 0;
+  z-index: 200;
+  background: #252525; }
+  .chat-title h1 {
+    font-size: 1em;
+    color: grey;
+    text-align: center; }
+  .chat-title .button {
+    border: 0;
+    padding: 0;
+    margin: 0; }
+
 .message-form {
   margin-bottom: 0; }
 
@@ -47,7 +63,16 @@
   padding: 2px 10px;
   display: inline-block;
   border-radius: 10px;
-  border: 2px solid white; }
+  background: 2px solid white; }
+
+.message-me .message-bubble {
+  border: 2px solid white;
+  background: white;
+  color: #252525; }
+
+.message-them .message-bubble {
+  border: 2px solid #1d986d;
+  background: #1d986d; }
 
 .message-me:after {
   content: " ";
@@ -60,7 +85,7 @@
   position: absolute;
   bottom: -5px;
   right: 10px;
-  background: #252525; }
+  background: white; }
 
 .message-them:after {
   content: " ";
@@ -68,12 +93,10 @@
   width: 10px;
   height: 10px;
   transform: rotate(45deg);
-  border-right: 2px solid white;
-  border-bottom: 2px solid white;
   position: absolute;
   bottom: -5px;
   left: 10px;
-  background: #252525; }
+  background: #1d986d; }
 
 .message-input {
   margin-top: 20px;
@@ -176,7 +199,7 @@ ul.talk-list {
 ul.users-list {
   list-style-type: none;
   margin: 0;
-  padding: 40px 0;
+  padding: 40px 0 70px 0;
   transition: all 0.2s ease; }
   ul.users-list li {
     width: 33.333%;
@@ -290,7 +313,8 @@ ul.users-list {
   padding: 10px;
   display: flex;
   width: 100%;
-  left: 0; }
+  left: 0;
+  background-color: #252525; }
   .filter-menu .group-btn {
     margin: 0 auto; }
   .filter-menu .button {
@@ -479,7 +503,8 @@ h1 {
   position: fixed;
   left: 0;
   top: 0;
-  height: 100%; }
+  height: 100%;
+  z-index: 210; }
   .navbar .navbar-list {
     list-style-type: none;
     margin: 0;
@@ -535,19 +560,12 @@ ul.group-btn {
   margin: 0;
   padding: 0; }
   ul.group-btn li {
-    display: inline-block; }
+    display: inline-block;
+    margin: 0; }
     ul.group-btn li .button {
       border-radius: 0;
-      border-left: 0;
-      border-right: 1px;
-      border-color: white; }
-    ul.group-btn li:first-child .button {
-      border-top-left-radius: 4px;
-      border-bottom-left-radius: 4px;
-      border-left: 1px; }
-    ul.group-btn li:last-child .button {
-      border-top-right-radius: 4px;
-      border-bottom-right-radius: 4px; }
+      border: 0;
+      margin: 0; }
 
 @media screen and (max-width: 840px) {
   #main {

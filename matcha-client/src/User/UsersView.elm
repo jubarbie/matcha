@@ -11,15 +11,19 @@ import User.UserModel exposing (..)
 import Utils exposing (..)
 import User.UserView exposing (..)
 import User.UserHelper exposing (..)
+import Char
 
 
 view : Model -> List (Html Msg)
 view model =
-    [ div [ ]
-        [ sortMenuView model
-        , viewUsers model.users model
+  case model.session of
+    Just s ->
+        [ div [ ]
+            [ sortMenuView model
+            , viewUsers model s
+            ]
         ]
-    ]
+    _ -> []
 
 sortMenuView : Model -> Html Msg
 sortMenuView model =
@@ -33,6 +37,9 @@ sortMenuView model =
                     ]
             , li [ ][ button [ class "button", onClick <| ChangeSort S_LastOn ]
                     [ text "LastOn"]
+                    ]
+            , li [ ][ button [ class "button", onClick <| ChangeSort S_Afin ]
+                    [ text "Affinity"]
                     ]
             ]
       , userMenuView model
@@ -55,33 +62,39 @@ userMenuView model =
         ]
 
 
-viewUsers : List User -> Model -> Html Msg
-viewUsers users model =
+viewUsers : Model -> Session -> Html Msg
+viewUsers model s =
   let
-    list = case model.userSort of
-      S_Dist -> List.sortWith distanceCmp users
-      S_Age -> List.sortBy .date_of_birth users
-      S_LastOn -> List.sortBy .lastOn users
+    list =
+      case model.userSort of
+        S_Dist -> List.sortBy .distance model.users
+        S_Age -> List.sortBy .date_of_birth model.users
+        S_LastOn -> List.sortBy .lastOn model.users
+        S_Afin -> List.sortBy (\u -> getAffinityScore s.user u) model.users
   in
     div []
         [ ul [ class <| "users-list" ] <|
           List.map (\u ->
-              li [] [ cardUserView u model ]
+              li [] [ cardUserView u model s ]
               ) <| list
         ]
 
-cardUserView : User -> Model -> Html Msg
-cardUserView user model =
-  div [ class "user-box" ]
-        [ userImageView user model
-        , userInfosView user model
+
+cardUserView : User -> Model -> Session -> Html Msg
+cardUserView user model s =
+  Html.Keyed.node (String.filter Char.isLower user.username) [  ]
+    [( "div",
+      div [ class "user-box" ] [ userImageView user model
+        , userInfosView user model s
         , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ][ ]
         ]
+        )]
 
-userInfosView : User -> Model -> Html Msg
-userInfosView user model =
+userInfosView : User -> Model -> Session -> Html Msg
+userInfosView user model s =
   div [ class "user-infos" ]
       [ userNameView user
+      , div [] [ getAffinityScore s.user user |> toString |> text ]
       , userDistanceView user
       ]
 
