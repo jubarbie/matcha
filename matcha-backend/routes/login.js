@@ -20,6 +20,7 @@ apiRoutes.post('/', (req, res, next) => {
 	UserCtrl.getConnectedUser(login, function (user) {
 		if (user) {
 			if (bcrypt.compareSync(pwd, user.password) == false) {
+
 				res.json({"status":"error", "msg":"Incorrect login or password"});
 			} else if (user.activated != "activated" && user.activated != "incomplete" && user.activated != "resetpwd") {
 				res.json({"status":"error", "msg":"You must activate your email first"});
@@ -29,6 +30,7 @@ apiRoutes.post('/', (req, res, next) => {
 				});
 				var now = Date.now();
 				UsersModel.updateConnectionDate(user.id, now, (err, rows, fields) => {
+					console.log(user);
 					res.json({"status":"success", "token":token, "data":user});
 				});
 			}

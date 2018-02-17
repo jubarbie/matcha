@@ -96,7 +96,7 @@ userInfosView : User -> Model -> Session -> Html Msg
 userInfosView user model s =
   div [ class "user-infos" ]
       [ userNameView user
-      , div [] [ getAffinityScore s.user user |> toString |> text ]
+      -- , div [] [ getAffinityScore s.user user |> toString |> text ]
       , userDistanceView user
       ]
 

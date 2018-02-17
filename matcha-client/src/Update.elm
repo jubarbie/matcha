@@ -263,7 +263,7 @@ update msg model =
                     )
 
         LoginResponse response ->
-            case response of
+            case Debug.log "login resp" response of
                 Success rep ->
                     case ( rep.status == "success", rep.token, rep.user ) of
                         ( True, Just t, Just user ) ->
