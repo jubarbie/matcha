@@ -278,7 +278,8 @@ router.post('/update_gender', [
 router.post('/update_int_in', [
     check('genders').exists().custom((value, {
         req
-    }) => (value.length == 0 || value.includes('M') || value.includes('F'))),
+    }) => ( value.length == 0 || value.includes('M') || value.includes('F') )
+    ),
 ], (req, res, next) => {
 
     const errors = validationResult(req);
@@ -287,7 +288,7 @@ router.post('/update_int_in', [
 
     if (logged) {
         if (!errors.isEmpty()) {
-            console.log(errors.mapped())
+            console.log("error", errors.mapped())
             res.json({
                 "status": "error",
                 "msg": "invalid form"
@@ -298,18 +299,7 @@ router.post('/update_int_in', [
             });
             UsersModel.updateSexuality(logged.login, genders, (err, rows, fields) => {
                 if (!err) {
-                    UserCtrl.getConnectedUser(logged.login, (user) => {
-                        if (user) {
-                            res.json({
-                                "status": "success",
-                                "data": user
-                            });
-                        } else {
-                            res.json({
-                                "status": "error"
-                            });
-                        }
-                    });
+                    sendConnectedUser(logged, res);
                 } else {
                     console.log("err in update_field", err);
                     res.json({
@@ -320,6 +310,22 @@ router.post('/update_int_in', [
         }
     }
 });
+
+function sendConnectedUser(logged, res) {
+  UserCtrl.getConnectedUser(logged.login, (user) => {
+      console.log(user);
+      if (user) {
+          res.json({
+              "status": "success",
+              "data": user
+          });
+      } else {
+          res.json({
+              "status": "error"
+          });
+      }
+  });
+}
 
 /* Update user password */
 router.post('/change_password', [

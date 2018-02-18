@@ -141,5 +141,7 @@ exports.updateSexuality = (login, genders, cb) => {
     connection.query('DELETE FROM sex_orientation WHERE login = ?', [login], (err, rows, fields) => {
         if (genders.length > 0)
             connection.query('INSERT INTO sex_orientation (login, gender) VALUES ? ', [genders], cb);
+        else
+          cb();
     })
 }

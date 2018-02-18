@@ -9,6 +9,8 @@ import Json.Decode exposing (..)
 import Msgs exposing (..)
 import String
 import User.UserModel exposing (..)
+import Task
+import Time
 
 formatDate : Date.Date -> String
 formatDate date =
@@ -68,6 +70,10 @@ formatDate date =
     in
     day ++ " " ++ month ++ " " ++ year ++ " " ++ h ++ ":" ++ m ++ ":" ++ s
 
+
+now : Cmd Msg
+now =
+    Task.perform (Just >> SetCurrentTime) Time.now
 
 notif : Int -> Html Msg
 notif notif =

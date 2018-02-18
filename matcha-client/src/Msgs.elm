@@ -54,7 +54,7 @@ type Msg
     | ResetPwd
     | ChangePwd
     | UpdateGender Gender
-    | UpdateIntIn (List Gender)
+    | UpdateIntIn Gender
     | SearchTag String
     | AddTag String
     | AddNewTag

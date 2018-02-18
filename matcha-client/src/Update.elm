@@ -21,6 +21,7 @@ import User.UserCommands exposing (..)
 import User.UserHelper exposing (..)
 import User.UserModel exposing (..)
 import User.UserUpdate exposing (..)
+import Utils exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -183,7 +184,7 @@ update msg model =
                                             ( newModel, sendLikeNotif newSession.token u.username )
 
                                 ResetPassword ->
-                                    ( { newModel | message = Just "Please reset your password" }, Navigation.newUrl "/#/account" )
+                                    ( { newModel | message = Just "Please reset your password" }, Navigation.newUrl "/#/edit_password" )
 
                                 Incomplete ->
                                     ( { newModel | message = Just "Please complete your profile" }, Navigation.newUrl "/#/account" )
@@ -274,7 +275,7 @@ update msg model =
                                 ( route, msg ) =
                                     case user.status of
                                         ResetPassword ->
-                                            ( "/#/account", Just "Please reset your password" )
+                                            ( "/#/edit_password", Just "Please reset your password" )
 
                                         _ ->
                                             ( "/#/users", Nothing )
@@ -643,24 +644,37 @@ update msg model =
         UpdateGender gender ->
             ( model, doIfConnected <| updateField gender )
 
-        UpdateIntIn genders ->
-            ( model, doIfConnected <| updateIntIn genders )
+        UpdateIntIn gender ->
+          case model.session of
+            Just s ->
+              let
+                newIntIn =
+                    if List.member gender s.user.intIn then
+                      List.filter ((/=) gender) s.user.intIn
+                    else
+                      gender :: s.user.intIn
+              in
+                ( model, doIfConnected <| updateIntIn <| newIntIn )
+            _ -> (model , Cmd.none)
 
         SearchTag search ->
             case ( model.session, String.length search > 1, validTag <| Just search ) of
                 ( Just s, True, Valid t ) ->
-                    ( { model | tagInput = t }, searchTag s.token search )
+                    ( { model | tagInput = search }, searchTag s.token search )
+
+                ( Just s, _, NotValid err ) ->
+                    ( { model | tagInput = search }, searchTag s.token search )
 
                 _ ->
-                    ( { model | searchTag = [] }, Cmd.none )
+                    ( { model | searchTag = [], tagInput = search }, Cmd.none )
 
         AddTag t ->
-            ( model, doIfConnected (addTag t) )
+            ( { model | tagInput = "", searchTag = [] }, doIfConnected (addTag t) )
 
         AddNewTag ->
             case validTag <| Just model.tagInput of
                 Valid s ->
-                    ( model, doIfConnected (addTag s) )
+                    ( { model | tagInput = "", searchTag = [] }, doIfConnected (addTag s) )
 
                 _ ->
                     ( model, Cmd.none )
@@ -761,8 +775,3 @@ update msg model =
                 ( {model | talks = newTalks}, Cmd.none)
             _ ->
               ( model, Cmd.none )
-
-
-now : Cmd Msg
-now =
-    Task.perform (Just >> SetCurrentTime) Time.now

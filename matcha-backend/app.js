@@ -30,6 +30,10 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(function(req, res, next) {
+  // Disable caching for content files
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.header("Pragma", "no-cache");
+    res.header("Expires", 0);
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();

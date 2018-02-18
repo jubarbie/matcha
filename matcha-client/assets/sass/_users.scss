@@ -220,8 +220,16 @@ ul.users-list {
 }
 
 
-.gender-icon {
+.gender-btn {
   font-size: 2em;
+	color: $grey;
+
+	&.active {
+		color: white;
+	}
+	input {
+		display: none;
+	}
 }
 
 /* MATCH ANIMATION */

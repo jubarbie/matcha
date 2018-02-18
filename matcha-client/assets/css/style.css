@@ -358,8 +358,13 @@ ul.users-list {
   margin: 0;
   padding: 0; }
 
-.gender-icon {
-  font-size: 2em; }
+.gender-btn {
+  font-size: 2em;
+  color: grey; }
+  .gender-btn.active {
+    color: white; }
+  .gender-btn input {
+    display: none; }
 
 /* MATCH ANIMATION */
 #match-anim {

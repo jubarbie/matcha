@@ -48,14 +48,7 @@ viewAccount model user =
           ]
       , div [ class "six columns"]
           [ h2 [][text "Interest"]
-          , viewGenderForm user.gender
-          , viewIntInForm user.intIn
-          , div [] <| List.map (\t ->
-              div [ class "tag dismissable" ]
-                  [ text t
-                  , div [ class "del pointer", onClick <| RemoveTag t ][ icon "fas fa-times" ]
-                  ]) (List.sort user.tags)
-          , viewTagForm model
+          , viewTagSection model user
           ]
       ]
     , viewImages model user
@@ -119,11 +112,22 @@ viewImagePreview image =
         ]
         []
 
+viewTagSection : Model -> SessionUser -> Html Msg
+viewTagSection model user =
+  div [] <| List.map (\t ->
+      div [ class "tag dismissable" ]
+          [ text t
+          , div [ class "del pointer", onClick <| RemoveTag t ][ icon "fas fa-times" ]
+          ]) (List.sort user.tags)
+
 viewTagForm : Model -> Html Msg
 viewTagForm model =
   div [ class "input" ]
-    [ input [ type_ "text", onInput SearchTag ] []
-    , button [ onClick AddNewTag ] [ text "Add" ]
+    [ Html.form []
+           [ input [ type_ "text", onInput SearchTag, value model.tagInput ] []
+           , button
+              [ onWithOptions "click" { preventDefault= True, stopPropagation= False } (JD.succeed AddNewTag), type_ "submit" ] [ text "Add" ]
+           ]
     , div []
       [ Html.ul [ class "search-list" ] <|
         List.map (\i -> li [ onClick <| AddTag i, class "pointer" ] [ text i ]) model.searchTag
@@ -144,72 +148,74 @@ viewEditAccount model =
       Nothing -> text "no session..."
       Just s ->
         div [class "content"]
-          [ viewEditAccountForm model.editAccountForm
+          [ viewEditAccountForm model.editAccountForm s.user
           ]
 
 viewGenderForm : Maybe Gender -> Html Msg
 viewGenderForm gender =
-  div [ class "row" ]
-    [ label [ for "male", class "six columns" ]
-            [ i [class "fas fa-mars"] []
-            , input
-                [ name "gender"
-                , type_ "radio"
-                , id "male"
-                , onClick <| UpdateGender M
-                , checked (gender == Just M)
-                ] []
+  div []
+    [ div [] [ label [] [text "I am"] ]
+    , div [ class "row" ]
+          [ label [ for "gmale", class <| "gender-btn six columns" ++ (if (gender == Just M) then " active" else "")]
+                  [ text "Male ", i [class "fas fa-mars"] []
+                  , input
+                      [ name "gender"
+                      , type_ "radio"
+                      , id "gmale"
+                      , onClick <| UpdateGender M
+                      , checked (gender == Just M)
+                      ] []
+                  ]
+            , label [ for "gfemale", class <| "gender-btn six columns" ++ (if (gender == Just F) then " active" else "") ]
+                    [ text "Female ", i [class "fas fa-venus"] []
+                    , input
+                        [ name "gender"
+                        , type_ "radio"
+                        , id "gfemale"
+                        , onClick <| UpdateGender F
+                        , checked (gender == Just F)
+                        ] []
+                    ]
             ]
-      , label [ for "female", class "six columns" ]
-              [ i [class "fas fa-venus"] []
-              , input
-                  [ name "gender"
-                  , type_ "radio"
-                  , id "female"
-                  , onClick <| UpdateGender F
-                  , checked (gender == Just F)
-                  ] []
-              ]
-      ]
+        ]
 
 viewIntInForm : List Gender -> Html Msg
 viewIntInForm intIn =
-  let
-    getGenderList a =
-      if List.member a intIn then
-        List.filter ((/=) a) intIn
-      else
-        a :: intIn
-  in
-    div [ class "row"]
-      [ label [ for "male", class "six columns" ]
-              [ i [class "fas fa-mars"] []
-              , input
-                  [ name "intIn"
-                  , type_ "checkbox"
-                  , id "male"
-                  , onClick <| UpdateIntIn (getGenderList M)
-                  , checked <| List.member M intIn
-                  ] []
+    div []
+      [ div [] [ label [] [text "I am interested in"] ]
+      , div [ class "row"]
+            [ label [ for "imale", class <| "gender-btn six columns" ++ (if (List.member M intIn) then " active" else "") ]
+                    [ text "Males ", i [class "fas fa-mars"] []
+                    , input
+                        [ name "intIn"
+                        , type_ "checkbox"
+                        , id "imale"
+                        , onClick <| UpdateIntIn M
+                        , checked <| List.member M intIn
+                        ] []
+                    ]
+              , label [ for "ifemale", class <| "gender-btn six columns" ++ (if (List.member F intIn) then " active" else "") ]
+                      [ text "Females ", i [class "fas fa-venus"] []
+                      , input
+                          [ name "intIn"
+                          , type_ "checkbox"
+                          , id "ifemale"
+                          , onClick <| UpdateIntIn F
+                          , checked <| List.member F intIn
+                          ] []
+                      ]
               ]
-        , label [ for "female", class "six columns" ]
-                [ i [class "fas fa-venus"] []
-                , input
-                    [ name "intIn"
-                    , type_ "checkbox"
-                    , id "female"
-                    , onClick <| UpdateIntIn (getGenderList F)
-                    , checked <| List.member F intIn
-                    ] []
-                ]
         ]
 
-viewEditAccountForm : Form -> Html Msg
-viewEditAccountForm accountForm =
+viewEditAccountForm : Form -> SessionUser -> Html Msg
+viewEditAccountForm accountForm user =
   div [ class "edit-form" ]
     [ h1 [] [ text <| "Edit account" ]
     , Html.form [ ] <| List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
-      ++ [ input
+      ++
+        [ viewGenderForm user.gender
+        , viewIntInForm user.intIn
+        , input
               [ onWithOptions
                   "click"
                   { preventDefault = True
