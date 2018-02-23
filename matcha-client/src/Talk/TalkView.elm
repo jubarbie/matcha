@@ -1,68 +1,100 @@
 module Talk.TalkView exposing (..)
 
 import Date
-import Utils exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode
 import Models exposing (..)
 import Msgs exposing (..)
+import Regex exposing (..)
 import String
 import Talk.TalkModel exposing (..)
 import Talk.TalkUtils exposing (..)
-import Regex exposing (..)
+import Utils exposing (..)
 
 
 view : String -> Model -> List (Html Msg)
 view talk model =
-  case getTalkWith talk model.talks of
-    Just t ->
-      let
-          messages =
-              List.sortBy (\m -> m.date) t.messages
-      in
-        [ div [ class "chat-title" ]
-              [ div [ class "container" ]
-                    [ button [ onClick <| GoBack 1, class "pull-left" ] [ i [ class "fas fa-caret-left" ] [], text " Back" ]
-                    , h1 [] [ text <| "Chat with " ++ t.username_with ]
+    case getTalkWith talk model.talks of
+        Just t ->
+            let
+                messages =
+                    List.sortBy (\m -> m.date) t.messages
+            in
+            [ div [ class "layout-row flex" ]
+                [ div
+                    [ id "talk", class <| "layout-column" ++ getEmoListClass model.showEmoList ]
+                    [ div [ id "talk-list", class "message-list content" ] (List.map (messageView t.username_with) messages)
+                    , div [ id "talk-foot" ]
+                        [ emoListView emoticonList talk
+                        , viewMessageForm t
+                        ]
                     ]
-              ]
-        ]
-            ++ [ div [ id "talk-list", class "message-list" ] (List.map (messageView t.username_with) messages) ]
-            ++ viewMessageForm t
-            ++ (if model.showEmoList then [ div [ id "emo-list" ] <| emoListView emoticonList talk ] else [])
-    _ -> [ text "No talk" ]
-
-
-
-viewMessageForm : Talk -> List (Html Msg)
-viewMessageForm t =
-    [ Html.form [ class "footer message-form" ]
-        [ div [ class "message-input" ]
-            [ button [ onClick ToggleEmoList ] [text "E"]
-            , input [ type_ "text", onInput UpdateNewMessage, value t.new_message ] []
-            , button
-                [ class "send-btn"
-                , type_ "submit"
-                , onWithOptions
-                    "click"
-                    { preventDefault = True
-                    , stopPropagation = False
-                    }
-                    (Json.Decode.succeed SendNewMessage)
+                , div [ id "talks-side" ] [ talksListView model ]
                 ]
-                [ i [ class "fas fa-share" ] [] ]
+            ]
+
+        _ ->
+            [ text "No talk" ]
+
+
+getEmoListClass : Bool -> String
+getEmoListClass sh =
+    if sh then
+        " show-emo"
+    else
+        ""
+
+
+viewMessageForm : Talk -> Html Msg
+viewMessageForm t =
+    div [ id "new-mess" ]
+        [ button [ onClick ToggleEmoList, class "emo-btn" ] [ icon "em em-grinning" ]
+        , Html.form [ id "message-form" ]
+            [ div [ class "message-input" ]
+                [ input [ id "input-msg", type_ "text", onInput UpdateNewMessage, value t.new_message ] []
+                , button
+                    [ class "send-btn"
+                    , type_ "submit"
+                    , onWithOptions
+                        "click"
+                        { preventDefault = True
+                        , stopPropagation = False
+                        }
+                        (Json.Decode.succeed SendNewMessage)
+                    ]
+                    [ i [ class "fas fa-share" ] [] ]
+                ]
             ]
         ]
-    ]
 
 
 talksListView : Model -> Html Msg
 talksListView model =
+    let
+        current =
+            case model.route of
+                TalkRoute a ->
+                    a
+
+                _ ->
+                    ""
+    in
     if List.length model.talks > 0 then
         ul [ class "content talk-list" ] <|
-            List.map (\t -> li [] [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]) model.talks
+            List.map
+                (\t ->
+                    li
+                        [ class <|
+                            if current == t.username_with then
+                                "current"
+                            else
+                                ""
+                        ]
+                        [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
+                )
+                model.talks
     else
         div [ class "content" ] [ text "You haven't talk to anyone yet" ]
 
@@ -92,22 +124,31 @@ messageView to msg =
         , div [ class "message-bubble" ] (messageEmoticonView msg.message)
         ]
 
+
 messageEmoticonView : String -> List (Html Msg)
 messageEmoticonView msg =
-  let
-    reg = regex "::(__em-.*?__)::"
-    listStr =
-      split All reg msg
-  in
-    List.map (\s ->
-      if (contains (regex "__em-.*?__") s) then
-        emoticon (String.slice 2 -2 s)
-      else
-        text s
-    ) listStr
+    let
+        reg =
+            regex "::(__em-.*?__)::"
 
-emoListView : List String -> String -> List (Html Msg)
+        listStr =
+            split All reg msg
+    in
+    List.map
+        (\s ->
+            if contains (regex "__em-.*?__") s then
+                emoticon (String.slice 2 -2 s)
+            else
+                text s
+        )
+        listStr
+
+
+emoListView : List String -> String -> Html Msg
 emoListView emo talk =
-  List.map (\em ->
-    i [ class <| "em " ++ em, onClick <| AddEmo talk em ] []
-  ) emo
+    div [ id "emo-list" ] <|
+        List.map
+            (\em ->
+                i [ class <| "em " ++ em, onClick <| AddEmo talk em ] []
+            )
+            emo

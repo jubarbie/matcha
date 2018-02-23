@@ -6,7 +6,7 @@
 .input input, textarea {
 	position: relative;
 	margin-bottom: 2px;
-	color: black;
+	color: $grey-dark;
 }
 .input .input-tip {
 	font-size: 0.8em;
@@ -16,7 +16,7 @@
 	border-bottom: 1px solid red !important;
 }
 .input.input-error .input-tip {
-	color: red;
+	color: $red;
 }
 .input.input-success input, .input.input-success textarea {
 	border: 1px solid green;
@@ -34,7 +34,7 @@
 
 	form {
 		padding: 8px;
-		border: 1px solid $grey;
+		border: 1px solid $grey-light;
 		border-radius: 8px;
 		.input {
 			text-align: left;
@@ -44,7 +44,7 @@
 			width: 100%;
 		}
 		label {
-			color: $grey;
+			color: $grey-light;
 		}
 	}
 }

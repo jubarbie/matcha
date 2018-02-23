@@ -7,9 +7,9 @@
 
 /* GENERIC STUFF */
 body {
-	background: $clr-back;
+	background: $grey-medium;
 	font-family: 'Open Sans', sans-serif;
-	color: $clr-txt;
+	color: $white;
 }
 .blur {
 	filter: blur(5px);
@@ -36,20 +36,20 @@ div {
 	{
 		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.5);
 		border-radius: 6px;
-		background-color: $clr-back;
+		background-color: $grey-medium;
 	}
 
 	&::-webkit-scrollbar
 	{
 		width: 8px;
-		background-color: $clr-back;
+		background-color: $grey-medium;
 	}
 
 	&::-webkit-scrollbar-thumb
 	{
 		border-radius: 6px;
 		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-		background-color: black;
+		background-color: $grey-dark;
 	}
 }
 
@@ -60,8 +60,15 @@ div {
 	display: flex;
 	flex-direction: column;
 }
+.layout-row {
+	display: flex;
+	flex-direction: row;
+}
 .flex {
 	flex: 1;
+}
+.space-between {
+	justify-content: space-between;
 }
 .center {
   text-align: center;
@@ -81,7 +88,7 @@ h1 {
 	font-size: 22px;
 	text-transform: uppercase;
 	font-style: italic;
-	color: $clr-back;
+	color: $grey-medium;
 	text-shadow: 1px 1px 0 white,
 			    -1px 1px 0 white,
 			    1px -1px 0 white,
@@ -117,7 +124,7 @@ h1 {
 
 /* NAVBAR */
 .navbar {
-	background: $clr-back;
+	background: $grey-medium;
 	position: fixed;
 	left: 0;
 	top: 0;
@@ -149,16 +156,13 @@ h1 {
   }
   .navbar-list li a {
   	text-decoration: none;
-  	color: white;
+  	color: $grey-light;
   	display: block;
   	height: 100%;
 		font-size: 1.4em;
   }
-  .navbar-list li:hover {
-  	background: grey;
-  }
   .navbar-list li.active {
-  	background: black;
+  	color: $white;
   }
   .navbar-list li.active a {
   	color: white;
@@ -169,13 +173,13 @@ h1 {
 	position: fixed;
 	bottom: 10px;
 	left: 63px;
-	background: black;
+	background: $grey-medium;
 	padding: 8px;
 	border-radius: 8px;
 	z-index: 300;
 	width: 400px;
 	max-width: 100%;
-	border: 1px solid $grey;
+	border: 1px solid $grey-light;
 }
 
 /* FOOTER */
@@ -214,8 +218,8 @@ ul.group-btn {
 		top: inherit;
 		width: 100%;
 		height: inherit;
-		background: $clr-back;
-		border-top: 1px solid $grey;
+		background: $grey-medium;
+		border-top: 1px solid $grey-light;
 		z-index: 200;
 
 		.navbar-list {

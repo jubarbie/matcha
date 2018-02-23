@@ -1,6 +1,7 @@
 module Update exposing (..)
 
 import Commands exposing (..)
+import Dom
 import Dom.Scroll as Scroll
 import FormUtils exposing (..)
 import Json.Decode
@@ -166,7 +167,7 @@ update msg model =
                                             ( newModel, getTalks newSession.token )
 
                                         TalkRoute a ->
-                                            ( newModel, Cmd.batch [getTalks newSession.token, getTalk a True newSession.token] )
+                                            ( newModel, getTalks newSession.token )
 
                                         UsersRoute a ->
                                             ( newModel, Cmd.batch [ sendLikeNotif newSession.token u.username, sendVisitNotif newSession.token u.username, getRelevantUsers a newSession.token ] )
@@ -293,7 +294,7 @@ update msg model =
                     )
 
         GetTalkResponse response ->
-            case  response of
+            case response of
                 Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( "success", talk ) ->
@@ -310,9 +311,9 @@ update msg model =
         GetTalksResponse response ->
             case response of
                 Ok rep ->
-                    case ( rep.status == "success", rep.data ) of
-                        ( True, Just talks ) ->
-                            ( { model | talks = talks }, Cmd.none )
+                    case ( rep.status == "success", rep.data, model.session ) of
+                        ( True, Just talks, Just s ) ->
+                            ( { model | talks = talks }, List.map (\t -> getTalk t.username_with (model.route == TalkRoute t.username_with) s.token) talks |> Cmd.batch )
 
                         _ ->
                             ( { model | message = Just "user not found" }, Navigation.newUrl "/#/users" )
@@ -357,7 +358,7 @@ update msg model =
                     model.session
 
                 newModel =
-                    model
+                    { model | message = Nothing, showEmoList = False, showAccountMenu = False }
             in
             case session of
                 Nothing ->
@@ -476,7 +477,6 @@ update msg model =
         ToggleLike username ->
             ( model, doIfConnected <| toggleLike username )
 
-
         UpdateNewMessage msg ->
             case model.route of
                 TalkRoute u ->
@@ -565,13 +565,14 @@ update msg model =
                                     Nothing
 
                         cmd =
-                          case loc of
-                            Just l ->
-                                Cmd.batch [ localize [ l.lon, l.lat ], doIfConnected <| saveLocation (Localisation l.lon l.lat) ]
-                            _ ->
-                                Cmd.none
+                            case loc of
+                                Just l ->
+                                    Cmd.batch [ localize [ l.lon, l.lat ], doIfConnected <| saveLocation (Localisation l.lon l.lat) ]
+
+                                _ ->
+                                    Cmd.none
                     in
-                      ( { model | current_location = loc }, cmd)
+                    ( { model | current_location = loc }, cmd )
 
                 _ ->
                     ( model, Cmd.none )
@@ -645,17 +646,19 @@ update msg model =
             ( model, doIfConnected <| updateField gender )
 
         UpdateIntIn gender ->
-          case model.session of
-            Just s ->
-              let
-                newIntIn =
-                    if List.member gender s.user.intIn then
-                      List.filter ((/=) gender) s.user.intIn
-                    else
-                      gender :: s.user.intIn
-              in
-                ( model, doIfConnected <| updateIntIn <| newIntIn )
-            _ -> (model , Cmd.none)
+            case model.session of
+                Just s ->
+                    let
+                        newIntIn =
+                            if List.member gender s.user.intIn then
+                                List.filter ((/=) gender) s.user.intIn
+                            else
+                                gender :: s.user.intIn
+                    in
+                    ( model, doIfConnected <| updateIntIn <| newIntIn )
+
+                _ ->
+                    ( model, Cmd.none )
 
         SearchTag search ->
             case ( model.session, String.length search > 1, validTag <| Just search ) of
@@ -709,20 +712,26 @@ update msg model =
             ( { model | showAccountMenu = not model.showAccountMenu }, Cmd.none )
 
         ChangeImage user to ->
-          let
-            newUsers = showImage to user model.users
-          in
+            let
+                newUsers =
+                    showImage to user model.users
+            in
             ( { model | users = newUsers }, Cmd.none )
 
         GoTo url ->
-          ( model, Navigation.newUrl url)
+            ( model, Navigation.newUrl url )
 
         ChangeSort s ->
-          let
-            orderSort =
-              if (s == model.userSort) then toggleOrder model.orderSort else ( if (s == S_Afin) then ASC else DESC )
-          in
-              ( { model | userSort = s, orderSort = orderSort }, Cmd.none )
+            let
+                orderSort =
+                    if s == model.userSort then
+                        toggleOrder model.orderSort
+                    else if s == S_Afin then
+                        ASC
+                    else
+                        DESC
+            in
+            ( { model | userSort = s, orderSort = orderSort }, Cmd.none )
 
         Notification str ->
             case ( Json.Decode.decodeString notificationDecoder str, model.session ) of
@@ -763,15 +772,19 @@ update msg model =
                     ( model, Cmd.none )
 
         ToggleEmoList ->
-          ( { model | showEmoList = not model.showEmoList }, Cmd.none )
+            ( { model | showEmoList = not model.showEmoList }, Cmd.none )
 
         AddEmo talk em ->
-          case getTalkWith talk model.talks of
-            Just t ->
-              let
-                newTalk = { t | new_message = t.new_message ++ " ::__" ++ em ++ "__::" }
-                newTalks = updateTalks (Just newTalk) model.talks
-              in
-                ( {model | talks = newTalks}, Cmd.none)
-            _ ->
-              ( model, Cmd.none )
+            case getTalkWith talk model.talks of
+                Just t ->
+                    let
+                        newTalk =
+                            { t | new_message = t.new_message ++ " ::__" ++ em ++ "__::" }
+
+                        newTalks =
+                            updateTalks (Just newTalk) model.talks
+                    in
+                    ( { model | talks = newTalks }, Task.attempt (always NoOp) (Dom.focus "input-msg") )
+
+                _ ->
+                    ( model, Cmd.none )

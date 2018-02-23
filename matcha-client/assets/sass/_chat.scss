@@ -1,17 +1,16 @@
 @import 'colors';
 
-.chat-title {
-	position: fixed;
-	width: 100%;
-	left: 0;
-	top: 0;
-	z-index: 200;
-	background: $clr-back;
+#talk {
+	overflow-y: hidden;
+}
 
+#talk-title {
+	padding: 10px;
 	h1 {
 		font-size: 1em;
-		color: grey;
+		color: $grey-light;
 		text-align: center;
+		margin: 0
 	}
 	.button {
 		border: 0;
@@ -19,9 +18,74 @@
 		margin: 0;
 	}
 }
-.message-form {
-	margin-bottom: 0;
+
+#talk-foot {
+	position: relative;
+	.emo-btn {
+		border: 0;
+		padding: 0;
+		transition: all 0.2s ease;
+		float: left;
+		margin: 0;
+		i {
+			font-size: 2em;
+		}
+	}
+	#new-mess {
+		position: relative;
+		z-index: 200;
+		background: $grey-medium;
+		padding: 8px;
+		border-top: 1px solid grey;
+		#message-form {
+			margin-bottom: 0;
+		}
+		.message-input {
+			text-align: right;
+		}
+		.message-input input {
+			width: 300px;
+			background: white !important;
+			border-radius: 10px !important;
+			color: #252525;
+			margin-bottom: 0;
+		}
+		.send-btn {
+			padding: inherit;
+			border-radius: 50%;
+			background: #425d8b;
+			border: none;
+			width: 40px;
+			color: white;
+			font-size: 14px;
+			margin-left: 5px;
+			margin-bottom: 0;
+		}
+
+	}
+	#emo-list {
+		background: white;
+		overflow-x: scroll;
+		position: relative;
+		transition: all 0.2s ease;
+		padding: 4px;
+		border-radius: 2px;
+		height: 108px;
+		margin-bottom: -108px;
+		i.em {
+			margin: 2px;
+		}
+	}
 }
+#talk.show-emo {
+	.emo-btn {
+		transform: rotate(90deg);
+	}
+	 #emo-list {
+		margin-bottom: 4px;
+	}
+}
+
 .message {
 	position: relative;
 }
@@ -34,7 +98,7 @@
 .message-infos {
 	font-size: 0.8em;
 	font-weight: normal;
-	color: grey;
+	color: $grey-light;
 	margin-top: 10px;
 	opacity: 0;
 }
@@ -43,7 +107,6 @@
 }
 .message-bubble {
 	max-width: 100%;
-	width: 340px;
 	padding: 2px 10px;
 	display: inline-block;
 	border-radius: 10px;
@@ -53,7 +116,7 @@
 	.message-bubble {
 		border: 2px solid white;
 		background: white;
-		color: $clr-back;
+		color: $grey-medium;
 	}
 }
 .message-them {
@@ -65,65 +128,77 @@
 .message-me:after {
 	content : " ";
 	display: inline-block;
-	width: 10px;
-	height: 10px;
-	transform: rotate(45deg);
-	border-right: 2px solid white;
-	border-bottom: 2px solid white;
+	width: 18px;
+	height: 18px;
+	background: url('/assets/images/bubble_q.svg') 0 0 no-repeat;
+	fill: white;
 	position: absolute;
-	bottom: -5px;
-	right: 10px;
-	background: white;
+	bottom: -12px;
+	right: 0px;
 }
 .message-them:after {
 	content : " ";
 	display: inline-block;
-	width: 10px;
-	height: 10px;
-	transform: rotate(45deg);
+	width: 18px;
+	height: 18px;
+	background-color: #1d986d;
+   	-webkit-mask:  url('/assets/images/bubble_q.svg') no-repeat 50% 50%;
+   	mask: url('/assets/images/bubble_q.svg') no-repeat 50% 50%;
+	transform: scaleX(-1);
 	position: absolute;
-	bottom: -5px;
-	left: 10px;
-	background: #1d986d;
+	bottom: -12px;
+	left: 0px;
 }
-.message-input {
-	margin-top: 20px;
-	text-align: right;
-}
-.message-input input {
-	width: 300px;
-	background: white !important;
-	border-radius: 10px !important;
-	color: #252525;
-}
+
 .message-list {
-	padding-bottom: 24px;
-}
-.send-btn {
-	padding: inherit;
-	border-radius: 50%;
-	background: #425d8b;
-	border: none;
-	width: 40px;
-	color: white;
-	font-size: 14px;
-	margin-left: 5px;
+	padding-bottom: 20px;
+	transition: all 0.2s ease;
+	padding: 16px;
+	box-shadow: inset 0 0 6px rgba(0,0,0,.5);
+	background: #181818;
 }
 
 ul.talk-list {
 	list-style-type: none;
-	margin: 0;
-	padding: 0;
+	margin: 30px auto;
+	width: 340px;
+	max-width: 100%;
 
 	li {
-		padding: 8px;
-		border-bottom: 1px solid black;
+		border: 2px solid $grey-dark;
+		height: 40px;
+		line-height: 40px;
+		border-radius: 20px;
+		text-align: center;
 
 		a {
 			display: block;
 			height: 100%;
 			text-decoration: none;
+			color: $grey-light;
 		}
 	}
 
+}
+
+#talks-side {
+	width: 180px;
+	ul.talk-list {
+		li {
+			border: 0;
+			height: 20px;
+			line-height: 20px;
+			border-radius: 0px;
+			text-align: left;
+			padding: 5px 10px;
+			margin: 0;
+
+			&.current {
+
+				a {
+					color: $white;
+				}
+			}
+		}
+	}
 }
