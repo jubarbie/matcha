@@ -51,8 +51,11 @@ type alias Localisation =
     }
 
 type FilterUsers
-    = F_Visitors
-    | F_Liked
+    = F_MinAge Int
+    | F_MaxAge Int
+    | F_Loc Float
+    | F_Tags (List String)
+
 
 type SortUsers
     = S_Age

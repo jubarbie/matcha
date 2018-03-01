@@ -26,46 +26,57 @@ view model =
 viewAccount : Model -> SessionUser -> Html Msg
 viewAccount model user =
     div [ class "content" ]
-        [ div [ class "row" ]
-            [ div [ class "twelve columns" ] <|
-                [ div [] <|
-                    (if user.status == Incomplete then
-                        [ div [] [ text "Please complete your profile" ] ]
-                     else
-                        []
-                    )
-                        ++ (if user.status == ResetPassword then
-                                [ div [] [ text "Don't forget to change your password" ] ]
-                            else
-                                []
-                           )
-                ]
-            ]
-        , div [ class "row" ]
-            [ div [ class "six columns" ]
-                [ h2 [] [ text "Infos" ]
-                , div [] [ text user.username ]
-                , div [] [ text user.fname, text " ", text user.lname ]
-                , div [] [ text user.email ]
-                , div [] [ text user.bio ]
-                , a [ href "/#/edit_account" ] [ text "Edit infos" ]
-                , br [] []
-                , a [ href "/#/edit_password" ] [ text "Change password" ]
-                ]
-            , div [ class "six columns" ]
-                [ h2 [] [ text "Interest" ]
-                , viewTagSection model user
-                ]
-            ]
+        [ viewInfosMessage user
+        , viewUserInfos model user
         , viewImages model user
-        , div [ class "row" ]
-            [ hr [] []
-            , h2 [] [ text "Localisation" ]
-            , div [ id "map" ] []
-            , button [ onClick Localize ] [ text "Localize me" ]
-            ]
+        , viewLocalisation
         ]
 
+viewInfosMessage : SessionUser -> Html Msg
+viewInfosMessage user =
+  div [ class "row" ]
+      [ div [ class "twelve columns" ] <|
+          [ div [] <|
+              (if user.status == Incomplete then
+                  [ div [] [ text "Please complete your profile" ] ]
+               else
+                  []
+              )
+                  ++ (if user.status == ResetPassword then
+                          [ div [] [ text "Don't forget to change your password" ] ]
+                      else
+                          []
+                     )
+          ]
+      ]
+
+viewUserInfos : Model -> SessionUser -> Html Msg
+viewUserInfos model user =
+  div [ class "row" ]
+      [ div [ class "six columns" ]
+          [ h2 [] [ text "Infos" ]
+          , div [] [ text user.username ]
+          , div [] [ text user.fname, text " ", text user.lname ]
+          , div [] [ text user.email ]
+          , div [] [ text user.bio ]
+          , a [ href "/#/edit_account" ] [ text "Edit infos" ]
+          , br [] []
+          , a [ href "/#/edit_password" ] [ text "Change password" ]
+          ]
+      , div [ class "six columns" ]
+          [ h2 [] [ text "Interest" ]
+          , viewTagSection model user
+          ]
+      ]
+
+viewLocalisation : Html Msg
+viewLocalisation =
+  div [ class "row" ]
+      [ hr [] []
+      , h2 [] [ text "Localisation" ]
+      , div [ id "map" ] []
+      , button [ onClick Localize ] [ text "Localize me" ]
+      ]
 
 viewImages : Model -> SessionUser -> Html Msg
 viewImages model user =

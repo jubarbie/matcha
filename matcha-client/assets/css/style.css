@@ -433,6 +433,22 @@ ul.users-list {
   .gender-btn input {
     display: none; }
 
+#advance-filters {
+  position: absolute;
+  top: -300px;
+  left: 15px;
+  transition: all 0.2s ease;
+  padding: 8px;
+  background: #252525; }
+  #advance-filters h3 {
+    font-size: 1.2em; }
+  #advance-filters label {
+    color: grey; }
+  #advance-filters select {
+    color: #252525; }
+  #advance-filters.active {
+    top: 64px; }
+
 /* MATCH ANIMATION */
 #match-anim {
   position: fixed;
@@ -544,6 +560,13 @@ div {
 
 .pull-right {
   float: right; }
+
+button.btn-no-style {
+  padding: 0;
+  border: 0;
+  margin: 0;
+  line-height: normal;
+  height: inherit; }
 
 /* TYPO */
 h1 {

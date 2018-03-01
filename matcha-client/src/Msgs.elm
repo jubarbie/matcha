@@ -70,3 +70,9 @@ type Msg
     | ChangeSort SortUsers
     | ToggleEmoList
     | AddEmo String String
+    | UpdateTagFilter String
+    | UpdateMinAgeFilter String
+    | UpdateMaxAgeFilter String
+    | UpdateLocFilter String
+    | ToggleAdvanceFilters
+    | ResetFilters

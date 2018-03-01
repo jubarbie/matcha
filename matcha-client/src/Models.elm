@@ -51,7 +51,7 @@ type alias Model =
     , talks : List Talk
     , notifVisit: Int
     , notifLike: Int
-    , userFilter : Maybe FilterUsers
+    , userFilter : List FilterUsers
     , userSort : SortUsers
     , orderSort : OrderSort
     , usersAdmin : List SessionUser
@@ -63,6 +63,7 @@ type alias Model =
     , mImage : Maybe Image
     , currentTime : Maybe Time.Time
     , showAccountMenu : Bool
+    , showAdvanceFilters : Bool
     , showEmoList : Bool
     }
 
@@ -96,7 +97,7 @@ initialModel route =
     , talks = []
     , notifVisit = 0
     , notifLike = 0
-    , userFilter = Nothing
+    , userFilter = []
     , userSort = S_Afin
     , orderSort = DESC
     , usersAdmin = []
@@ -112,5 +113,6 @@ initialModel route =
     , mImage = Nothing
     , currentTime = Nothing
     , showAccountMenu = False
+    , showAdvanceFilters = False
     , showEmoList = False
     }

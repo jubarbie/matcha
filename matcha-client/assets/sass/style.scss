@@ -52,7 +52,6 @@ div {
 		background-color: $grey-dark;
 	}
 }
-
 .layout {
 	display: flex;
 }
@@ -78,6 +77,14 @@ div {
 }
 .pull-right {
 	float: right;
+}
+
+button.btn-no-style {
+	padding: 0;
+	border: 0;
+	margin: 0;
+	line-height: normal;
+	height: inherit;
 }
 
 /* TYPO */

@@ -358,7 +358,7 @@ update msg model =
                     model.session
 
                 newModel =
-                    { model | message = Nothing, showEmoList = False, showAccountMenu = False }
+                    { model | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False }
             in
             case session of
                 Nothing ->
@@ -788,3 +788,40 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        UpdateTagFilter tag_ ->
+          let
+            filters = updateFilterTag model.userFilter tag_
+          in
+            ( { model | userFilter = Debug.log "filters" filters }, Cmd.none )
+
+        UpdateMinAgeFilter age ->
+          let filters =
+            case String.toInt age of
+              Ok a -> updateMinAgeFilter model.userFilter a
+              _ -> List.filter (\f -> not <| isMinFilter f ) model.userFilter
+          in
+            ( { model | userFilter = Debug.log "filters" filters }, Cmd.none )
+
+        UpdateMaxAgeFilter age ->
+          let filters =
+            case String.toInt age of
+              Ok a -> updateMaxAgeFilter model.userFilter a
+              _ -> List.filter (\f -> not <| isMaxFilter f ) model.userFilter
+          in
+            ( { model | userFilter = Debug.log "filters" filters }, Cmd.none )
+
+        ToggleAdvanceFilters ->
+          ( { model | showAdvanceFilters = not model.showAdvanceFilters }, Cmd.none )
+
+        ResetFilters ->
+          ( { model | userFilter = [] }, Cmd.none )
+
+        UpdateLocFilter dist ->
+          let
+            filters =
+              case String.toFloat dist of
+                Ok d -> updateLocFilter model.userFilter d
+                _ -> List.filter (\f -> not <| isLocFilter f ) model.userFilter
+          in
+            ( { model | userFilter = Debug.log "filters" filters }, Cmd.none )

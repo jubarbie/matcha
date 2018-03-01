@@ -12,6 +12,7 @@ import User.UserHelper exposing (..)
 import User.UserModel exposing (..)
 import User.UserView exposing (..)
 import Utils exposing (..)
+import Json.Decode as Decode
 
 
 view : Model -> List (Html Msg)
@@ -19,17 +20,33 @@ view model =
     case model.session of
         Just s ->
             [ div []
-                [ sortMenuView model
+                [ sortMenuView model s
                 , viewUsers model s
+                , advanceFilterView model s
                 ]
             ]
 
         _ ->
             []
 
+advanceFilterView : Model -> Session -> Html Msg
+advanceFilterView model s =
+  div [ id "advance-filters", class <| if model.showAdvanceFilters then "active" else "" ]
+      [ tagsFilterView model s
+      , ageFilterView
+      , locFilterView
+      , button [ onClick ResetFilters ] [ text "Reset" ]
+      ]
 
-sortMenuView : Model -> Html Msg
-sortMenuView model =
+locFilterView : Html Msg
+locFilterView =
+  div []
+      [ h3 [] [ text "By distance (km)"]
+      , input [ onInput UpdateLocFilter ] []
+      ]
+
+sortMenuView : Model -> Session -> Html Msg
+sortMenuView model s =
     div [ class "filter-menu center" ]
         [ userMenuView model
         , ul [ class "group-btn" ]
@@ -52,6 +69,41 @@ sortMenuView model =
             ]
         ]
 
+tagsFilterView : Model -> Session -> Html Msg
+tagsFilterView model s =
+  div []
+    <| h3 [] [ text "By tags" ]
+      ::
+      List.map (\t ->
+        let
+            me =
+                if List.member t (getFilterTags model.userFilter) then
+                    " metoo"
+                else
+                    ""
+        in
+      button [ class <| "tag" ++ me, onClick <| UpdateTagFilter t ]
+        [ text <| "#" ++ t ]
+      ) s.user.tags
+
+ageFilterView : Html Msg
+ageFilterView =
+  div []
+      [ h3 [] [ text "By age range"]
+      , div [ class "layout" ]
+            [ div []
+                  [ label [ for "min" ] [ text "Min" ]
+                  , select [ onInput UpdateMinAgeFilter ]
+                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                  ]
+
+            , div []
+                  [ label [ for "max" ] [ text "Max" ]
+                  , select [ onInput UpdateMaxAgeFilter ]
+                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                  ]
+            ]
+      ]
 
 getActiveClass : Bool -> String
 getActiveClass a =
@@ -80,25 +132,31 @@ userMenuView model =
                 , notif model.notifLike
                 ]
             ]
+        , li []
+            [ button [ class "btn-no-style", onClick ToggleAdvanceFilters ] [ text "..." ]
+            ]
         ]
 
 
 viewUsers : Model -> Session -> Html Msg
 viewUsers model s =
     let
+        listF =
+          List.filter (filterUser model.userFilter) model.users
+
         list =
             case model.userSort of
                 S_Dist ->
-                    List.sortBy .distance model.users
+                    List.sortBy .distance listF
 
                 S_Age ->
-                    List.sortBy .date_of_birth model.users
+                    List.sortBy .date_of_birth listF
 
                 S_LastOn ->
-                    List.sortBy .lastOn model.users
+                    List.sortBy .lastOn listF
 
                 S_Afin ->
-                    List.sortBy (\u -> getAffinityScore s.user u) model.users
+                    List.sortBy (\u -> getAffinityScore s.user u) listF
 
         listOrdered =
             if model.orderSort == DESC then

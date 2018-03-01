@@ -188,7 +188,7 @@ userTagsView user s =
                             ""
                 in
                 div [ class <| "tag" ++ me ]
-                    [ text t ]
+                    [ text <| "#" ++ t ]
             )
             (List.sort user.tags)
 

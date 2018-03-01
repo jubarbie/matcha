@@ -258,6 +258,28 @@ ul.users-list {
 	}
 }
 
+#advance-filters {
+	position: absolute;
+	top: -300px;
+	left: 15px;
+	transition: all 0.2s ease;
+	padding: 8px;
+	background: $grey-medium;
+
+	h3 {
+		font-size: 1.2em;
+	}
+	label {
+		color: $grey-light;
+	}
+	select {
+		color: $grey-medium;
+	}
+	&.active {
+		top: 64px;
+	}
+}
+
 /* MATCH ANIMATION */
 #match-anim {
 	position: fixed;
