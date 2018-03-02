@@ -26,15 +26,15 @@ import App.AppModels exposing (..)
 import Utils exposing (..)
 import Login.LoginModels exposing (..)
 
-updateAppModel : Msg -> AppRoutes -> Session -> AppModel -> (Model, Cmd Msg)
-updateAppModel msg route session appModel =
+updateAppModel : Msg -> AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> (Model, Cmd Msg)
+updateAppModel msg route session appModel usersModel talksModel =
   let
-    model = Connected route session appModel
+    model = Connected route session appModel usersModel talksModel
     disconnect = ( initialModel LoginRoute, Navigation.newUrl "/#/login" )
   in
     case msg of
         NoOp ->
-            ( Connected route session appModel, Cmd.none )
+            ( model, Cmd.none )
 
         Logout ->
             ( initialModel LoginRoute, Cmd.batch [ Navigation.newUrl "/#/login", deleteSession () ] )
@@ -44,16 +44,16 @@ updateAppModel msg route session appModel =
                 Ok rep ->
                     case ( rep.status, rep.message ) of
                         ( "success", _ ) ->
-                            ( Connected route session { appModel | message = Just "The password was succefully updated" }, Navigation.newUrl "/#/account" )
+                            ( Connected route session { appModel | message = Just "The password was succefully updated" } usersModel talksModel, Navigation.newUrl "/#/account" )
 
                         ( "error", Just msg ) ->
-                            ( Connected route session { appModel | message = Just msg }, Cmd.none )
+                            ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "Network error. Please try again" }, Cmd.none )
+                            ( Connected route session { appModel | message = Just "Network error. Please try again" } usersModel talksModel, Cmd.none )
 
                 _ ->
-                    ( Connected route session { appModel | message = Just "Network error. Please try again" }, Cmd.none )
+                    ( Connected route session { appModel | message = Just "Network error. Please try again" } usersModel talksModel, Cmd.none )
 
         ReqTagResponse response ->
             case response of
@@ -70,7 +70,7 @@ updateAppModel msg route session appModel =
                                 newSession =
                                     { session | user = newUser }
                             in
-                            ( Connected route newSession appModel, Cmd.none )
+                            ( Connected route newSession appModel usersModel talksModel, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -83,7 +83,7 @@ updateAppModel msg route session appModel =
                 Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( "success", Just d ) ->
-                            ( Connected route session { appModel | searchTag = d }, Cmd.none )
+                            ( Connected route session { appModel | searchTag = d } usersModel talksModel, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -96,29 +96,29 @@ updateAppModel msg route session appModel =
                 Ok rep ->
                     case ( rep.status, rep.data, rep.message ) of
                         ( "success", Just u, _ ) ->
-                            ( Connected route { session | user = u, token = token } { appModel | mImage = Nothing }, Cmd.none )
+                            ( Connected route { session | user = u, token = token } { appModel | mImage = Nothing } usersModel talksModel, Cmd.none )
 
                         ( "error", _, Just msg ) ->
-                            ( Connected route session { appModel | message = Just msg }, Cmd.none )
+                            ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing }, Cmd.none )
+                            ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing } usersModel talksModel, Cmd.none )
 
                 _ ->
-                    ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing }, Cmd.none )
+                    ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing } usersModel talksModel, Cmd.none )
 
         UsersResponse response ->
             case response of
                 Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just u ) ->
-                            ( Connected route session { appModel | users = u }, Cmd.none )
+                            ( Connected route session appModel { usersModel | users = u } talksModel, Cmd.none )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "Network errror. Please try again" }, Cmd.none )
+                            ( Connected route session { appModel | message = Just "Network errror. Please try again" } usersModel talksModel, Cmd.none )
 
                 _ ->
-                    ( Connected route session { appModel | message = Just "Network error. Please try again" }, Cmd.none )
+                    ( Connected route session { appModel | message = Just "Network error. Please try again" } usersModel talksModel, Cmd.none )
 
 
         UserResponse response ->
@@ -126,10 +126,10 @@ updateAppModel msg route session appModel =
                 Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just u ) ->
-                            ( Connected route session { appModel | users = updateUser u appModel.users }, Cmd.none )
+                            ( Connected route session appModel { usersModel | users = updateUser u usersModel.users } talksModel, Cmd.none )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "User not found" }, Cmd.none )
+                            ( Connected route session { appModel | message = Just "User not found" } usersModel talksModel, Cmd.none )
 
                 _ ->
                     disconnect
@@ -146,10 +146,10 @@ updateAppModel msg route session appModel =
                                 newUser =
                                     { user | email = email, fname = fname, lname = lname, bio = bio }
                             in
-                            ( Connected route { session | user = newUser } { appModel | message = Just "Information saved" }, Navigation.newUrl "/#/account" )
+                            ( Connected route { session | user = newUser } { appModel | message = Just "Information saved" } usersModel talksModel, Navigation.newUrl "/#/account" )
 
                         _ ->
-                            ( Connected route session { appModel | message = rep.message }, Cmd.none )
+                            ( Connected route session { appModel | message = rep.message } usersModel talksModel, Cmd.none )
 
                 _ ->
                     disconnect
@@ -161,10 +161,10 @@ updateAppModel msg route session appModel =
                 Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( "success", talk ) ->
-                            ( Connected route session { appModel | talks = updateTalks talk appModel.talks }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list" )
+                            ( Connected route session appModel usersModel { talksModel | talks = updateTalks talk talksModel.talks }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list" )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "user not found" }, Navigation.newUrl "/#/users" )
+                            ( Connected route session { appModel | message = Just "user not found" } usersModel talksModel, Navigation.newUrl "/#/users" )
 
                 _ ->
                     disconnect
@@ -174,10 +174,10 @@ updateAppModel msg route session appModel =
                 Ok rep ->
                     case ( rep.status == "success", rep.data ) of
                         ( True, Just talks ) ->
-                            ( Connected route session { appModel | talks = talks }, List.map (\t -> getTalk t.username_with (route == TalkRoute t.username_with) session.token) talks |> Cmd.batch )
+                            ( Connected route session appModel usersModel { talksModel | talks = talks }, List.map (\t -> getTalk t.username_with (talksModel.currentTalk == Just t.username_with) session.token) talks |> Cmd.batch )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "user not found" }, Navigation.newUrl "/#/users" )
+                            ( Connected route session { appModel | message = Just "user not found" } usersModel talksModel, Navigation.newUrl "/#/users" )
 
                 _ ->
                     disconnect
@@ -191,13 +191,13 @@ updateAppModel msg route session appModel =
                                 user = session.user
                                 newSession = { session | user = { user | localisation = l } }
                             in
-                                ( Connected route newSession appModel, Cmd.none )
+                                ( Connected route newSession appModel usersModel talksModel, Cmd.none )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" }, Cmd.none )
+                            ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
 
                 _ ->
-                  ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" }, Cmd.none )
+                  ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
 
 
         OnLocationChange location ->
@@ -209,12 +209,6 @@ updateAppModel msg route session appModel =
                     { appModel | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False }
             in
               case newRoute of
-                        TalksRoute ->
-                            ( Connected newRoute session newModel, getTalks session.token )
-
-                        TalkRoute a ->
-                            ( Connected newRoute session newModel, getTalk a True session.token )
-
                         UsersRoute a ->
                             let
                                 likeNotif =
@@ -229,22 +223,22 @@ updateAppModel msg route session appModel =
                                     else
                                         appModel.notifVisit
                             in
-                            ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif }, getRelevantUsers a session.token )
+                            ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
 
                         UserRoute a ->
-                            ( Connected newRoute session newModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
+                            ( Connected newRoute session newModel usersModel talksModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
 
                         AccountRoute ->
-                            ( Connected newRoute session { newModel | map_state = App.AppModels.Loading }, Cmd.none )
+                            ( Connected newRoute session { newModel | map_state = App.AppModels.Loading } usersModel talksModel, Cmd.none )
 
                         EditAccountRoute ->
-                            ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user }, Cmd.none )
+                            ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user } usersModel talksModel, Cmd.none )
 
                         ChangePwdRoute ->
-                          ( Connected newRoute session newModel, Cmd.none )
+                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
                         NotFoundAppRoute ->
-                          ( Connected newRoute session newModel, Cmd.none )
+                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
 
         GoBack amount ->
@@ -255,11 +249,11 @@ updateAppModel msg route session appModel =
             ( model, toggleLike username session.token )
 
         UpdateNewMessage msg ->
-            case route of
-                TalkRoute u ->
+            case talksModel.currentTalk of
+                Just u ->
                     let
                         newTalk =
-                            case getTalkWith u appModel.talks of
+                            case getTalkWith u talksModel.talks of
                                 Just t ->
                                     Just { t | new_message = msg }
 
@@ -267,31 +261,30 @@ updateAppModel msg route session appModel =
                                     Nothing
 
                         newTalks =
-                            updateTalks newTalk appModel.talks
+                            updateTalks newTalk talksModel.talks
                     in
-                    ( Connected route session { appModel | talks = newTalks }, Cmd.none )
+                      ( Connected route session appModel usersModel { talksModel | talks = newTalks }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         SendNewMessage ->
-            case route of
-                TalkRoute u ->
-                    case getTalkWith u appModel.talks of
-                        Just t ->
-                            if String.trim t.new_message /= "" then
-                                ( model, sendMessage session.token t.username_with t.new_message )
-                            else
-                                ( model, Cmd.none )
+          case talksModel.currentTalk of
+            Just u ->
+              case getTalkWith u talksModel.talks of
+                  Just t ->
+                      if String.trim t.new_message /= "" then
+                          ( model, sendMessage session.token t.username_with t.new_message )
+                      else
+                          ( model, Cmd.none )
 
-                        _ ->
-                            ( model, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+                  _ ->
+                      ( model, Cmd.none )
+            _ ->
+               ( model, Cmd.none )
 
         NewMessage str ->
-            ( Connected route session { appModel | message = Just str }, Cmd.none )
+            ( Connected route session { appModel | message = Just str } usersModel talksModel, Cmd.none )
 
         FetchTalk a t ->
             ( model, Cmd.none )
@@ -299,7 +292,7 @@ updateAppModel msg route session appModel =
         LoadMap t ->
             case ( appModel.map_state, route ) of
                 ( App.AppModels.Loading, AccountRoute ) ->
-                    ( Connected route session { appModel | map_state = Rendered }, localize [ session.user.localisation.lon, session.user.localisation.lat ] )
+                    ( Connected route session { appModel | map_state = Rendered } usersModel talksModel, localize [ session.user.localisation.lon, session.user.localisation.lat ] )
 
                 _ ->
                     ( model, Cmd.none )
@@ -310,7 +303,7 @@ updateAppModel msg route session appModel =
         SetNewLocalisation loc ->
             case loc of
                 [ long, lat ] ->
-                    ( Connected route session { appModel | current_location = Just <| Localisation long lat }, saveLocation (Localisation long lat) session.token )
+                    ( Connected route session { appModel | current_location = Just <| Localisation long lat } usersModel talksModel, saveLocation (Localisation long lat) session.token )
 
                 _ ->
                     ( model, Cmd.none )
@@ -335,7 +328,7 @@ updateAppModel msg route session appModel =
                                 _ ->
                                     Cmd.none
                     in
-                    ( Connected route session { appModel | current_location = loc }, cmd )
+                    ( Connected route session { appModel | current_location = loc } usersModel talksModel, cmd )
 
                 _ ->
                     ( model, Cmd.none )
@@ -348,7 +341,7 @@ updateAppModel msg route session appModel =
                 newForm =
                     updateInput form_ id_ (Just value)
             in
-            ( Connected route session { appModel | editAccountForm = newForm }, Cmd.none )
+            ( Connected route session { appModel | editAccountForm = newForm } usersModel talksModel, Cmd.none )
 
         UpdateAnim t ->
             let
@@ -363,7 +356,7 @@ updateAppModel msg route session appModel =
                         _ ->
                             Nothing
             in
-            ( Connected route session { appModel | matchAnim = Debug.log "newAnim" newAnim }, Cmd.none )
+            ( Connected route session { appModel | matchAnim = Debug.log "newAnim" newAnim } usersModel talksModel, Cmd.none )
 
         SaveAccountUpdates ->
             let
@@ -388,7 +381,7 @@ updateAppModel msg route session appModel =
                 newForm =
                     updateInput form_ id_ (Just value)
             in
-            ( Connected route session { appModel | changePwdForm = newForm }, Cmd.none )
+            ( Connected route session { appModel | changePwdForm = newForm } usersModel talksModel, Cmd.none )
 
         ChangePwd ->
             let
@@ -422,21 +415,21 @@ updateAppModel msg route session appModel =
         SearchTag search ->
             case (String.length search > 1, validTag <| Just search ) of
                 ( True, Valid t ) ->
-                    ( Connected route session { appModel | tagInput = search }, searchTag session.token search )
+                    ( Connected route session { appModel | tagInput = search } usersModel talksModel, searchTag session.token search )
 
                 ( _, NotValid err ) ->
-                    ( Connected route session { appModel | tagInput = search }, searchTag session.token search )
+                    ( Connected route session { appModel | tagInput = search } usersModel talksModel, searchTag session.token search )
 
                 _ -> ( model, Cmd.none )
 
 
         AddTag t ->
-            ( Connected route session { appModel | tagInput = "", searchTag = [] }, (addTag t) session.token )
+            ( Connected route session { appModel | tagInput = "", searchTag = [] } usersModel talksModel, (addTag t) session.token )
 
         AddNewTag ->
             case validTag <| Just appModel.tagInput of
                 Valid s ->
-                    ( Connected route session { appModel | tagInput = "", searchTag = [] }, (addTag s) session.token )
+                    ( Connected route session { appModel | tagInput = "", searchTag = [] } usersModel talksModel, (addTag s) session.token )
 
                 _ ->
                     ( model, Cmd.none )
@@ -454,7 +447,7 @@ updateAppModel msg route session appModel =
                     , filename = data.filename
                     }
             in
-            ( Connected route session { appModel | mImage = Just newImage }
+            ( Connected route session { appModel | mImage = Just newImage } usersModel talksModel
             ,  uploadImage data.contents session.token
             )
 
@@ -462,20 +455,20 @@ updateAppModel msg route session appModel =
             ( model, delImg id_ session.token )
 
         SetCurrentTime t ->
-            ( Connected route session { appModel | currentTime = t }, Cmd.none )
+            ( Connected route session { appModel | currentTime = t } usersModel talksModel, Cmd.none )
 
         UpdateCurrentTime t ->
             ( model, now )
 
         ToggleAccountMenu ->
-            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu }, Cmd.none )
+            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu } usersModel talksModel, Cmd.none )
 
         ChangeImage user to ->
             let
                 newUsers =
-                    showImage to user appModel.users
+                    showImage to user usersModel.users
             in
-            ( Connected route session { appModel | users = newUsers }, Cmd.none )
+            ( Connected route session appModel { usersModel | users = newUsers } talksModel, Cmd.none )
 
         GoTo url ->
             ( model, Navigation.newUrl url )
@@ -483,14 +476,14 @@ updateAppModel msg route session appModel =
         ChangeSort s ->
             let
                 orderSort =
-                    if s == appModel.userSort then
-                        toggleOrder appModel.orderSort
+                    if s == usersModel.userSort then
+                        toggleOrder usersModel.orderSort
                     else if s == S_Afin then
                         ASC
                     else
                         DESC
             in
-            ( Connected route session { appModel | userSort = s, orderSort = orderSort }, Cmd.none )
+              ( Connected route session appModel { usersModel | userSort = s, orderSort = orderSort } talksModel, Cmd.none )
 
         Notification str ->
             case Json.Decode.decodeString notificationDecoder str of
@@ -499,7 +492,7 @@ updateAppModel msg route session appModel =
                         NotifMessage ->
                             let
                                 update =
-                                    if route == TalkRoute notif.from || route == TalkRoute notif.to then
+                                    if talksModel.currentTalk == Just notif.from || talksModel.currentTalk == Just notif.to then
                                         True
                                     else
                                         False
@@ -513,7 +506,7 @@ updateAppModel msg route session appModel =
 
                         NotifLike ->
                             if notif.to == session.user.username && route /= UsersRoute "likers" then
-                                ( Connected route session { appModel | notifLike = notif.notif }, Cmd.none )
+                                ( Connected route session { appModel | notifLike = notif.notif } usersModel talksModel, Cmd.none )
                             else if notif.to == session.user.username && route == UsersRoute "likers" then
                                 ( model, getRelevantUsers "likers" session.token )
                             else
@@ -521,7 +514,7 @@ updateAppModel msg route session appModel =
 
                         NotifVisit ->
                             if notif.to == session.user.username && route /= UsersRoute "visitors" then
-                                ( Connected route session { appModel | notifVisit = notif.notif }, Cmd.none )
+                                ( Connected route session { appModel | notifVisit = notif.notif } usersModel talksModel, Cmd.none )
                             else if notif.to == session.user.username && route == UsersRoute "visitors" then
                                 ( model, getRelevantUsers "visitors" session.token )
                             else
@@ -531,58 +524,61 @@ updateAppModel msg route session appModel =
                     ( model, Cmd.none )
 
         ToggleEmoList ->
-            ( Connected route session { appModel | showEmoList = not appModel.showEmoList }, Cmd.none )
+            ( Connected route session { appModel | showEmoList = not appModel.showEmoList } usersModel talksModel, Cmd.none )
 
         AddEmo talk em ->
-            case getTalkWith talk appModel.talks of
+            case getTalkWith talk talksModel.talks of
                 Just t ->
                     let
                         newTalk =
                             { t | new_message = t.new_message ++ " ::__" ++ em ++ "__::" }
 
                         newTalks =
-                            updateTalks (Just newTalk) appModel.talks
+                            updateTalks (Just newTalk) talksModel.talks
                     in
-                    ( Connected route session { appModel | talks = newTalks }, Task.attempt (always NoOp) (Dom.focus "input-msg") )
+                    ( Connected route session appModel usersModel { talksModel | talks = newTalks }, Task.attempt (always NoOp) (Dom.focus "input-msg") )
 
                 _ ->
                     ( model, Cmd.none )
 
         UpdateTagFilter tag_ ->
           let
-            filters = updateFilterTag appModel.userFilter tag_
+            filters = updateFilterTag usersModel.userFilter tag_
           in
-            ( Connected route session { appModel | userFilter = Debug.log "filters" filters }, Cmd.none )
+            ( Connected route session appModel { usersModel | userFilter =  filters } talksModel, Cmd.none )
 
         UpdateMinAgeFilter age ->
           let filters =
             case String.toInt age of
-              Ok a -> updateMinAgeFilter appModel.userFilter a
-              _ -> List.filter (\f -> not <| isMinFilter f ) appModel.userFilter
+              Ok a -> updateMinAgeFilter usersModel.userFilter a
+              _ -> List.filter (\f -> not <| isMinFilter f ) usersModel.userFilter
           in
-            ( Connected route session { appModel | userFilter = Debug.log "filters" filters }, Cmd.none )
+            ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         UpdateMaxAgeFilter age ->
           let filters =
             case String.toInt age of
-              Ok a -> updateMaxAgeFilter appModel.userFilter a
-              _ -> List.filter (\f -> not <| isMaxFilter f ) appModel.userFilter
+              Ok a -> updateMaxAgeFilter usersModel.userFilter a
+              _ -> List.filter (\f -> not <| isMaxFilter f ) usersModel.userFilter
           in
-            ( Connected route session { appModel | userFilter = Debug.log "filters" filters }, Cmd.none )
+            ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         ToggleAdvanceFilters ->
-          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters }, Cmd.none )
+          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Cmd.none )
 
         ResetFilters ->
-          ( Connected route session { appModel | userFilter = [] }, Cmd.none )
+          ( Connected route session appModel { usersModel | userFilter = [] } talksModel, Cmd.none )
 
         UpdateLocFilter dist ->
           let
             filters =
               case String.toFloat dist of
-                Ok d -> updateLocFilter appModel.userFilter d
-                _ -> List.filter (\f -> not <| isLocFilter f ) appModel.userFilter
+                Ok d -> updateLocFilter usersModel.userFilter d
+                _ -> List.filter (\f -> not <| isLocFilter f ) usersModel.userFilter
           in
-            ( Connected route session { appModel | userFilter = Debug.log "filters" filters }, Cmd.none )
+            ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
+
+        SetCurrentTalk talk ->
+          ( Connected route session appModel usersModel { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
 
         _ -> ( model, Cmd.none )

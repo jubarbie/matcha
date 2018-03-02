@@ -1,5 +1,10 @@
 module App.Talk.TalkModel exposing (..)
 
+type alias TalksModel =
+      { talks : List Talk
+      , currentTalk : Maybe String
+      }
+
 type alias Talk =
       { username_with : String
       , unreadMsgs : Int
@@ -12,3 +17,8 @@ type alias Message =
       , message : String
       , user : String
       }
+
+initialTalksModel =
+  { talks = []
+  , currentTalk = Nothing
+  }

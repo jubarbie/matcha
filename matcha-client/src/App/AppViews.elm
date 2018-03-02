@@ -17,46 +17,43 @@ import App.Talk.TalkUtils exposing (..)
 import App.Talk.TalkView exposing (..)
 
 
-view : AppRoutes -> Session -> AppModel -> Html Msg
-view route session model =
-    div [ class "container" ] <|
-        (if model.matchAnim /= Nothing then
-            [ div [ id "match-anim" ] [] ]
-         else
+view : AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> Html Msg
+view route session appModel usersModel talksModel =
+  let
+    viewToShow =
+      case route of
+        UsersRoute a ->
             []
-        )
-            ++ (case model.message of
-                    Just msg ->
-                        [ div [ class "alert" ] [ text msg ] ]
 
-                    Nothing ->
-                        []
-               )
-            ++ (case route of
-                    UsersRoute a ->
-                        [ viewMenu route session model ] ++ (App.User.UsersView.view route session model)
+        UserRoute a ->
+            App.User.UserView.view a session appModel usersModel
 
-                    UserRoute a ->
-                        [ div [ class "blur" ] <| [ viewMenu route session model ] ++ (App.User.UsersView.view route session model) ] ++ (App.User.UserView.view a session model)
+        AccountRoute ->
+            [ App.User.UserAccountView.view session appModel ]
 
-                    TalksRoute ->
-                        [ viewMenu route session model, App.Talk.TalkView.talksListView route model ]
+        EditAccountRoute ->
+            [ App.User.UserAccountView.viewEditAccount session appModel ]
 
-                    TalkRoute a ->
-                        [ viewMenu route session model ] ++ App.Talk.TalkView.view a route model
+        ChangePwdRoute ->
+            [ App.User.UserAccountView.viewChangePwd appModel ]
 
-                    AccountRoute ->
-                        [ viewMenu route session model, App.User.UserAccountView.view session model ]
+        NotFoundAppRoute ->
+            [ view404 ]
+  in
+    div [ class "layout-row"]
+        <|
+        [ div [ class <| "container" ++ if viewToShow == [] then "" else " blur" ] <| viewMenu route session appModel talksModel :: App.User.UsersView.view route session appModel usersModel
+        , alertMessageView appModel
+        ] ++ viewToShow
 
-                    EditAccountRoute ->
-                        [ viewMenu route session model, App.User.UserAccountView.viewEditAccount session model ]
+alertMessageView : AppModel -> Html Msg
+alertMessageView model =
+  case model.message of
+          Just msg ->
+              div [ class "alert" ] [ text msg ]
 
-                    ChangePwdRoute ->
-                        [ viewMenu route session model, App.User.UserAccountView.viewChangePwd model ]
-
-                    _ ->
-                        [ view404 ]
-               )
+          Nothing ->
+              div [] []
 
 view404 : Html msg
 view404 =
@@ -66,24 +63,24 @@ view404 =
         ]
 
 
-viewMenu : AppRoutes -> Session -> AppModel -> Html Msg
-viewMenu route session model =
+viewMenu : AppRoutes -> Session -> AppModel -> TalksModel -> Html Msg
+viewMenu route session appModel talksModel =
   div []
     <| [ nav [ class "navbar" ]
             [ ul [ class "navbar-list" ] <|
                 [ ul []
                     [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
-                    , li [ getMenuClass TalksRoute route ]
-                        [ a [ href "http://localhost:3000/#/chat" ]
+                    , li [  ]
+                        [ a [  ]
                             [ icon "fas fa-comments"
-                            , notif <| App.Talk.TalkUtils.getTalkNotif model.talks
+                            , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
                             ]
                         ]
                     ]
-                , viewAccountMenu model
+                , viewAccountMenu appModel
                 ]
             ]
-      ] ++ viewAccountBox session model
+      ] ++ viewAccountBox session appModel ++ [ div [] [ talksListView talksModel ] ]
 
 viewAccountMenu : AppModel -> Html Msg
 viewAccountMenu model =

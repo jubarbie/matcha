@@ -31,7 +31,7 @@ init location =
 subscriptions : Model -> Sub Msg
 subscriptions model =
   case model of
-    Connected route session appModel ->
+    Connected route session appModel usersModel talksModel ->
         let
           subRoute =
             case route of

@@ -1,15 +1,6 @@
 @import 'colors';
 
-#single-user {
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	left: 0;
-	top: 0;
-	padding-top: 2rem;
-	padding-bottom: 2rem;
-	background: rgba(255, 255, 255, 0.2);
-
+#on-top {
 	.user-box .user-infos {
 		padding: 16px;
 	}

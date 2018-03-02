@@ -14,8 +14,8 @@ view model =
       Login.LoginView.view route loginModel
     Connexion route ->
       connectionView
-    Connected route session appModel ->
-      App.AppViews.view route session appModel
+    Connected route session appModel usersModel talksModel ->
+      App.AppViews.view route session appModel usersModel talksModel
 
 connectionView : Html Msg
 connectionView =

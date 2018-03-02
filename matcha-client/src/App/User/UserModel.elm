@@ -1,6 +1,13 @@
 module App.User.UserModel exposing (..)
 
 
+type alias UsersModel =
+  { users : Users
+  , userFilter : List FilterUsers
+  , userSort : SortUsers
+  , orderSort : OrderSort
+  }
+
 type alias SessionUser =
     { username : String
     , fname : String
@@ -90,6 +97,12 @@ type UserStatus
     | Incomplete
     | NotActivated
 
+initialUsersModel =
+  { users = []
+  , userFilter = []
+  , userSort = S_Afin
+  , orderSort = ASC
+  }
 
 genderToString : Maybe Gender -> String
 genderToString g =

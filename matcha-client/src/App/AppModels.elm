@@ -12,8 +12,6 @@ import Login.LoginModels exposing (..)
 type AppRoutes
     = UsersRoute String
     | UserRoute String
-    | TalksRoute
-    | TalkRoute String
     | AccountRoute
     | EditAccountRoute
     | ChangePwdRoute
@@ -35,13 +33,8 @@ type alias AppModel =
   , changePwdForm : Form
   , tagInput : String
   , searchTag : List String
-  , users : Users
-  , talks : List Talk
   , notifVisit: Int
   , notifLike: Int
-  , userFilter : List FilterUsers
-  , userSort : SortUsers
-  , orderSort : OrderSort
   , message : Maybe String
   , map_state : MapState
   , current_location : Maybe Localisation
@@ -65,13 +58,8 @@ initialAppModel =
     , changePwdForm = initChangePwdForm
     , tagInput = ""
     , searchTag = []
-    , users = []
-    , talks = []
     , notifVisit = 0
     , notifLike = 0
-    , userFilter = []
-    , userSort = S_Afin
-    , orderSort = DESC
     , message = Nothing
     , map_state = NoMap
     , current_location = Nothing

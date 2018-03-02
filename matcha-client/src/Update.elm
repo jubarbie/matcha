@@ -15,6 +15,8 @@ import App.AppUpdate exposing (updateAppModel)
 import Login.LoginUpdate exposing (updateLoginModel)
 import Login.LoginModels exposing (..)
 import App.AppModels exposing (..)
+import App.Talk.TalkModel exposing (..)
+import App.User.UserModel exposing (..)
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -23,8 +25,8 @@ update msg model =
         updateLoginModel msg route loginModel
       (Connexion route , msg) ->
         updateConnexionModel msg route
-      (Connected route session appModel, msg) ->
-        updateAppModel msg route session appModel
+      (Connected route session appModel usersModel talksModel, msg) ->
+        updateAppModel msg route session appModel usersModel talksModel
 
 updateConnexionModel : Msg -> AppRoutes -> (Model, Cmd Msg)
 updateConnexionModel msg route =
@@ -37,37 +39,33 @@ updateConnexionModel msg route =
                         let
                             session =
                                 Session u token
-                            model = Connected route session initialAppModel
+                            model = Connected route session initialAppModel initialUsersModel initialTalksModel
+                            cmds = [ getTalks session.token ]
                         in
                         case u.status of
                             Activated ->
                                 case route of
-                                    TalksRoute ->
-                                        ( model, getTalks session.token )
-
-                                    TalkRoute a ->
-                                        ( model, getTalks session.token )
 
                                     UsersRoute a ->
-                                        ( model, Cmd.batch [ sendLikeNotif session.token u.username, sendVisitNotif session.token u.username, getRelevantUsers a session.token ] )
+                                        ( model, Cmd.batch <| cmds ++ [ sendLikeNotif session.token u.username, sendVisitNotif session.token u.username, getRelevantUsers a session.token ] )
 
                                     UserRoute a ->
-                                        ( model, Cmd.batch [ sendLikeNotif session.token u.username, sendVisitNotif session.token u.username, getRelevantUsers a session.token ] )
+                                        ( model, Cmd.batch <| cmds ++[ sendLikeNotif session.token u.username, sendVisitNotif session.token u.username, getRelevantUsers a session.token ] )
 
                                     AccountRoute ->
-                                        ( Connected route session { initialAppModel | map_state = App.AppModels.Loading }, Cmd.none )
+                                        ( Connected route session { initialAppModel | map_state = App.AppModels.Loading } initialUsersModel initialTalksModel, Cmd.batch <| cmds )
 
                                     EditAccountRoute ->
-                                        ( Connected route session { initialAppModel | editAccountForm = initEditAccountForm session.user }, Cmd.none )
+                                        ( Connected route session { initialAppModel | editAccountForm = initEditAccountForm session.user } initialUsersModel initialTalksModel, Cmd.batch <| cmds )
 
                                     _ ->
                                         ( model, Cmd.none )
 
                             ResetPassword ->
-                                ( Connected route session { initialAppModel | message = Just "Please reset your password" }, Navigation.newUrl "/#/edit_password" )
+                                ( Connected route session { initialAppModel | message = Just "Please reset your password" } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_password" :: cmds )
 
                             Incomplete ->
-                                ( Connected route session { initialAppModel | message = Just "Please complete your profile" }, Navigation.newUrl "/#/account" )
+                                ( Connected route session { initialAppModel | message = Just "Please complete your profile" } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/account" :: cmds )
 
                             NotActivated ->
                                 ( NotConnected LoginRoute { initialLoginModel | message = Just "Please activate your email" }, Navigation.newUrl "/#/login" )
@@ -82,7 +80,7 @@ updateConnexionModel msg route =
       case Debug.log "session" s of
           [ user, token ] ->
               if token /= "" && user /= "" then
-                  ( Connexion route, getSessionUser user token )
+                  ( Connexion route, getSessionUser user token  )
               else
                   ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
 

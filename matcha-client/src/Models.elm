@@ -13,7 +13,7 @@ import Login.LoginModels exposing (..)
 type Model
   = NotConnected LoginRoutes LoginModel
   | Connexion AppRoutes
-  | Connected AppRoutes Session AppModel
+  | Connected AppRoutes Session AppModel UsersModel TalksModel
 
 initialModel : LoginRoutes -> Model
 initialModel route =

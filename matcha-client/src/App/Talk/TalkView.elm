@@ -15,24 +15,24 @@ import App.Talk.TalkUtils exposing (..)
 import Utils exposing (..)
 
 
-view : String -> AppRoutes -> AppModel -> List (Html Msg)
-view talk route model =
+view : String -> AppModel -> TalksModel -> List (Html Msg)
+view talk appModel model =
     case getTalkWith talk model.talks of
         Just t ->
             let
                 messages =
                     List.sortBy (\m -> m.date) t.messages
             in
-            [ div [ class "layout-row flex" ]
+            [ div [ id "talk-width", class "layout-row flex" ]
                 [ div
-                    [ id "talk", class <| "layout-column" ++ getEmoListClass model.showEmoList ]
+                    [ id "talk", class <| "layout-column" ++ getEmoListClass appModel.showEmoList ]
                     [ div [ id "talk-list", class "message-list content" ] (List.map (messageView t.username_with) messages)
                     , div [ id "talk-foot" ]
                         [ emoListView emoticonList talk
                         , viewMessageForm t
                         ]
                     ]
-                , div [ id "talks-side" ] [ talksListView route model ]
+                , div [ id "talks-side" ] [ talksListView model ]
                 ]
             ]
 
@@ -71,18 +71,18 @@ viewMessageForm t =
         ]
 
 
-talksListView : AppRoutes -> AppModel -> Html Msg
-talksListView route model =
+talksListView :  TalksModel -> Html Msg
+talksListView model =
     let
         current =
-            case route of
-                TalkRoute a ->
+            case model.currentTalk of
+                Just a ->
                     a
 
                 _ ->
                     ""
     in
-      if List.length model.talks > 0 then
+    if List.length model.talks > 0 then
           ul [ class "content talk-list" ] <|
               List.map
                   (\t ->
@@ -93,11 +93,12 @@ talksListView route model =
                               else
                                   ""
                           ]
-                          [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
+                          [ button [ onClick <| SetCurrentTalk t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
                   )
                   model.talks
       else
           div [ class "content" ] [ text "You haven't talk to anyone yet" ]
+
 
 
 messageView : String -> Message -> Html Msg

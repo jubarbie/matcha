@@ -99,11 +99,14 @@
 	font-size: 0.8em;
 	font-weight: normal;
 	color: $grey-light;
-	margin-top: 10px;
-	opacity: 0;
+	margin-top: 2px;
+	height: 0;
+	transition: all 0.2s ease;
+	overflow: hidden;
 }
 .message:hover .message-infos {
-	opacity: 1;
+	margin-top: 10px;
+	height: 20px;
 }
 .message-bubble {
 	max-width: 100%;
@@ -111,6 +114,7 @@
 	display: inline-block;
 	border-radius: 10px;
 	background: 2px solid white;
+	font-size: 0.9em
 }
 .message-me {
 	.message-bubble {
@@ -125,25 +129,25 @@
 		background: #1d986d;
 	}
 }
-.message-me:after {
+.message-me:last-child:after {
 	content : " ";
 	display: inline-block;
 	width: 18px;
 	height: 18px;
-	background: url('/assets/images/bubble_q.svg') 0 0 no-repeat;
+	background: url('http://localhost:3001/images/bubble_q.svg') 0 0 no-repeat;
 	fill: white;
 	position: absolute;
 	bottom: -12px;
 	right: 0px;
 }
-.message-them:after {
+.message-them:last-child:after {
 	content : " ";
 	display: inline-block;
 	width: 18px;
 	height: 18px;
 	background-color: #1d986d;
-   	-webkit-mask:  url('/assets/images/bubble_q.svg') no-repeat 50% 50%;
-   	mask: url('/assets/images/bubble_q.svg') no-repeat 50% 50%;
+   	-webkit-mask:  url('http://localhost:3001/images/bubble_q.svg') no-repeat 50% 50%;
+   	mask: url('http://localhost:3001/images/bubble_q.svg') no-repeat 50% 50%;
 	transform: scaleX(-1);
 	position: absolute;
 	bottom: -12px;
@@ -170,6 +174,7 @@ ul.talk-list {
 		line-height: 40px;
 		border-radius: 20px;
 		text-align: center;
+		background: $grey-dark;
 
 		a {
 			display: block;

@@ -14,21 +14,21 @@ import App.AppModels exposing (..)
 import Utils exposing (..)
 
 
-view : String -> Session -> AppModel -> List (Html Msg)
-view username session model =
+view : String -> Session -> AppModel -> UsersModel -> List (Html Msg)
+view username session appModel model =
     case findUserByName username model.users of
         Just user ->
-            [ div [ id "single-user", onClick <| GoBack 1 ]
+            [ div [ id "on-top", onClick <| GoBack 1 ]
                 [ div [ class "container" ]
                     [ div [ class "user-box appear" ]
-                        [ userImagesView user model
+                        [ userImagesView user
                         , div [ class "user-infos" ]
                             [ userNameView user
                             , userButtonsView session user
                             , userTagsView user session
                             , userBioView user
                             , userDistanceView user
-                            , userOnlineStatusView model user
+                            , userOnlineStatusView appModel user
                             ]
                         ]
                     ]
@@ -194,8 +194,8 @@ userTagsView user s =
             (List.sort user.tags)
 
 
-userImagesView : User -> AppModel -> Html Msg
-userImagesView user model =
+userImagesView : User -> Html Msg
+userImagesView user =
     let
         imgSrc =
             case List.head user.photos of

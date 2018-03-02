@@ -11,6 +11,7 @@
     "body-parser": "~1.17.1",
     "crypto": "^1.0.1",
     "debug": "~2.6.3",
+    "elm-format": "^0.6.1-alpha",
     "express": "~4.15.2",
     "express-validator": "^4.1.1",
     "express-ws": "^3.0.0",

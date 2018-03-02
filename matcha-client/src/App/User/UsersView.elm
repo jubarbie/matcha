@@ -16,18 +16,18 @@ import Json.Decode as Decode
 import App.AppModels exposing (..)
 
 
-view : AppRoutes -> Session -> AppModel -> List (Html Msg)
-view route session model =
+view : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
+view route session appModel model =
     [ div []
-          [ sortMenuView route session model
+          [ sortMenuView route session appModel model
           , viewUsers session model
-          , advanceFilterView session model
+          , advanceFilterView session appModel model
           ]
       ]
 
-advanceFilterView : Session -> AppModel -> Html Msg
-advanceFilterView session model =
-  div [ id "advance-filters", class <| if model.showAdvanceFilters then "active" else "" ]
+advanceFilterView : Session -> AppModel -> UsersModel -> Html Msg
+advanceFilterView session appModel model =
+  div [ id "advance-filters", class <| if appModel.showAdvanceFilters then "active" else "" ]
       [ tagsFilterView session model
       , ageFilterView
       , locFilterView
@@ -41,10 +41,10 @@ locFilterView =
       , input [ onInput UpdateLocFilter ] []
       ]
 
-sortMenuView : AppRoutes -> Session -> AppModel -> Html Msg
-sortMenuView route session model =
+sortMenuView : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
+sortMenuView route session appModel model =
     div [ class "filter-menu center" ]
-        [ userMenuView route model
+        [ userMenuView route appModel
         , ul [ class "group-btn" ]
             [ li [ class <| getActiveClass (S_Afin == model.userSort) ]
                 [ button [ class "button", onClick <| ChangeSort S_Afin ]
@@ -65,7 +65,7 @@ sortMenuView route session model =
             ]
         ]
 
-tagsFilterView : Session -> AppModel -> Html Msg
+tagsFilterView : Session -> UsersModel -> Html Msg
 tagsFilterView session model =
   div []
     <| h3 [] [ text "By tags" ]
@@ -134,7 +134,7 @@ userMenuView route model =
         ]
 
 
-viewUsers : Session -> AppModel -> Html Msg
+viewUsers : Session -> UsersModel -> Html Msg
 viewUsers session model =
     let
         listF =
@@ -171,7 +171,7 @@ viewUsers session model =
         ]
 
 
-cardUserView : User -> Session -> AppModel -> Html Msg
+cardUserView : User -> Session -> UsersModel -> Html Msg
 cardUserView user session model =
     Html.Keyed.node (String.filter Char.isLower user.username)
         []
@@ -185,7 +185,7 @@ cardUserView user session model =
         ]
 
 
-userInfosView : User -> AppModel -> Html Msg
+userInfosView : User -> UsersModel -> Html Msg
 userInfosView user model =
     div [ class "user-infos" ]
         [ userNameView user
@@ -193,7 +193,7 @@ userInfosView user model =
         ]
 
 
-userImageView : User -> Session -> AppModel -> Html Msg
+userImageView : User -> Session -> UsersModel -> Html Msg
 userImageView user session model =
     let
         imgSrc =

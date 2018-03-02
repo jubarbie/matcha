@@ -75,3 +75,4 @@ type Msg
     | UpdateLocFilter String
     | ToggleAdvanceFilters
     | ResetFilters
+    | SetCurrentTalk String

@@ -12,6 +12,7 @@ import App.User.UserModel exposing (..)
 import Login.LoginModels exposing (..)
 import App.AppUpdate exposing (updateAppModel)
 import App.AppModels exposing (..)
+import App.Talk.TalkModel exposing (..)
 
 
 updateLoginModel : Msg -> LoginRoutes -> LoginModel -> (Model, Cmd Msg)
@@ -34,7 +35,7 @@ updateLoginModel msg route loginModel =
                                    _ ->
                                        ( "/#/users", Nothing )
                        in
-                       ( Connected (UsersRoute "all") session { initialAppModel | message = msg }
+                       ( Connected (UsersRoute "all") session { initialAppModel | message = msg } initialUsersModel initialTalksModel
                        , Cmd.batch [ Navigation.newUrl route, storeToken [ user.username, t ] ]
                        )
 
