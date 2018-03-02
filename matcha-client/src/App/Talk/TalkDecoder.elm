@@ -1,9 +1,9 @@
-module Talk.TalkDecoder exposing (..)
+module App.Talk.TalkDecoder exposing (..)
 
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)
-import Talk.TalkModel exposing (..)
+import App.Talk.TalkModel exposing (..)
 
 
 decodeTalks : Decoder (List Talk)

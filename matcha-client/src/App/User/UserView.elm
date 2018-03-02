@@ -1,4 +1,4 @@
-module User.UserView exposing (..)
+module App.User.UserView exposing (..)
 
 import Date
 import FormUtils exposing (..)
@@ -8,8 +8,9 @@ import Html.Events exposing (..)
 import Json.Decode as Decode
 import Models exposing (..)
 import Msgs exposing (..)
-import User.UserHelper exposing (..)
-import User.UserModel exposing (..)
+import App.User.UserHelper exposing (..)
+import App.User.UserModel exposing (..)
+import App.AppModels exposing (..)
 import Utils exposing (..)
 
 

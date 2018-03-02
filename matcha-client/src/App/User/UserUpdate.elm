@@ -1,6 +1,6 @@
-module User.UserUpdate exposing (..)
+module App.User.UserUpdate exposing (..)
 
-import User.UserModel exposing (..)
+import App.User.UserModel exposing (..)
 
 updateUser: User -> Users -> Users
 updateUser user users =

@@ -1,4 +1,4 @@
-module Talk.TalkModel exposing (..)
+module App.Talk.TalkModel exposing (..)
 
 type alias Talk =
       { username_with : String

@@ -1,8 +1,8 @@
-module Notif.NotifDecoder exposing (..)
+module App.Notif.NotifDecoder exposing (..)
 
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
-import Notif.NotifModel exposing (..)
+import App.Notif.NotifModel exposing (..)
 
 notificationDecoder : Decoder Notif
 notificationDecoder =

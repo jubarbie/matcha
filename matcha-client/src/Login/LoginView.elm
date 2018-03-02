@@ -1,4 +1,4 @@
-module Login exposing (view)
+module Login.LoginView exposing (view)
 
 import FormUtils exposing (..)
 import Html exposing (..)
@@ -7,6 +7,7 @@ import Html.Events exposing (..)
 import Html.Keyed exposing (..)
 import Json.Decode
 import Models exposing (..)
+import Login.LoginModels exposing (..)
 import Msgs exposing (..)
 
 

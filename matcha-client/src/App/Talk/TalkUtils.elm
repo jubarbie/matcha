@@ -1,9 +1,9 @@
-module Talk.TalkUtils exposing (..)
+module App.Talk.TalkUtils exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Msgs exposing (..)
-import Talk.TalkModel exposing (..)
+import App.Talk.TalkModel exposing (..)
 
 
 getTalkWith : String -> List Talk -> Maybe Talk

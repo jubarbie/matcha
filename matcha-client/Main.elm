@@ -7,6 +7,8 @@ import Time
 
 import Views exposing (view)
 import Models exposing (..)
+import App.AppModels exposing (..)
+import Login.LoginModels exposing (..)
 import Msgs exposing (..)
 import Update exposing (..)
 import Ports exposing (..)
@@ -24,7 +26,7 @@ init location =
               route -> NotConnected route initialLoginModel
           route -> Connexion route
   in
-    ( model, getToken () )
+    ( Debug.log "model" model, getToken () )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -41,14 +43,14 @@ subscriptions model =
               Just t -> Time.every Time.millisecond UpdateAnim
               _ -> Sub.none
         in
-          Sub.batch [ tokenRecieved SaveToken
-                    , newLocalisation SetNewLocalisation
+          Sub.batch [ newLocalisation SetNewLocalisation
                     , fileContentRead ImageRead
                     , subAnim
                     , subRoute
                     , Time.every Time.second UpdateCurrentTime
                     , WebSocket.listen "ws://localhost:3001/ws" Notification
                     ]
+    Connexion route -> tokenRecieved SaveToken
     _ -> Sub.none
 
 main : Program Never Model Msg

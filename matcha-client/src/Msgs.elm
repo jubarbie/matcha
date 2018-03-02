@@ -6,9 +6,9 @@ import Models exposing (..)
 import Navigation exposing (..)
 import Ports exposing (ImagePortData)
 import RemoteData exposing (..)
-import Talk.TalkModel exposing (..)
+import App.Talk.TalkModel exposing (..)
 import Time
-import User.UserModel exposing (..)
+import App.User.UserModel exposing (..)
 
 
 type Msg

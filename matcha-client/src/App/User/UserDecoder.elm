@@ -1,6 +1,6 @@
-module User.UserDecoder exposing (..)
+module App.User.UserDecoder exposing (..)
 
-import User.UserModel exposing (..)
+import App.User.UserModel exposing (..)
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)

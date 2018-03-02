@@ -1,4 +1,4 @@
-module User.UserCommands exposing (..)
+module App.User.UserCommands exposing (..)
 
 import Api.ApiDecoder exposing (..)
 import Http
@@ -8,8 +8,8 @@ import Json.Encode as JsonEnc exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import RemoteData exposing (..)
-import User.UserDecoder exposing (..)
-import User.UserModel exposing (..)
+import App.User.UserDecoder exposing (..)
+import App.User.UserModel exposing (..)
 import Api.ApiRequest exposing (..)
 import WebSocket
 

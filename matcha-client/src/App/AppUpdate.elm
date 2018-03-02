@@ -1,6 +1,6 @@
-module AppUpdate exposing (..)
+module App.AppUpdate exposing (..)
 
-import Commands exposing (..)
+import Login.LoginCommands exposing (..)
 import Dom
 import Dom.Scroll as Scroll
 import FormUtils exposing (..)
@@ -8,21 +8,23 @@ import Json.Decode
 import Models exposing (..)
 import Msgs exposing (..)
 import Navigation exposing (..)
-import Notif.NotifDecoder exposing (..)
-import Notif.NotifModel exposing (..)
+import App.Notif.NotifDecoder exposing (..)
+import App.Notif.NotifModel exposing (..)
 import Ports exposing (..)
 import RemoteData exposing (..)
 import Routing exposing (parseAppLocation, parseLoginLocation)
-import Talk.TalkCommands exposing (..)
-import Talk.TalkModel exposing (..)
-import Talk.TalkUtils exposing (..)
+import App.Talk.TalkCommands exposing (..)
+import App.Talk.TalkModel exposing (..)
+import App.Talk.TalkUtils exposing (..)
 import Task
 import Time
-import User.UserCommands exposing (..)
-import User.UserHelper exposing (..)
-import User.UserModel exposing (..)
-import User.UserUpdate exposing (..)
+import App.User.UserCommands exposing (..)
+import App.User.UserHelper exposing (..)
+import App.User.UserModel exposing (..)
+import App.User.UserUpdate exposing (..)
+import App.AppModels exposing (..)
 import Utils exposing (..)
+import Login.LoginModels exposing (..)
 
 updateAppModel : Msg -> AppRoutes -> Session -> AppModel -> (Model, Cmd Msg)
 updateAppModel msg route session appModel =
@@ -233,7 +235,7 @@ updateAppModel msg route session appModel =
                             ( Connected newRoute session newModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
 
                         AccountRoute ->
-                            ( Connected newRoute session { newModel | map_state = Models.Loading }, Cmd.none )
+                            ( Connected newRoute session { newModel | map_state = App.AppModels.Loading }, Cmd.none )
 
                         EditAccountRoute ->
                             ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user }, Cmd.none )
@@ -296,8 +298,8 @@ updateAppModel msg route session appModel =
 
         LoadMap t ->
             case ( appModel.map_state, route ) of
-                ( Models.Loading, AccountRoute ) ->
-                    ( Connected route session { appModel | map_state = Models.Rendered }, localize [ session.user.localisation.lon, session.user.localisation.lat ] )
+                ( App.AppModels.Loading, AccountRoute ) ->
+                    ( Connected route session { appModel | map_state = Rendered }, localize [ session.user.localisation.lon, session.user.localisation.lat ] )
 
                 _ ->
                     ( model, Cmd.none )

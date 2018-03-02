@@ -1,8 +1,8 @@
-module Talk.TalkCommands exposing (..)
+module App.Talk.TalkCommands exposing (..)
 
 import Http
 import Json.Encode as JsonEnc exposing (..)
-import Talk.TalkDecoder exposing (..)
+import App.Talk.TalkDecoder exposing (..)
 import WebSocket
 import Msgs exposing (..)
 import RemoteData exposing (..)

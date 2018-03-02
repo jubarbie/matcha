@@ -1,6 +1,6 @@
-module User.UserAccountView exposing (view, viewChangePwd, viewEditAccount)
+module App.User.UserAccountView exposing (view, viewChangePwd, viewEditAccount)
 
-import Commands exposing (..)
+
 import FormUtils exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -9,7 +9,8 @@ import Html.Keyed exposing (..)
 import Json.Decode as JD
 import Models exposing (..)
 import Msgs exposing (..)
-import User.UserModel exposing (..)
+import App.User.UserModel exposing (..)
+import App.AppModels exposing (..)
 import Utils exposing (..)
 
 

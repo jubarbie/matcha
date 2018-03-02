@@ -1,7 +1,8 @@
 module Routing exposing (..)
 
 import Navigation exposing (Location)
-import Models exposing (AppRoutes(..), LoginRoutes(..))
+import App.AppModels exposing (AppRoutes(..))
+import Login.LoginModels exposing (LoginRoutes(..))
 import UrlParser exposing (..)
 
 

@@ -8,7 +8,7 @@ import Http
 import Json.Decode exposing (..)
 import Msgs exposing (..)
 import String
-import User.UserModel exposing (..)
+import App.User.UserModel exposing (..)
 import Task
 import Time
 

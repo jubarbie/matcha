@@ -1,4 +1,4 @@
-module Talk.TalkView exposing (..)
+module App.Talk.TalkView exposing (..)
 
 import Date
 import Html exposing (..)
@@ -9,8 +9,9 @@ import Models exposing (..)
 import Msgs exposing (..)
 import Regex exposing (..)
 import String
-import Talk.TalkModel exposing (..)
-import Talk.TalkUtils exposing (..)
+import App.AppModels exposing (..)
+import App.Talk.TalkModel exposing (..)
+import App.Talk.TalkUtils exposing (..)
 import Utils exposing (..)
 
 

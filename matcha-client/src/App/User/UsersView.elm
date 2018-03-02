@@ -1,4 +1,4 @@
-module User.UsersView exposing (view)
+module App.User.UsersView exposing (view)
 
 import Char
 import Html exposing (..)
@@ -8,11 +8,12 @@ import Html.Keyed
 import List
 import Models exposing (..)
 import Msgs exposing (..)
-import User.UserHelper exposing (..)
-import User.UserModel exposing (..)
-import User.UserView exposing (..)
+import App.User.UserHelper exposing (..)
+import App.User.UserModel exposing (..)
+import App.User.UserView exposing (..)
 import Utils exposing (..)
 import Json.Decode as Decode
+import App.AppModels exposing (..)
 
 
 view : AppRoutes -> Session -> AppModel -> List (Html Msg)

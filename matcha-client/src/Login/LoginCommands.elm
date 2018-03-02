@@ -1,4 +1,4 @@
-module Commands exposing (..)
+module Login.LoginCommands exposing (..)
 
 import Api.ApiDecoder exposing (..)
 import Http
@@ -8,10 +8,10 @@ import Json.Encode as JsonEnc exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import RemoteData exposing (..)
-import Talk.TalkDecoder exposing (..)
-import Talk.TalkModel exposing (..)
-import User.UserDecoder exposing (..)
-import User.UserModel exposing (..)
+import App.Talk.TalkDecoder exposing (..)
+import App.Talk.TalkModel exposing (..)
+import App.User.UserDecoder exposing (..)
+import App.User.UserModel exposing (..)
 
 
 decodeAuthResponse : Decoder AuthResponse

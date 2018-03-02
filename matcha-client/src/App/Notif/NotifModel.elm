@@ -1,4 +1,4 @@
-module Notif.NotifModel exposing (..)
+module App.Notif.NotifModel exposing (..)
 
 type alias Notif =
   { type_ : NotificationType

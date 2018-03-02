@@ -1,6 +1,6 @@
-module User.UserHelper exposing (..)
+module App.User.UserHelper exposing (..)
 
-import User.UserModel exposing (..)
+import App.User.UserModel exposing (..)
 
 findUserByName: String -> Users -> Maybe User
 findUserByName username users =

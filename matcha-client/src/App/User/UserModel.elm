@@ -1,4 +1,4 @@
-module User.UserModel exposing (..)
+module App.User.UserModel exposing (..)
 
 
 type alias SessionUser =
