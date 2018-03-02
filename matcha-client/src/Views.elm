@@ -18,6 +18,20 @@ import Talk.TalkUtils exposing (..)
 
 view : Model -> Html Msg
 view model =
+  case model of
+    NotConnected route loginModel ->
+      Login.view route loginModel
+    Connexion route ->
+      connectionView
+    Connected route session appModel ->
+      appView route session appModel
+
+connectionView : Html Msg
+connectionView =
+  div [] [ text "connexion..."]
+
+appView : AppRoutes -> Session -> AppModel -> Html Msg
+appView route session model =
     div [ class "container" ] <|
         (if model.matchAnim /= Nothing then
             [ div [ id "match-anim" ] [] ]
@@ -31,52 +45,49 @@ view model =
                     Nothing ->
                         []
                )
-            ++ (case ( model.route, model.session ) of
-                    ( Connect a, _ ) ->
-                        [ Login.view a model ]
+            ++ (case route of
+                    UsersRoute a ->
+                        [ viewMenu route session model ] ++ (User.UsersView.view route session model)
 
-                    ( UsersRoute a, Just s ) ->
-                        [ viewMenu model s ] ++ (User.UsersView.view model)
+                    UserRoute a ->
+                        [ div [ class "blur" ] <| [ viewMenu route session model ] ++ (User.UsersView.view route session model) ] ++ (User.UserView.view a session model)
 
-                    ( UserRoute a, Just s ) ->
-                        [ div [ class "blur" ] <| [ viewMenu model s ] ++ (User.UsersView.view model) ] ++ (User.UserView.view a model)
+                    TalksRoute ->
+                        [ viewMenu route session model, Talk.TalkView.talksListView route model ]
 
-                    ( TalksRoute, Just s ) ->
-                        [ viewMenu model s, Talk.TalkView.talksListView model ]
+                    TalkRoute a ->
+                        [ viewMenu route session model ] ++ Talk.TalkView.view a route model
 
-                    ( TalkRoute a, Just s ) ->
-                        [ viewMenu model s ] ++ Talk.TalkView.view a model
+                    AccountRoute ->
+                        [ viewMenu route session model, User.UserAccountView.view session model ]
 
-                    ( AccountRoute, Just s ) ->
-                        [ viewMenu model s, User.UserAccountView.view model ]
+                    EditAccountRoute ->
+                        [ viewMenu route session model, User.UserAccountView.viewEditAccount session model ]
 
-                    ( EditAccountRoute, Just s ) ->
-                        [ viewMenu model s, User.UserAccountView.viewEditAccount model ]
-
-                    ( ChangePwdRoute, Just s ) ->
-                        [ viewMenu model s, User.UserAccountView.viewChangePwd model ]
+                    ChangePwdRoute ->
+                        [ viewMenu route session model, User.UserAccountView.viewChangePwd model ]
 
                     _ ->
-                        [ view401 ]
+                        [ view404 ]
                )
 
 
-view401 : Html msg
-view401 =
+view404 : Html msg
+view404 =
     div []
-        [ text "401 page non trouvée"
+        [ text "404 error, page not found"
         , a [ href "http://localhost:3000/#/users" ] [ text "Back to homepage" ]
         ]
 
 
-viewMenu : Model -> Session -> Html Msg
-viewMenu model session =
+viewMenu : AppRoutes -> Session -> AppModel -> Html Msg
+viewMenu route session model =
   div []
     <| [ nav [ class "navbar" ]
             [ ul [ class "navbar-list" ] <|
                 [ ul []
-                    [ li [ getMenuClass (UsersRoute "all") model.route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
-                    , li [ getMenuClass TalksRoute model.route ]
+                    [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
+                    , li [ getMenuClass TalksRoute route ]
                         [ a [ href "http://localhost:3000/#/chat" ]
                             [ icon "fas fa-comments"
                             , notif <| Talk.TalkUtils.getTalkNotif model.talks
@@ -86,18 +97,18 @@ viewMenu model session =
                 , viewAccountMenu model
                 ]
             ]
-      ] ++ viewAccountBox model session
+      ] ++ viewAccountBox session model
 
-viewAccountMenu : Model -> Html Msg
+viewAccountMenu : AppModel -> Html Msg
 viewAccountMenu model =
       li [ onClick ToggleAccountMenu ] [ a [] [ icon "fas fa-user" ] ]
 
 
-viewAccountBox : Model -> Session -> List (Html Msg)
-viewAccountBox model s =
+viewAccountBox :  Session -> AppModel -> List (Html Msg)
+viewAccountBox session model =
   if model.showAccountMenu then
     [ div [ class "account-menu" ]
-        [ div [] [ text s.user.username ]
+        [ div [] [ text session.user.username ]
         , div [ onClick ToggleAccountMenu ] [ icon "far fa-times-circle" ]
         , div [ onClick Logout ] [ icon "fas fa-power-off" ]
         , div [ ] [ a [ href "http://localhost:3000/#/account" ] [ text "Edit" ] ]
@@ -105,7 +116,7 @@ viewAccountBox model s =
     ]
   else []
 
-getMenuClass : Route -> Route -> Attribute msg
+getMenuClass : AppRoutes -> AppRoutes -> Attribute msg
 getMenuClass menuRoute currentRoute =
     if menuRoute == currentRoute then
         class "active"

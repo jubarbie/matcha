@@ -8,22 +8,22 @@ import Notif.NotifModel exposing (..)
 import Api.ApiModel exposing (..)
 
 
-type Route
-    = Connect LoginRoute
-    | UsersRoute String
+type AppRoutes
+    = UsersRoute String
     | UserRoute String
     | TalksRoute
     | TalkRoute String
     | AccountRoute
     | EditAccountRoute
-    | NotFoundRoute
     | ChangePwdRoute
+    | NotFoundAppRoute
 
 
-type LoginRoute
-    = Login
-    | Signin
+type LoginRoutes
+    = LoginRoute
+    | SigninRoute
     | ResetPwdRoute
+    | NotFoundLoginRoute
 
 
 type MapState
@@ -37,36 +37,41 @@ type alias Image =
     , filename : String
     }
 
-type alias Model =
-    { route : Route
-    , session : Maybe Session
-    , loginForm : Form
-    , newUserForm : Form
-    , editAccountForm : Form
-    , resetPwdForm : Form
-    , changePwdForm : Form
-    , tagInput : String
-    , searchTag : List String
-    , users : Users
-    , talks : List Talk
-    , notifVisit: Int
-    , notifLike: Int
-    , userFilter : List FilterUsers
-    , userSort : SortUsers
-    , orderSort : OrderSort
-    , usersAdmin : List SessionUser
-    , message : Maybe String
-    , map_state : MapState
-    , current_location : Maybe Localisation
-    , matchAnim : Maybe Time.Time
-    , idImg : String
-    , mImage : Maybe Image
-    , currentTime : Maybe Time.Time
-    , showAccountMenu : Bool
-    , showAdvanceFilters : Bool
-    , showEmoList : Bool
-    }
+type alias LoginModel =
+  { loginForm : Form
+  , newUserForm : Form
+  , resetPwdForm : Form
+  , message : Maybe String
+  }
 
+type alias AppModel =
+  { editAccountForm : Form
+  , changePwdForm : Form
+  , tagInput : String
+  , searchTag : List String
+  , users : Users
+  , talks : List Talk
+  , notifVisit: Int
+  , notifLike: Int
+  , userFilter : List FilterUsers
+  , userSort : SortUsers
+  , orderSort : OrderSort
+  , message : Maybe String
+  , map_state : MapState
+  , current_location : Maybe Localisation
+  , matchAnim : Maybe Time.Time
+  , idImg : String
+  , mImage : Maybe Image
+  , currentTime : Maybe Time.Time
+  , showAccountMenu : Bool
+  , showAdvanceFilters : Bool
+  , showEmoList : Bool
+  }
+
+type Model
+  = NotConnected LoginRoutes LoginModel
+  | Connexion AppRoutes
+  | Connected AppRoutes Session AppModel
 
 type alias Session =
     { user : SessionUser
@@ -81,15 +86,21 @@ type alias AuthResponse =
     , user : Maybe SessionUser
     }
 
-
-initialModel : Route -> Model
+initialModel : LoginRoutes -> Model
 initialModel route =
-    { route = route
-    , session = Nothing
-    , loginForm = initLoginForm
-    , newUserForm = initFastNewUserForm
-    , editAccountForm = []
-    , resetPwdForm = initResetPwdForm
+  NotConnected route initialLoginModel
+
+initialLoginModel : LoginModel
+initialLoginModel =
+  { loginForm = initLoginForm
+  , newUserForm = initNewUserForm
+  , resetPwdForm = initResetPwdForm
+  , message = Nothing
+  }
+
+initialAppModel : AppModel
+initialAppModel =
+    { editAccountForm = []
     , changePwdForm = initChangePwdForm
     , tagInput = ""
     , searchTag = []
@@ -100,13 +111,8 @@ initialModel route =
     , userFilter = []
     , userSort = S_Afin
     , orderSort = DESC
-    , usersAdmin = []
     , message = Nothing
-    , map_state =
-        if route == AccountRoute || route == EditAccountRoute then
-            Loading
-        else
-            NoMap
+    , map_state = NoMap
     , current_location = Nothing
     , matchAnim = Nothing
     , idImg = "ImageInputId"

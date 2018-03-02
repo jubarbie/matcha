@@ -14,8 +14,8 @@ import Talk.TalkUtils exposing (..)
 import Utils exposing (..)
 
 
-view : String -> Model -> List (Html Msg)
-view talk model =
+view : String -> AppRoutes -> AppModel -> List (Html Msg)
+view talk route model =
     case getTalkWith talk model.talks of
         Just t ->
             let
@@ -31,7 +31,7 @@ view talk model =
                         , viewMessageForm t
                         ]
                     ]
-                , div [ id "talks-side" ] [ talksListView model ]
+                , div [ id "talks-side" ] [ talksListView route model ]
                 ]
             ]
 
@@ -70,33 +70,33 @@ viewMessageForm t =
         ]
 
 
-talksListView : Model -> Html Msg
-talksListView model =
+talksListView : AppRoutes -> AppModel -> Html Msg
+talksListView route model =
     let
         current =
-            case model.route of
+            case route of
                 TalkRoute a ->
                     a
 
                 _ ->
                     ""
     in
-    if List.length model.talks > 0 then
-        ul [ class "content talk-list" ] <|
-            List.map
-                (\t ->
-                    li
-                        [ class <|
-                            if current == t.username_with then
-                                "current"
-                            else
-                                ""
-                        ]
-                        [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
-                )
-                model.talks
-    else
-        div [ class "content" ] [ text "You haven't talk to anyone yet" ]
+      if List.length model.talks > 0 then
+          ul [ class "content talk-list" ] <|
+              List.map
+                  (\t ->
+                      li
+                          [ class <|
+                              if current == t.username_with then
+                                  "current"
+                              else
+                                  ""
+                          ]
+                          [ a [ href <| "/#/chat/" ++ t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
+                  )
+                  model.talks
+      else
+          div [ class "content" ] [ text "You haven't talk to anyone yet" ]
 
 
 messageView : String -> Message -> Html Msg

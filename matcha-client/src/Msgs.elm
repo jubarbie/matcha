@@ -14,7 +14,6 @@ import User.UserModel exposing (..)
 type Msg
     = NoOp
     | UsersResponse (Result Http.Error (ApiResponse (Maybe (List User))))
-    | UsersAdminResponse (WebData (ApiResponse (Maybe (List SessionUser))))
     | SessionUserResponse String (Result Http.Error (ApiResponse (Maybe SessionUser)))
     | UserResponse (Result Http.Error (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)

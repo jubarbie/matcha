@@ -13,18 +13,18 @@ import User.UserModel exposing (..)
 import Utils exposing (..)
 
 
-view : String -> Model -> List (Html Msg)
-view username model =
-    case ( findUserByName username model.users, model.session ) of
-        ( Just user, Just s ) ->
+view : String -> Session -> AppModel -> List (Html Msg)
+view username session model =
+    case findUserByName username model.users of
+        Just user ->
             [ div [ id "single-user", onClick <| GoBack 1 ]
                 [ div [ class "container" ]
                     [ div [ class "user-box appear" ]
                         [ userImagesView user model
                         , div [ class "user-infos" ]
                             [ userNameView user
-                            , userButtonsView s user
-                            , userTagsView user s
+                            , userButtonsView session user
+                            , userTagsView user session
                             , userBioView user
                             , userDistanceView user
                             , userOnlineStatusView model user
@@ -120,7 +120,7 @@ userMatchStatusView user =
         div [] []
 
 
-userOnlineStatusView : Model -> User -> Html Msg
+userOnlineStatusView : AppModel -> User -> Html Msg
 userOnlineStatusView model user =
     let
         last_connection =
@@ -193,7 +193,7 @@ userTagsView user s =
             (List.sort user.tags)
 
 
-userImagesView : User -> Model -> Html Msg
+userImagesView : User -> AppModel -> Html Msg
 userImagesView user model =
     let
         imgSrc =
@@ -204,13 +204,8 @@ userImagesView user model =
                 _ ->
                     "http://profile.actionsprout.com/default.jpeg"
     in
-    case model.session of
-        Just s ->
-            div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ] <|
+      div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ] <|
                 galleryButtonView user.photos user
-
-        _ ->
-            div [] []
 
 
 galleryButtonView : List String -> User -> List (Html Msg)

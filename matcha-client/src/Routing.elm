@@ -1,18 +1,23 @@
 module Routing exposing (..)
 
 import Navigation exposing (Location)
-import Models exposing (Route(..), LoginRoute(..))
+import Models exposing (AppRoutes(..), LoginRoutes(..))
 import UrlParser exposing (..)
 
 
-matchers : Parser (Route -> a) a
-matchers =
+matchersLogin : Parser (LoginRoutes -> a) a
+matchersLogin =
     oneOf
-    [ map (Connect Login) top
-    , map (Connect Login) (s "login")
-    , map (Connect Signin) (s "signup")
-    , map (Connect ResetPwdRoute) (s "password_reset")
-    , map (UsersRoute "all") (s "users")
+    [ map LoginRoute top
+    , map LoginRoute (s "login")
+    , map SigninRoute (s "signup")
+    , map ResetPwdRoute (s "password_reset")
+    ]
+
+matchersApp : Parser (AppRoutes -> a) a
+matchersApp =
+    oneOf
+    [ map (UsersRoute "all") (s "users")
     , map UsersRoute (s "users" </> string)
     , map UserRoute (s "user" </> string )
     , map TalkRoute (s "chat" </> string)
@@ -22,12 +27,20 @@ matchers =
     , map ChangePwdRoute (s "edit_password")
     ]
 
-
-parseLocation : Location -> Route
-parseLocation location =
-    case (parseHash matchers location) of
+parseLoginLocation : Location -> LoginRoutes
+parseLoginLocation location =
+    case (parseHash matchersLogin location) of
         Just route ->
             route
 
         Nothing ->
-            NotFoundRoute
+            NotFoundLoginRoute
+
+parseAppLocation : Location -> AppRoutes
+parseAppLocation location =
+    case (parseHash matchersApp location) of
+        Just route ->
+            route
+
+        Nothing ->
+            NotFoundAppRoute

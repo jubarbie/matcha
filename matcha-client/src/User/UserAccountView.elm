@@ -13,17 +13,13 @@ import User.UserModel exposing (..)
 import Utils exposing (..)
 
 
-view : Model -> Html Msg
-view model =
-    case model.session of
-        Just s ->
-            Html.Keyed.node "div" [] [ ( "div", viewAccount model s.user ) ]
-
-        _ ->
-            text "no session..."
+view : Session -> AppModel -> Html Msg
+view session model =
+  Html.Keyed.node "div" [] [ ( "div", viewAccount model session.user ) ]
 
 
-viewAccount : Model -> SessionUser -> Html Msg
+
+viewAccount : AppModel -> SessionUser -> Html Msg
 viewAccount model user =
     div [ class "content" ]
         [ viewInfosMessage user
@@ -50,7 +46,7 @@ viewInfosMessage user =
           ]
       ]
 
-viewUserInfos : Model -> SessionUser -> Html Msg
+viewUserInfos : AppModel -> SessionUser -> Html Msg
 viewUserInfos model user =
   div [ class "row" ]
       [ div [ class "six columns" ]
@@ -78,7 +74,7 @@ viewLocalisation =
       , button [ onClick Localize ] [ text "Localize me" ]
       ]
 
-viewImages : Model -> SessionUser -> Html Msg
+viewImages : AppModel -> SessionUser -> Html Msg
 viewImages model user =
     div [ class "row gallery" ]
         [ hr [] []
@@ -101,7 +97,7 @@ viewImages model user =
         ]
 
 
-viewNewImgeForm : Model -> Html Msg
+viewNewImgeForm : AppModel -> Html Msg
 viewNewImgeForm model =
     let
         imagePreview =
@@ -136,7 +132,7 @@ viewImagePreview image =
         []
 
 
-viewTagSection : Model -> SessionUser -> Html Msg
+viewTagSection : AppModel -> SessionUser -> Html Msg
 viewTagSection model user =
     div [] <|
         List.map
@@ -150,7 +146,7 @@ viewTagSection model user =
             ++ [ viewTagForm model ]
 
 
-viewTagForm : Model -> Html Msg
+viewTagForm : AppModel -> Html Msg
 viewTagForm model =
     div [ class "input" ]
         [ Html.form []
@@ -164,26 +160,16 @@ viewTagForm model =
         ]
 
 
-viewChangePwd : Model -> Html Msg
+viewChangePwd : AppModel -> Html Msg
 viewChangePwd model =
-    case model.session of
-        Nothing ->
-            text "no session..."
-
-        Just s ->
-            viewEditPwdForm model.changePwdForm
+  viewEditPwdForm model.changePwdForm
 
 
-viewEditAccount : Model -> Html Msg
-viewEditAccount model =
-    case model.session of
-        Nothing ->
-            text "no session..."
-
-        Just s ->
-            div [ class "content" ]
-                [ viewEditAccountForm model.editAccountForm s.user
-                ]
+viewEditAccount : Session -> AppModel -> Html Msg
+viewEditAccount session model =
+    div [ class "content" ]
+        [ viewEditAccountForm model.editAccountForm session.user
+        ]
 
 
 viewGenderForm : Maybe Gender -> Html Msg

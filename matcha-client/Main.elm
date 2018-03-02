@@ -15,33 +15,41 @@ import Task exposing (..)
 
 init : Location -> ( Model, Cmd Msg )
 init location =
-    let
-        currentRoute =
-            Routing.parseLocation location
-    in
-        (initialModel currentRoute, getToken ())
+  let
+    model =
+        case Routing.parseAppLocation location of
+          NotFoundAppRoute ->
+            case Routing.parseLoginLocation location of
+              NotFoundLoginRoute -> Connexion NotFoundAppRoute
+              route -> NotConnected route initialLoginModel
+          route -> Connexion route
+  in
+    ( model, getToken () )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  let
-    subRoute =
-      case model.route of
-        AccountRoute -> Time.every Time.second LoadMap
-        _ -> Sub.none
+  case model of
+    Connected route session appModel ->
+        let
+          subRoute =
+            case route of
+              AccountRoute -> Time.every Time.second LoadMap
+              _ -> Sub.none
 
-    subAnim =
-      case model.matchAnim of
-        Just t -> Time.every Time.millisecond UpdateAnim
-        _ -> Sub.none
-  in
-    Sub.batch [ tokenRecieved SaveToken
-              , newLocalisation SetNewLocalisation
-              , fileContentRead ImageRead
-              , subAnim
-              , subRoute
-              , Time.every Time.second UpdateCurrentTime
-              , WebSocket.listen "ws://localhost:3001/ws" Notification
-              ]
+          subAnim =
+            case appModel.matchAnim of
+              Just t -> Time.every Time.millisecond UpdateAnim
+              _ -> Sub.none
+        in
+          Sub.batch [ tokenRecieved SaveToken
+                    , newLocalisation SetNewLocalisation
+                    , fileContentRead ImageRead
+                    , subAnim
+                    , subRoute
+                    , Time.every Time.second UpdateCurrentTime
+                    , WebSocket.listen "ws://localhost:3001/ws" Notification
+                    ]
+    _ -> Sub.none
 
 main : Program Never Model Msg
 main =

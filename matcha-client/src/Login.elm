@@ -10,39 +10,28 @@ import Models exposing (..)
 import Msgs exposing (..)
 
 
-view : LoginRoute -> Model -> Html Msg
+view : LoginRoutes -> LoginModel -> Html Msg
 view route model =
-    let
-        msg =
-            case model.message of
-                Just msg ->
-                    msg
+    case route of
+      LoginRoute ->
+        Html.Keyed.node "div" [] [ ( "div", viewLoginForm model ) ]
 
-                _ ->
-                    ""
-    in
-    div
-        [ class <|
-            if msg /= "" then
-                "wrong"
-            else
-                ""
-        ]
-        [ img [ src "/assets/images/DARKROOM_logo.svg", id "logo" ] []
-        , div [] [ text msg ]
-        , case route of
-            Login ->
-                Html.Keyed.node "div" [] [ ( "div", viewLoginForm model ) ]
+      SigninRoute ->
+        Html.Keyed.node "sign" [] [ ( "div", viewNewUserForm model ) ]
 
-            Signin ->
-                Html.Keyed.node "sign" [] [ ( "div", viewNewUserForm model ) ]
+      ResetPwdRoute ->
+        Html.Keyed.node "rest" [] [ ( "div", viewResetPwdForm model ) ]
 
-            ResetPwdRoute ->
-                Html.Keyed.node "rest" [] [ ( "div", viewResetPwdForm model ) ]
-        ]
+      NotFoundLoginRoute ->
+        view404
+
+view404 : Html Msg
+view404 =
+  div [][ text "404 not found" ]
 
 
-viewLoginForm : Model -> Html Msg
+
+viewLoginForm : LoginModel -> Html Msg
 viewLoginForm model =
     Html.form [] <|
         List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
@@ -65,7 +54,7 @@ viewLoginForm model =
                ]
 
 
-viewNewUserForm : Model -> Html Msg
+viewNewUserForm : LoginModel -> Html Msg
 viewNewUserForm model =
     div [] <|
         List.map (\i -> viewInput (UpdateNewUserForm i.id) i) model.newUserForm
@@ -77,7 +66,7 @@ viewNewUserForm model =
                ]
 
 
-viewResetPwdForm : Model -> Html Msg
+viewResetPwdForm : LoginModel -> Html Msg
 viewResetPwdForm model =
     div []
         [ p [] [ text "In order to reset your password, please give us your login and the email you used when you created your account. You'll recieve an email with your new password" ]

@@ -15,24 +15,19 @@ import Utils exposing (..)
 import Json.Decode as Decode
 
 
-view : Model -> List (Html Msg)
-view model =
-    case model.session of
-        Just s ->
-            [ div []
-                [ sortMenuView model s
-                , viewUsers model s
-                , advanceFilterView model s
-                ]
-            ]
+view : AppRoutes -> Session -> AppModel -> List (Html Msg)
+view route session model =
+    [ div []
+          [ sortMenuView route session model
+          , viewUsers session model
+          , advanceFilterView session model
+          ]
+      ]
 
-        _ ->
-            []
-
-advanceFilterView : Model -> Session -> Html Msg
-advanceFilterView model s =
+advanceFilterView : Session -> AppModel -> Html Msg
+advanceFilterView session model =
   div [ id "advance-filters", class <| if model.showAdvanceFilters then "active" else "" ]
-      [ tagsFilterView model s
+      [ tagsFilterView session model
       , ageFilterView
       , locFilterView
       , button [ onClick ResetFilters ] [ text "Reset" ]
@@ -45,10 +40,10 @@ locFilterView =
       , input [ onInput UpdateLocFilter ] []
       ]
 
-sortMenuView : Model -> Session -> Html Msg
-sortMenuView model s =
+sortMenuView : AppRoutes -> Session -> AppModel -> Html Msg
+sortMenuView route session model =
     div [ class "filter-menu center" ]
-        [ userMenuView model
+        [ userMenuView route model
         , ul [ class "group-btn" ]
             [ li [ class <| getActiveClass (S_Afin == model.userSort) ]
                 [ button [ class "button", onClick <| ChangeSort S_Afin ]
@@ -69,8 +64,8 @@ sortMenuView model s =
             ]
         ]
 
-tagsFilterView : Model -> Session -> Html Msg
-tagsFilterView model s =
+tagsFilterView : Session -> AppModel -> Html Msg
+tagsFilterView session model =
   div []
     <| h3 [] [ text "By tags" ]
       ::
@@ -84,7 +79,7 @@ tagsFilterView model s =
         in
       button [ class <| "tag" ++ me, onClick <| UpdateTagFilter t ]
         [ text <| "#" ++ t ]
-      ) s.user.tags
+      ) session.user.tags
 
 ageFilterView : Html Msg
 ageFilterView =
@@ -113,20 +108,20 @@ getActiveClass a =
         ""
 
 
-userMenuView : Model -> Html Msg
-userMenuView model =
+userMenuView : AppRoutes -> AppModel -> Html Msg
+userMenuView route model =
     ul [ class "group-btn" ]
-        [ li [ class <| getActiveClass (model.route == UsersRoute "all") ]
+        [ li [ class <| getActiveClass (route == UsersRoute "all") ]
             [ a [ class "button", href "http://localhost:3000/#/users/" ]
                 [ text "Around me" ]
             ]
-        , li [ class <| getActiveClass (model.route == UsersRoute "visitors") ]
+        , li [ class <| getActiveClass (route == UsersRoute "visitors") ]
             [ a [ class "button", href "http://localhost:3000/#/users/visitors" ]
                 [ text "Visitors "
                 , notif model.notifVisit
                 ]
             ]
-        , li [ class <| getActiveClass (model.route == UsersRoute "likers") ]
+        , li [ class <| getActiveClass (route == UsersRoute "likers") ]
             [ a [ class "button", href "http://localhost:3000/#/users/likers" ]
                 [ text "Likers "
                 , notif model.notifLike
@@ -138,8 +133,8 @@ userMenuView model =
         ]
 
 
-viewUsers : Model -> Session -> Html Msg
-viewUsers model s =
+viewUsers : Session -> AppModel -> Html Msg
+viewUsers session model =
     let
         listF =
           List.filter (filterUser model.userFilter) model.users
@@ -156,7 +151,7 @@ viewUsers model s =
                     List.sortBy .lastOn listF
 
                 S_Afin ->
-                    List.sortBy (\u -> getAffinityScore s.user u) listF
+                    List.sortBy (\u -> getAffinityScore session.user u) listF
 
         listOrdered =
             if model.orderSort == DESC then
@@ -168,39 +163,37 @@ viewUsers model s =
         [ ul [ class <| "users-list" ] <|
             List.map
                 (\u ->
-                    li [] [ cardUserView u model s ]
+                    li [] [ cardUserView u session model ]
                 )
             <|
                 listOrdered
         ]
 
 
-cardUserView : User -> Model -> Session -> Html Msg
-cardUserView user model s =
+cardUserView : User -> Session -> AppModel -> Html Msg
+cardUserView user session model =
     Html.Keyed.node (String.filter Char.isLower user.username)
         []
         [ ( "div"
           , div [ class "user-box" ]
-                [ userImageView user model
-                , userInfosView user model s
+                [ userImageView user session model
+                , userInfosView user model
                 , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ] []
                 ]
           )
         ]
 
 
-userInfosView : User -> Model -> Session -> Html Msg
-userInfosView user model s =
+userInfosView : User -> AppModel -> Html Msg
+userInfosView user model =
     div [ class "user-infos" ]
         [ userNameView user
-
-        -- , div [] [ getAffinityScore s.user user |> toString |> text ]
         , userDistanceView user
         ]
 
 
-userImageView : User -> Model -> Html Msg
-userImageView user model =
+userImageView : User -> Session -> AppModel -> Html Msg
+userImageView user session model =
     let
         imgSrc =
             case List.head user.photos of
@@ -210,12 +203,8 @@ userImageView user model =
                 _ ->
                     "http://profile.actionsprout.com/default.jpeg"
     in
-    case model.session of
-        Just s ->
+
             div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ]
                 [ div [ class "user-menu" ]
-                    [ userLikeButtonView s user ]
+                    [ userLikeButtonView session user ]
                 ]
-
-        _ ->
-            div [] []
