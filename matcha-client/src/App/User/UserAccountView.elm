@@ -81,12 +81,14 @@ viewImages model user =
         [ hr [] []
         , h2 [] [ text "Photos" ]
         , if List.length user.photos > 0 then
-            div [] <|
+            Html.ul [ class "img-account-list" ] <|
                 List.map
                     (\( id_, s ) ->
-                        div [ style [ ( "background", "url(" ++ s ++ ") center center no-repeat" ) ], class "img-box" ]
+                      li []
+                          [ div [ style [ ( "background", "url(" ++ s ++ ") center center no-repeat" ) ], class "img-box" ]
                             [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
                             ]
+                          ]
                     )
                     user.photos
           else

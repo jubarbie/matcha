@@ -27,6 +27,7 @@ view username session appModel model =
                             , userButtonsView session user
                             , userTagsView user session
                             , userBioView user
+                            , userReportView user.username
                             , userDistanceView user
                             , userOnlineStatusView appModel user
                             ]
@@ -49,6 +50,13 @@ userButtonsView s user =
         , userPopuView user
         ]
 
+userReportView : String -> Html Msg
+userReportView username =
+  div [ class "text-right" ]
+      [ button [ class "btn-no-style",onClick <| ReportUser username ] [ text "block" ]
+      , text " "
+      , button [ class "btn-no-style", onClick <| BlockUser username ] [ text "report" ]
+      ]
 
 userPopuView : User -> Html Msg
 userPopuView user =
@@ -109,13 +117,13 @@ userMatchStatusView user =
                 "far fa-comments"
 
         options =
-            { stopPropagation = True
+            { stopPropagation = False
             , preventDefault = False
             }
     in
     if getMatchStatus user == Match then
         button
-            [ onWithOptions "click" options (Decode.succeed <| GoTo <| "http://localhost:3000/#/chat/" ++ user.username), class "talk-btn" ]
+            [ onWithOptions "click" options (Decode.succeed <| SetCurrentTalk user.username), class "talk-btn" ]
             [ i [ class talkTxt ] [] ]
     else
         div [] []

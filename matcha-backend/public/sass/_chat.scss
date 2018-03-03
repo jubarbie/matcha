@@ -4,13 +4,26 @@
 	overflow-y: hidden;
 }
 
+#current-talk{
+	position: fixed;
+	right: 20px;
+	bottom: 0;
+	height: 500px;
+	width: 350px;
+	z-index: 250;
+}
+
 #talk-title {
-	padding: 10px;
-	h1 {
-		font-size: 1em;
+	padding: 2px;
+	background: $grey-dark;
+	h6 {
+		font-size: 11px;
 		color: $grey-light;
 		text-align: center;
-		margin: 0
+		margin: 0;
+		text-transform: uppercase;
+		letter-spacing: .1rem;
+		font-weight: 600;
 	}
 	.button {
 		border: 0;
@@ -27,24 +40,28 @@
 		transition: all 0.2s ease;
 		float: left;
 		margin: 0;
+		line-height: 28px;
+		height: 28px;
 		i {
-			font-size: 2em;
+			font-size: 1.3em;
 		}
 	}
 	#new-mess {
 		position: relative;
 		z-index: 200;
 		background: $grey-medium;
-		padding: 8px;
+		padding: 5px;
 		border-top: 1px solid grey;
 		#message-form {
 			margin-bottom: 0;
 		}
 		.message-input {
 			text-align: right;
+			height: 28px;
 		}
 		.message-input input {
-			width: 300px;
+			width: 200px;
+			height: 28px;
 			background: white !important;
 			border-radius: 10px !important;
 			color: #252525;
@@ -55,11 +72,13 @@
 			border-radius: 50%;
 			background: #425d8b;
 			border: none;
-			width: 40px;
+			width: 28px;
+			height: 28px;
 			color: white;
-			font-size: 14px;
 			margin-left: 5px;
 			margin-bottom: 0;
+			line-height: 28px;
+			font-size: inherit;
 		}
 
 	}
@@ -87,6 +106,7 @@
 }
 
 .message {
+	font-size: 0.8em;
 	position: relative;
 }
 .message.message-me {
@@ -161,19 +181,29 @@
 	box-shadow: inset 0 0 6px rgba(0,0,0,.5);
 	background: #181818;
 }
-
+ #talks-list {
+	 	position: fixed;
+	 	height: 100%;
+	 	width: 200px;
+	 	left: -200px;
+		padding: 16px;
+	 	top: 0;
+	 	transition: all 0.2s ease;
+	 	z-index: 200;
+		background: $grey-dark;
+		text-align: left;
+ }
+.talks-expand #talks-list {
+	left: 60px;
+}
 ul.talk-list {
 	list-style-type: none;
-	margin: 30px auto;
-	width: 340px;
-	max-width: 100%;
 
 	li {
 		border: 2px solid $grey-dark;
-		height: 40px;
-		line-height: 40px;
-		border-radius: 20px;
-		text-align: center;
+		height: 20px;
+		line-height: 20px;
+		text-align: left;
 		background: $grey-dark;
 
 		a {
@@ -186,24 +216,11 @@ ul.talk-list {
 
 }
 
-#talks-side {
-	width: 180px;
-	ul.talk-list {
-		li {
-			border: 0;
-			height: 20px;
-			line-height: 20px;
-			border-radius: 0px;
-			text-align: left;
-			padding: 5px 10px;
-			margin: 0;
-
-			&.current {
-
-				a {
-					color: $white;
-				}
-			}
-		}
+@media screen and (max-width: 840px) {
+	#current-talk{
+		bottom: 58px;
+	}
+	.talks-expand #talks-list {
+		left: 0px;
 	}
 }

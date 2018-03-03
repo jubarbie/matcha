@@ -20,31 +20,50 @@ import App.Talk.TalkView exposing (..)
 view : AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> Html Msg
 view route session appModel usersModel talksModel =
   let
-    viewToShow =
+    view =
       case route of
-        UsersRoute a ->
-            []
-
         UserRoute a ->
-            App.User.UserView.view a session appModel usersModel
+          div [] <| App.User.UsersView.view route session appModel usersModel
+
+        UsersRoute a ->
+          div [] <| App.User.UsersView.view route session appModel usersModel
 
         AccountRoute ->
-            [ App.User.UserAccountView.view session appModel ]
+          App.User.UserAccountView.view session appModel
 
         EditAccountRoute ->
-            [ App.User.UserAccountView.viewEditAccount session appModel ]
+          App.User.UserAccountView.viewEditAccount session appModel
 
         ChangePwdRoute ->
-            [ App.User.UserAccountView.viewChangePwd appModel ]
+          App.User.UserAccountView.viewChangePwd appModel
 
         NotFoundAppRoute ->
-            [ view404 ]
+          view404
   in
-    div [ class "layout-row"]
-        <|
-        [ div [ class <| "container" ++ if viewToShow == [] then "" else " blur" ] <| viewMenu route session appModel talksModel :: App.User.UsersView.view route session appModel usersModel
-        , alertMessageView appModel
-        ] ++ viewToShow
+    div [ class "layout-row" ] <|
+        [ div [ class <| "container" ++ (case route of
+          UserRoute a -> " blur"
+          _ -> ""
+        ) ++ (if appModel.showTalksList then " talks-expand" else "")]
+          [ alertMessageView appModel
+          , viewMenu route session appModel talksModel
+          , viewCurrentTalk appModel talksModel
+          , div [ id "talks-list" ] [ talksListView talksModel ]
+          , view
+          ]
+        ]
+        ++
+          (case route of
+            UserRoute a -> App.User.UserView.view a session appModel usersModel
+            _ -> []
+          )
+
+
+viewCurrentTalk : AppModel -> TalksModel -> Html Msg
+viewCurrentTalk appModel model =
+  case model.currentTalk of
+    Nothing -> div [] []
+    Just talk -> div [] <| App.Talk.TalkView.view talk appModel model
 
 alertMessageView : AppModel -> Html Msg
 alertMessageView model =
@@ -71,7 +90,7 @@ viewMenu route session appModel talksModel =
                 [ ul []
                     [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
                     , li [  ]
-                        [ a [  ]
+                        [ button [ onClick ToggleTalksList ]
                             [ icon "fas fa-comments"
                             , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
                             ]
@@ -80,7 +99,7 @@ viewMenu route session appModel talksModel =
                 , viewAccountMenu appModel
                 ]
             ]
-      ] ++ viewAccountBox session appModel ++ [ div [] [ talksListView talksModel ] ]
+      ] ++ viewAccountBox session appModel
 
 viewAccountMenu : AppModel -> Html Msg
 viewAccountMenu model =

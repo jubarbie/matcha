@@ -11,8 +11,8 @@ import Routing exposing (parseAppLocation, parseLoginLocation)
 import App.Talk.TalkCommands exposing (..)
 import App.User.UserCommands exposing (..)
 import App.User.UserModel exposing (..)
-import App.AppUpdate exposing (updateAppModel)
-import Login.LoginUpdate exposing (updateLoginModel)
+import App.AppUpdate exposing (updateApp)
+import Login.LoginUpdate exposing (updateLogin)
 import Login.LoginModels exposing (..)
 import App.AppModels exposing (..)
 import App.Talk.TalkModel exposing (..)
@@ -22,14 +22,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case (model, msg) of
       (NotConnected route loginModel, msg) ->
-        updateLoginModel msg route loginModel
+        updateLogin msg route loginModel
       (Connexion route , msg) ->
-        updateConnexionModel msg route
+        updateConnexion msg route
       (Connected route session appModel usersModel talksModel, msg) ->
-        updateAppModel msg route session appModel usersModel talksModel
+        updateApp msg route session appModel usersModel talksModel
 
-updateConnexionModel : Msg -> AppRoutes -> (Model, Cmd Msg)
-updateConnexionModel msg route =
+updateConnexion : Msg -> AppRoutes -> (Model, Cmd Msg)
+updateConnexion msg route =
   case msg of
     SessionUserResponse token response ->
         case Debug.log "sessionUserResponse" response of
@@ -77,7 +77,7 @@ updateConnexionModel msg route =
                 ( NotConnected LoginRoute initialLoginModel, Cmd.none )
 
     SaveToken s ->
-      case Debug.log "session" s of
+      case s of
           [ user, token ] ->
               if token /= "" && user /= "" then
                   ( Connexion route, getSessionUser user token  )
@@ -86,6 +86,23 @@ updateConnexionModel msg route =
 
           _ ->
               ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
+
+    LoginResponse response ->
+       case response of
+           Success rep ->
+               case ( rep.status == "success", rep.token, rep.user ) of
+                   ( True, Just t, Just user ) ->
+                       ( Connexion (UsersRoute "all")
+                       , Cmd.batch [ getSessionUser user.username t, storeToken [ user.username, t ] ]
+                       )
+
+                   _ ->
+                       ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
+
+           _ ->
+               ( NotConnected LoginRoute initialLoginModel
+               , Navigation.newUrl "/#/login"
+               )
 
     _ ->
         ( NotConnected LoginRoute initialLoginModel, Cmd.none )

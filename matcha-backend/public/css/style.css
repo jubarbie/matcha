@@ -22,13 +22,25 @@
 #talk {
   overflow-y: hidden; }
 
+#current-talk {
+  position: fixed;
+  right: 20px;
+  bottom: 0;
+  height: 500px;
+  width: 350px;
+  z-index: 250; }
+
 #talk-title {
-  padding: 10px; }
-  #talk-title h1 {
-    font-size: 1em;
+  padding: 2px;
+  background: #181818; }
+  #talk-title h6 {
+    font-size: 11px;
     color: grey;
     text-align: center;
-    margin: 0; }
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: .1rem;
+    font-weight: 600; }
   #talk-title .button {
     border: 0;
     padding: 0;
@@ -41,21 +53,25 @@
     padding: 0;
     transition: all 0.2s ease;
     float: left;
-    margin: 0; }
+    margin: 0;
+    line-height: 28px;
+    height: 28px; }
     #talk-foot .emo-btn i {
-      font-size: 2em; }
+      font-size: 1.3em; }
   #talk-foot #new-mess {
     position: relative;
     z-index: 200;
     background: #252525;
-    padding: 8px;
+    padding: 5px;
     border-top: 1px solid grey; }
     #talk-foot #new-mess #message-form {
       margin-bottom: 0; }
     #talk-foot #new-mess .message-input {
-      text-align: right; }
+      text-align: right;
+      height: 28px; }
     #talk-foot #new-mess .message-input input {
-      width: 300px;
+      width: 200px;
+      height: 28px;
       background: white !important;
       border-radius: 10px !important;
       color: #252525;
@@ -65,11 +81,13 @@
       border-radius: 50%;
       background: #425d8b;
       border: none;
-      width: 40px;
+      width: 28px;
+      height: 28px;
       color: white;
-      font-size: 14px;
       margin-left: 5px;
-      margin-bottom: 0; }
+      margin-bottom: 0;
+      line-height: 28px;
+      font-size: inherit; }
   #talk-foot #emo-list {
     background: white;
     overflow-x: scroll;
@@ -88,6 +106,7 @@
   margin-bottom: 4px; }
 
 .message {
+  font-size: 0.8em;
   position: relative; }
 
 .message.message-me {
@@ -157,17 +176,28 @@
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
   background: #181818; }
 
+#talks-list {
+  position: fixed;
+  height: 100%;
+  width: 200px;
+  left: -200px;
+  padding: 16px;
+  top: 0;
+  transition: all 0.2s ease;
+  z-index: 200;
+  background: #181818;
+  text-align: left; }
+
+.talks-expand #talks-list {
+  left: 60px; }
+
 ul.talk-list {
-  list-style-type: none;
-  margin: 30px auto;
-  width: 340px;
-  max-width: 100%; }
+  list-style-type: none; }
   ul.talk-list li {
     border: 2px solid #181818;
-    height: 40px;
-    line-height: 40px;
-    border-radius: 20px;
-    text-align: center;
+    height: 20px;
+    line-height: 20px;
+    text-align: left;
     background: #181818; }
     ul.talk-list li a {
       display: block;
@@ -175,19 +205,12 @@ ul.talk-list {
       text-decoration: none;
       color: grey; }
 
-#talks-side {
-  width: 180px; }
-  #talks-side ul.talk-list li {
-    border: 0;
-    height: 20px;
-    line-height: 20px;
-    border-radius: 0px;
-    text-align: left;
-    padding: 5px 10px;
-    margin: 0; }
-    #talks-side ul.talk-list li.current a {
-      color: white; }
+@media screen and (max-width: 840px) {
+  #current-talk {
+    bottom: 58px; }
 
+  .talks-expand #talks-list {
+    left: 0px; } }
 .input {
   margin-bottom: 1rem; }
 
@@ -204,7 +227,7 @@ ul.talk-list {
   border-bottom: 1px solid red !important; }
 
 .input.input-error .input-tip {
-  color: red; }
+  color: #a72424; }
 
 .input.input-success input, .input.input-success textarea {
   border: 1px solid green; }
@@ -332,7 +355,11 @@ ul.users-list {
     .user-box .user-infos h3 {
       font-size: 1.4em; }
     .user-box .user-infos .user-bio {
-      margin: 10px 0; }
+      margin: 10px 0;
+      color: grey;
+      font-size: 0.9em;
+      text-align: justify;
+      padding: 16px; }
     .user-box .user-infos .info-dist {
       font-size: 0.8em;
       color: grey;
@@ -361,7 +388,7 @@ ul.users-list {
   font-size: 2em;
   border: 0; }
   .like-btn.liked {
-    color: red; }
+    color: #a72424; }
 
 .talk-btn {
   padding: 0;
@@ -370,7 +397,7 @@ ul.users-list {
 
 .filter-menu {
   position: fixed;
-  z-index: 200;
+  z-index: 150;
   padding: 10px;
   display: flex;
   width: 100%;
@@ -421,6 +448,33 @@ ul.users-list {
   margin: 0;
   padding: 0; }
 
+.img-account-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; }
+  .img-account-list li {
+    width: 33.333%;
+    display: inline-block;
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 0; }
+    .img-account-list li .img-box {
+      background-size: cover !important;
+      width: 100%;
+      padding-bottom: 66.66%;
+      position: relative;
+      border-radius: 8px; }
+      .img-account-list li .img-box .del {
+        background: #a72424;
+        padding: 0;
+        line-height: normal;
+        height: 20px;
+        width: 20px;
+        color: white;
+        border-radius: 10px;
+        margin: 2px;
+        border: 0; }
+
 .gender-btn {
   font-size: 2em;
   color: grey; }
@@ -430,12 +484,11 @@ ul.users-list {
     display: none; }
 
 #advance-filters {
-  position: absolute;
-  top: -300px;
-  left: 15px;
   transition: all 0.2s ease;
   padding: 8px;
-  background: #252525; }
+  background: #252525;
+  height: 0;
+  overflow: hidden; }
   #advance-filters h3 {
     font-size: 1.2em; }
   #advance-filters label {
@@ -443,7 +496,7 @@ ul.users-list {
   #advance-filters select {
     color: #252525; }
   #advance-filters.active {
-    top: 64px; }
+    height: auto; }
 
 /* MATCH ANIMATION */
 #match-anim {
@@ -514,7 +567,8 @@ div {
 .container {
   display: flex;
   flex-flow: column;
-  height: 100%; }
+  height: 100%;
+  max-width: 960px; }
 
 .content {
   flex: 1;
@@ -550,6 +604,9 @@ div {
 
 .center {
   text-align: center; }
+
+.text-right {
+  text-align: right; }
 
 .pull-left {
   float: left; }
@@ -633,12 +690,17 @@ h1 {
     width: 58px;
     text-align: center;
     line-height: 58px; }
-  .navbar .navbar-list li a {
+  .navbar .navbar-list li a, .navbar .navbar-list li button {
     text-decoration: none;
     color: grey;
     display: block;
     height: 100%;
-    font-size: 1.4em; }
+    font-size: 1.4em;
+    padding: 0;
+    border: 0;
+    margin: 0;
+    text-align: center;
+    width: 100%; }
   .navbar .navbar-list li.active {
     color: white; }
   .navbar .navbar-list li.active a {
@@ -689,7 +751,7 @@ ul.group-btn {
     height: inherit;
     background: #252525;
     border-top: 1px solid grey;
-    z-index: 200; }
+    z-index: 300; }
     .navbar .navbar-list {
       display: flex;
       flex-direction: row;

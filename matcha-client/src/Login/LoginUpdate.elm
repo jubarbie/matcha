@@ -10,42 +10,12 @@ import RemoteData exposing (..)
 import Routing exposing (parseAppLocation, parseLoginLocation)
 import App.User.UserModel exposing (..)
 import Login.LoginModels exposing (..)
-import App.AppUpdate exposing (updateAppModel)
 import App.AppModels exposing (..)
-import App.Talk.TalkModel exposing (..)
 
 
-updateLoginModel : Msg -> LoginRoutes -> LoginModel -> (Model, Cmd Msg)
-updateLoginModel msg route loginModel =
+updateLogin : Msg -> LoginRoutes -> LoginModel -> (Model, Cmd Msg)
+updateLogin msg route loginModel =
   case msg of
-
-    LoginResponse response ->
-       case Debug.log "login response" response of
-           Success rep ->
-               case ( rep.status == "success", rep.token, rep.user ) of
-                   ( True, Just t, Just user ) ->
-                       let
-                           session = Session user t
-
-                           ( route, msg ) =
-                               case user.status of
-                                   ResetPassword ->
-                                       ( "/#/edit_password", Just "Please reset your password" )
-
-                                   _ ->
-                                       ( "/#/users", Nothing )
-                       in
-                       ( Connected (UsersRoute "all") session { initialAppModel | message = msg } initialUsersModel initialTalksModel
-                       , Cmd.batch [ Navigation.newUrl route, storeToken [ user.username, t ] ]
-                       )
-
-                   _ ->
-                       ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
-
-           _ ->
-               ( NotConnected LoginRoute initialLoginModel
-               , Navigation.newUrl "/#/login"
-               )
 
     ResetPwdResponse response ->
         case response of
@@ -109,7 +79,7 @@ updateLoginModel msg route loginModel =
         in
         case values of
             [ Valid a, Valid b ] ->
-                ( NotConnected route loginModel, sendLogin a b )
+                ( Connexion (UsersRoute "all"), sendLogin a b )
 
             _ ->
                 ( NotConnected route loginModel, Cmd.none )

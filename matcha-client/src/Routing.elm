@@ -18,7 +18,8 @@ matchersLogin =
 matchersApp : Parser (AppRoutes -> a) a
 matchersApp =
     oneOf
-    [ map (UsersRoute "all") (s "users")
+    [ map (UsersRoute "all") top
+    , map (UsersRoute "all") (s "users")
     , map UsersRoute (s "users" </> string)
     , map UserRoute (s "user" </> string )
     , map AccountRoute (s "account")

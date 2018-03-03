@@ -78,6 +78,21 @@ toggleLike username token =
       apiPostRequest (Just decodeUser) token url body
       |> Http.send UserResponse
 
+reportUser : String -> String -> Cmd Msg
+reportUser user token =
+  let
+    url = "http://localhost:3001/api/users/report/" ++ user
+  in
+    apiGetRequest Nothing token url
+    |> Http.send NoDataApiResponse
+
+blockUser : String -> String -> Cmd Msg
+blockUser user token =
+  let
+    url = "http://localhost:3001/api/users/block/" ++ user
+  in
+    apiGetRequest Nothing token url
+    |> Http.send NoDataApiResponse
 
 sendLikeNotif : String -> String -> Cmd Msg
 sendLikeNotif token to =
@@ -145,8 +160,8 @@ changePwd oldPwd newPwd confirmNewPwd token =
       |> Http.send ChangePwdRespone
 
 
-updateField : Gender -> String -> Cmd Msg
-updateField gender token =
+updateGender : Gender -> String -> Cmd Msg
+updateGender gender token =
     let
         url = "http://localhost:3001/api/users/update_gender"
         body =
@@ -155,7 +170,7 @@ updateField gender token =
                     [ ( "gender", JsonEnc.string <| genderToString <| Just gender ) ]
     in
       apiPostRequest (Just decodeSessionUser) token url body
-      |> Http.send (UpdateFieldResponse token)
+      |> Http.send UpdateFieldResponse
 
 
 updateIntIn : List Gender -> String -> Cmd Msg
@@ -168,7 +183,7 @@ updateIntIn genders token =
                     [ ( "genders", encodeIntIn genders ) ]
     in
       apiPostRequest (Just decodeSessionUser) token url body
-      |> Http.send (UpdateFieldResponse token)
+      |> Http.send UpdateFieldResponse
 
 
 searchTag : String -> String -> Cmd Msg
@@ -221,7 +236,7 @@ uploadImage img token =
                     [ ( "img", JsonEnc.string img ) ]
     in
        apiPostRequest (Just decodeSessionUser) token url body
-       |> Http.send (UpdateFieldResponse token)
+       |> Http.send UpdateFieldResponse
 
 
 delImg : Int -> String -> Cmd Msg
@@ -234,4 +249,4 @@ delImg id_ token =
                     [ ( "id_img", JsonEnc.int id_ ) ]
     in
       apiPostRequest (Just decodeSessionUser) token url body
-      |> Http.send (UpdateFieldResponse token)
+      |> Http.send UpdateFieldResponse

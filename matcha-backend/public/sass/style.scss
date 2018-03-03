@@ -27,6 +27,11 @@ div {
 	display: flex;
 	flex-flow: column;
 	height: 100%;
+	max-width: 960px;
+
+	&.talks-expand {
+		//padding-left: 200px;
+	}
 }
 .content {
 	flex: 1;
@@ -71,6 +76,9 @@ div {
 }
 .center {
   text-align: center;
+}
+.text-right {
+	text-align: right;
 }
 .pull-left {
 	float: left;
@@ -171,12 +179,17 @@ h1 {
 		text-align: center;
 		line-height: 58px;
   }
-  .navbar-list li a {
+  .navbar-list li a, .navbar-list li button {
   	text-decoration: none;
   	color: $grey-light;
   	display: block;
   	height: 100%;
 		font-size: 1.4em;
+		padding: 0;
+		border: 0;
+		margin: 0;
+		text-align: center;
+		width: 100%;
   }
   .navbar-list li.active {
   	color: $white;
@@ -237,7 +250,7 @@ ul.group-btn {
 		height: inherit;
 		background: $grey-medium;
 		border-top: 1px solid $grey-light;
-		z-index: 200;
+		z-index: 300;
 
 		.navbar-list {
 			display: flex;

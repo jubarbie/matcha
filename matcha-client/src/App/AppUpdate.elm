@@ -8,6 +8,7 @@ import Json.Decode
 import Models exposing (..)
 import Msgs exposing (..)
 import Navigation exposing (..)
+import Api.ApiModel exposing (..)
 import App.Notif.NotifDecoder exposing (..)
 import App.Notif.NotifModel exposing (..)
 import Ports exposing (..)
@@ -25,9 +26,10 @@ import App.User.UserUpdate exposing (..)
 import App.AppModels exposing (..)
 import Utils exposing (..)
 import Login.LoginModels exposing (..)
+import Http
 
-updateAppModel : Msg -> AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> (Model, Cmd Msg)
-updateAppModel msg route session appModel usersModel talksModel =
+updateApp : Msg -> AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> (Model, Cmd Msg)
+updateApp msg route session appModel usersModel talksModel =
   let
     model = Connected route session appModel usersModel talksModel
     disconnect = ( initialModel LoginRoute, Navigation.newUrl "/#/login" )
@@ -39,21 +41,24 @@ updateAppModel msg route session appModel usersModel talksModel =
         Logout ->
             ( initialModel LoginRoute, Cmd.batch [ Navigation.newUrl "/#/login", deleteSession () ] )
 
+        NoDataApiResponse reponse ->
+            ( model, Cmd.none )
+
         ChangePwdRespone response ->
             case response of
                 Ok rep ->
                     case ( rep.status, rep.message ) of
                         ( "success", _ ) ->
-                            ( Connected route session { appModel | message = Just "The password was succefully updated" } usersModel talksModel, Navigation.newUrl "/#/account" )
+                            ( updateAlertMsg "The password was succefully updated" model, Navigation.newUrl "/#/account" )
 
                         ( "error", Just msg ) ->
-                            ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
+                            ( updateAlertMsg msg model, Cmd.none )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "Network error. Please try again" } usersModel talksModel, Cmd.none )
+                            ( updateAlertMsg "Network error. Please try again" model, Cmd.none )
 
                 _ ->
-                    ( Connected route session { appModel | message = Just "Network error. Please try again" } usersModel talksModel, Cmd.none )
+                    ( updateAlertMsg "Network error. Please try again" model, Cmd.none )
 
         ReqTagResponse response ->
             case response of
@@ -70,7 +75,7 @@ updateAppModel msg route session appModel usersModel talksModel =
                                 newSession =
                                     { session | user = newUser }
                             in
-                            ( Connected route newSession appModel usersModel talksModel, Cmd.none )
+                              ( updateSessionModel newSession model, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -83,7 +88,7 @@ updateAppModel msg route session appModel usersModel talksModel =
                 Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( "success", Just d ) ->
-                            ( Connected route session { appModel | searchTag = d } usersModel talksModel, Cmd.none )
+                            ( updateAppModel { appModel | searchTag = d } model, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -91,12 +96,12 @@ updateAppModel msg route session appModel usersModel talksModel =
                 _ ->
                     ( model, Cmd.none )
 
-        UpdateFieldResponse token response ->
+        UpdateFieldResponse response ->
             case response of
                 Ok rep ->
                     case ( rep.status, rep.data, rep.message ) of
                         ( "success", Just u, _ ) ->
-                            ( Connected route { session | user = u, token = token } { appModel | mImage = Nothing } usersModel talksModel, Cmd.none )
+                            ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, Cmd.none )
 
                         ( "error", _, Just msg ) ->
                             ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
@@ -108,31 +113,10 @@ updateAppModel msg route session appModel usersModel talksModel =
                     ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing } usersModel talksModel, Cmd.none )
 
         UsersResponse response ->
-            case response of
-                Ok rep ->
-                    case ( rep.status == "success", rep.data ) of
-                        ( True, Just u ) ->
-                            ( Connected route session appModel { usersModel | users = u } talksModel, Cmd.none )
-
-                        _ ->
-                            ( Connected route session { appModel | message = Just "Network errror. Please try again" } usersModel talksModel, Cmd.none )
-
-                _ ->
-                    ( Connected route session { appModel | message = Just "Network error. Please try again" } usersModel talksModel, Cmd.none )
-
+          handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none model
 
         UserResponse response ->
-            case Debug.log "User" response of
-                Ok rep ->
-                    case ( rep.status == "success", rep.data ) of
-                        ( True, Just u ) ->
-                            ( Connected route session appModel { usersModel | users = updateUser u usersModel.users } talksModel, Cmd.none )
-
-                        _ ->
-                            ( Connected route session { appModel | message = Just "User not found" } usersModel talksModel, Cmd.none )
-
-                _ ->
-                    disconnect
+          handleApiResponse response (updateUser usersModel) updateUsersModel "User not found" Cmd.none model
 
         EditAccountResponse email fname lname bio response ->
             case response of
@@ -157,17 +141,7 @@ updateAppModel msg route session appModel usersModel talksModel =
 
 
         GetTalkResponse response ->
-            case response of
-                Ok rep ->
-                    case ( rep.status, rep.data ) of
-                        ( "success", talk ) ->
-                            ( Connected route session appModel usersModel { talksModel | talks = updateTalks talk talksModel.talks }, Task.attempt (always NoOp) <| Scroll.toBottom "talk-list" )
-
-                        _ ->
-                            ( Connected route session { appModel | message = Just "user not found" } usersModel talksModel, Navigation.newUrl "/#/users" )
-
-                _ ->
-                    disconnect
+          handleApiResponse response (updateTalks talksModel) updateTalksModel "Talk not found" (Task.attempt (always NoOp) <| Scroll.toBottom "talk-list") model
 
         GetTalksResponse response ->
             case response of
@@ -252,18 +226,15 @@ updateAppModel msg route session appModel usersModel talksModel =
             case talksModel.currentTalk of
                 Just u ->
                     let
-                        newTalk =
+                        newTalksModel =
                             case getTalkWith u talksModel.talks of
                                 Just t ->
-                                    Just { t | new_message = msg }
+                                  updateTalks talksModel { t | new_message = msg }
 
                                 _ ->
-                                    Nothing
-
-                        newTalks =
-                            updateTalks newTalk talksModel.talks
+                                  talksModel
                     in
-                      ( Connected route session appModel usersModel { talksModel | talks = newTalks }, Cmd.none )
+                      ( Connected route session appModel usersModel newTalksModel, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -274,7 +245,7 @@ updateAppModel msg route session appModel usersModel talksModel =
               case getTalkWith u talksModel.talks of
                   Just t ->
                       if String.trim t.new_message /= "" then
-                          ( model, sendMessage session.token t.username_with t.new_message )
+                          ( updateAppModel { appModel | showEmoList = False } model, sendMessage session.token t.username_with t.new_message )
                       else
                           ( model, Cmd.none )
 
@@ -399,7 +370,7 @@ updateAppModel msg route session appModel usersModel talksModel =
             ( model, cmd )
 
         UpdateGender gender ->
-            ( model, updateField gender session.token )
+            ( model, updateGender gender session.token )
 
         UpdateIntIn gender ->
           let
@@ -420,7 +391,7 @@ updateAppModel msg route session appModel usersModel talksModel =
                 ( _, NotValid err ) ->
                     ( Connected route session { appModel | tagInput = search } usersModel talksModel, searchTag session.token search )
 
-                _ -> ( model, Cmd.none )
+                _ -> ( Connected route session { appModel | tagInput = search } usersModel talksModel, Cmd.none )
 
 
         AddTag t ->
@@ -533,10 +504,10 @@ updateAppModel msg route session appModel usersModel talksModel =
                         newTalk =
                             { t | new_message = t.new_message ++ " ::__" ++ em ++ "__::" }
 
-                        newTalks =
-                            updateTalks (Just newTalk) talksModel.talks
+                        newTalksModel =
+                            updateTalks talksModel newTalk
                     in
-                    ( Connected route session appModel usersModel { talksModel | talks = newTalks }, Task.attempt (always NoOp) (Dom.focus "input-msg") )
+                    ( Connected route session appModel usersModel newTalksModel, Task.attempt (always NoOp) (Dom.focus "input-msg") )
 
                 _ ->
                     ( model, Cmd.none )
@@ -579,6 +550,65 @@ updateAppModel msg route session appModel usersModel talksModel =
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         SetCurrentTalk talk ->
-          ( Connected route session appModel usersModel { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
+          ( Connected route session { appModel | showTalksList = False } usersModel { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
+
+        CloseCurrentTalk ->
+          ( updateTalksModel { talksModel | currentTalk = Nothing } model, Cmd.none )
+
+        ToggleTalksList ->
+          ( updateAppModel { appModel | showTalksList = not appModel.showTalksList } model, Cmd.none )
+
+        ReportUser user ->
+          ( model, reportUser user session.token )
+
+        BlockUser user ->
+          ( model, blockUser user session.token )
 
         _ -> ( model, Cmd.none )
+
+handleApiResponse : Result Http.Error (ApiResponse (Maybe a)) -> (a -> b) -> (b -> Model -> Model) -> String -> Cmd Msg -> Model -> (Model, Cmd Msg)
+handleApiResponse response updateData successUpdate errorMsg cmd model =
+  case response of
+      Ok rep ->
+          case ( rep.status, rep.data, rep.message ) of
+              ( "success", Just d, _ ) ->
+                  ( successUpdate (updateData d) model, cmd )
+
+              ( "error", _ , Just msg ) ->
+                  ( updateAlertMsg msg model, Cmd.none )
+
+              _ ->
+                 ( model, Cmd.none )
+      _ ->
+          ( updateAlertMsg "Error server" model, Cmd.none )
+
+updateAppModel : AppModel -> Model -> Model
+updateAppModel newAppModel model =
+  case model of
+    Connected route session appModel usersModel talksModel -> Connected route session newAppModel usersModel talksModel
+    _ -> model
+
+updateSessionModel : Session -> Model -> Model
+updateSessionModel newSessionModel model =
+  case model of
+    Connected route session appModel usersModel talksModel -> Connected route newSessionModel appModel usersModel talksModel
+    _ -> model
+
+updateUsersModel : UsersModel -> Model -> Model
+updateUsersModel newUsers model =
+  case model of
+    Connected route session appModel usersModel talksModel -> Connected route session appModel newUsers talksModel
+    _ -> model
+
+updateTalksModel : TalksModel -> Model -> Model
+updateTalksModel newTalks model =
+  case model of
+    Connected route session appModel usersModel talksModel -> Connected route session appModel usersModel newTalks
+    _ -> model
+
+
+updateAlertMsg : String -> Model -> Model
+updateAlertMsg msg model =
+  case model of
+    Connected route session appModel usersModel talksModel -> updateAppModel { appModel | message = Just msg } model
+    _ -> model

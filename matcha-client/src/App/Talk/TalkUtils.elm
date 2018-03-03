@@ -6,29 +6,27 @@ import Msgs exposing (..)
 import App.Talk.TalkModel exposing (..)
 
 
-getTalkWith : String -> List Talk -> Maybe Talk
-getTalkWith username talks =
-    List.head <| List.filter (\t -> t.username_with == username) talks
-
-
-updateTalks : Maybe Talk -> List Talk -> List Talk
-updateTalks newTalk talks =
-    case newTalk of
-        Just nt ->
-            if List.any (\t -> t.username_with == nt.username_with) talks then
+updateTalks : TalksModel -> Talk -> TalksModel
+updateTalks model talk =
+    let
+      newTalks =
+            if List.any (\t -> t.username_with == talk.username_with) model.talks then
                 List.map
                     (\t ->
-                        if nt.username_with == t.username_with then
-                            nt
+                        if talk.username_with == t.username_with then
+                            talk
                         else
                             t
                     )
-                    talks
+                    model.talks
             else
-                nt :: talks
+                talk :: model.talks
+    in
+      { model | talks = newTalks }
 
-        _ ->
-            talks
+getTalkWith : String -> List Talk -> Maybe Talk
+getTalkWith username talks =
+    List.head <| List.filter (\t -> t.username_with == username) talks
 
 
 getTalkNotif : List Talk -> Int

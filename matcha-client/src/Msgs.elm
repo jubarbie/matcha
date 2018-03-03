@@ -24,9 +24,10 @@ type Msg
     | EditAccountResponse String String String String (Result Http.Error (ApiResponse (Maybe User)))
     | ResetPwdResponse (WebData (ApiResponse (Maybe String)))
     | ChangePwdRespone (Result Http.Error (ApiResponse (Maybe String)))
-    | UpdateFieldResponse String (Result Http.Error (ApiResponse (Maybe SessionUser)))
+    | UpdateFieldResponse (Result Http.Error (ApiResponse (Maybe SessionUser)))
     | SearchTagResponse (Result Http.Error (ApiResponse (Maybe (List String))))
     | ReqTagResponse (Result Http.Error (ApiResponse (Maybe (List String))))
+    | NoDataApiResponse (Result Http.Error (ApiResponse (Maybe String)))
     | Logout
     | OnLocationChange Location
     | SaveToken (List String)
@@ -74,5 +75,9 @@ type Msg
     | UpdateMaxAgeFilter String
     | UpdateLocFilter String
     | ToggleAdvanceFilters
+    | ToggleTalksList
     | ResetFilters
     | SetCurrentTalk String
+    | CloseCurrentTalk
+    | ReportUser String
+    | BlockUser String

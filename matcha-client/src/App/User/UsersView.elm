@@ -20,8 +20,7 @@ view : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
 view route session appModel model =
     [ div []
           [ sortMenuView route session appModel model
-          , viewUsers session model
-          , advanceFilterView session appModel model
+          , viewUsers session appModel model
           ]
       ]
 
@@ -67,10 +66,8 @@ sortMenuView route session appModel model =
 
 tagsFilterView : Session -> UsersModel -> Html Msg
 tagsFilterView session model =
-  div []
-    <| h3 [] [ text "By tags" ]
-      ::
-      List.map (\t ->
+  div [ class "center"]
+    <|  List.map (\t ->
         let
             me =
                 if List.member t (getFilterTags model.userFilter) then
@@ -134,8 +131,8 @@ userMenuView route model =
         ]
 
 
-viewUsers : Session -> UsersModel -> Html Msg
-viewUsers session model =
+viewUsers : Session -> AppModel -> UsersModel -> Html Msg
+viewUsers session appModel model =
     let
         listF =
           List.filter (filterUser model.userFilter) model.users
@@ -160,8 +157,9 @@ viewUsers session model =
             else
                 list
     in
-    div []
-        [ ul [ class <| "users-list" ] <|
+    div [ class "layout-column" ]
+        [ advanceFilterView session appModel model
+        , ul [ class <| "users-list" ] <|
             List.map
                 (\u ->
                     li [] [ cardUserView u session model ]

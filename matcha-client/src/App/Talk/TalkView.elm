@@ -23,16 +23,16 @@ view talk appModel model =
                 messages =
                     List.sortBy (\m -> m.date) t.messages
             in
-            [ div [ id "talk-width", class "layout-row flex" ]
+            [ div [ id "current-talk", class "layout-row flex" ]
                 [ div
                     [ id "talk", class <| "layout-column" ++ getEmoListClass appModel.showEmoList ]
-                    [ div [ id "talk-list", class "message-list content" ] (List.map (messageView t.username_with) messages)
+                    [ div [ id "talk-title" ] [ h6 [] [ text talk, button [ onClick <| CloseCurrentTalk, class "pull-right btn-no-style" ] [ text "_" ] ] ]
+                    , div [ id "talk-list", class "message-list content" ] (List.map (messageView t.username_with) messages)
                     , div [ id "talk-foot" ]
                         [ emoListView emoticonList talk
                         , viewMessageForm t
                         ]
                     ]
-                , div [ id "talks-side" ] [ talksListView model ]
                 ]
             ]
 
@@ -71,7 +71,7 @@ viewMessageForm t =
         ]
 
 
-talksListView :  TalksModel -> Html Msg
+talksListView : TalksModel -> Html Msg
 talksListView model =
     let
         current =
@@ -83,7 +83,7 @@ talksListView model =
                     ""
     in
     if List.length model.talks > 0 then
-          ul [ class "content talk-list" ] <|
+          ul [ class <| "talk-list" ] <|
               List.map
                   (\t ->
                       li
@@ -93,7 +93,7 @@ talksListView model =
                               else
                                   ""
                           ]
-                          [ button [ onClick <| SetCurrentTalk t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
+                          [ button [ class "btn-no-style", onClick <| SetCurrentTalk t.username_with ] [ text <| t.username_with, notif t.unreadMsgs ] ]
                   )
                   model.talks
       else

@@ -20,6 +20,7 @@ const VisitsModel = require('../models/visits_model');
 const LikesModel = require('../models/likes_model');
 const TalkModel = require('../models/talk_model');
 const ImageModel = require('../models/image_model');
+const ReportsModel = require('../models/reports_model');
 
 
 /* GET users */
@@ -94,21 +95,8 @@ router.get('/user/:login', (req, res, next) => {
 
     const login = req.params.login;
     const logged = req.logged_user;
-    const now = Date.now();
 
-    UserCtrl.getFullUser(logged, login, function(user) {
-        if (user) {
-                res.json({
-                    "status": "success",
-                    "data": user
-                });
-        } else {
-            res.json({
-                "status": "error",
-                "msg": "Error when fetching user"
-            });
-        }
-    });
+    sendUser(logged, login, res)
 
 });
 
@@ -180,6 +168,58 @@ router.post('/toggle_like', (req, res, next) => {
                 });
             }
         });
+    } else {
+        res.json({
+            "status": "error"
+        });
+    }
+});
+
+/* Report user */
+router.get('/report/:login', (req, res, next) => {
+
+    var username = req.params.login;
+    var logged = req.logged_user;
+
+    if (logged && username) {
+        var now = Date.now();
+            ReportsModel.addReport(logged.login, username, now, function(err, rows, fields) {
+                if (rows) {
+                    res.json({
+                        "status": "success"
+                    });
+                } else {
+                    res.json({
+                        "status": "error"
+                    });
+                }
+          });
+    } else {
+        res.json({
+            "status": "error"
+        });
+    }
+});
+
+/* Report user */
+router.get('/block/:login', (req, res, next) => {
+
+    var username = req.params.login;
+    var logged = req.logged_user;
+
+    if (logged && username) {
+        var now = Date.now();
+            ReportsModel.addBlock(logged.login, username, now, function(err, rows, fields) {
+                if (rows) {
+                    res.json({
+                        "status": "success"
+                    });
+                } else {
+                    res.json({
+                        "status": "error"
+                    });
+                }
+          });
     } else {
         res.json({
             "status": "error"

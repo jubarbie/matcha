@@ -42,6 +42,7 @@ type alias AppModel =
   , idImg : String
   , mImage : Maybe Image
   , currentTime : Maybe Time.Time
+  , showTalksList : Bool
   , showAccountMenu : Bool
   , showAdvanceFilters : Bool
   , showEmoList : Bool
@@ -67,6 +68,7 @@ initialAppModel =
     , idImg = "ImageInputId"
     , mImage = Nothing
     , currentTime = Nothing
+    , showTalksList = False
     , showAccountMenu = False
     , showAdvanceFilters = False
     , showEmoList = False
