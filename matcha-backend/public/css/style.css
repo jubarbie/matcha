@@ -279,6 +279,9 @@ ul.talk-list {
   #on-top .tag.metoo {
     color: white; }
 
+#users-list {
+  padding-top: 56px; }
+
 ul.users-list {
   list-style-type: none;
   margin: 0;
@@ -399,7 +402,6 @@ ul.users-list {
   position: fixed;
   z-index: 150;
   padding: 10px;
-  display: flex;
   width: 100%;
   left: 0;
   background-color: #252525; }
@@ -483,23 +485,49 @@ ul.users-list {
   .gender-btn input {
     display: none; }
 
+#advance-search {
+  background: #252525;
+  font-size: 0.9em;
+  color: grey;
+  padding-top: 30%; }
+  #advance-search button {
+    margin-top: 3rem; }
+
 #advance-filters {
   transition: all 0.2s ease;
   padding: 0px;
   background: #252525;
   height: 0;
-  overflow: hidden; }
-  #advance-filters h3 {
-    font-size: 1.2em; }
-  #advance-filters label {
-    color: grey; }
-  #advance-filters select {
-    color: #252525; }
-  #advance-filters input {
-    background: #181818; }
+  overflow: hidden;
+  font-size: 0.9em;
+  color: grey; }
   #advance-filters.active {
     height: auto;
     padding: 8px; }
+
+#advance-search .layout-row, #advance-filters .layout-row {
+  padding: 10px 0; }
+#advance-search h3, #advance-filters h3 {
+  font-size: 1em;
+  margin-bottom: 5px; }
+#advance-search label, #advance-filters label {
+  color: grey; }
+#advance-search .tag, #advance-filters .tag {
+  margin: 5px; }
+#advance-search select, #advance-filters select {
+  color: #252525;
+  margin: 0 5px;
+  height: 20px;
+  background: #181818;
+  color: white;
+  border: 0;
+  border-radius: 2px; }
+#advance-search input, #advance-filters input {
+  background: #181818;
+  border: 0;
+  padding: 5px; }
+  #advance-search input:focus, #advance-filters input:focus {
+    outline: 0; }
 
 /* MATCH ANIMATION */
 #match-anim {
@@ -532,7 +560,13 @@ ul.users-list {
     opacity: 1; } }
 @media screen and (max-width: 840px) {
   ul.users-list li {
-    width: 50%; } }
+    width: 50%; }
+
+  #users-list {
+    padding-top: 100px; }
+
+  .xs-no-flex {
+    display: block !important; } }
 @media screen and (max-width: 480px) {
   ul.users-list li {
     width: 100%; } }
@@ -571,7 +605,8 @@ div {
   display: flex;
   flex-flow: column;
   height: 100%;
-  max-width: 960px; }
+  max-width: 960px;
+  padding-left: 60px; }
 
 .content {
   flex: 1;
@@ -591,6 +626,9 @@ div {
 .layout {
   display: flex; }
 
+.layout-padding {
+  padding: 16px; }
+
 .layout-column {
   display: flex;
   flex-direction: column; }
@@ -598,6 +636,9 @@ div {
 .layout-row {
   display: flex;
   flex-direction: row; }
+
+.align-center {
+  align-items: center; }
 
 .flex {
   flex: 1; }
@@ -650,10 +691,13 @@ h1 {
   position: fixed;
   top: 0;
   text-align: center;
-  left: 0;
   right: 0;
-  padding: 8px;
-  width: 100%; }
+  padding: 8px 16px;
+  margin: 8px;
+  border-radius: 4px;
+  z-index: 400; }
+  .alert.alert-danger {
+    background: #a72424; }
 
 .notif {
   background: red;
@@ -717,17 +761,38 @@ h1 {
   .navbar .navbar-list li.active a {
     color: white; }
 
-.account-menu {
+.account-expand #account-menu {
+  left: 60px; }
+
+#account-menu {
   position: fixed;
-  bottom: 10px;
-  left: 63px;
-  background: #252525;
-  padding: 8px;
-  border-radius: 8px;
-  z-index: 300;
-  width: 400px;
-  max-width: 100%;
-  border: 1px solid grey; }
+  height: 100%;
+  width: 200px;
+  left: -200px;
+  padding: 0;
+  top: 0;
+  transition: all 0.2s ease;
+  z-index: 200;
+  background: #181818;
+  text-align: left;
+  color: grey;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end; }
+  #account-menu .edit-btn {
+    background: #1EAEDB;
+    padding: 14px;
+    position: relative; }
+    #account-menu .edit-btn a {
+      text-decoration: none;
+      color: white;
+      display: block;
+      height: 100%; }
+  #account-menu #logout-btn {
+    padding: 14px;
+    color: white;
+    background: #a72424;
+    cursor: pointer; }
 
 /* FOOTER */
 .footer {
@@ -753,7 +818,8 @@ ul.group-btn {
     padding-bottom: 64px; }
 
   .container {
-    width: 90%; }
+    width: 94%;
+    padding-left: 0px; }
 
   .navbar {
     bottom: 0;

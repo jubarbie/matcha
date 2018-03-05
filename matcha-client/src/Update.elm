@@ -59,7 +59,7 @@ updateConnexion msg route =
                                         ( Connected route session { initialAppModel | editAccountForm = initEditAccountForm session.user } initialUsersModel initialTalksModel, Cmd.batch <| cmds )
 
                                     _ ->
-                                        ( model, Cmd.none )
+                                        ( model, Cmd.batch cmds )
 
                             ResetPassword ->
                                 ( Connected route session { initialAppModel | message = Just "Please reset your password" } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_password" :: cmds )

@@ -81,3 +81,10 @@ type Msg
     | CloseCurrentTalk
     | ReportUser String
     | BlockUser String
+    | AdvanceSearch
+    | UpdateSearchLogin String
+    | UpdateSearchTags String
+    | UpdateMinYearSearch String
+    | UpdateMaxYearSearch String
+    | UpdateLocSearch String
+    | ResetSearch

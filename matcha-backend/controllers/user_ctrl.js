@@ -88,6 +88,26 @@ ctrl.getRelevantUsers = (logged, callback) => {
     });
 };
 
+ctrl.getAdvanceSearch = (logged, searchLogin, searchTags, min, max, dist, callback) => {
+
+    var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+    var int_in = (logged.gender) ? logged.gender : "M";
+
+    UsersModel.getAdvanceSearch(logged.login, gender, int_in, searchLogin, searchTags, min, max, function(err, rows, fields) {
+        if (!err) {
+            var users = rows.map(function(u) {
+                return formatUser(u, logged);
+            });
+            if (dist)
+              users = users.filter(user => user.distance <= dist);
+            callback(users);
+        } else {
+          console.log(err);
+            callback(null);
+        }
+    });
+};
+
 function formatUser(row, logged) {
     row.has_talk = false;
     row.photos = (row.photos) ? row.photos.split(",") : [];

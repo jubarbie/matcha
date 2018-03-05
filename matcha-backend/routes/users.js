@@ -44,6 +44,36 @@ router.get('/relevant_users', (req, res, next) => {
 
 });
 
+
+router.post('/search', (req, res, next) => {
+
+  const logged = req.logged_user;
+  let searchLogin = req.body.searchLogin;
+  let searchTags = req.body.searchTags;
+  let searchMin = req.body.searchMin;
+  let searchMax = req.body.searchMax;
+  let searchLoc = req.body.searchLoc;
+
+  console.log (req.body);
+
+  UserCtrl.getAdvanceSearch(logged, searchLogin, searchTags, searchMin, searchMax, searchLoc, function(users) {
+      console.log(users);
+      if (users) {
+          res.json({
+              "status": "success",
+              "data": users
+          });
+      } else {
+          res.json({
+              "status": "error",
+              "msg": "A problem occur while fetching users"
+          });
+      }
+  });
+
+});
+
+
 /* GET users that visited connect user */
 router.get('/visitors', (req, res, next) => {
 

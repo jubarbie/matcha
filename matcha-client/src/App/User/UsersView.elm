@@ -1,4 +1,4 @@
-module App.User.UsersView exposing (view)
+module App.User.UsersView exposing (view, searchView)
 
 import Char
 import Html exposing (..)
@@ -19,51 +19,127 @@ import App.AppModels exposing (..)
 view : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
 view route session appModel model =
     [ div []
-          [ sortMenuView route session appModel model
+          [ usersMenuView route session appModel model
           , viewUsers session appModel model
           ]
+    ]
+
+searchView : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
+searchView route session appModel model =
+  if List.length model.users == 0 then
+    [ div [ id "advance-search", class "center" ]
+          [ div [  class <| "center" ++ if appModel.showAdvanceFilters then " active" else "" ]
+              [ div [ class "layout-row xs-no-flex" ]
+                    [ ageSearchView
+                    , locSearchView
+                    ]
+              , tagsSearchView session appModel
+              , button [ onClick ResetSearch, class "btn-no-style" ] [ text "Reset" ]
+              ]
+          , button [ onClick AdvanceSearch ] [ text "Search" ]
+          ]
+    ]
+  else
+    [ div []
+          [ div [ class "filter-menu center" ]
+                [ div [ class "layout xs-no-flex" ] [ sortMenuView model ] ]
+          , viewUsers session appModel model
+          ]
+    ]
+
+tagsSearchView : Session -> AppModel -> Html Msg
+tagsSearchView session model =
+  div [ class "center"]
+    <|  List.map (\t ->
+        let
+            me =
+                if List.member t model.search.tags then
+                    " metoo"
+                else
+                    ""
+        in
+      button [ class <| "tag" ++ me, onClick <| UpdateSearchTags t ]
+        [ text <| "#" ++ t ]
+      ) session.user.tags
+
+ageSearchView : Html Msg
+ageSearchView =
+  div [ class "layout-column flex align-center" ]
+      [ div [ class "layout" ]
+            [ div [] [ text "From "]
+            , div []
+                  [ select [ onInput UpdateMinYearSearch ]
+                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                  ]
+            , div [] [ text " to " ]
+            , div []
+                  [ select [ onInput UpdateMaxYearSearch ]
+                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                  ]
+            , div [][text " years old"]
+            ]
+      ]
+
+locSearchView : Html Msg
+locSearchView =
+  div [ class "layout-column flex align-center" ]
+      [ div [ class "layout" ]
+            [ div [][ text "Less than"]
+            , select [ onInput UpdateLocSearch ] <| List.map (\v -> option [ value <| toString v ] [ text <| toString v ] ) [ 1, 5, 10, 20, 50, 100, 200, 500 ]
+            , div [][text " km away"]
+            ]
       ]
 
 advanceFilterView : Session -> AppModel -> UsersModel -> Html Msg
 advanceFilterView session appModel model =
   div [ id "advance-filters", class <| "center" ++ if appModel.showAdvanceFilters then " active" else "" ]
-      [ tagsFilterView session model
-      , div [ class "layout-row" ]
+      [ div [ class "layout-row xs-no-flex" ]
             [ ageFilterView
             , locFilterView
             ]
+      , tagsFilterView session model
       , button [ onClick ResetFilters, class "btn-no-style" ] [ text "Reset" ]
       ]
 
 locFilterView : Html Msg
 locFilterView =
-  div [ class "flex" ]
-      [ h3 [] [ text "By distance (km)"]
-      , div [ class "input" ] [ input [ onInput UpdateLocFilter ] [] ]
+  div [ class "layout-column flex align-center" ]
+      [ div [ class "layout" ]
+            [ div [][ text "Less than"]
+            , select [ onInput UpdateLocFilter ] <| List.map (\v -> option [ value <| toString v ] [ text <| toString v ] ) [ 1, 5, 10, 20, 50, 100, 200, 500 ]
+            , div [][text " km away"]
+            ]
       ]
 
-sortMenuView : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
-sortMenuView route session appModel model =
+sortMenuView : UsersModel -> Html Msg
+sortMenuView model =
+  ul [ class "group-btn" ]
+    [ li [ class <| getActiveClass (S_Afin == model.userSort) ]
+        [ button [ class "button", onClick <| ChangeSort S_Afin ]
+            [ text "Affinity" ]
+        ]
+    , li [ class <| getActiveClass (S_Age == model.userSort) ]
+        [ button [ class "button", onClick <| ChangeSort S_Age ]
+            [ text "Age" ]
+        ]
+    , li [ class <| getActiveClass (S_Dist == model.userSort) ]
+        [ button [ class "button", onClick <| ChangeSort S_Dist ]
+            [ text "Distance" ]
+        ]
+    , li [ class <| getActiveClass (S_LastOn == model.userSort) ]
+        [ button [ class "button", onClick <| ChangeSort S_LastOn ]
+            [ text "LastOn" ]
+        ]
+    ]
+
+usersMenuView : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
+usersMenuView route session appModel model =
     div [ class "filter-menu center" ]
-        [ userMenuView route appModel
-        , ul [ class "group-btn" ]
-            [ li [ class <| getActiveClass (S_Afin == model.userSort) ]
-                [ button [ class "button", onClick <| ChangeSort S_Afin ]
-                    [ text "Affinity" ]
-                ]
-            , li [ class <| getActiveClass (S_Age == model.userSort) ]
-                [ button [ class "button", onClick <| ChangeSort S_Age ]
-                    [ text "Age" ]
-                ]
-            , li [ class <| getActiveClass (S_Dist == model.userSort) ]
-                [ button [ class "button", onClick <| ChangeSort S_Dist ]
-                    [ text "Distance" ]
-                ]
-            , li [ class <| getActiveClass (S_LastOn == model.userSort) ]
-                [ button [ class "button", onClick <| ChangeSort S_LastOn ]
-                    [ text "LastOn" ]
-                ]
-            ]
+        [ div [ class "layout xs-no-flex" ]
+              [ userMenuView route appModel
+              , sortMenuView model
+              ]
+        , advanceFilterView session appModel model
         ]
 
 tagsFilterView : Session -> UsersModel -> Html Msg
@@ -83,20 +159,19 @@ tagsFilterView session model =
 
 ageFilterView : Html Msg
 ageFilterView =
-  div [ class "center flex" ]
-      [ h3 [] [ text "By age range"]
-      , div [ class "center layout" ]
-            [ div []
-                  [ label [ for "min" ] [ text "Min" ]
-                  , select [ onInput UpdateMinAgeFilter ]
-                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
-                  ]
-
+  div [ class "layout-column flex align-center" ]
+      [ div [ class "layout" ]
+            [ div [] [ text "From "]
             , div []
-                  [ label [ for "max" ] [ text "Max" ]
-                  , select [ onInput UpdateMaxAgeFilter ]
+                  [ select [ onInput UpdateMinAgeFilter ]
                     <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
                   ]
+            , div [] [ text " to " ]
+            , div []
+                  [ select [ onInput UpdateMaxAgeFilter ]
+                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                  ]
+            , div [][text " years old"]
             ]
       ]
 
@@ -142,9 +217,8 @@ viewUsers session appModel model =
       else
         viewUsersList session appModel model
   in
-      div [ class "layout-column", style [("padding-top", "56px")] ]
-          [ advanceFilterView session appModel model
-          , view
+      div [ id "users-list", class "layout-column" ]
+          [ view
           ]
 
 emptyUsersView : Html Msg
@@ -173,24 +247,24 @@ viewUsersList session appModel model =
 
       listOrdered =
           if model.orderSort == DESC then
-              List.reverse list
+              List.reverse list |> List.indexedMap (,)
           else
-              list
+              list |> List.indexedMap (,)
   in
     ul [ class <| "users-list" ] <|
         List.map
-            (\u ->
-                li [] [ cardUserView u session model ]
+            (\(i, u) ->
+                li [] [ cardUserView u i session model ]
             )
         <|
             listOrdered
 
-cardUserView : User -> Session -> UsersModel -> Html Msg
-cardUserView user session model =
+cardUserView : User -> Int -> Session -> UsersModel -> Html Msg
+cardUserView user i session model =
     Html.Keyed.node (String.filter Char.isLower user.username)
         []
         [ ( "div"
-          , div [ class "user-box" ]
+          , div [ class <| "user-box animated fadeInUp", style [("animation-delay", toString (toFloat i/10) ++ "s"), ("animation-duration", ".3s")] ]
                 [ userImageView user session model
                 , userInfosView user model
                 , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ] []

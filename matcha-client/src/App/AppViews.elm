@@ -9,7 +9,7 @@ import App.AppModels exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import App.User.UserModel exposing (..)
-import App.User.UsersView exposing (view)
+import App.User.UsersView exposing (view, searchView)
 import App.User.UserView exposing (view)
 import Login.LoginView exposing (view)
 import Utils exposing (..)
@@ -29,6 +29,9 @@ view route session appModel usersModel talksModel =
         UsersRoute a ->
           div [] <| App.User.UsersView.view route session appModel usersModel
 
+        SearchRoute ->
+          div [] <| App.User.UsersView.searchView route session appModel usersModel
+
         AccountRoute ->
           App.User.UserAccountView.view session appModel
 
@@ -45,11 +48,12 @@ view route session appModel usersModel talksModel =
         [ div [ class <| "container" ++ (case route of
           UserRoute a -> " blur"
           _ -> ""
-        ) ++ (if appModel.showTalksList then " talks-expand" else "")]
+        ) ++ (if appModel.showTalksList then " talks-expand" else "") ++ (if appModel.showAccountMenu then " account-expand" else "")]
           [ alertMessageView appModel
           , viewMenu route session appModel talksModel
           , viewCurrentTalk appModel talksModel
           , div [ id "talks-list" ] [ talksListView talksModel ]
+          , div [ id "account-menu" ] <| viewAccountBox session appModel
           , view
           ]
         ]
@@ -70,7 +74,7 @@ alertMessageView : AppModel -> Html Msg
 alertMessageView model =
   case model.message of
           Just msg ->
-              div [ class "alert" ] [ text msg ]
+              div [ class "alert alert-danger" ] [ text msg ]
 
           Nothing ->
               div [] []
@@ -90,37 +94,49 @@ viewMenu route session appModel talksModel =
             [ Html.ul [ class "navbar-list" ] <|
                 [ Html.ul []
                     [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
+                    , li [ getMenuClass SearchRoute route ] [ a [ href "http://localhost:3000/#/search" ] [ icon "fas fa-search" ] ]
                     , li [ class "notif-menu" ]
                         [ button [ onClick ToggleTalksList ]
                             [ icon "fas fa-comments" ]
                         , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
                         ]
                     ]
-                , viewAccountMenu appModel
+                , li [ ] [ button [ onClick ToggleAccountMenu ] [ icon "fas fa-user" ] ]
                 ]
             ]
-      ] ++ viewAccountBox session appModel
-
-viewAccountMenu : AppModel -> Html Msg
-viewAccountMenu model =
-      li [ onClick ToggleAccountMenu ] [ a [] [ icon "fas fa-user" ] ]
+      ]
 
 
 viewAccountBox :  Session -> AppModel -> List (Html Msg)
 viewAccountBox session model =
-  if model.showAccountMenu then
-    [ div [ class "account-menu" ]
-        [ div [] [ text session.user.username ]
-        , div [ onClick ToggleAccountMenu ] [ icon "far fa-times-circle" ]
-        , div [ onClick Logout ] [ icon "fas fa-power-off" ]
-        , div [ ] [ a [ href "http://localhost:3000/#/account" ] [ text "Edit" ] ]
-        ]
-    ]
-  else []
+  let
+    shortBio =
+      if String.length session.user.bio == 0 then
+        "No bio"
+      else if String.length session.user.bio < 50 then
+        session.user.bio
+      else
+        String.left 50 session.user.bio ++ "..."
+  in
+    if model.showAccountMenu then
+      [ div [ ]
+          [ div [ class "layout-padding" ]
+                [ div [] [ text session.user.username ]
+                , div [] [ text shortBio ]
+                ]
+          , div [ class "layout"]
+                [ div [ class "flex edit-btn" ] [ a [ href "http://localhost:3000/#/account" ] [ text "Edit" ] ]
+                , div [ onClick Logout, id "logout-btn" ] [ icon "fas fa-power-off" ]
+                ]
+          ]
+      ]
+    else []
 
 getMenuClass : AppRoutes -> AppRoutes -> Attribute msg
 getMenuClass menuRoute currentRoute =
     if menuRoute == currentRoute then
         class "active"
     else
-        class ""
+      case (menuRoute, currentRoute) of
+        (UsersRoute _, UsersRoute _) -> class "active"
+        _ -> class ""

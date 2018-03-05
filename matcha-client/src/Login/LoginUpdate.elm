@@ -108,4 +108,13 @@ updateLogin msg route loginModel =
             _ ->
                 ( NotConnected route loginModel, Cmd.none )
 
+    OnLocationChange location ->
+        let
+            newRoute =
+                parseLoginLocation location
+
+        in
+          (NotConnected newRoute loginModel, Cmd.none)
+
+
     _ -> ( NotConnected route loginModel, Cmd.none )

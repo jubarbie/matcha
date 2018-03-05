@@ -54,7 +54,7 @@ var aWss = expressWs.getWss('/');
 var clients = [];
 aWss.on('connection', function(ws) {
   clients.push(ws);
-  console.log('connection', ws);
+  //console.log('connection', ws);
 });
 app.ws('/ws', function(ws, req) {
     ws.on('message', function(msg) {

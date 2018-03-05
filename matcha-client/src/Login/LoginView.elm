@@ -13,9 +13,11 @@ import Msgs exposing (..)
 
 view : LoginRoutes -> LoginModel -> Html Msg
 view route model =
+  let
+    view =
     case route of
       LoginRoute ->
-        Html.Keyed.node "div" [] [ ( "div", viewLoginForm model ) ]
+        viewLoginForm model
 
       SigninRoute ->
         Html.Keyed.node "sign" [] [ ( "div", viewNewUserForm model ) ]
@@ -25,12 +27,15 @@ view route model =
 
       NotFoundLoginRoute ->
         view404
+   in
+    div [ class "layout-column center" ]
+        [ img [ src "http://localhost:3001/images/DARKROOM_logo.svg", alt "DARKROOM" ] []
+        , view
+        ]
 
 view404 : Html Msg
 view404 =
   div [][ text "404 not found" ]
-
-
 
 viewLoginForm : LoginModel -> Html Msg
 viewLoginForm model =
@@ -86,4 +91,5 @@ viewResetPwdForm model =
                         ]
                         []
                         ]
+        , a [ href "#/login" ] [ text "Login page" ]
         ]

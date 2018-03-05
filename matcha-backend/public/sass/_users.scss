@@ -23,6 +23,10 @@
 	}
 }
 
+#users-list {
+	padding-top: 56px;
+}
+
 ul.users-list {
 	list-style-type: none;
 	margin: 0;
@@ -180,7 +184,6 @@ ul.users-list {
 	position: fixed;
 	z-index: 150;
 	padding: 10px;
-	display: flex;
 	width: 100%;
 	left: 0;
 	background-color: $grey-medium;
@@ -287,30 +290,62 @@ ul.users-list {
 		display: none;
 	}
 }
-
+#advance-search {
+	background: $grey-medium;
+	font-size: 0.9em;
+	color: $grey-light;
+	padding-top: 30%;
+	button {
+		margin-top: 3rem;
+	}
+}
 #advance-filters {
 	transition: all 0.2s ease;
 	padding: 0px;
 	background: $grey-medium;
 	height: 0;
 	overflow: hidden;
+	font-size: 0.9em;
+	color: $grey-light;
 
-	h3 {
-		font-size: 1.2em;
-	}
-	label {
-		color: $grey-light;
-	}
-	select {
-		color: $grey-medium;
-	}
-	input {
-		background: $grey-dark;
-	}
 	&.active {
 		height: auto;
 		padding: 8px;
 	}
+}
+
+#advance-search, #advance-filters {
+	.layout-row {
+		padding: 10px 0;
+	}
+	h3 {
+		font-size: 1em;
+		margin-bottom: 5px;
+	}
+	label {
+		color: $grey-light;
+	}
+	.tag {
+		margin: 5px;
+	}
+	select {
+		color: $grey-medium;
+		margin: 0 5px;
+		height: 20px;
+		background: $grey-dark;
+		color: $white;
+		border: 0;
+		border-radius: 2px;
+	}
+	input {
+		background: $grey-dark;
+		border: 0;
+		padding: 5px;
+		&:focus {
+			outline: 0;
+		}
+	}
+
 }
 
 /* MATCH ANIMATION */
@@ -359,6 +394,12 @@ ul.users-list {
   	ul.users-list li {
   		width: 50%;
     }
+		#users-list {
+			padding-top: 100px;
+		}
+		.xs-no-flex {
+			display: block !important;
+		}
   }
 @media screen and (max-width: 480px) {
   	ul.users-list li {

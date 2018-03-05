@@ -18,7 +18,7 @@ type alias LoginModel =
 initialLoginModel : LoginModel
 initialLoginModel =
   { loginForm = initLoginForm
-  , newUserForm = initNewUserForm
+  , newUserForm = initFastNewUserForm
   , resetPwdForm = initResetPwdForm
   , message = Nothing
   }

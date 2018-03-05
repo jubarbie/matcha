@@ -12,6 +12,7 @@ import Login.LoginModels exposing (..)
 type AppRoutes
     = UsersRoute String
     | UserRoute String
+    | SearchRoute
     | AccountRoute
     | EditAccountRoute
     | ChangePwdRoute
@@ -46,12 +47,21 @@ type alias AppModel =
   , showAccountMenu : Bool
   , showAdvanceFilters : Bool
   , showEmoList : Bool
+  , search : SearchModel
   }
 
 type alias Session =
     { user : SessionUser
     , token : String
     }
+
+type alias SearchModel =
+  { login : String
+  , tags : List String
+  , yearMin : Maybe Int
+  , yearMax : Maybe Int
+  , loc : Maybe Int
+  }
 
 initialAppModel : AppModel
 initialAppModel =
@@ -72,4 +82,14 @@ initialAppModel =
     , showAccountMenu = False
     , showAdvanceFilters = False
     , showEmoList = False
+    , search = initialSearchModel
     }
+
+initialSearchModel : SearchModel
+initialSearchModel =
+  { login = ""
+  , tags = []
+  , yearMin = Nothing
+  , yearMax = Nothing
+  , loc = Nothing
+  }

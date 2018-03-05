@@ -180,7 +180,7 @@ updateApp msg route session appModel usersModel talksModel =
                     parseAppLocation location
 
                 newModel =
-                    { appModel | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False }
+                    { appModel | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False, search = initialSearchModel, showTalksList = False }
             in
               case newRoute of
                         UsersRoute a ->
@@ -201,6 +201,9 @@ updateApp msg route session appModel usersModel talksModel =
 
                         UserRoute a ->
                             ( Connected newRoute session newModel usersModel talksModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
+
+                        SearchRoute ->
+                            ( Connected newRoute session newModel initialUsersModel talksModel, Cmd.none )
 
                         AccountRoute ->
                             ( Connected newRoute session { newModel | map_state = App.AppModels.Loading } usersModel talksModel, Cmd.none )
@@ -432,7 +435,7 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, now )
 
         ToggleAccountMenu ->
-            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu } usersModel talksModel, Cmd.none )
+            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu, showTalksList = False } usersModel talksModel, Cmd.none )
 
         ChangeImage user to ->
             let
@@ -535,7 +538,7 @@ updateApp msg route session appModel usersModel talksModel =
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         ToggleAdvanceFilters ->
-          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Task.attempt (always NoOp) <| Scroll.toTop "main" )
+          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Cmd.none )
 
         ResetFilters ->
           ( Connected route session appModel { usersModel | userFilter = [] } talksModel, Cmd.none )
@@ -556,13 +559,73 @@ updateApp msg route session appModel usersModel talksModel =
           ( updateTalksModel { talksModel | currentTalk = Nothing } model, Cmd.none )
 
         ToggleTalksList ->
-          ( updateAppModel { appModel | showTalksList = not appModel.showTalksList } model, Cmd.none )
+          ( updateAppModel { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } model, Cmd.none )
 
         ReportUser user ->
           ( model, reportUser user session.token )
 
         BlockUser user ->
           ( model, blockUser user session.token )
+
+        AdvanceSearch ->
+          ( model, searchUser appModel.search session.token )
+
+        UpdateSearchLogin log ->
+          let
+            searchModel = appModel.search
+            newSearch = { searchModel | login = log }
+          in
+            ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+
+        UpdateSearchTags tag_ ->
+         let
+             searchModel = appModel.search
+             newTags =
+               if List.member tag_ searchModel.tags then
+                List.filter ((/=) tag_) searchModel.tags
+               else
+                 tag_ :: searchModel.tags
+             newSearch = { searchModel | tags = newTags }
+         in
+           ( updateAppModel {appModel | search = Debug.log "search" newSearch } model, Cmd.none )
+
+
+        UpdateMinYearSearch year ->
+         let
+             searchModel = appModel.search
+             newYear =
+               case String.toInt year of
+                 Ok y -> Just y
+                 _ -> Nothing
+             newSearch = { searchModel | yearMin = newYear }
+         in
+           ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+
+        UpdateMaxYearSearch year ->
+         let
+             searchModel = appModel.search
+             newYear =
+               case String.toInt year of
+                 Ok y -> Just y
+                 _ -> Nothing
+             newSearch = { searchModel | yearMax = newYear }
+         in
+           ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+
+        UpdateLocSearch loc ->
+         let
+             searchModel = appModel.search
+             newLoc =
+               case String.toInt loc of
+                 Ok l -> Just l
+                 _ -> Nothing
+             newSearch = { searchModel | loc = newLoc }
+         in
+           ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+
+        ResetSearch ->
+         ( updateAppModel {appModel | search = initialSearchModel } model, Cmd.none )
+
 
         _ -> ( model, Cmd.none )
 

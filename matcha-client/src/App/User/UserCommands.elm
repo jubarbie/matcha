@@ -8,6 +8,7 @@ import Json.Encode as JsonEnc exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import RemoteData exposing (..)
+import App.AppModels exposing (..)
 import App.User.UserDecoder exposing (..)
 import App.User.UserModel exposing (..)
 import Api.ApiRequest exposing (..)
@@ -30,6 +31,34 @@ getRelevantUsers users token =
     in
       apiGetRequest (Just usersDecoder) token url
       |> Http.send UsersResponse
+
+searchUser : SearchModel -> String -> Cmd Msg
+searchUser search token =
+  let
+      url = "http://localhost:3001/api/users/search"
+      minYear =
+        case search.yearMin of
+          Just y -> 2018 - y
+          _ -> 2018
+      maxYear =
+        case search.yearMax of
+          Just y -> 2018 - y
+          _ -> 0
+      maxDist = case search.loc of
+        Just l -> JsonEnc.int l
+        _ -> JsonEnc.bool False
+      body =
+          Http.jsonBody <|
+              JsonEnc.object
+                  [ ( "searchLogin", JsonEnc.string search.login )
+                  , ( "searchTags", JsonEnc.list <| List.map JsonEnc.string search.tags )
+                  , ( "searchMax", JsonEnc.int minYear )
+                  , ( "searchMin", JsonEnc.int maxYear )
+                  , ( "searchLoc", maxDist)
+                  ]
+  in
+    apiPostRequest (Just usersDecoder) token url body
+    |> Http.send UsersResponse
 
 getUser : String -> String -> Cmd Msg
 getUser user token =
