@@ -3,6 +3,7 @@ module App.AppViews exposing (view)
 import App.User.UserAccountView exposing (view, viewEditAccount)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Keyed exposing (..)
 import Html.Events exposing (..)
 import App.AppModels exposing (..)
 import Models exposing (..)
@@ -86,14 +87,13 @@ viewMenu : AppRoutes -> Session -> AppModel -> TalksModel -> Html Msg
 viewMenu route session appModel talksModel =
   div []
     <| [ nav [ class "navbar" ]
-            [ ul [ class "navbar-list" ] <|
-                [ ul []
+            [ Html.ul [ class "navbar-list" ] <|
+                [ Html.ul []
                     [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
-                    , li [  ]
+                    , li [ class "notif-menu" ]
                         [ button [ onClick ToggleTalksList ]
-                            [ icon "fas fa-comments"
-                            , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
-                            ]
+                            [ icon "fas fa-comments" ]
+                        , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
                         ]
                     ]
                 , viewAccountMenu appModel

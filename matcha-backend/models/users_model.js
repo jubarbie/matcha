@@ -28,11 +28,11 @@ exports.getRelevantProfiles = (logged, gender, int_in, cb) =>
 			JOIN sex_orientation AS s ON u.login = s.login \
 			WHERE u.gender IN (?) \
       AND NOT EXISTS ( SELECT reports.id FROM reports WHERE reports.user_to = u.login ) \
-      AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE blocks.user_to = u.login AND blocks.user_from = ? ) \
+      AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE ( blocks.user_to = u.login AND blocks.user_from = ? ) OR ( blocks.user_to = ? AND blocks.user_from = u.login ) ) \
 			AND s.gender = ? \
 			AND (u.activated = "activated" OR u.activated = "resetpwd") \
 			AND u.login != ? \
-			GROUP BY u.id', [logged, logged, logged, gender, logged, int_in, logged], cb);
+			GROUP BY u.id', [logged, logged, logged, gender, logged, logged, int_in, logged], cb);
 
 exports.getVisitors = (logged, gender, int_in, cb) =>
     connection.query('\
@@ -50,12 +50,12 @@ exports.getVisitors = (logged, gender, int_in, cb) =>
 				JOIN sex_orientation AS s ON u.login = s.login \
 				WHERE u.gender IN (?) \
         AND NOT EXISTS ( SELECT reports.id FROM reports WHERE reports.user_to = u.login ) \
-        AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE blocks.user_to = u.login AND blocks.user_from = ? ) \
+        AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE ( blocks.user_to = u.login AND blocks.user_from = ? ) OR ( blocks.user_to = ? AND blocks.user_from = u.login ) ) \
 				AND v.user_to = ? \
 				AND s.gender = ? \
 				AND (u.activated = "activated" OR u.activated = "resetpwd") \
 				AND u.login != ? \
-				GROUP BY u.id', [logged, logged, logged, gender, logged, logged, int_in, logged], cb);
+				GROUP BY u.id', [logged, logged, logged, gender, logged, logged, logged, int_in, logged], cb);
 
 exports.getLikers = (logged, gender, int_in, cb) =>
     connection.query('\
@@ -73,12 +73,12 @@ exports.getLikers = (logged, gender, int_in, cb) =>
 						JOIN sex_orientation AS s ON u.login = s.login \
 						WHERE u.gender IN (?) \
             AND NOT EXISTS ( SELECT reports.id FROM reports WHERE reports.user_to = u.login ) \
-            AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE blocks.user_to = u.login AND blocks.user_from = ? ) \
+            AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE ( blocks.user_to = u.login AND blocks.user_from = ? ) OR ( blocks.user_to = ? AND blocks.user_from = u.login ) ) \
 						AND l.user_to = ? \
 						AND s.gender = ? \
 						AND (u.activated = "activated" OR u.activated = "resetpwd") \
 						AND u.login != ? \
-						GROUP BY u.id', [logged, logged, logged, gender, logged, logged, int_in, logged], cb);
+						GROUP BY u.id', [logged, logged, logged, gender, logged, logged, logged, int_in, logged], cb);
 
 exports.getFullDataUserWithLogin = (logged, login, cb) =>
     connection.query('\

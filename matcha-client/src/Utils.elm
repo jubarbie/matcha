@@ -78,9 +78,9 @@ now =
 notif : Int -> Html Msg
 notif notif =
     if notif > 0 then
-        span [ class "notif" ] [ text <| toString notif ]
+        div [ class "notif" ] [ text <| toString notif ]
     else
-        span [] []
+        div [] []
 
 
 icon : String -> Html Msg

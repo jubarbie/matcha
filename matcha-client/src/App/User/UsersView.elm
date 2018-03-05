@@ -26,18 +26,20 @@ view route session appModel model =
 
 advanceFilterView : Session -> AppModel -> UsersModel -> Html Msg
 advanceFilterView session appModel model =
-  div [ id "advance-filters", class <| if appModel.showAdvanceFilters then "active" else "" ]
+  div [ id "advance-filters", class <| "center" ++ if appModel.showAdvanceFilters then " active" else "" ]
       [ tagsFilterView session model
-      , ageFilterView
-      , locFilterView
-      , button [ onClick ResetFilters ] [ text "Reset" ]
+      , div [ class "layout-row" ]
+            [ ageFilterView
+            , locFilterView
+            ]
+      , button [ onClick ResetFilters, class "btn-no-style" ] [ text "Reset" ]
       ]
 
 locFilterView : Html Msg
 locFilterView =
-  div []
+  div [ class "flex" ]
       [ h3 [] [ text "By distance (km)"]
-      , input [ onInput UpdateLocFilter ] []
+      , div [ class "input" ] [ input [ onInput UpdateLocFilter ] [] ]
       ]
 
 sortMenuView : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
@@ -81,9 +83,9 @@ tagsFilterView session model =
 
 ageFilterView : Html Msg
 ageFilterView =
-  div []
+  div [ class "center flex" ]
       [ h3 [] [ text "By age range"]
-      , div [ class "layout" ]
+      , div [ class "center layout" ]
             [ div []
                   [ label [ for "min" ] [ text "Min" ]
                   , select [ onInput UpdateMinAgeFilter ]
@@ -125,49 +127,63 @@ userMenuView route model =
                 , notif model.notifLike
                 ]
             ]
-        , li []
-            [ button [ class "btn-no-style", onClick ToggleAdvanceFilters ] [ text "..." ]
+        , li [ class <| getActiveClass model.showAdvanceFilters ]
+            [ button [ class "btn-no-style", onClick ToggleAdvanceFilters ] [ icon "fas fa-filter" ]
             ]
         ]
 
 
 viewUsers : Session -> AppModel -> UsersModel -> Html Msg
 viewUsers session appModel model =
-    let
-        listF =
-          List.filter (filterUser model.userFilter) model.users
+  let
+    view =
+      if List.length model.users == 0 then
+        emptyUsersView
+      else
+        viewUsersList session appModel model
+  in
+      div [ class "layout-column", style [("padding-top", "56px")] ]
+          [ advanceFilterView session appModel model
+          , view
+          ]
 
-        list =
-            case model.userSort of
-                S_Dist ->
-                    List.sortBy .distance listF
+emptyUsersView : Html Msg
+emptyUsersView =
+  div [ class "layout-column flex center" ] [ text "No users" ]
 
-                S_Age ->
-                    List.sortBy .date_of_birth listF
+viewUsersList : Session -> AppModel -> UsersModel -> Html Msg
+viewUsersList session appModel model =
+  let
+      listF =
+        List.filter (filterUser model.userFilter) model.users
 
-                S_LastOn ->
-                    List.sortBy .lastOn listF
+      list =
+          case model.userSort of
+              S_Dist ->
+                  List.sortBy .distance listF
 
-                S_Afin ->
-                    List.sortBy (\u -> getAffinityScore session.user u) listF
+              S_Age ->
+                  List.sortBy .date_of_birth listF
 
-        listOrdered =
-            if model.orderSort == DESC then
-                List.reverse list
-            else
-                list
-    in
-    div [ class "layout-column" ]
-        [ advanceFilterView session appModel model
-        , ul [ class <| "users-list" ] <|
-            List.map
-                (\u ->
-                    li [] [ cardUserView u session model ]
-                )
-            <|
-                listOrdered
-        ]
+              S_LastOn ->
+                  List.sortBy .lastOn listF
 
+              S_Afin ->
+                  List.sortBy (\u -> getAffinityScore session.user u) listF
+
+      listOrdered =
+          if model.orderSort == DESC then
+              List.reverse list
+          else
+              list
+  in
+    ul [ class <| "users-list" ] <|
+        List.map
+            (\u ->
+                li [] [ cardUserView u session model ]
+            )
+        <|
+            listOrdered
 
 cardUserView : User -> Session -> UsersModel -> Html Msg
 cardUserView user session model =

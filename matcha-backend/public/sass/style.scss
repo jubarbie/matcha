@@ -146,6 +146,14 @@ h1 {
 	line-height: 18px;
 	margin: 3px;
 }
+.notif-menu {
+	position: relative;
+	.notif {
+		position: absolute;
+		top: 10%;
+		right: 2%;
+	}
+}
 
 /* NAVBAR */
 .navbar {
@@ -178,6 +186,7 @@ h1 {
 		//border-radius: 29px;
 		text-align: center;
 		line-height: 58px;
+		position: relative;
   }
   .navbar-list li a, .navbar-list li button {
   	text-decoration: none;

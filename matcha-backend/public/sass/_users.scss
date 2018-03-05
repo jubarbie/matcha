@@ -26,7 +26,7 @@
 ul.users-list {
 	list-style-type: none;
 	margin: 0;
-	padding: 40px 0 70px 0;
+	padding: 00px 0 70px 0;
 	transition: all 0.2s ease;
 
   li {
@@ -195,7 +195,7 @@ ul.users-list {
 		padding: 0 20px;
 		color: $grey-light;
 	}
-	li.active .button {
+	li.active .button, li.active svg {
 		color: $white;
 	}
 }
@@ -290,7 +290,7 @@ ul.users-list {
 
 #advance-filters {
 	transition: all 0.2s ease;
-	padding: 8px;
+	padding: 0px;
 	background: $grey-medium;
 	height: 0;
 	overflow: hidden;
@@ -304,8 +304,12 @@ ul.users-list {
 	select {
 		color: $grey-medium;
 	}
+	input {
+		background: $grey-dark;
+	}
 	&.active {
 		height: auto;
+		padding: 8px;
 	}
 }
 

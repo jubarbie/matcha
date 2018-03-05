@@ -51,8 +51,12 @@ app.use('/api/tag', Tag);
 app.use('/api/talks', Talks);
 
 var aWss = expressWs.getWss('/');
+var clients = [];
+aWss.on('connection', function(ws) {
+  clients.push(ws);
+  console.log('connection', ws);
+});
 app.ws('/ws', function(ws, req) {
-
     ws.on('message', function(msg) {
         var data = JSON.parse(msg);
         var now = Date.now();

@@ -282,7 +282,7 @@ ul.talk-list {
 ul.users-list {
   list-style-type: none;
   margin: 0;
-  padding: 40px 0 70px 0;
+  padding: 00px 0 70px 0;
   transition: all 0.2s ease; }
   ul.users-list li {
     width: 33.333%;
@@ -411,7 +411,7 @@ ul.users-list {
     background: #252525;
     padding: 0 20px;
     color: grey; }
-  .filter-menu li.active .button {
+  .filter-menu li.active .button, .filter-menu li.active svg {
     color: white; }
 
 .tag {
@@ -485,7 +485,7 @@ ul.users-list {
 
 #advance-filters {
   transition: all 0.2s ease;
-  padding: 8px;
+  padding: 0px;
   background: #252525;
   height: 0;
   overflow: hidden; }
@@ -495,8 +495,11 @@ ul.users-list {
     color: grey; }
   #advance-filters select {
     color: #252525; }
+  #advance-filters input {
+    background: #181818; }
   #advance-filters.active {
-    height: auto; }
+    height: auto;
+    padding: 8px; }
 
 /* MATCH ANIMATION */
 #match-anim {
@@ -664,6 +667,13 @@ h1 {
   line-height: 18px;
   margin: 3px; }
 
+.notif-menu {
+  position: relative; }
+  .notif-menu .notif {
+    position: absolute;
+    top: 10%;
+    right: 2%; }
+
 /* NAVBAR */
 .navbar {
   background: #252525;
@@ -689,7 +699,8 @@ h1 {
     height: 58px;
     width: 58px;
     text-align: center;
-    line-height: 58px; }
+    line-height: 58px;
+    position: relative; }
   .navbar .navbar-list li a, .navbar .navbar-list li button {
     text-decoration: none;
     color: grey;

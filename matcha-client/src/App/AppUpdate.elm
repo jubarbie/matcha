@@ -535,7 +535,7 @@ updateApp msg route session appModel usersModel talksModel =
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         ToggleAdvanceFilters ->
-          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Cmd.none )
+          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Task.attempt (always NoOp) <| Scroll.toTop "main" )
 
         ResetFilters ->
           ( Connected route session appModel { usersModel | userFilter = [] } talksModel, Cmd.none )
