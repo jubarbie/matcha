@@ -77,6 +77,8 @@ type OrderSort
 type Gender
     = M
     | F
+    | NB
+    | O
 
 
 type MatchStatus
@@ -113,6 +115,12 @@ genderToString g =
         Just F ->
             "F"
 
+        Just NB ->
+            "F"
+
+        Just O ->
+            "F"
+
         _ ->
             "No gender"
 
@@ -124,6 +132,12 @@ stringToGender g =
 
         "F" ->
             Just F
+
+        "NB" ->
+            Just NB
+
+        "O" ->
+            Just O
 
         _ ->
             Nothing

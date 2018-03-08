@@ -26,6 +26,9 @@ getRelevantUsers users token =
                 "likers" ->
                     "http://localhost:3001/api/users/likers"
 
+                "matchers" ->
+                    "http://localhost:3001/api/users/matchers"
+
                 _ ->
                     "http://localhost:3001/api/users/relevant_users"
     in

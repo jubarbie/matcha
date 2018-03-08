@@ -120,6 +120,30 @@ router.get('/likers', (req, res, next) => {
 
 });
 
+/* GET users that liked connected user */
+router.get('/matchers', (req, res, next) => {
+
+    const logged = req.logged_user;
+    const now = Date.now();
+
+    UserCtrl.getMatchers(logged, function(users) {
+        if (users) {
+          LikesModel.updateLikeLast(logged.login, now);
+            console.log(users);
+            res.json({
+                "status": "success",
+                "data": users
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "A problem occur while fetching users"
+            });
+        }
+    });
+
+});
+
 /* GET user with login */
 router.get('/user/:login', (req, res, next) => {
 

@@ -72,7 +72,7 @@ ctrl.getConnectedUser = function(login, callback) {
 
 ctrl.getRelevantUsers = (logged, callback) => {
 
-    var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+    var gender = (logged.interested_in) ? logged.interested_in.split(',') : ["M", "F", "O", "NB"];
     var int_in = (logged.gender) ? logged.gender : "M";
 
     UsersModel.getRelevantProfiles(logged.login, gender, int_in, function(err, rows, fields) {
@@ -90,7 +90,7 @@ ctrl.getRelevantUsers = (logged, callback) => {
 
 ctrl.getAdvanceSearch = (logged, searchLogin, searchTags, min, max, dist, callback) => {
 
-    var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+    var gender = (logged.interested_in) ? logged.interested_in.split(',') : ["M", "F", "O", "NB"];
     var int_in = (logged.gender) ? logged.gender : "M";
 
     UsersModel.getAdvanceSearch(logged.login, gender, int_in, searchLogin, searchTags, min, max, function(err, rows, fields) {
@@ -110,7 +110,7 @@ ctrl.getAdvanceSearch = (logged, searchLogin, searchTags, min, max, dist, callba
 
 function formatUser(row, logged) {
     row.has_talk = false;
-    row.photos = (row.photos) ? row.photos.split(",") : [];
+    row.photos = (row.photos) ? row.photos.split(",") : ["M", "F", "O", "NB"];
     row.photos = row.photos.map(function(img) {
         return config.root_url + config.upload_path + img;
     });
@@ -128,7 +128,7 @@ function formatUser(row, logged) {
 
 ctrl.getVisitors = (logged, callback) => {
 
-    var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+    var gender = (logged.interested_in) ? logged.interested_in.split(',') : ["M", "F", "O", "NB"];
     var int_in = (logged.gender) ? logged.gender : "M";
 
     UsersModel.getVisitors(logged.login, gender, int_in, function(err, rows, fields) {
@@ -145,16 +145,17 @@ ctrl.getVisitors = (logged, callback) => {
 
 ctrl.getMatchers = (logged, callback) => {
 
-    var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+    var gender = (logged.interested_in) ? logged.interested_in.split(',') : ["M", "F", "O", "NB"];
     var int_in = (logged.gender) ? logged.gender : "M";
 
-    UsersModel.getVisitors(logged.login, gender, int_in, function(err, rows, fields) {
+    UsersModel.getMatchers(logged.login, gender, int_in, function(err, rows, fields) {
         if (!err) {
             var users = rows.map(function(u) {
                 return formatUser(u, logged);
             });
             callback(users);
         } else {
+            console.log(err);
             callback(null);
         }
     });
@@ -162,7 +163,7 @@ ctrl.getMatchers = (logged, callback) => {
 
 ctrl.getLikers = (logged, callback) => {
 
-    var gender = (logged.interested_in) ? logged.interested_in.split(',') : [];
+    var gender = (logged.interested_in) ? logged.interested_in.split(',') : ["M", "F", "O", "NB"];
     var int_in = (logged.gender) ? logged.gender : "M";
 
     UsersModel.getLikers(logged.login, gender, int_in, function(err, rows, fields) {

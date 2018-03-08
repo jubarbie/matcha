@@ -30,8 +30,8 @@ searchView route session appModel model =
     [ div [ id "advance-search", class "center" ]
           [ div [  class <| "center" ++ if appModel.showAdvanceFilters then " active" else "" ]
               [ div [ class "layout-row xs-no-flex" ]
-                    [ ageSearchView
-                    , locSearchView
+                    [ ageSearchView appModel.search
+                    , locSearchView appModel.search
                     ]
               , tagsSearchView session appModel
               , button [ onClick ResetSearch, class "btn-no-style" ] [ text "Reset" ]
@@ -62,30 +62,38 @@ tagsSearchView session model =
         [ text <| "#" ++ t ]
       ) session.user.tags
 
-ageSearchView : Html Msg
-ageSearchView =
+ageSearchView : SearchModel -> Html Msg
+ageSearchView model =
   div [ class "layout-column flex align-center" ]
       [ div [ class "layout" ]
             [ div [] [ text "From "]
             , div []
                   [ select [ onInput UpdateMinYearSearch ]
-                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                    <| option ([ value "No" ] ++ (if model.yearMin == Nothing then [ Html.Attributes.attribute "selected" "selected" ] else [])) [ text "No" ] :: List.map (\a ->
+                      option
+                        ([ value <| toString a ] ++ (if model.yearMin == Just a then [ Html.Attributes.attribute "selected" "selected" ] else [])) [ text <| toString a ]
+                      ) (List.range 18 98)
                   ]
             , div [] [ text " to " ]
             , div []
                   [ select [ onInput UpdateMaxYearSearch ]
-                    <| option [ value "No"] [ text "No" ] :: List.map (\a -> option [ value <| toString a ] [ text <| toString a ] ) (List.range 18 98)
+                    <| option ([ value "No" ] ++ (if model.yearMax == Nothing then [ Html.Attributes.attribute "selected" "selected" ] else [])) [ text "No" ] :: List.map (\a ->
+                      option ([ value <| toString a ] ++ (if model.yearMax == Just a then [ Html.Attributes.attribute "selected" "selected" ] else [])) [ text <| toString a ]
+                    ) (List.range 18 98)
                   ]
             , div [][text " years old"]
             ]
       ]
 
-locSearchView : Html Msg
-locSearchView =
+locSearchView : SearchModel -> Html Msg
+locSearchView model =
   div [ class "layout-column flex align-center" ]
       [ div [ class "layout" ]
             [ div [][ text "Less than"]
-            , select [ onInput UpdateLocSearch ] <| List.map (\v -> option [ value <| toString v ] [ text <| toString v ] ) [ 1, 5, 10, 20, 50, 100, 200, 500 ]
+            , select [ onInput UpdateLocSearch ]
+              <| option ([ value "No" ] ++ (if model.loc == Nothing then [ Html.Attributes.attribute "selected" "selected" ] else [])) [ text "No" ] :: List.map (\v ->
+                option ([ value <| toString v ] ++ (if model.loc == Just v then [ Html.Attributes.attribute "selected" "selected" ] else [])) [ text <| toString v ]
+              ) [ 1, 5, 10, 20, 50, 100, 200, 500 ]
             , div [][text " km away"]
             ]
       ]
@@ -199,6 +207,12 @@ userMenuView route model =
         , li [ class <| getActiveClass (route == UsersRoute "likers") ]
             [ a [ class "button", href "http://localhost:3000/#/users/likers" ]
                 [ text "Likers "
+                , notif model.notifLike
+                ]
+            ]
+        , li [ class <| getActiveClass (route == UsersRoute "matchers") ]
+            [ a [ class "button", href "http://localhost:3000/#/users/matchers" ]
+                [ text "Matchers "
                 , notif model.notifLike
                 ]
             ]

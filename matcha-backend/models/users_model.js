@@ -110,6 +110,30 @@ exports.getLikers = (logged, gender, int_in, cb) =>
 						AND u.login != ? \
 						GROUP BY u.id', [logged, logged, logged, gender, logged, logged, logged, int_in, logged], cb);
 
+exports.getMatchers = (logged, gender, int_in, cb) =>
+    connection.query('\
+					SELECT u.login AS login, u.birth AS birth, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, u.localisation AS localisation, \
+          ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
+          ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
+          ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
+          GROUP_CONCAT(DISTINCT i.src) AS photos, \
+          GROUP_CONCAT(DISTINCT relt.tag) AS tags \
+						FROM user AS u \
+						LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
+						LEFT JOIN image AS i ON i.id = rel.id_image \
+						LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+						JOIN likes AS l ON l.user_to = ? AND l.user_from = u.login \
+						JOIN sex_orientation AS s ON u.login = s.login \
+						WHERE u.gender IN (?) \
+            AND NOT EXISTS ( SELECT reports.id FROM reports WHERE reports.user_to = u.login ) \
+            AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE ( blocks.user_to = u.login AND blocks.user_from = ? ) OR ( blocks.user_to = ? AND blocks.user_from = u.login ) ) \
+						AND l.user_to = ? \
+						AND s.gender = ? \
+						AND (u.activated = "activated" OR u.activated = "resetpwd") \
+						AND u.login != ? \
+            AND EXISTS ( SELECT likes.id FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) \
+						GROUP BY u.id', [logged, logged, logged, gender, logged, logged, logged, int_in, logged, logged], cb);
+
 exports.getFullDataUserWithLogin = (logged, login, cb) =>
     connection.query('\
   		SELECT u.login AS login, u.birth AS birth, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
