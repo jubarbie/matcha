@@ -1,39 +1,43 @@
 module App.AppUpdate exposing (..)
 
-import Login.LoginCommands exposing (..)
-import Dom
-import Dom.Scroll as Scroll
-import FormUtils exposing (..)
-import Json.Decode
-import Models exposing (..)
-import Msgs exposing (..)
-import Navigation exposing (..)
 import Api.ApiModel exposing (..)
+import App.AppModels exposing (..)
 import App.Notif.NotifDecoder exposing (..)
 import App.Notif.NotifModel exposing (..)
-import Ports exposing (..)
-import RemoteData exposing (..)
-import Routing exposing (parseAppLocation, parseLoginLocation)
 import App.Talk.TalkCommands exposing (..)
 import App.Talk.TalkModel exposing (..)
 import App.Talk.TalkUtils exposing (..)
-import Task
-import Time
 import App.User.UserCommands exposing (..)
 import App.User.UserHelper exposing (..)
 import App.User.UserModel exposing (..)
 import App.User.UserUpdate exposing (..)
-import App.AppModels exposing (..)
-import Utils exposing (..)
-import Login.LoginModels exposing (..)
+import Dom
+import Dom.Scroll as Scroll
+import FormUtils exposing (..)
 import Http
+import Json.Decode
+import Login.LoginCommands exposing (..)
+import Login.LoginModels exposing (..)
+import Models exposing (..)
+import Msgs exposing (..)
+import Navigation exposing (..)
+import Ports exposing (..)
+import RemoteData exposing (..)
+import Routing exposing (parseAppLocation, parseLoginLocation)
+import Task
+import Time
+import Utils exposing (..)
 
-updateApp : Msg -> AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> (Model, Cmd Msg)
+
+updateApp : Msg -> AppRoutes -> Session -> AppModel -> UsersModel -> TalksModel -> ( Model, Cmd Msg )
 updateApp msg route session appModel usersModel talksModel =
-  let
-    model = Connected route session appModel usersModel talksModel
-    disconnect = ( initialModel LoginRoute, Navigation.newUrl "/#/login" )
-  in
+    let
+        model =
+            Connected route session appModel usersModel talksModel
+
+        disconnect =
+            ( initialModel LoginRoute, Navigation.newUrl "/#/login" )
+    in
     case msg of
         NoOp ->
             ( model, Cmd.none )
@@ -75,7 +79,7 @@ updateApp msg route session appModel usersModel talksModel =
                                 newSession =
                                     { session | user = newUser }
                             in
-                              ( updateSessionModel newSession model, Cmd.none )
+                            ( updateSessionModel newSession model, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -113,10 +117,29 @@ updateApp msg route session appModel usersModel talksModel =
                     ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing } usersModel talksModel, Cmd.none )
 
         UsersResponse response ->
-          handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none model
+            handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none model
+
+        SearchResponse response ->
+            case Debug.log "res" response of
+                Ok rep ->
+                    case ( rep.status, rep.data, rep.message ) of
+                        ( "success", Just d, _ ) ->
+                            if d == [] then
+                                ( updateAlertMsg "No users found" model, Cmd.none )
+                            else
+                                ( Connected route session { appModel | message = Nothing } (updateUsers usersModel d) talksModel, Cmd.none )
+
+                        ( "error", _, Just msg ) ->
+                            ( updateAlertMsg "Server error" model, Cmd.none )
+
+                        _ ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( updateAlertMsg "Server error" model, Cmd.none )
 
         UserResponse response ->
-          handleApiResponse response (updateUser usersModel) updateUsersModel "User not found" Cmd.none model
+            handleApiResponse response (updateUser usersModel) updateUsersModel "User not found" Cmd.none model
 
         EditAccountResponse email fname lname bio response ->
             case response of
@@ -138,10 +161,8 @@ updateApp msg route session appModel usersModel talksModel =
                 _ ->
                     disconnect
 
-
-
         GetTalkResponse response ->
-          handleApiResponse response (updateTalks talksModel) updateTalksModel "Talk not found" (Task.attempt (always NoOp) <| Scroll.toBottom "talk-list") model
+            handleApiResponse response (updateTalks talksModel) updateTalksModel "Talk not found" (Task.attempt (always NoOp) <| Scroll.toBottom "talk-list") model
 
         GetTalksResponse response ->
             case response of
@@ -160,19 +181,21 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case ( rep.status, appModel.current_location ) of
-                        ("success", Just l) ->
+                        ( "success", Just l ) ->
                             let
-                                user = session.user
-                                newSession = { session | user = { user | localisation = l } }
+                                user =
+                                    session.user
+
+                                newSession =
+                                    { session | user = { user | localisation = l } }
                             in
-                                ( Connected route newSession appModel usersModel talksModel, Cmd.none )
+                            ( Connected route newSession appModel usersModel talksModel, Cmd.none )
 
                         _ ->
                             ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
 
                 _ ->
-                  ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
-
+                    ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
 
         OnLocationChange location ->
             let
@@ -182,45 +205,43 @@ updateApp msg route session appModel usersModel talksModel =
                 newModel =
                     { appModel | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False, search = initialSearchModel, showTalksList = False }
             in
-              case newRoute of
-                        UsersRoute a ->
-                            let
-                                likeNotif =
-                                    if a == "likers" then
-                                        0
-                                    else
-                                        appModel.notifLike
+            case newRoute of
+                UsersRoute a ->
+                    let
+                        likeNotif =
+                            if a == "likers" then
+                                0
+                            else
+                                appModel.notifLike
 
-                                visitNotif =
-                                    if a == "visitors" then
-                                        0
-                                    else
-                                        appModel.notifVisit
-                            in
-                            ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
+                        visitNotif =
+                            if a == "visitors" then
+                                0
+                            else
+                                appModel.notifVisit
+                    in
+                    ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
 
-                        UserRoute a ->
-                            ( Connected newRoute session newModel usersModel talksModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
+                UserRoute a ->
+                    ( Connected newRoute session newModel usersModel talksModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
 
-                        SearchRoute ->
-                            ( Connected newRoute session newModel initialUsersModel talksModel, Cmd.none )
+                SearchRoute ->
+                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
-                        AccountRoute ->
-                            ( Connected newRoute session { newModel | map_state = App.AppModels.Loading } usersModel talksModel, Cmd.none )
+                AccountRoute ->
+                    ( Connected newRoute session { newModel | map_state = App.AppModels.Loading } usersModel talksModel, Cmd.none )
 
-                        EditAccountRoute ->
-                            ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user } usersModel talksModel, Cmd.none )
+                EditAccountRoute ->
+                    ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user } usersModel talksModel, Cmd.none )
 
-                        ChangePwdRoute ->
-                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
+                ChangePwdRoute ->
+                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
-                        NotFoundAppRoute ->
-                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
-
+                NotFoundAppRoute ->
+                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
         GoBack amount ->
             ( model, Navigation.back amount )
-
 
         ToggleLike username ->
             ( model, toggleLike username session.token )
@@ -232,30 +253,31 @@ updateApp msg route session appModel usersModel talksModel =
                         newTalksModel =
                             case getTalkWith u talksModel.talks of
                                 Just t ->
-                                  updateTalks talksModel { t | new_message = msg }
+                                    updateTalks talksModel { t | new_message = msg }
 
                                 _ ->
-                                  talksModel
+                                    talksModel
                     in
-                      ( Connected route session appModel usersModel newTalksModel, Cmd.none )
+                    ( Connected route session appModel usersModel newTalksModel, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         SendNewMessage ->
-          case talksModel.currentTalk of
-            Just u ->
-              case getTalkWith u talksModel.talks of
-                  Just t ->
-                      if String.trim t.new_message /= "" then
-                          ( updateAppModel { appModel | showEmoList = False } model, sendMessage session.token t.username_with t.new_message )
-                      else
-                          ( model, Cmd.none )
+            case talksModel.currentTalk of
+                Just u ->
+                    case getTalkWith u talksModel.talks of
+                        Just t ->
+                            if String.trim t.new_message /= "" then
+                                ( updateAppModel { appModel | showEmoList = False } model, sendMessage session.token t.username_with t.new_message )
+                            else
+                                ( model, Cmd.none )
 
-                  _ ->
-                      ( model, Cmd.none )
-            _ ->
-               ( model, Cmd.none )
+                        _ ->
+                            ( model, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         NewMessage str ->
             ( Connected route session { appModel | message = Just str } usersModel talksModel, Cmd.none )
@@ -376,34 +398,33 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, updateGender gender session.token )
 
         UpdateIntIn gender ->
-          let
-              newIntIn =
-                  if List.member gender session.user.intIn then
-                      List.filter ((/=) gender) session.user.intIn
-                  else
-                      gender :: session.user.intIn
-          in
-          ( model, updateIntIn newIntIn session.token )
-
+            let
+                newIntIn =
+                    if List.member gender session.user.intIn then
+                        List.filter ((/=) gender) session.user.intIn
+                    else
+                        gender :: session.user.intIn
+            in
+            ( model, updateIntIn newIntIn session.token )
 
         SearchTag search ->
-            case (String.length search > 1, validTag <| Just search ) of
+            case ( String.length search > 1, validTag <| Just search ) of
                 ( True, Valid t ) ->
                     ( Connected route session { appModel | tagInput = search } usersModel talksModel, searchTag session.token search )
 
                 ( _, NotValid err ) ->
                     ( Connected route session { appModel | tagInput = search } usersModel talksModel, searchTag session.token search )
 
-                _ -> ( Connected route session { appModel | tagInput = search } usersModel talksModel, Cmd.none )
-
+                _ ->
+                    ( Connected route session { appModel | tagInput = search } usersModel talksModel, Cmd.none )
 
         AddTag t ->
-            ( Connected route session { appModel | tagInput = "", searchTag = [] } usersModel talksModel, (addTag t) session.token )
+            ( Connected route session { appModel | tagInput = "", searchTag = [] } usersModel talksModel, addTag t session.token )
 
         AddNewTag ->
             case validTag <| Just appModel.tagInput of
                 Valid s ->
-                    ( Connected route session { appModel | tagInput = "", searchTag = [] } usersModel talksModel, (addTag s) session.token )
+                    ( Connected route session { appModel | tagInput = "", searchTag = [] } usersModel talksModel, addTag s session.token )
 
                 _ ->
                     ( model, Cmd.none )
@@ -422,7 +443,7 @@ updateApp msg route session appModel usersModel talksModel =
                     }
             in
             ( Connected route session { appModel | mImage = Just newImage } usersModel talksModel
-            ,  uploadImage data.contents session.token
+            , uploadImage data.contents session.token
             )
 
         DeleteImg id_ ->
@@ -452,12 +473,10 @@ updateApp msg route session appModel usersModel talksModel =
                 orderSort =
                     if s == usersModel.userSort then
                         toggleOrder usersModel.orderSort
-                    else if s == S_Afin then
-                        ASC
                     else
-                        DESC
+                        ASC
             in
-              ( Connected route session appModel { usersModel | userSort = s, orderSort = orderSort } talksModel, Cmd.none )
+            ( Connected route session appModel { usersModel | userSort = s, orderSort = orderSort } talksModel, Task.attempt (always NoOp) <| Scroll.toTop "main" )
 
         Notification str ->
             case Json.Decode.decodeString notificationDecoder str of
@@ -516,162 +535,227 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         UpdateTagFilter tag_ ->
-          let
-            filters = updateFilterTag usersModel.userFilter tag_
-          in
-            ( Connected route session appModel { usersModel | userFilter =  filters } talksModel, Cmd.none )
+            let
+                filters =
+                    updateFilterTag usersModel.userFilter tag_
+            in
+            ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         UpdateMinAgeFilter age ->
-          let filters =
-            case String.toInt age of
-              Ok a -> updateMinAgeFilter usersModel.userFilter a
-              _ -> List.filter (\f -> not <| isMinFilter f ) usersModel.userFilter
-          in
+            let
+                filters =
+                    case String.toInt age of
+                        Ok a ->
+                            updateMinAgeFilter usersModel.userFilter a
+
+                        _ ->
+                            List.filter (\f -> not <| isMinFilter f) usersModel.userFilter
+            in
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         UpdateMaxAgeFilter age ->
-          let filters =
-            case String.toInt age of
-              Ok a -> updateMaxAgeFilter usersModel.userFilter a
-              _ -> List.filter (\f -> not <| isMaxFilter f ) usersModel.userFilter
-          in
+            let
+                filters =
+                    case String.toInt age of
+                        Ok a ->
+                            updateMaxAgeFilter usersModel.userFilter a
+
+                        _ ->
+                            List.filter (\f -> not <| isMaxFilter f) usersModel.userFilter
+            in
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         ToggleAdvanceFilters ->
-          ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Cmd.none )
+            ( Connected route session { appModel | showAdvanceFilters = not appModel.showAdvanceFilters } usersModel talksModel, Cmd.none )
 
         ResetFilters ->
-          ( Connected route session appModel { usersModel | userFilter = [] } talksModel, Cmd.none )
+            ( Connected route session appModel { usersModel | userFilter = [] } talksModel, Cmd.none )
 
         UpdateLocFilter dist ->
-          let
-            filters =
-              case String.toFloat dist of
-                Ok d -> updateLocFilter usersModel.userFilter d
-                _ -> List.filter (\f -> not <| isLocFilter f ) usersModel.userFilter
-          in
+            let
+                filters =
+                    case String.toFloat dist of
+                        Ok d ->
+                            updateLocFilter usersModel.userFilter d
+
+                        _ ->
+                            List.filter (\f -> not <| isLocFilter f) usersModel.userFilter
+            in
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         SetCurrentTalk talk ->
-          ( Connected route session { appModel | showTalksList = False } usersModel { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
+            ( Connected route session { appModel | showTalksList = False } usersModel { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
 
         CloseCurrentTalk ->
-          ( updateTalksModel { talksModel | currentTalk = Nothing } model, Cmd.none )
+            ( updateTalksModel { talksModel | currentTalk = Nothing } model, Cmd.none )
 
         ToggleTalksList ->
-          ( updateAppModel { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } model, Cmd.none )
+            ( updateAppModel { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } model, Cmd.none )
 
         ReportUser user ->
-          ( model, reportUser user session.token )
+            ( model, reportUser user session.token )
 
         BlockUser user ->
-          ( model, blockUser user session.token )
+            ( model, blockUser user session.token )
 
         AdvanceSearch ->
-          ( model, searchUser appModel.search session.token )
+            ( model, searchUser appModel.search session.token )
 
         UpdateSearchLogin log ->
-          let
-            searchModel = appModel.search
-            newSearch = { searchModel | login = log }
-          in
-            ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+            let
+                searchModel =
+                    appModel.search
+
+                newSearch =
+                    { searchModel | login = log }
+            in
+            ( updateAppModel { appModel | search = newSearch } model, Cmd.none )
 
         UpdateSearchTags tag_ ->
-         let
-             searchModel = appModel.search
-             newTags =
-               if List.member tag_ searchModel.tags then
-                List.filter ((/=) tag_) searchModel.tags
-               else
-                 tag_ :: searchModel.tags
-             newSearch = { searchModel | tags = newTags }
-         in
-           ( updateAppModel {appModel | search = Debug.log "search" newSearch } model, Cmd.none )
+            let
+                searchModel =
+                    appModel.search
 
+                newTags =
+                    if List.member tag_ searchModel.tags then
+                        List.filter ((/=) tag_) searchModel.tags
+                    else
+                        tag_ :: searchModel.tags
+
+                newSearch =
+                    { searchModel | tags = newTags }
+            in
+            ( updateAppModel { appModel | search = Debug.log "search" newSearch } model, Cmd.none )
 
         UpdateMinYearSearch year ->
-         let
-             searchModel = appModel.search
-             newYear =
-               case String.toInt year of
-                 Ok y -> Just y
-                 _ -> Nothing
-             newSearch = { searchModel | yearMin = newYear }
-         in
-           ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+            let
+                searchModel =
+                    appModel.search
+
+                newYear =
+                    case String.toInt year of
+                        Ok y ->
+                            Just y
+
+                        _ ->
+                            Nothing
+
+                newSearch =
+                    { searchModel | yearMin = newYear }
+            in
+            ( updateAppModel { appModel | search = newSearch } model, Cmd.none )
 
         UpdateMaxYearSearch year ->
-         let
-             searchModel = appModel.search
-             newYear =
-               case String.toInt year of
-                 Ok y -> Just y
-                 _ -> Nothing
-             newSearch = { searchModel | yearMax = newYear }
-         in
-           ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+            let
+                searchModel =
+                    appModel.search
+
+                newYear =
+                    case String.toInt year of
+                        Ok y ->
+                            Just y
+
+                        _ ->
+                            Nothing
+
+                newSearch =
+                    { searchModel | yearMax = newYear }
+            in
+            ( updateAppModel { appModel | search = newSearch } model, Cmd.none )
 
         UpdateLocSearch loc ->
-         let
-             searchModel = appModel.search
-             newLoc =
-               case String.toInt loc of
-                 Ok l -> Just l
-                 _ -> Nothing
-             newSearch = { searchModel | loc = newLoc }
-         in
-           ( updateAppModel {appModel | search = newSearch } model, Cmd.none )
+            let
+                searchModel =
+                    appModel.search
+
+                newLoc =
+                    case String.toInt loc of
+                        Ok l ->
+                            Just l
+
+                        _ ->
+                            Nothing
+
+                newSearch =
+                    { searchModel | loc = newLoc }
+            in
+            ( updateAppModel { appModel | search = newSearch } model, Cmd.none )
 
         ResetSearch ->
-         ( updateAppModel {appModel | search = initialSearchModel } model, Cmd.none )
+            ( Connected route session { appModel | search = initialSearchModel } initialUsersModel talksModel
+            , if route == SearchRoute then
+                Cmd.none
+              else
+                Navigation.newUrl "/#/search"
+            )
+
+        _ ->
+            ( model, Cmd.none )
 
 
-        _ -> ( model, Cmd.none )
-
-handleApiResponse : Result Http.Error (ApiResponse (Maybe a)) -> (a -> b) -> (b -> Model -> Model) -> String -> Cmd Msg -> Model -> (Model, Cmd Msg)
+handleApiResponse : Result Http.Error (ApiResponse (Maybe a)) -> (a -> b) -> (b -> Model -> Model) -> String -> Cmd Msg -> Model -> ( Model, Cmd Msg )
 handleApiResponse response updateData successUpdate errorMsg cmd model =
-  case response of
-      Ok rep ->
-          case ( rep.status, rep.data, rep.message ) of
-              ( "success", Just d, _ ) ->
-                  ( successUpdate (updateData d) model, cmd )
+    case response of
+        Ok rep ->
+            case ( rep.status, rep.data, rep.message ) of
+                ( "success", Just d, _ ) ->
+                    ( successUpdate (updateData d) model, cmd )
 
-              ( "error", _ , Just msg ) ->
-                  ( updateAlertMsg msg model, Cmd.none )
+                ( "error", _, Just msg ) ->
+                    ( updateAlertMsg msg model, Cmd.none )
 
-              _ ->
-                 ( model, Cmd.none )
-      _ ->
-          ( updateAlertMsg "Error server" model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
+
+        _ ->
+            ( updateAlertMsg "Error server" model, Cmd.none )
+
 
 updateAppModel : AppModel -> Model -> Model
 updateAppModel newAppModel model =
-  case model of
-    Connected route session appModel usersModel talksModel -> Connected route session newAppModel usersModel talksModel
-    _ -> model
+    case model of
+        Connected route session appModel usersModel talksModel ->
+            Connected route session newAppModel usersModel talksModel
+
+        _ ->
+            model
+
 
 updateSessionModel : Session -> Model -> Model
 updateSessionModel newSessionModel model =
-  case model of
-    Connected route session appModel usersModel talksModel -> Connected route newSessionModel appModel usersModel talksModel
-    _ -> model
+    case model of
+        Connected route session appModel usersModel talksModel ->
+            Connected route newSessionModel appModel usersModel talksModel
+
+        _ ->
+            model
+
 
 updateUsersModel : UsersModel -> Model -> Model
 updateUsersModel newUsers model =
-  case model of
-    Connected route session appModel usersModel talksModel -> Connected route session appModel newUsers talksModel
-    _ -> model
+    case model of
+        Connected route session appModel usersModel talksModel ->
+            Connected route session appModel newUsers talksModel
+
+        _ ->
+            model
+
 
 updateTalksModel : TalksModel -> Model -> Model
 updateTalksModel newTalks model =
-  case model of
-    Connected route session appModel usersModel talksModel -> Connected route session appModel usersModel newTalks
-    _ -> model
+    case model of
+        Connected route session appModel usersModel talksModel ->
+            Connected route session appModel usersModel newTalks
+
+        _ ->
+            model
 
 
 updateAlertMsg : String -> Model -> Model
 updateAlertMsg msg model =
-  case model of
-    Connected route session appModel usersModel talksModel -> updateAppModel { appModel | message = Just msg } model
-    _ -> model
+    case model of
+        Connected route session appModel usersModel talksModel ->
+            updateAppModel { appModel | message = Just msg } model
+
+        _ ->
+            model

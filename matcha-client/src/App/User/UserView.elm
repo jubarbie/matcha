@@ -1,43 +1,46 @@
 module App.User.UserView exposing (..)
 
+import App.AppModels exposing (..)
+import App.User.UserHelper exposing (..)
+import App.User.UserModel exposing (..)
 import Date
 import FormUtils exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Keyed
 import Json.Decode as Decode
 import Models exposing (..)
 import Msgs exposing (..)
-import App.User.UserHelper exposing (..)
-import App.User.UserModel exposing (..)
-import App.AppModels exposing (..)
 import Utils exposing (..)
 
 
 view : String -> Session -> AppModel -> UsersModel -> List (Html Msg)
 view username session appModel model =
-    case findUserByName username model.users of
-        Just user ->
-            [ div [ id "on-top", onClick <| GoBack 1 ]
-                [ div [ class "container" ]
-                    [ div [ class "user-box appear" ]
-                        [ userImagesView user
-                        , div [ class "user-infos" ]
-                            [ userNameView user
-                            , userButtonsView session user
-                            , userTagsView user session
-                            , userBioView user
-                            , userReportView user.username
-                            , userDistanceView user
-                            , userOnlineStatusView appModel user
-                            ]
+    let
+        view =
+            case findUserByName username model.users of
+                Just user ->
+                    [ userImagesView user
+                    , div [ class "user-infos" ]
+                        [ userNameView user
+                        , userButtonsView session user
+                        , userTagsView user session
+                        , userBioView user
+                        , userReportView user.username
+                        , userDistanceView user
+                        , userOnlineStatusView appModel user
                         ]
                     ]
-                ]
-            ]
 
-        _ ->
-            [ div [] [ text <| "No user with name " ++ username ] ]
+                _ ->
+                    [ div [ class "user-infos" ] [ text <| "No user with name " ++ username ] ]
+    in
+    [ div [ id "on-top", onClick <| GoBack 1 ]
+        [ div [ class "container" ]
+            [ div [ class "user-box appear" ] view ]
+        ]
+    ]
 
 
 userButtonsView : Session -> User -> Html Msg
@@ -50,13 +53,15 @@ userButtonsView s user =
         , userPopuView user
         ]
 
+
 userReportView : String -> Html Msg
 userReportView username =
-  div [ class "text-right" ]
-      [ button [ class "btn-no-style",onClick <| ReportUser username ] [ text "block" ]
-      , text " "
-      , button [ class "btn-no-style", onClick <| BlockUser username ] [ text "report" ]
-      ]
+    div [ class "text-right" ]
+        [ button [ class "btn-no-style", onClick <| ReportUser username ] [ text "block" ]
+        , text " "
+        , button [ class "btn-no-style", onClick <| BlockUser username ] [ text "report" ]
+        ]
+
 
 userPopuView : User -> Html Msg
 userPopuView user =
@@ -91,6 +96,30 @@ userLikeButtonView session user =
             else
                 ""
 
+        ico =
+            case match of
+                To ->
+                    Html.Keyed.node "to"
+                        [ class "fas fa-arrow-up"
+                        , Html.Attributes.attribute "data-fa-transform" "shrink-10 up-.5"
+                        , Html.Attributes.attribute "data-fa-mask" "fas fa-heart"
+                        ]
+                        []
+
+                From ->
+                    Html.Keyed.node "from"
+                        [ class "fas fa-arrow-down"
+                        , Html.Attributes.attribute "data-fa-transform" "shrink-10 up-.5"
+                        , Html.Attributes.attribute "data-fa-mask" "fas fa-heart"
+                        ]
+                        []
+
+                Match ->
+                    img [ src "http://localhost:3001/images/logo_only.svg", width 35, style [ ( "margin-top", "5px" ), ( "fill", "orange" ) ] ] []
+
+                _ ->
+                    Html.Keyed.node "nada" [ class "fas fa-heart" ] []
+
         options =
             { stopPropagation = True
             , preventDefault = False
@@ -103,7 +132,7 @@ userLikeButtonView session user =
             [ onWithOptions "click" options (Decode.succeed <| ToggleLike user.username)
             , class <| "like-btn" ++ likeClass
             ]
-            [ icon "fas fa-heart"
+            [ ico
             ]
 
 
@@ -213,8 +242,8 @@ userImagesView user =
                 _ ->
                     "http://profile.actionsprout.com/default.jpeg"
     in
-      div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ] <|
-                galleryButtonView user.photos user
+    div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ] <|
+        galleryButtonView user.photos user
 
 
 galleryButtonView : List String -> User -> List (Html Msg)

@@ -215,8 +215,8 @@ h1 {
   .navbar-list li.active {
   	color: $white;
   }
-  .navbar-list li.active a {
-  	color: white;
+  .navbar-list li.active a, .navbar-list li.active button {
+  	color: $white;
   }
 }
 

@@ -1,19 +1,20 @@
 module Msgs exposing (..)
 
 import Api.ApiModel exposing (..)
+import App.Talk.TalkModel exposing (..)
+import App.User.UserModel exposing (..)
 import Http
 import Models exposing (..)
 import Navigation exposing (..)
 import Ports exposing (ImagePortData)
 import RemoteData exposing (..)
-import App.Talk.TalkModel exposing (..)
 import Time
-import App.User.UserModel exposing (..)
 
 
 type Msg
     = NoOp
     | UsersResponse (Result Http.Error (ApiResponse (Maybe (List User))))
+    | SearchResponse (Result Http.Error (ApiResponse (Maybe (List User))))
     | SessionUserResponse String (Result Http.Error (ApiResponse (Maybe SessionUser)))
     | UserResponse (Result Http.Error (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)

@@ -162,7 +162,15 @@ exports.getUserWithLogin = (login, cb) =>
       		WHERE u.login = ? \
       		GROUP BY u.id \
       		', [login], cb);
-
+exports.getUserWithUuid = (id, cb) =>
+    connection.query(' \
+                		SELECT u.*, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags  \
+                  		FROM user AS u \
+                  		LEFT JOIN sex_orientation AS s ON s.login = u.login \
+                  		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+                  		WHERE u.uuid = ? \
+                  		GROUP BY u.id \
+                  		', [id], cb);
 exports.getUserWithLoginAndEmail = (login, email, cb) =>
     connection.query('SELECT * FROM user WHERE login = ? AND email = ?', [login, email], cb);
 
@@ -185,8 +193,8 @@ exports.updateInfos = (login, infos, activated, cb) =>
 		UPDATE user SET email = ?, fname = ?, lname = ?, bio = ?, activated = ? \
 		WHERE login = ? ', [infos.email, infos.fname, infos.lname, infos.bio, activated, login], cb);
 
-exports.updateConnectionDate = (id, date, cb) =>
-    connection.query('UPDATE user SET last_connection = ? WHERE id = ?', [date, id], cb);
+exports.updateConnectionDate = (id, date, uuid, cb) =>
+    connection.query('UPDATE user SET last_connection = ?, uuid = ? WHERE id = ?', [date, uuid, id], cb);
 
 exports.updateLocation = (login, loc, cb) =>
     connection.query('UPDATE user SET localisation = ? WHERE login = ?', [loc, login], cb);
@@ -202,6 +210,6 @@ exports.updateSexuality = (login, genders, cb) => {
         if (genders.length > 0)
             connection.query('INSERT INTO sex_orientation (login, gender) VALUES ? ', [genders], cb);
         else
-          cb();
+            cb();
     })
 }
