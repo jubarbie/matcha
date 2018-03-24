@@ -5,6 +5,7 @@ import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
 import Json.Encode as JsonEnc exposing (..)
 
+
 decodeLocalisationResponse : Decoder LocalisationApi
 decodeLocalisationResponse =
     JsonDec.map3 LocalisationApi
@@ -21,6 +22,7 @@ encodeIntIn intIn =
 usersDecoder : Decoder (List User)
 usersDecoder =
     JsonDec.list decodeUser
+
 
 usersSessionDecoder : Decoder (List SessionUser)
 usersSessionDecoder =
@@ -44,8 +46,14 @@ decodeGender =
                     "F" ->
                         JsonDec.succeed F
 
+                    "NB" ->
+                        JsonDec.succeed NB
+
+                    "O" ->
+                        JsonDec.succeed O
+
                     _ ->
-                        JsonDec.fail "Gender must be M or F"
+                        JsonDec.fail "Gender must be M, F, NB or O"
             )
 
 
@@ -86,12 +94,13 @@ decodeSessionUser =
         |: maybe (field "gender" decodeGender)
         |: field "interested_in" decodeIntIn
         |: field "bio" JsonDec.string
-        |: field "birth" JsonDec.int
+        |: maybe (field "birth" JsonDec.int)
         |: field "tags" (JsonDec.list JsonDec.string)
         |: field "localisation" decodeLocalisation
         |: field "photos" decodeImgs
         |: field "rights" decodeRole
         |: field "activated" decodeUserStatus
+
 
 decodeImgs : Decoder (List ( Int, String ))
 decodeImgs =
@@ -113,6 +122,7 @@ decodeUser =
         |: field "tags" (JsonDec.list JsonDec.string)
         |: field "photos" (JsonDec.list JsonDec.string)
         |: field "last_connection" JsonDec.string
+        |: field "online" JsonDec.bool
         |: field "distance" JsonDec.float
 
 
@@ -131,6 +141,7 @@ decodeRole =
                     _ ->
                         JsonDec.fail "Unknown role"
             )
+
 
 arrayAsTuple2 : Decoder a -> Decoder b -> Decoder ( a, b )
 arrayAsTuple2 a b =

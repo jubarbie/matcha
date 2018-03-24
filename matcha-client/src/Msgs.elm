@@ -89,3 +89,4 @@ type Msg
     | UpdateMaxYearSearch String
     | UpdateLocSearch String
     | ResetSearch
+    | UpdateBirth String

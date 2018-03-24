@@ -11,7 +11,7 @@ var mountNode = document.getElementById('main');
 var app = Elm.Main.embed(mountNode);
 
 app.ports.storeToken.subscribe(function(session) {
-    window.sessionStorage.setItem('token', session[1]);
+    window.sessionStorage.setItem('token', session[0]);
 });
 app.ports.getToken.subscribe(function() {
     var token = window.sessionStorage.getItem('token');

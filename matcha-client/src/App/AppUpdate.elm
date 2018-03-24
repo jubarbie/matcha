@@ -43,7 +43,7 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, Cmd.none )
 
         Logout ->
-            ( initialModel LoginRoute, Cmd.batch [ Navigation.newUrl "/#/login", deleteSession () ] )
+            ( initialModel LoginRoute, Cmd.batch [ Navigation.newUrl "/#/login", deleteSession (), logout session.token ] )
 
         NoDataApiResponse reponse ->
             ( model, Cmd.none )
@@ -688,6 +688,24 @@ updateApp msg route session appModel usersModel talksModel =
               else
                 Navigation.newUrl "/#/search"
             )
+
+        UpdateBirth date ->
+            let
+                newBirth =
+                    case String.toInt date of
+                        Ok d ->
+                            Just d
+
+                        _ ->
+                            Nothing
+
+                user =
+                    session.user
+
+                newUser =
+                    { user | date_of_birth = newBirth }
+            in
+            ( Connected route { session | user = newUser } appModel usersModel talksModel, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

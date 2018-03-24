@@ -1,5 +1,6 @@
 module Utils exposing (..)
 
+import App.User.UserModel exposing (..)
 import Date
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -8,9 +9,9 @@ import Http
 import Json.Decode exposing (..)
 import Msgs exposing (..)
 import String
-import App.User.UserModel exposing (..)
 import Task
 import Time
+
 
 formatDate : Date.Date -> String
 formatDate date =
@@ -75,6 +76,7 @@ now : Cmd Msg
 now =
     Task.perform (Just >> SetCurrentTime) Time.now
 
+
 notif : Int -> Html Msg
 notif notif =
     if notif > 0 then
@@ -92,10 +94,16 @@ genderToIcon : Maybe Gender -> Html Msg
 genderToIcon g =
     case g of
         Just M ->
-          Html.Keyed.node "male" [ class "fas fa-mars" ] []
+            Html.Keyed.node "male" [ class "fas fa-mars" ] []
 
         Just F ->
-          Html.Keyed.node "female" [ class "fas fa-venus" ] []
+            Html.Keyed.node "female" [ class "fas fa-venus" ] []
+
+        Just NB ->
+            Html.Keyed.node "non-binary" [ class "fas fa-transgender-alt" ] []
+
+        Just O ->
+            Html.Keyed.node "other" [ class "fas fa-genderless" ] []
 
         _ ->
             span [] []

@@ -172,7 +172,7 @@ userOnlineStatusView model user =
         online =
             case ( String.toFloat user.lastOn, model.currentTime ) of
                 ( Ok l, Just ct ) ->
-                    if l > ct - 900000 then
+                    if l > ct - 900000 && user.online then
                         True
                     else
                         False

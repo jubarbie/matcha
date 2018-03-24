@@ -43,8 +43,8 @@ apiRoutes.post('/', (req, res, next) => {
                     expiresIn: "15 min"
                 });
                 var now = Date.now();
+                console.log(user);
                 UsersModel.updateConnectionDate(user.id, now, uuid, (err, rows, fields) => {
-                    console.log(user);
                     res.json({
                         "status": "success",
                         "token": token,

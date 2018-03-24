@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var jwt = require('jsonwebtoken');
 
 var config = require('../config');
 var TalkModel = require('../models/talk_model');

@@ -1,12 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const {
-    check,
-    validationResult
-} = require('express-validator/check');
-const {
-    matchedData
-} = require('express-validator/filter');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -14,6 +7,7 @@ const saltRounds = 10;
 const shortid = require('shortid');
 const base64 = require('node-base64-image');
 const config = require('../config');
+const validation = require('../middlewares/validation.js');
 const UserCtrl = require('../controllers/user_ctrl.js');
 const UsersModel = require('../models/users_model');
 const VisitsModel = require('../models/visits_model');
@@ -22,6 +16,7 @@ const TalkModel = require('../models/talk_model');
 const ImageModel = require('../models/image_model');
 const ReportsModel = require('../models/reports_model');
 
+const genders = ['M', 'F', 'NB', 'O'];
 
 /* GET users */
 router.get('/relevant_users', (req, res, next) => {
@@ -47,29 +42,29 @@ router.get('/relevant_users', (req, res, next) => {
 
 router.post('/search', (req, res, next) => {
 
-  const logged = req.logged_user;
-  let searchLogin = req.body.searchLogin;
-  let searchTags = req.body.searchTags;
-  let searchMin = req.body.searchMin;
-  let searchMax = req.body.searchMax;
-  let searchLoc = req.body.searchLoc;
+    const logged = req.logged_user;
+    let searchLogin = req.body.searchLogin;
+    let searchTags = req.body.searchTags;
+    let searchMin = req.body.searchMin;
+    let searchMax = req.body.searchMax;
+    let searchLoc = req.body.searchLoc;
 
-  console.log (req.body);
+    console.log(req.body);
 
-  UserCtrl.getAdvanceSearch(logged, searchLogin, searchTags, searchMin, searchMax, searchLoc, function(users) {
-      console.log(users);
-      if (users) {
-          res.json({
-              "status": "success",
-              "data": users
-          });
-      } else {
-          res.json({
-              "status": "error",
-              "msg": "A problem occur while fetching users"
-          });
-      }
-  });
+    UserCtrl.getAdvanceSearch(logged, searchLogin, searchTags, searchMin, searchMax, searchLoc, function(users) {
+        console.log(users);
+        if (users) {
+            res.json({
+                "status": "success",
+                "data": users
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "A problem occur while fetching users"
+            });
+        }
+    });
 
 });
 
@@ -105,7 +100,7 @@ router.get('/likers', (req, res, next) => {
 
     UserCtrl.getLikers(logged, function(users) {
         if (users) {
-          LikesModel.updateLikeLast(logged.login, now);
+            LikesModel.updateLikeLast(logged.login, now);
             res.json({
                 "status": "success",
                 "data": users
@@ -128,7 +123,7 @@ router.get('/matchers', (req, res, next) => {
 
     UserCtrl.getMatchers(logged, function(users) {
         if (users) {
-          LikesModel.updateLikeLast(logged.login, now);
+            LikesModel.updateLikeLast(logged.login, now);
             console.log(users);
             res.json({
                 "status": "success",
@@ -161,6 +156,7 @@ router.get('/connected_user', (req, res, next) => {
 
     UserCtrl.getConnectedUser(logged.login, function(user) {
         if (user) {
+            console.log(user);
             res.json({
                 "status": "success",
                 "data": user
@@ -168,27 +164,41 @@ router.get('/connected_user', (req, res, next) => {
         } else {
             res.json({
                 "status": "error",
-                "msg": "User " + login + " doesn't exists"
+                "msg": "User " + logged.login + " doesn't exists"
             });
         }
     });
 
 });
 
+/* GET user with login */
+router.get('/disconnect', (req, res, next) => {
+
+    const logged = req.logged_user;
+
+    var now = Date.now();
+    UsersModel.updateConnectionDate(logged.id, now, null, (err, rows, fields) => {
+        res.json({
+            "status": "success",
+        });
+    });
+
+});
+
 function sendUser(logged, login, res) {
-  UserCtrl.getFullUser(logged, login, function(user) {
-      if (user) {
-          res.json({
-              "status": "success",
-              "data": user
-          });
-      } else {
-          res.json({
-              "status": "error",
-              "msg": "Error when fetching user"
-          });
-      }
-  });
+    UserCtrl.getFullUser(logged, login, function(user) {
+        if (user) {
+            res.json({
+                "status": "success",
+                "data": user
+            });
+        } else {
+            res.json({
+                "status": "error",
+                "msg": "Error when fetching user"
+            });
+        }
+    });
 }
 
 /* Like or unlike user. */
@@ -202,7 +212,7 @@ router.post('/toggle_like', (req, res, next) => {
             if (rows[0]) {
                 LikesModel.unLike(logged.login, username, function(err, rows, fields) {
                     if (rows) {
-                      sendUser(logged, username, res);
+                        sendUser(logged, username, res);
                     } else {
                         res.json({
                             "status": "error"
@@ -237,17 +247,17 @@ router.get('/report/:login', (req, res, next) => {
 
     if (logged && username) {
         var now = Date.now();
-            ReportsModel.addReport(logged.login, username, now, function(err, rows, fields) {
-                if (rows) {
-                    res.json({
-                        "status": "success"
-                    });
-                } else {
-                    res.json({
-                        "status": "error"
-                    });
-                }
-          });
+        ReportsModel.addReport(logged.login, username, now, function(err, rows, fields) {
+            if (rows) {
+                res.json({
+                    "status": "success"
+                });
+            } else {
+                res.json({
+                    "status": "error"
+                });
+            }
+        });
     } else {
         res.json({
             "status": "error"
@@ -263,17 +273,17 @@ router.get('/block/:login', (req, res, next) => {
 
     if (logged && username) {
         var now = Date.now();
-            ReportsModel.addBlock(logged.login, username, now, function(err, rows, fields) {
-                if (rows) {
-                    res.json({
-                        "status": "success"
-                    });
-                } else {
-                    res.json({
-                        "status": "error"
-                    });
-                }
-          });
+        ReportsModel.addBlock(logged.login, username, now, function(err, rows, fields) {
+            if (rows) {
+                res.json({
+                    "status": "success"
+                });
+            } else {
+                res.json({
+                    "status": "error"
+                });
+            }
+        });
     } else {
         res.json({
             "status": "error"
@@ -282,62 +292,39 @@ router.get('/block/:login', (req, res, next) => {
 });
 
 /* Update user infos */
-router.post('/update', [
-    check('email').exists().isEmail(),
-    check('fname').exists().isLength({
-        min: 1,
-        max: 250
-    }),
-    check('lname').exists().isLength({
-        min: 1,
-        max: 250
-    }),
-    check('bio').exists().isLength({
-        min: 1
-    }),
-], (req, res, next) => {
+router.post('/update', (req, res, next) => {
 
-    const errors = validationResult(req);
+    const valid = validation.validateUserInfos(req);
     var logged = req.logged_user;
 
-    if (logged) {
-        if (!errors.isEmpty()) {
-            res.json({
-                "status": "error",
-                "msg": "invalid form"
-            });
-        } else {
-            var infos = {};
-            infos.email = req.body.email;
-            infos.fname = req.body.fname;
-            infos.lname = req.body.lname;
-            infos.bio = req.body.bio;
-
-            UsersModel.updateInfos(logged.login, infos, "activated", function(err, rows, fields) {
-                if (rows && !err) {
-                    res.json({
-                        "status": "success"
-                    });
-                } else {
-                    res.json({
-                        "status": "error"
-                    });
-                }
-            });
-        }
+    if (logged, valid.valid) {
+        UsersModel.updateInfos(logged.login, valid.data, "activated", function(err, rows, fields) {
+            if (rows && !err) {
+                res.json({
+                    "status": "success"
+                });
+            } else {
+                res.json({
+                    "status": "error"
+                });
+            }
+        });
+    } else {
+        res.json({
+            "status": "error",
+            "msg": "invalid form"
+        })
     }
 });
 
 /* Update specific field */
-router.post('/update_gender', [
-    check('gender').exists().isIn(['M', 'F'])
-], (req, res, next) => {
+router.post('/update_gender', (req, res, next) => {
 
-    const errors = validationResult(req);
+    const gender = req.body.gender;
     var logged = req.logged_user;
 
     if (logged) {
-        if (!errors.isEmpty()) {
+        if (!gender || !genders.includes(gender)) {
             res.json({
                 "status": "error",
                 "msg": "invalid form"
@@ -358,7 +345,6 @@ router.post('/update_gender', [
                         }
                     });
                 } else {
-                    console.log("err in update_field", err);
                     res.json({
                         "status": "error"
                     });
@@ -369,33 +355,25 @@ router.post('/update_gender', [
 });
 
 /* Update specific field */
-router.post('/update_int_in', [
-    check('genders').exists().custom((value, {
-        req
-    }) => ( value.length == 0 || value.includes('M') || value.includes('F') )
-    ),
-], (req, res, next) => {
+router.post('/update_int_in', (req, res, next) => {
 
-    const errors = validationResult(req);
     var logged = req.logged_user;
-    var genders = req.body.genders;
+    let int_in = req.body.genders;
 
     if (logged) {
-        if (!errors.isEmpty()) {
-            console.log("error", errors.mapped())
+        if (!(int_in && int_in.reduce((a, c) => a & genders.includes(c), true))) {
             res.json({
                 "status": "error",
                 "msg": "invalid form"
             });
         } else {
-            genders = genders.map((gender) => {
+            int_in = int_in.map((gender) => {
                 return [logged.login, gender];
             });
-            UsersModel.updateSexuality(logged.login, genders, (err, rows, fields) => {
+            UsersModel.updateSexuality(logged.login, int_in, (err, rows, fields) => {
                 if (!err) {
                     sendConnectedUser(logged, res);
                 } else {
-                    console.log("err in update_field", err);
                     res.json({
                         "status": "error"
                     });
@@ -406,36 +384,29 @@ router.post('/update_int_in', [
 });
 
 function sendConnectedUser(logged, res) {
-  UserCtrl.getConnectedUser(logged.login, (user) => {
-      console.log(user);
-      if (user) {
-          res.json({
-              "status": "success",
-              "data": user
-          });
-      } else {
-          res.json({
-              "status": "error"
-          });
-      }
-  });
+    UserCtrl.getConnectedUser(logged.login, (user) => {
+        if (user) {
+            res.json({
+                "status": "success",
+                "data": user
+            });
+        } else {
+            res.json({
+                "status": "error"
+            });
+        }
+    });
 }
 
 /* Update user password */
-router.post('/change_password', [
-    check('oldPwd').exists(),
-    check('newPwd').exists().isLength({
-        min: 5
-    }).matches(/\d/)
-], (req, res, next) => {
+router.post('/change_password', (req, res, next) => {
 
-    const errors = validationResult(req);
     var logged = req.logged_user;
     var oldPwd = req.body.oldPwd;
     var newPwd = req.body.newPwd;
 
-    if (logged && oldPwd && newPwd) {
-        if (!errors.isEmpty()) {
+    if (logged) {
+        if (!(oldPwd && newPwd && newPwd.length > 5 && newPwd.match(/\d/))) {
             res.json({
                 "status": "error",
                 "msg": "invalid form"
@@ -481,7 +452,7 @@ router.post('/save_loc', (req, res, next) => {
     var lon = req.body.lon;
     var logged = req.logged_user;
 
-    if (logged && lat && lon) {
+    if (logged && lat && lon && !isNaN(lat) && !isNaN(lon)) {
         var loc = {};
         loc.lon = lon;
         loc.lat = lat;

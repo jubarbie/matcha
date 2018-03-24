@@ -62,7 +62,7 @@ updateConnexion msg route =
                                             ( model, Cmd.batch <| Navigation.newUrl "/#/account" :: cmds )
 
                                         EditAccountRoute ->
-                                            ( model, Cmd.batch <| Navigation.newUrl "/#/account" :: cmds )
+                                            ( model, Cmd.batch <| Navigation.newUrl "/#/edit_account" :: cmds )
 
                                         _ ->
                                             ( model, Cmd.batch cmds )
@@ -84,9 +84,9 @@ updateConnexion msg route =
 
         SaveToken s ->
             case s of
-                [ user, token ] ->
-                    if token /= "" && user /= "" then
-                        ( Connexion route, getSessionUser user token )
+                [ token ] ->
+                    if token /= "" then
+                        ( Connexion route, getSessionUser token )
                     else
                         ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
 
@@ -94,12 +94,12 @@ updateConnexion msg route =
                     ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
 
         LoginResponse response ->
-            case response of
+            case Debug.log "login" response of
                 Success rep ->
                     case ( rep.status == "success", rep.token, rep.user ) of
                         ( True, Just t, Just user ) ->
                             ( Connexion (UsersRoute "all")
-                            , Cmd.batch [ getSessionUser user.username t, storeToken [ user.username, t ] ]
+                            , Cmd.batch [ getSessionUser t, storeToken [ t ] ]
                             )
 
                         _ ->

@@ -90,8 +90,8 @@ getUser user token =
         |> Http.send UserResponse
 
 
-getSessionUser : String -> String -> Cmd Msg
-getSessionUser user token =
+getSessionUser : String -> Cmd Msg
+getSessionUser token =
     let
         url =
             "http://localhost:3001/api/users/connected_user"
@@ -327,3 +327,13 @@ delImg id_ token =
     in
     apiPostRequest (Just decodeSessionUser) token url body
         |> Http.send UpdateFieldResponse
+
+
+logout : String -> Cmd Msg
+logout token =
+    let
+        url =
+            "http://localhost:3001/api/users/disconnect"
+    in
+    apiGetRequest Nothing token url
+        |> Http.send NoDataApiResponse

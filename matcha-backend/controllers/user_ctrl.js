@@ -60,6 +60,11 @@ ctrl.getConnectedUser = function(login, callback) {
                     }
                     if (user.localisation) {
                         user.localisation = JSON.parse(user.localisation);
+                    } else {
+                        user.localisation = {
+                            'lon': 0,
+                            'lat': 0
+                        };
                     }
                     callback(user);
                 });
@@ -82,7 +87,7 @@ ctrl.getRelevantUsers = (logged, callback) => {
             });
             callback(users);
         } else {
-          console.log(err);
+            console.log(err);
             callback(null);
         }
     });
@@ -99,10 +104,10 @@ ctrl.getAdvanceSearch = (logged, searchLogin, searchTags, min, max, dist, callba
                 return formatUser(u, logged);
             });
             if (dist)
-              users = users.filter(user => user.distance <= dist);
+                users = users.filter(user => user.distance <= dist);
             callback(users);
         } else {
-          console.log(err);
+            console.log(err);
             callback(null);
         }
     });
@@ -122,6 +127,7 @@ function formatUser(row, logged) {
     row.localisation = "secret information";
     row.liked = (row.liked > 0);
     row.liking = (row.liking > 0);
+    row.online = (row.online == 1);
 
     return row;
 }

@@ -2,11 +2,12 @@ module App.User.UserModel exposing (..)
 
 
 type alias UsersModel =
-  { users : Users
-  , userFilter : List FilterUsers
-  , userSort : SortUsers
-  , orderSort : OrderSort
-  }
+    { users : Users
+    , userFilter : List FilterUsers
+    , userSort : SortUsers
+    , orderSort : OrderSort
+    }
+
 
 type alias SessionUser =
     { username : String
@@ -16,7 +17,7 @@ type alias SessionUser =
     , gender : Maybe Gender
     , intIn : List Gender
     , bio : String
-    , date_of_birth : Int
+    , date_of_birth : Maybe Int
     , tags : List String
     , localisation : Localisation
     , photos : List ( Int, String )
@@ -38,8 +39,10 @@ type alias User =
     , tags : List String
     , photos : List String
     , lastOn : String
+    , online : Bool
     , distance : Float
     }
+
 
 type alias Users =
     List User
@@ -57,6 +60,7 @@ type alias Localisation =
     , lat : Float
     }
 
+
 type FilterUsers
     = F_MinAge Int
     | F_MaxAge Int
@@ -70,9 +74,11 @@ type SortUsers
     | S_Dist
     | S_Afin
 
+
 type OrderSort
-  = ASC
-  | DESC
+    = ASC
+    | DESC
+
 
 type Gender
     = M
@@ -99,12 +105,14 @@ type UserStatus
     | Incomplete
     | NotActivated
 
+
 initialUsersModel =
-  { users = []
-  , userFilter = []
-  , userSort = S_Afin
-  , orderSort = ASC
-  }
+    { users = []
+    , userFilter = []
+    , userSort = S_Afin
+    , orderSort = ASC
+    }
+
 
 genderToString : Maybe Gender -> String
 genderToString g =
@@ -116,13 +124,14 @@ genderToString g =
             "F"
 
         Just NB ->
-            "F"
+            "NB"
 
         Just O ->
-            "F"
+            "O"
 
         _ ->
             "No gender"
+
 
 stringToGender : String -> Maybe Gender
 stringToGender g =

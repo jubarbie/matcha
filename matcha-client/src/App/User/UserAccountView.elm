@@ -1,6 +1,7 @@
 module App.User.UserAccountView exposing (view, viewChangePwd, viewEditAccount)
 
-
+import App.AppModels exposing (..)
+import App.User.UserModel exposing (..)
 import FormUtils exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -9,15 +10,12 @@ import Html.Keyed exposing (..)
 import Json.Decode as JD
 import Models exposing (..)
 import Msgs exposing (..)
-import App.User.UserModel exposing (..)
-import App.AppModels exposing (..)
 import Utils exposing (..)
 
 
 view : Session -> AppModel -> Html Msg
 view session model =
-  Html.Keyed.node "div" [] [ ( "div", viewAccount model session.user ) ]
-
+    Html.Keyed.node "div" [] [ ( "div", viewAccount model session.user ) ]
 
 
 viewAccount : AppModel -> SessionUser -> Html Msg
@@ -29,51 +27,55 @@ viewAccount model user =
         , viewLocalisation
         ]
 
+
 viewInfosMessage : SessionUser -> Html Msg
 viewInfosMessage user =
-  div [ class "row" ]
-      [ div [ class "twelve columns" ] <|
-          [ div [] <|
-              (if user.status == Incomplete then
-                  [ div [] [ text "Please complete your profile" ] ]
-               else
-                  []
-              )
-                  ++ (if user.status == ResetPassword then
-                          [ div [] [ text "Don't forget to change your password" ] ]
-                      else
-                          []
-                     )
-          ]
-      ]
+    div [ class "row" ]
+        [ div [ class "twelve columns" ] <|
+            [ div [] <|
+                (if user.status == Incomplete then
+                    [ div [] [ text "Please complete your profile" ] ]
+                 else
+                    []
+                )
+                    ++ (if user.status == ResetPassword then
+                            [ div [] [ text "Don't forget to change your password" ] ]
+                        else
+                            []
+                       )
+            ]
+        ]
+
 
 viewUserInfos : AppModel -> SessionUser -> Html Msg
 viewUserInfos model user =
-  div [ class "row" ]
-      [ div [ class "six columns" ]
-          [ h2 [] [ text "Infos" ]
-          , div [] [ text user.username ]
-          , div [] [ text user.fname, text " ", text user.lname ]
-          , div [] [ text user.email ]
-          , div [] [ text user.bio ]
-          , a [ href "/#/edit_account" ] [ text "Edit infos" ]
-          , br [] []
-          , a [ href "/#/edit_password" ] [ text "Change password" ]
-          ]
-      , div [ class "six columns" ]
-          [ h2 [] [ text "Interest" ]
-          , viewTagSection model user
-          ]
-      ]
+    div [ class "row" ]
+        [ div [ class "six columns" ]
+            [ h2 [] [ text "Infos" ]
+            , div [] [ text user.username ]
+            , div [] [ text user.fname, text " ", text user.lname ]
+            , div [] [ text user.email ]
+            , div [] [ text user.bio ]
+            , a [ href "/#/edit_account" ] [ text "Edit infos" ]
+            , br [] []
+            , a [ href "/#/edit_password" ] [ text "Change password" ]
+            ]
+        , div [ class "six columns" ]
+            [ h2 [] [ text "Interest" ]
+            , viewTagSection model user
+            ]
+        ]
+
 
 viewLocalisation : Html Msg
 viewLocalisation =
-  div [ class "row" ]
-      [ hr [] []
-      , h2 [] [ text "Localisation" ]
-      , div [ id "map" ] []
-      , button [ onClick Localize ] [ text "Localize me" ]
-      ]
+    div [ class "row" ]
+        [ hr [] []
+        , h2 [] [ text "Localisation" ]
+        , div [ id "map" ] []
+        , button [ onClick Localize ] [ text "Localize me" ]
+        ]
+
 
 viewImages : AppModel -> SessionUser -> Html Msg
 viewImages model user =
@@ -84,11 +86,11 @@ viewImages model user =
             Html.ul [ class "img-account-list" ] <|
                 List.map
                     (\( id_, s ) ->
-                      li []
-                          [ div [ style [ ( "background", "url(" ++ s ++ ") center center no-repeat" ) ], class "img-box" ]
-                            [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
+                        li []
+                            [ div [ style [ ( "background", "url(" ++ s ++ ") center center no-repeat" ) ], class "img-box" ]
+                                [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
+                                ]
                             ]
-                          ]
                     )
                     user.photos
           else
@@ -165,7 +167,7 @@ viewTagForm model =
 
 viewChangePwd : AppModel -> Html Msg
 viewChangePwd model =
-  viewEditPwdForm model.changePwdForm
+    viewEditPwdForm model.changePwdForm
 
 
 viewEditAccount : Session -> AppModel -> Html Msg
@@ -222,6 +224,48 @@ viewGenderForm gender =
                     ]
                     []
                 ]
+            , label
+                [ for "gnb"
+                , class <|
+                    "gender-btn six columns"
+                        ++ (if gender == Just NB then
+                                " active"
+                            else
+                                ""
+                           )
+                ]
+                [ text "Non binary "
+                , i [ class "fas fa-transgender-alt" ] []
+                , input
+                    [ name "gender"
+                    , type_ "radio"
+                    , id "gnb"
+                    , onClick <| UpdateGender NB
+                    , checked (gender == Just NB)
+                    ]
+                    []
+                ]
+            , label
+                [ for "go"
+                , class <|
+                    "gender-btn six columns"
+                        ++ (if gender == Just O then
+                                " active"
+                            else
+                                ""
+                           )
+                ]
+                [ text "Other "
+                , i [ class "fas fa-genderless" ] []
+                , input
+                    [ name "gender"
+                    , type_ "radio"
+                    , id "go"
+                    , onClick <| UpdateGender O
+                    , checked (gender == Just O)
+                    ]
+                    []
+                ]
             ]
         ]
 
@@ -273,6 +317,48 @@ viewIntInForm intIn =
                     ]
                     []
                 ]
+            , label
+                [ for "inb"
+                , class <|
+                    "gender-btn six columns"
+                        ++ (if List.member NB intIn then
+                                " active"
+                            else
+                                ""
+                           )
+                ]
+                [ text "Non binaries "
+                , i [ class "fas fa-transgender-alt" ] []
+                , input
+                    [ name "intIn"
+                    , type_ "checkbox"
+                    , id "inb"
+                    , onClick <| UpdateIntIn NB
+                    , checked <| List.member NB intIn
+                    ]
+                    []
+                ]
+            , label
+                [ for "io"
+                , class <|
+                    "gender-btn six columns"
+                        ++ (if List.member O intIn then
+                                " active"
+                            else
+                                ""
+                           )
+                ]
+                [ text "Others "
+                , i [ class "fas fa-genderless" ] []
+                , input
+                    [ name "intIn"
+                    , type_ "checkbox"
+                    , id "io"
+                    , onClick <| UpdateIntIn O
+                    , checked <| List.member O intIn
+                    ]
+                    []
+                ]
             ]
         ]
 
@@ -283,7 +369,8 @@ viewEditAccountForm accountForm user =
         [ h1 [] [ text <| "Edit account" ]
         , Html.form [] <|
             List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
-                ++ [ viewGenderForm user.gender
+                ++ [ viewDateOfBirthInput user
+                   , viewGenderForm user.gender
                    , viewIntInForm user.intIn
                    , input
                         [ onWithOptions
@@ -300,6 +387,11 @@ viewEditAccountForm accountForm user =
                    ]
         , a [ href "/#/account" ] [ text "Cancel" ]
         ]
+
+
+viewDateOfBirthInput : SessionUser -> Html Msg
+viewDateOfBirthInput user =
+    select [ onInput UpdateBirth ] <| List.map (\d -> option [ value <| toString d ] [ text <| toString d ]) (List.range 1900 2000)
 
 
 viewEditPwdForm : Form -> Html Msg
