@@ -12,7 +12,6 @@ import Time exposing (..)
 type AppRoutes
     = UsersRoute String
     | SearchRoute
-    | AccountRoute
     | EditAccountRoute
     | ChangePwdRoute
     | NotFoundAppRoute

@@ -17,7 +17,7 @@ type alias SessionUser =
     , email : String
     , gender : Maybe Gender
     , intIn : List Gender
-    , bio : String
+    , bio : Maybe String
     , date_of_birth : Maybe Int
     , tags : List String
     , localisation : Localisation

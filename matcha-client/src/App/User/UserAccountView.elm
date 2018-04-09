@@ -1,4 +1,4 @@
-module App.User.UserAccountView exposing (view, viewChangePwd, viewDateOfBirthInput, viewEditAccount, viewEditAccountForm, viewGenderForm, viewImages, viewIntInForm, viewTagSection)
+module App.User.UserAccountView exposing (view, viewChangePwd, viewDateOfBirthInput, viewEditAccount, viewLocalisation, viewEditAccountForm, viewGenderForm, viewImages, viewIntInForm, viewTagSection)
 
 import App.AppModels exposing (..)
 import App.User.UserModel exposing (..)
@@ -55,7 +55,7 @@ viewUserInfos model user =
             , div [] [ text user.username ]
             , div [] [ text user.fname, text " ", text user.lname ]
             , div [] [ text user.email ]
-            , div [] [ text user.bio ]
+            , div [] [ text <| getUserBio user ]
             , a [ href "/#/edit_account" ] [ text "Edit infos" ]
             , br [] []
             , a [ href "/#/edit_password" ] [ text "Change password" ]
@@ -66,6 +66,11 @@ viewUserInfos model user =
             ]
         ]
 
+getUserBio : SessionUser -> String
+getUserBio user =
+  case user.bio of
+    Just bio -> bio
+    _ -> ""
 
 viewLocalisation : Html Msg
 viewLocalisation =

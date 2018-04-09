@@ -160,9 +160,9 @@ updateApp msg route session appModel usersModel talksModel =
                                     session.user
 
                                 newUser =
-                                    { user | email = email, fname = fname, lname = lname, bio = bio }
+                                    { user | email = email, fname = fname, lname = lname, bio = Just bio }
                             in
-                            ( Connected route { session | user = newUser } { appModel | message = Just "Information saved" } usersModel talksModel, Navigation.newUrl "/#/account" )
+                            ( Connected route { session | user = newUser } { appModel | message = Just "Information saved" } usersModel talksModel, Cmd.none )
 
                         _ ->
                             ( Connected route session { appModel | message = rep.message } usersModel talksModel, Cmd.none )
@@ -234,9 +234,6 @@ updateApp msg route session appModel usersModel talksModel =
                 SearchRoute ->
                     ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
-                AccountRoute ->
-                    ( Connected newRoute session { newModel | map_state = App.AppModels.Loading } usersModel talksModel, Cmd.none )
-
                 EditAccountRoute ->
                     ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user } usersModel talksModel, Cmd.none )
 
@@ -305,8 +302,8 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, Cmd.none )
 
         LoadMap t ->
-            case ( appModel.map_state, route ) of
-                ( App.AppModels.Loading, AccountRoute ) ->
+            case ( appModel.map_state ) of
+                ( App.AppModels.Loading ) ->
                     ( Connected route session { appModel | map_state = Rendered } usersModel talksModel, localize [ session.user.localisation.lon, session.user.localisation.lat ] )
 
                 _ ->
@@ -475,7 +472,10 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, now )
 
         ToggleAccountMenu ->
-            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu, showTalksList = False } usersModel talksModel, Cmd.none )
+          let
+            mapStatus = if not appModel.showAccountMenu then App.AppModels.Loading else App.AppModels.NoMap
+          in
+            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu, showTalksList = False, map_state = mapStatus } usersModel talksModel, Cmd.none )
 
         ChangeImage user to ->
             let

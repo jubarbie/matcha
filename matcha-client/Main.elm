@@ -34,8 +34,8 @@ subscriptions model =
     Connected route session appModel usersModel talksModel ->
         let
           subRoute =
-            case route of
-              AccountRoute -> Time.every Time.second LoadMap
+            case model of
+              Connected route session appModel usersModel talkModel -> if appModel.showAccountMenu then Time.every Time.second LoadMap else Sub.none
               _ -> Sub.none
 
           subAnim =

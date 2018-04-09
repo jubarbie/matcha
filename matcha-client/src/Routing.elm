@@ -23,7 +23,6 @@ matchersApp =
         , map (UsersRoute "all") (s "users")
         , map UsersRoute (s "users" </> string)
         , map SearchRoute (s "search")
-        , map AccountRoute (s "account")
         , map EditAccountRoute (s "edit_account")
         , map ChangePwdRoute (s "edit_password")
         ]

@@ -93,7 +93,7 @@ decodeSessionUser =
         |: field "email" JsonDec.string
         |: maybe (field "gender" decodeGender)
         |: field "interested_in" decodeIntIn
-        |: field "bio" JsonDec.string
+        |: maybe (field "bio" JsonDec.string)
         |: maybe (field "birth" JsonDec.int)
         |: field "tags" (JsonDec.list JsonDec.string)
         |: field "localisation" decodeLocalisation

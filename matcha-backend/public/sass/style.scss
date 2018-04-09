@@ -224,8 +224,9 @@ h1 {
 #account-menu {
 	 position: fixed;
 	 height: 100%;
-	 width: 400px;
-	 left: -400px;
+	 width: 720px;
+	 max-width: 100%;
+	 left: -720px;
 	 padding: 0;
 	 top: 0;
 	 overflow-y: auto;

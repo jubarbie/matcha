@@ -170,13 +170,13 @@ exports.getUserWithLogin = (login, cb) =>
       		', [login], cb);
 exports.getUserWithUuid = (id, cb) =>
     connection.query(' \
-                		SELECT u.*, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags  \
-                  		FROM user AS u \
-                  		LEFT JOIN sex_orientation AS s ON s.login = u.login \
-                  		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
-                  		WHERE u.uuid = ? \
-                  		GROUP BY u.id \
-                  		', [id], cb);
+    		SELECT u.*, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags  \
+      		FROM user AS u \
+      		LEFT JOIN sex_orientation AS s ON s.login = u.login \
+      		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+      		WHERE u.uuid = ? \
+      		GROUP BY u.id \
+      		', [id], cb);
 exports.getUserWithLoginAndEmail = (login, email, cb) =>
     connection.query('SELECT * FROM user WHERE login = ? AND email = ?', [login, email], cb);
 

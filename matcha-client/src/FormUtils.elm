@@ -121,7 +121,7 @@ initEditAccountForm user =
     [ initInput (Just user.fname) "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
     , initInput (Just user.lname) "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
     , initInput (Just user.email) "text" "Email" "email" (Just EmailValidator) Nothing
-    , initInput (Just user.bio) "textarea" "Bio" "bio" Nothing Nothing
+    , initInput user.bio "textarea" "Bio" "bio" Nothing Nothing
     ]
 
 

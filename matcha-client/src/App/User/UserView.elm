@@ -205,7 +205,7 @@ userDistanceView user =
 
 userBioView : User -> Html Msg
 userBioView user =
-    div [ class "user-bio" ] [ text user.bio ]
+      div [ class "user-bio" ] [ text user.bio ]
 
 
 userTagsView : User -> Session -> Html Msg

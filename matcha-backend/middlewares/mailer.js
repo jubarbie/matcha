@@ -4,6 +4,7 @@ var mailer = {};
 
 mailer.sendVerifEmail = function (mailTo, login, key) {
 
+  var url;
   nodemailer.createTestAccount((err, account) => {
 
     // create reusable transporter object using the default SMTP transport
@@ -33,10 +34,11 @@ mailer.sendVerifEmail = function (mailTo, login, key) {
         console.log('Message sent: %s', info.messageId);
         // Preview only available when sending through an Ethereal account
         console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
+        url = nodemailer.getTestMessageUrl(info);
     });
 
   });
+  return url;
 };
 
 mailer.sendResetPasswordEmail = function (mailTo, login, password) {

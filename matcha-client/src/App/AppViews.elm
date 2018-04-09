@@ -30,9 +30,6 @@ view route session appModel usersModel talksModel =
                 SearchRoute ->
                     div [] <| App.User.UsersView.searchView route session appModel usersModel
 
-                AccountRoute ->
-                    App.User.UserAccountView.view session appModel
-
                 EditAccountRoute ->
                     App.User.UserAccountView.viewEditAccount session appModel
 
@@ -145,12 +142,15 @@ viewAccountBox : Session -> AppModel -> List (Html Msg)
 viewAccountBox session model =
     let
         shortBio =
-            if String.length session.user.bio == 0 then
-                "No bio"
-            else if String.length session.user.bio < 50 then
-                session.user.bio
-            else
-                String.left 50 session.user.bio ++ "..."
+          case session.user.bio of
+            Just bio ->
+              if String.length bio == 0 then
+                  "No bio"
+              else if String.length bio < 50 then
+                  bio
+              else
+                  String.left 50 bio ++ "..."
+            _ -> "No bio"
     in
     if model.showAccountMenu then
         [ div [ style [ ( "width", "100%" ) ] ]
@@ -167,6 +167,7 @@ viewAccountBox session model =
             , div [ class "layout-padding center" ] [ viewGenderForm session.user.gender ]
             , div [ class "layout-padding center" ] [ viewIntInForm session.user.intIn ]
             , div [] [ viewImages model session.user ]
+            , viewLocalisation
             , div [ onClick Logout, class "center logout-btn" ] [ text "Logout ", icon "fas fa-power-off" ]
             ]
         ]

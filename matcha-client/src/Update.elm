@@ -47,16 +47,17 @@ updateConnexion msg route =
                                     Connected route session initialAppModel initialUsersModel initialTalksModel
 
                                 cmds =
-                                    [ getTalks session.token ]
+                                    [ getTalks session.token ] ++
+                                      if u.localisation.lon == 0 && u.localisation.lat == 0 then
+                                        [ getIpLocalisation ]
+                                      else
+                                        []
                             in
                             case u.status of
                                 Activated ->
                                     case route of
                                         UsersRoute a ->
                                             ( model, Cmd.batch <| Navigation.newUrl ("/#/users/" ++ a) :: cmds )
-
-                                        AccountRoute ->
-                                            ( model, Cmd.batch <| Navigation.newUrl "/#/account" :: cmds )
 
                                         EditAccountRoute ->
                                             ( model, Cmd.batch <| Navigation.newUrl "/#/edit_account" :: cmds )

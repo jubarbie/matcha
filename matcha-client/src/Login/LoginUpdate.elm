@@ -28,14 +28,18 @@ updateLogin msg route loginModel =
                     ( initialModel LoginRoute, Cmd.none )
 
         NewUserResponse response ->
-            case response of
+            case Debug.log "rep" response of
                 Success rep ->
-                    case rep.status of
-                        True ->
-                            ( NotConnected route { loginModel | message = Just "Your account has been created, check your emails" }, Navigation.newUrl "/#/login" )
-
-                        _ ->
-                            ( NotConnected route { loginModel | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none )
+                    if rep.status then
+                      ( NotConnected route { loginModel | message = Just "Your account has been created, check your emails" }
+                      , Cmd.batch <|
+                        [ Navigation.newUrl "/#/login"] ++
+                          case rep.message of
+                            Just m -> [ openNewTab m ]
+                            _ -> []
+                          )
+                    else
+                      ( NotConnected route { loginModel | message = rep.message, newUserForm = initFastNewUserForm }, Cmd.none )
 
                 _ ->
                     ( initialModel LoginRoute, Cmd.none )
@@ -99,12 +103,12 @@ updateLogin msg route loginModel =
                 values =
                     List.map (\i -> i.status) loginModel.newUserForm
             in
-            case values of
-                [ Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd ] ->
-                    ( NotConnected route loginModel, sendFastNewUser username fname lname email pwd repwd )
+              case values of
+                  [ Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd ] ->
+                      ( NotConnected route loginModel, sendFastNewUser username fname lname email pwd repwd loginModel.localisation )
 
-                _ ->
-                    ( NotConnected route loginModel, Cmd.none )
+                  _ ->
+                      ( NotConnected route loginModel, Cmd.none )
 
         OnLocationChange location ->
             let

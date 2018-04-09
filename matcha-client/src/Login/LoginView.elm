@@ -31,6 +31,9 @@ view route model =
     in
     div [ class "layout-column center" ]
         [ img [ src "http://localhost:3001/images/DARKROOM_logo.svg", alt "DARKROOM" ] []
+        , case model.message of
+            Just m -> div [] [ text m ]
+            _ -> div [][]
         , view
         ]
 

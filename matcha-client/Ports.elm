@@ -11,6 +11,7 @@ port getToken : () -> Cmd msg
 port deleteSession : () -> Cmd msg
 port localize : (List Float) -> Cmd msg
 port fileSelected : String -> Cmd msg
+port openNewTab : String -> Cmd msg
 
 -- In
 port tokenRecieved : (List String -> msg) -> Sub msg

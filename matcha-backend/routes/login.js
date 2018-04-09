@@ -64,6 +64,7 @@ var buildUserFromRequest = function(req) {
     user.password = bcrypt.hashSync(req.body.password, saltRounds);
     user.activated = crypto.randomBytes(64).toString('hex');
     user.rights = 1;
+    user.bio = "";
     return user;
 };
 
@@ -74,7 +75,7 @@ apiRoutes.post('/new', (req, res, next) => {
 
     if (!valid.valid) {
         console.log(valid);
-        res.status(422).json({
+        res.json({
             "status": false,
             "msg": valid.errors
         });
@@ -82,7 +83,7 @@ apiRoutes.post('/new', (req, res, next) => {
         UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
             if (rows.length > 0) {
                 console.log("Login already used");
-                res.status(422).json({
+                res.json({
                     "status": false,
                     "msg": "Login already used"
                 });
@@ -91,9 +92,10 @@ apiRoutes.post('/new', (req, res, next) => {
                 var now = Date.now();
                 UsersModel.insertUser(user, now, function(err, rows, fields) {
                     if (!err) {
-                        Mailer.sendVerifEmail(user.email, user.login, user.activated);
+                        var url = Mailer.sendVerifEmail(user.email, user.login, user.activated);
                         res.json({
-                            "status": true
+                            "status": true,
+                            "msg": url
                         });
                     } else {
                         console.log('Error insert new user', err);
@@ -176,26 +178,47 @@ apiRoutes.get('/emailverif/:login', (req, res, next) => {
                     case token:
                         UsersModel.activateUserWithLogin(login, "incomplete", (err, rows, fields) => {
                             if (rows) {
-                                res.send('Email verified. You can now <a href="' + config.home_url + '">login</a>');
+                                res.send(getTemplate('Email verified. You can now <a href="' + config.home_url + '">login</a>'));
                             } else {
-                                res.send('A problem occured, please try again');
+                                res.send(getTemplate('A problem occured, please try again'));
                             }
                         });
                         break;
                     case "activated":
-                        res.send('Email already verified');
+                        res.send(getTemplate('Email already verified. <a href="' + config.home_url + '">login</a>'));
+                        break;
+                    case "incomplete":
+                        res.send(getTemplate('Email already verified. <a href="' + config.home_url + '">login</a>'));
                         break;
                     default:
-                        res.send('A problem occured, please try again');
+                        res.send(getTemplate('A problem occured, please try again'));
                 }
 
             } else {
-                res.send('Invalid link');
+                res.send(getTemplate('Invalid link'));
             }
         });
     } else {
-        res.send('Invalid link');
+        res.send(getTemplate('Invalid link'));
     }
 });
+
+function getTemplate(msg) {
+  var tmp =
+    "<html> \
+    <head> \
+      <style> \
+        html, body { \
+          width: 100%; height: 100%; background: #252525; text-align: center; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2em; \
+        } \
+        a { color: #1EAEDB; text-decoration: none}\
+      </style> \
+    </head> \
+    <body> \
+     <div>" + msg + "</div> \
+    </body> \
+    </html> "
+  return tmp;
+}
 
 module.exports = apiRoutes;
