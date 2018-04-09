@@ -186,10 +186,9 @@
   transition: all 0.2s ease;
   z-index: 200;
   background: #181818;
-  text-align: left; }
-
-.talks-expand #talks-list {
-  left: 60px; }
+  text-align: left;
+  left: 60px;
+  animation-duration: 0.2s; }
 
 ul.talk-list {
   list-style-type: none; }
@@ -209,7 +208,7 @@ ul.talk-list {
   #current-talk {
     bottom: 58px; }
 
-  .talks-expand #talks-list {
+  #talks-list {
     left: 0px; } }
 .input {
   margin-bottom: 1rem; }
@@ -253,32 +252,6 @@ ul.talk-list {
     .edit-form form label {
       color: grey; }
 
-.gallery .img-box {
-  display: inline-block;
-  width: 33.333%;
-  height: 0;
-  padding-top: 30%;
-  position: relative;
-  background-size: cover !important; }
-  .gallery .img-box .del {
-    position: absolute;
-    top: 0;
-    right: 0; }
-
-#on-top .user-box .user-infos {
-  padding: 16px; }
-#on-top .user-btns button {
-  margin-right: 6px; }
-#on-top .tag {
-  padding: 0;
-  color: grey;
-  border: 0;
-  background: inherit;
-  height: inherit;
-  line-height: normal; }
-  #on-top .tag.metoo {
-    color: white; }
-
 #users-list {
   padding-top: 56px; }
 
@@ -301,43 +274,60 @@ ul.users-list {
         ul.users-list li:hover .user-box .user-menu {
           opacity: 1; }
 
-.user-box {
-  overflow-y: auto;
-  position: relative;
+.user-card {
+  cursor: pointer; }
+
+.user-card, .user-box {
   background: #181818;
   border-radius: 8px;
-  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
-  transition: all 0.5s ease;
-  width: 100%;
-  max-width: 580px;
-  margin: 0 auto; }
-  .user-box.appear {
-    animation: userApparition 0.2s ease; }
-  .user-box .img-box {
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2); }
+  .user-card .img-box, .user-box .img-box {
     background-size: cover !important;
     width: 100%;
     padding-bottom: 70%;
-    position: relative; }
-    .user-box .img-box .user-menu {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      bottom: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.4);
-      opacity: 0;
-      transition: all 0.2s ease;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center; }
-    .user-box .img-box .close {
-      padding: 5px;
-      font-size: 2em;
-      border: 0;
-      color: white; }
+    position: relative;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px; }
+  .user-card .user-infos, .user-box .user-infos {
+    padding: 8px; }
+    .user-card .user-infos h3, .user-box .user-infos h3 {
+      font-size: 1.4em; }
+    .user-card .user-infos .info-dist, .user-box .user-infos .info-dist {
+      font-size: 0.8em;
+      color: grey;
+      display: inline-block;
+      width: 50%; }
+    .user-card .user-infos .online-status, .user-box .user-infos .online-status {
+      display: inline-block;
+      font-size: 0.8em;
+      color: grey;
+      width: 50%;
+      text-align: right; }
+      .user-card .user-infos .online-status.on, .user-box .user-infos .online-status.on {
+        color: green; }
+  .user-card .like-btn, .user-box .like-btn {
+    padding: 0;
+    font-size: 2em;
+    border: 0; }
+    .user-card .like-btn.liked, .user-box .like-btn.liked {
+      color: #a72424; }
+  .user-card .talk-btn, .user-box .talk-btn {
+    padding: 0;
+    font-size: 2em;
+    border: 0; }
+
+.user-box {
+  position: fixed !important;
+  top: 20px;
+  left: 50%;
+  margin-left: -260px;
+  width: 580px;
+  max-width: 100%;
+  max-height: 90vh; }
+  .user-box.appear {
+    animation: userApparition 0.1s ease; }
+  .user-box .img-box {
+    box-shadow: inset 0 -10px 80px black; }
     .user-box .img-box .gal-btn {
       position: absolute;
       top: 0;
@@ -355,49 +345,36 @@ ul.users-list {
         font-size: 1.5em;
         color: white; }
   .user-box .user-infos {
-    padding: 8px; }
-    .user-box .user-infos h3 {
-      font-size: 1.4em; }
+    padding: 16px; }
+    .user-box .user-infos .tag {
+      padding: 0;
+      color: grey;
+      border: 0;
+      background: inherit;
+      height: inherit;
+      line-height: normal; }
+      .user-box .user-infos .tag.metoo {
+        color: white; }
     .user-box .user-infos .user-bio {
       margin: 10px 0;
+      overflow-y: auto;
       color: grey;
       font-size: 0.9em;
       text-align: justify;
-      padding: 16px; }
-    .user-box .user-infos .info-dist {
-      font-size: 0.8em;
-      color: grey;
-      display: inline-block;
-      width: 50%; }
-    .user-box .user-infos .online-status {
-      display: inline-block;
-      font-size: 0.8em;
-      color: grey;
-      width: 50%;
-      text-align: right; }
-      .user-box .user-infos .online-status.on {
-        color: green; }
-  .user-box .user-link {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0; }
+      padding: 16px;
+      max-height: 100px; }
   .user-box #profile-img img {
     width: 100%;
     margin: 0; }
-
-.like-btn {
-  padding: 0;
-  font-size: 2em;
-  border: 0; }
-  .like-btn.liked {
-    color: #a72424; }
-
-.talk-btn {
-  padding: 0;
-  font-size: 2em;
-  border: 0; }
+  .user-box .user-btns {
+    position: absolute;
+    bottom: 0;
+    padding: 10px;
+    padding-bottom: 0;
+    width: 100%; }
+    .user-box .user-btns button {
+      margin-right: 6px;
+      margin-bottom: 0; }
 
 .filter-menu {
   position: fixed;
@@ -421,34 +398,52 @@ ul.users-list {
     .filter-menu li.active .button .sort-arrow, .filter-menu li.active svg .sort-arrow {
       display: inline-block; }
 
+.tag-section input {
+  height: 24px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  margin-top: 5px; }
+.tag-section button {
+  background: #1EAEDB;
+  height: 24px !important;
+  width: 24px !important;
+  font-size: 0.9em;
+  line-height: 24px !important;
+  border-radius: 12px;
+  margin-left: -24px !important;
+  margin-top: 5px !important;
+  position: relative;
+  z-index: 20;
+  text-align: center !important; }
+
 .tag {
   display: inline-block;
   position: relative;
-  padding: 0 8px;
+  padding: 0 4px;
   background: #252525;
   color: grey;
   border: 1px solid grey;
   margin-right: 8px;
-  border-radius: 14px;
-  font-size: 0.9em;
-  height: 26px;
-  line-height: 24px;
+  border-radius: 12px;
+  font-size: 0.7em;
+  line-height: normal;
   font-size: 0.8em; }
   .tag.dismissable {
-    padding-right: 28px; }
+    padding-right: 20px; }
   .tag.metoo {
     color: white; }
   .tag .del {
     position: absolute;
-    right: 2px;
-    top: 2px;
+    right: 0;
+    top: 0;
     background: grey;
-    height: 20px;
-    width: 20px;
+    height: 18px;
+    width: 18px;
     text-align: center;
     color: #252525;
-    border-radius: 10px;
-    line-height: 20px; }
+    border-radius: 9px;
+    line-height: normal;
+    font-size: 1em; }
 
 .search-list {
   list-style-type: none;
@@ -460,17 +455,16 @@ ul.users-list {
   padding: 0;
   margin: 0; }
   .img-account-list li {
-    width: 33.333%;
+    width: 50%;
     display: inline-block;
-    padding: 10px;
+    padding: 0;
     box-sizing: border-box;
     margin: 0; }
     .img-account-list li .img-box {
       background-size: cover !important;
       width: 100%;
-      padding-bottom: 66.66%;
-      position: relative;
-      border-radius: 8px; }
+      padding-bottom: 100%;
+      position: relative; }
       .img-account-list li .img-box .del {
         background: #a72424;
         padding: 0;
@@ -479,11 +473,13 @@ ul.users-list {
         width: 20px;
         color: white;
         border-radius: 10px;
-        margin: 2px;
-        border: 0; }
+        border: 0;
+        position: absolute;
+        top: 10px;
+        right: 10px; }
 
 .gender-btn {
-  font-size: 2em;
+  font-size: 1em;
   color: grey; }
   .gender-btn.active {
     color: white; }
@@ -571,7 +567,16 @@ ul.users-list {
     padding-top: 100px; }
 
   .xs-no-flex {
-    display: block !important; } }
+    display: block !important; }
+
+  .user-box {
+    margin-left: -290px; } }
+@media screen and (max-width: 580px) {
+  .user-box {
+    left: 0;
+    margin-left: 0; }
+    .user-box .user-infos, .user-box .user-bio {
+      padding: 5px !important; } }
 @media screen and (max-width: 480px) {
   ul.users-list li {
     width: 100%; } }
@@ -663,15 +668,16 @@ div {
 .pull-right {
   float: right; }
 
-#on-top {
+.on-top {
   position: fixed;
   width: 100%;
   height: 100%;
   left: 0;
   top: 0;
   padding-top: 2rem;
-  padding-bottom: 2rem;
-  background: rgba(255, 255, 255, 0.2); }
+  padding-bottom: 70px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: w-resize; }
 
 button.btn-no-style {
   padding: 0;
@@ -766,24 +772,22 @@ h1 {
   .navbar .navbar-list li.active a, .navbar .navbar-list li.active button {
     color: white; }
 
-.account-expand #account-menu {
-  left: 60px; }
-
 #account-menu {
   position: fixed;
   height: 100%;
-  width: 200px;
-  left: -200px;
+  width: 400px;
+  left: -400px;
   padding: 0;
   top: 0;
+  overflow-y: auto;
   transition: all 0.2s ease;
   z-index: 200;
   background: #181818;
   text-align: left;
   color: grey;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end; }
+  transition: all 0.2s ease;
+  left: 60px;
+  animation-duration: 0.2s; }
   #account-menu .edit-btn {
     background: #1EAEDB;
     padding: 14px;
@@ -793,10 +797,9 @@ h1 {
       color: white;
       display: block;
       height: 100%; }
-  #account-menu #logout-btn {
+  #account-menu .logout-btn {
     padding: 14px;
-    color: white;
-    background: #a72424;
+    color: #a72424;
     cursor: pointer; }
 
 /* FOOTER */
@@ -845,6 +848,10 @@ ul.group-btn {
         flex-direction: row;
         justify-content: space-between; }
         .navbar .navbar-list ul li {
-          display: inline-block; } }
+          display: inline-block; }
+
+  #account-menu {
+    left: 0px;
+    padding-bottom: 60px; } }
 
 /*# sourceMappingURL=style.css.map */

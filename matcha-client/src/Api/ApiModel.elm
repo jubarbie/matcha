@@ -1,7 +1,8 @@
 module Api.ApiModel exposing (..)
 
+
 type alias ApiResponse a =
-    { status : String
+    { status : Bool
     , message : Maybe String
     , data : a
     }

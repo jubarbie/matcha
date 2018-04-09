@@ -1,6 +1,10 @@
 module Login.LoginCommands exposing (..)
 
 import Api.ApiDecoder exposing (..)
+import App.Talk.TalkDecoder exposing (..)
+import App.Talk.TalkModel exposing (..)
+import App.User.UserDecoder exposing (..)
+import App.User.UserModel exposing (..)
 import Http
 import Json.Decode as JsonDec exposing (..)
 import Json.Decode.Extra exposing (..)
@@ -8,16 +12,12 @@ import Json.Encode as JsonEnc exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import RemoteData exposing (..)
-import App.Talk.TalkDecoder exposing (..)
-import App.Talk.TalkModel exposing (..)
-import App.User.UserDecoder exposing (..)
-import App.User.UserModel exposing (..)
 
 
 decodeAuthResponse : Decoder AuthResponse
 decodeAuthResponse =
     JsonDec.map4 AuthResponse
-        (at [ "status" ] JsonDec.string)
+        (at [ "status" ] JsonDec.bool)
         (maybe (at [ "msg" ] JsonDec.string))
         (maybe (at [ "token" ] JsonDec.string))
         (maybe (at [ "data" ] decodeSessionUser))
@@ -29,7 +29,7 @@ sendLogin login pwd =
         body =
             Http.jsonBody <| JsonEnc.object [ ( "login", JsonEnc.string login ), ( "password", JsonEnc.string pwd ) ]
     in
-    Http.post "http://localhost:3001/auth" body decodeAuthResponse
+    Http.post "http://localhost:3001/auth/token" body decodeAuthResponse
         |> RemoteData.sendRequest
         |> Cmd.map LoginResponse
 
@@ -59,6 +59,6 @@ sendFastNewUser username fname lname email pwd repwd =
                     , ( "rePassword", JsonEnc.string repwd )
                     ]
     in
-    Http.post "http://localhost:3001/auth/newfast" body (decodeApiResponse Nothing)
+    Http.post "http://localhost:3001/auth/new" body (decodeApiResponse Nothing)
         |> RemoteData.sendRequest
         |> Cmd.map NewUserResponse

@@ -37,7 +37,7 @@ updateConnexion msg route =
         SessionUserResponse token response ->
             case Debug.log "sessionUserResponse" response of
                 Ok rep ->
-                    case ( rep.status == "success", rep.data ) of
+                    case ( rep.status, rep.data ) of
                         ( True, Just u ) ->
                             let
                                 session =
@@ -54,9 +54,6 @@ updateConnexion msg route =
                                     case route of
                                         UsersRoute a ->
                                             ( model, Cmd.batch <| Navigation.newUrl ("/#/users/" ++ a) :: cmds )
-
-                                        UserRoute a ->
-                                            ( model, Cmd.batch <| Navigation.newUrl ("/#/user/" ++ a) :: cmds )
 
                                         AccountRoute ->
                                             ( model, Cmd.batch <| Navigation.newUrl "/#/account" :: cmds )
@@ -96,7 +93,7 @@ updateConnexion msg route =
         LoginResponse response ->
             case Debug.log "login" response of
                 Success rep ->
-                    case ( rep.status == "success", rep.token, rep.user ) of
+                    case ( rep.status, rep.token, rep.user ) of
                         ( True, Just t, Just user ) ->
                             ( Connexion (UsersRoute "all")
                             , Cmd.batch [ getSessionUser t, storeToken [ t ] ]

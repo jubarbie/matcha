@@ -30,6 +30,8 @@ type Msg
     | ReqTagResponse (Result Http.Error (ApiResponse (Maybe (List String))))
     | NoDataApiResponse (Result Http.Error (ApiResponse (Maybe String)))
     | Logout
+    | ShowUser String
+    | UnshowAll
     | OnLocationChange Location
     | SaveToken (List String)
     | SetNewLocalisation (List Float)

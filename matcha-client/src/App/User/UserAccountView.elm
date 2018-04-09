@@ -1,4 +1,4 @@
-module App.User.UserAccountView exposing (view, viewChangePwd, viewEditAccount)
+module App.User.UserAccountView exposing (view, viewChangePwd, viewDateOfBirthInput, viewEditAccount, viewEditAccountForm, viewGenderForm, viewImages, viewIntInForm, viewTagSection)
 
 import App.AppModels exposing (..)
 import App.User.UserModel exposing (..)
@@ -80,15 +80,13 @@ viewLocalisation =
 viewImages : AppModel -> SessionUser -> Html Msg
 viewImages model user =
     div [ class "row gallery" ]
-        [ hr [] []
-        , h2 [] [ text "Photos" ]
-        , if List.length user.photos > 0 then
+        [ if List.length user.photos > 0 then
             Html.ul [ class "img-account-list" ] <|
                 List.map
                     (\( id_, s ) ->
                         li []
                             [ div [ style [ ( "background", "url(" ++ s ++ ") center center no-repeat" ) ], class "img-box" ]
-                                [ button [ class "del", onClick <| DeleteImg id_ ] [ icon "fas fa-times" ]
+                                [ button [ class "del", onClickCustom True False (DeleteImg id_) ] [ icon "fas fa-times" ]
                                 ]
                             ]
                     )
@@ -139,12 +137,12 @@ viewImagePreview image =
 
 viewTagSection : AppModel -> SessionUser -> Html Msg
 viewTagSection model user =
-    div [] <|
+    div [ class "tag-section" ] <|
         List.map
             (\t ->
                 div [ class "tag dismissable" ]
                     [ text t
-                    , div [ class "del pointer", onClick <| RemoveTag t ] [ icon "fas fa-times" ]
+                    , div [ class "del pointer", onClickCustom False True (RemoveTag t) ] [ icon "fas fa-times" ]
                     ]
             )
             (List.sort user.tags)
@@ -157,10 +155,10 @@ viewTagForm model =
         [ Html.form []
             [ input [ type_ "text", onInput SearchTag, value model.tagInput ] []
             , button
-                [ onWithOptions "click" { preventDefault = True, stopPropagation = False } (JD.succeed AddNewTag), type_ "submit" ]
-                [ text "Add" ]
+                [ class "btn-no-style", onClickCustom False True AddNewTag, type_ "submit" ]
+                [ text "+" ]
             , Html.ul [ class "search-list" ] <|
-                List.map (\i -> li [ onClick <| AddTag i, class "pointer" ] [ text i ]) model.searchTag
+                List.map (\i -> li [ onClickCustom False True (AddTag i), class "pointer" ] [ text i ]) model.searchTag
             ]
         ]
 
@@ -185,7 +183,7 @@ viewGenderForm gender =
             [ label
                 [ for "gmale"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if gender == Just M then
                                 " active"
                             else
@@ -198,7 +196,7 @@ viewGenderForm gender =
                     [ name "gender"
                     , type_ "radio"
                     , id "gmale"
-                    , onClick <| UpdateGender M
+                    , onClickCustom False True (UpdateGender M)
                     , checked (gender == Just M)
                     ]
                     []
@@ -206,7 +204,7 @@ viewGenderForm gender =
             , label
                 [ for "gfemale"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if gender == Just F then
                                 " active"
                             else
@@ -219,7 +217,7 @@ viewGenderForm gender =
                     [ name "gender"
                     , type_ "radio"
                     , id "gfemale"
-                    , onClick <| UpdateGender F
+                    , onClickCustom False True (UpdateGender F)
                     , checked (gender == Just F)
                     ]
                     []
@@ -227,20 +225,20 @@ viewGenderForm gender =
             , label
                 [ for "gnb"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if gender == Just NB then
                                 " active"
                             else
                                 ""
                            )
                 ]
-                [ text "Non binary "
+                [ text "Non-binary "
                 , i [ class "fas fa-transgender-alt" ] []
                 , input
                     [ name "gender"
                     , type_ "radio"
                     , id "gnb"
-                    , onClick <| UpdateGender NB
+                    , onClickCustom False True (UpdateGender NB)
                     , checked (gender == Just NB)
                     ]
                     []
@@ -248,7 +246,7 @@ viewGenderForm gender =
             , label
                 [ for "go"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if gender == Just O then
                                 " active"
                             else
@@ -261,7 +259,7 @@ viewGenderForm gender =
                     [ name "gender"
                     , type_ "radio"
                     , id "go"
-                    , onClick <| UpdateGender O
+                    , onClickCustom False True (UpdateGender O)
                     , checked (gender == Just O)
                     ]
                     []
@@ -278,7 +276,7 @@ viewIntInForm intIn =
             [ label
                 [ for "imale"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if List.member M intIn then
                                 " active"
                             else
@@ -291,7 +289,7 @@ viewIntInForm intIn =
                     [ name "intIn"
                     , type_ "checkbox"
                     , id "imale"
-                    , onClick <| UpdateIntIn M
+                    , onClickCustom False True (UpdateIntIn M)
                     , checked <| List.member M intIn
                     ]
                     []
@@ -299,7 +297,7 @@ viewIntInForm intIn =
             , label
                 [ for "ifemale"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if List.member F intIn then
                                 " active"
                             else
@@ -312,7 +310,7 @@ viewIntInForm intIn =
                     [ name "intIn"
                     , type_ "checkbox"
                     , id "ifemale"
-                    , onClick <| UpdateIntIn F
+                    , onClickCustom False True (UpdateIntIn F)
                     , checked <| List.member F intIn
                     ]
                     []
@@ -320,20 +318,20 @@ viewIntInForm intIn =
             , label
                 [ for "inb"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if List.member NB intIn then
                                 " active"
                             else
                                 ""
                            )
                 ]
-                [ text "Non binaries "
+                [ text "Non-binaries "
                 , i [ class "fas fa-transgender-alt" ] []
                 , input
                     [ name "intIn"
                     , type_ "checkbox"
                     , id "inb"
-                    , onClick <| UpdateIntIn NB
+                    , onClickCustom False True (UpdateIntIn NB)
                     , checked <| List.member NB intIn
                     ]
                     []
@@ -341,7 +339,7 @@ viewIntInForm intIn =
             , label
                 [ for "io"
                 , class <|
-                    "gender-btn six columns"
+                    "gender-btn three columns"
                         ++ (if List.member O intIn then
                                 " active"
                             else
@@ -354,7 +352,7 @@ viewIntInForm intIn =
                     [ name "intIn"
                     , type_ "checkbox"
                     , id "io"
-                    , onClick <| UpdateIntIn O
+                    , onClickCustom False True (UpdateIntIn O)
                     , checked <| List.member O intIn
                     ]
                     []
@@ -369,23 +367,15 @@ viewEditAccountForm accountForm user =
         [ h1 [] [ text <| "Edit account" ]
         , Html.form [] <|
             List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
-                ++ [ viewDateOfBirthInput user
-                   , viewGenderForm user.gender
-                   , viewIntInForm user.intIn
-                   , input
-                        [ onWithOptions
-                            "click"
-                            { preventDefault = True
-                            , stopPropagation = False
-                            }
-                            (JD.succeed SaveAccountUpdates)
+                ++ [ input
+                        [ onClickCustom True True SaveAccountUpdates
                         , class "important-font"
                         , type_ "submit"
                         , value "SAVE"
                         ]
                         []
                    ]
-        , a [ href "/#/account" ] [ text "Cancel" ]
+        , a [ onClick <| GoBack 1 ] [ text "Cancel" ]
         ]
 
 
@@ -401,17 +391,12 @@ viewEditPwdForm formm =
         , Html.form [] <|
             List.map (\i -> viewInput (UpdateEditPwdForm i.id) i) formm
                 ++ [ input
-                        [ onWithOptions
-                            "click"
-                            { preventDefault = True
-                            , stopPropagation = False
-                            }
-                            (JD.succeed ChangePwd)
+                        [ onClickCustom True True ChangePwd
                         , class "important-font"
                         , type_ "submit"
                         , value "CHANGE PASSWORD"
                         ]
                         []
                    ]
-        , a [ href "/#/account" ] [ text "Cancel" ]
+        , a [ onClick <| GoBack 1 ] [ text "Cancel" ]
         ]

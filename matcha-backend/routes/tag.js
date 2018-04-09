@@ -19,19 +19,19 @@ router.post('/search', (req, res, next) => {
                     });
                 }
                 res.json({
-                    "status": "success",
+                    "status": true,
                     "data": tags
                 });
             } else {
                 res.json({
-                    "status": "error",
+                    "status": false,
                     "msg": "problem in request"
                 });
             }
         });
     } else {
         res.json({
-            "status": "error",
+            "status": false,
             "msg": "Missing search"
         });
     }
@@ -55,13 +55,13 @@ router.post('/add', (req, res, next) => {
                         }
                         console.log(tags);
                         res.json({
-                            "status": "success",
+                            "status": true,
                             "data": tags
                         });
                     } else {
                         console.log(err);
                         res.json({
-                            "status": "error",
+                            "status": false,
                             "msg": "Missing search"
                         });
                     }
@@ -69,14 +69,14 @@ router.post('/add', (req, res, next) => {
             } else {
                 console.log(err);
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         console.log("oup");
         res.json({
-            "status": "error",
+            "status": false,
             "msg": "Missing args"
         });
     }
@@ -101,13 +101,13 @@ router.post('/remove', (req, res, next) => {
                         }
                         console.log(tags);
                         res.json({
-                            "status": "success",
+                            "status": true,
                             "data": tags
                         });
                     } else {
                         console.log(err);
                         res.json({
-                            "status": "error",
+                            "status": false,
                             "msg": "Missing search"
                         });
                     }
@@ -115,14 +115,14 @@ router.post('/remove', (req, res, next) => {
             } else {
                 console.log(err);
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         console.log("oup");
         res.json({
-            "status": "error",
+            "status": false,
             "msg": "Missing args"
         });
     }

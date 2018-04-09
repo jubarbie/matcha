@@ -15,16 +15,15 @@ import Msgs exposing (..)
 import Utils exposing (..)
 
 
-view : String -> Session -> AppModel -> UsersModel -> List (Html Msg)
+view : String -> Session -> AppModel -> UsersModel -> Html Msg
 view username session appModel model =
     let
         view =
             case findUserByName username model.users of
                 Just user ->
-                    [ userImagesView user
+                    [ userImagesView user session
                     , div [ class "user-infos" ]
                         [ userNameView user
-                        , userButtonsView session user
                         , userTagsView user session
                         , userBioView user
                         , userReportView user.username
@@ -36,11 +35,7 @@ view username session appModel model =
                 _ ->
                     [ div [ class "user-infos" ] [ text <| "No user with name " ++ username ] ]
     in
-    [ div [ id "on-top", onClick <| GoBack 1 ]
-        [ div [ class "container" ]
-            [ div [ class "user-box appear" ] view ]
-        ]
-    ]
+    div [ class "user-box appear" ] view
 
 
 userButtonsView : Session -> User -> Html Msg
@@ -231,8 +226,8 @@ userTagsView user s =
             (List.sort user.tags)
 
 
-userImagesView : User -> Html Msg
-userImagesView user =
+userImagesView : User -> Session -> Html Msg
+userImagesView user session =
     let
         imgSrc =
             case List.head user.photos of
@@ -244,6 +239,7 @@ userImagesView user =
     in
     div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ] <|
         galleryButtonView user.photos user
+            ++ [ userButtonsView session user ]
 
 
 galleryButtonView : List String -> User -> List (Html Msg)

@@ -6,48 +6,46 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Keyed exposing (..)
 import Json.Decode
-import Models exposing (..)
 import Login.LoginModels exposing (..)
+import Models exposing (..)
 import Msgs exposing (..)
+import Utils exposing (..)
 
 
 view : LoginRoutes -> LoginModel -> Html Msg
 view route model =
-  let
-    view =
-    case route of
-      LoginRoute ->
-        viewLoginForm model
+    let
+        view =
+            case route of
+                LoginRoute ->
+                    viewLoginForm model
 
-      SigninRoute ->
-        Html.Keyed.node "sign" [] [ ( "div", viewNewUserForm model ) ]
+                SigninRoute ->
+                    Html.Keyed.node "sign" [] [ ( "div", viewNewUserForm model ) ]
 
-      ResetPwdRoute ->
-        Html.Keyed.node "rest" [] [ ( "div", viewResetPwdForm model ) ]
+                ResetPwdRoute ->
+                    Html.Keyed.node "rest" [] [ ( "div", viewResetPwdForm model ) ]
 
-      NotFoundLoginRoute ->
-        view404
-   in
+                NotFoundLoginRoute ->
+                    view404
+    in
     div [ class "layout-column center" ]
         [ img [ src "http://localhost:3001/images/DARKROOM_logo.svg", alt "DARKROOM" ] []
         , view
         ]
 
+
 view404 : Html Msg
 view404 =
-  div [][ text "404 not found" ]
+    div [] [ text "404 not found" ]
+
 
 viewLoginForm : LoginModel -> Html Msg
 viewLoginForm model =
     Html.form [] <|
         List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
             ++ [ input
-                    [ onWithOptions
-                        "click"
-                        { preventDefault = True
-                        , stopPropagation = False
-                        }
-                        (Json.Decode.succeed SendLogin)
+                    [ onClickCustom True False SendLogin
                     , class "important-font"
                     , type_ "submit"
                     , value "ENTER"
@@ -62,9 +60,15 @@ viewLoginForm model =
 
 viewNewUserForm : LoginModel -> Html Msg
 viewNewUserForm model =
-    div [] <|
+    Html.form [] <|
         List.map (\i -> viewInput (UpdateNewUserForm i.id) i) model.newUserForm
-            ++ [ div [ onClick NewUser, class "important-font" ] [ text "Sign in" ]
+            ++ [ input
+                    [ onClickCustom True False NewUser
+                    , class "important-font"
+                    , type_ "submit"
+                    , value "SIGN IN"
+                    ]
+                    []
                , div [ class "row" ]
                     [ div [ class "twelve columns" ]
                         [ a [ href "#/login" ] [ text "I already have an account" ] ]
@@ -90,6 +94,6 @@ viewResetPwdForm model =
                         , value "Reset my password"
                         ]
                         []
-                        ]
+                   ]
         , a [ href "#/login" ] [ text "Login page" ]
         ]

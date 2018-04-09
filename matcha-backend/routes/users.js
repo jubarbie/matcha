@@ -26,12 +26,12 @@ router.get('/relevant_users', (req, res, next) => {
     UserCtrl.getRelevantUsers(logged, function(users) {
         if (users) {
             res.json({
-                "status": "success",
+                "status": true,
                 "data": users
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "A problem occur while fetching users"
             });
         }
@@ -55,12 +55,12 @@ router.post('/search', (req, res, next) => {
         console.log(users);
         if (users) {
             res.json({
-                "status": "success",
+                "status": true,
                 "data": users
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "A problem occur while fetching users"
             });
         }
@@ -79,12 +79,12 @@ router.get('/visitors', (req, res, next) => {
         if (users) {
             VisitsModel.updateVisitLast(logged.login, now);
             res.json({
-                "status": "success",
+                "status": true,
                 "data": users
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "A problem occur while fetching users"
             });
         }
@@ -102,12 +102,12 @@ router.get('/likers', (req, res, next) => {
         if (users) {
             LikesModel.updateLikeLast(logged.login, now);
             res.json({
-                "status": "success",
+                "status": true,
                 "data": users
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "A problem occur while fetching users"
             });
         }
@@ -126,12 +126,12 @@ router.get('/matchers', (req, res, next) => {
             LikesModel.updateLikeLast(logged.login, now);
             console.log(users);
             res.json({
-                "status": "success",
+                "status": true,
                 "data": users
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "A problem occur while fetching users"
             });
         }
@@ -158,12 +158,12 @@ router.get('/connected_user', (req, res, next) => {
         if (user) {
             console.log(user);
             res.json({
-                "status": "success",
+                "status": true,
                 "data": user
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "User " + logged.login + " doesn't exists"
             });
         }
@@ -179,7 +179,7 @@ router.get('/disconnect', (req, res, next) => {
     var now = Date.now();
     UsersModel.updateConnectionDate(logged.id, now, null, (err, rows, fields) => {
         res.json({
-            "status": "success",
+            "status": true,
         });
     });
 
@@ -189,12 +189,12 @@ function sendUser(logged, login, res) {
     UserCtrl.getFullUser(logged, login, function(user) {
         if (user) {
             res.json({
-                "status": "success",
+                "status": true,
                 "data": user
             });
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "Error when fetching user"
             });
         }
@@ -215,7 +215,7 @@ router.post('/toggle_like', (req, res, next) => {
                         sendUser(logged, username, res);
                     } else {
                         res.json({
-                            "status": "error"
+                            "status": false
                         });
                     }
                 });
@@ -226,7 +226,7 @@ router.post('/toggle_like', (req, res, next) => {
                         sendUser(logged, username, res)
                     } else {
                         res.json({
-                            "status": "error"
+                            "status": false
                         });
                     }
                 });
@@ -234,7 +234,7 @@ router.post('/toggle_like', (req, res, next) => {
         });
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 });
@@ -250,17 +250,17 @@ router.get('/report/:login', (req, res, next) => {
         ReportsModel.addReport(logged.login, username, now, function(err, rows, fields) {
             if (rows) {
                 res.json({
-                    "status": "success"
+                    "status": true
                 });
             } else {
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 });
@@ -276,17 +276,17 @@ router.get('/block/:login', (req, res, next) => {
         ReportsModel.addBlock(logged.login, username, now, function(err, rows, fields) {
             if (rows) {
                 res.json({
-                    "status": "success"
+                    "status": true
                 });
             } else {
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 });
@@ -301,17 +301,17 @@ router.post('/update', (req, res, next) => {
         UsersModel.updateInfos(logged.login, valid.data, "activated", function(err, rows, fields) {
             if (rows && !err) {
                 res.json({
-                    "status": "success"
+                    "status": true
                 });
             } else {
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         res.json({
-            "status": "error",
+            "status": false,
             "msg": "invalid form"
         })
     }
@@ -326,7 +326,7 @@ router.post('/update_gender', (req, res, next) => {
     if (logged) {
         if (!gender || !genders.includes(gender)) {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "invalid form"
             });
         } else {
@@ -335,18 +335,18 @@ router.post('/update_gender', (req, res, next) => {
                     UserCtrl.getConnectedUser(logged.login, (user) => {
                         if (user) {
                             res.json({
-                                "status": "success",
+                                "status": true,
                                 "data": user
                             });
                         } else {
                             res.json({
-                                "status": "error"
+                                "status": false
                             });
                         }
                     });
                 } else {
                     res.json({
-                        "status": "error"
+                        "status": false
                     });
                 }
             });
@@ -363,7 +363,7 @@ router.post('/update_int_in', (req, res, next) => {
     if (logged) {
         if (!(int_in && int_in.reduce((a, c) => a & genders.includes(c), true))) {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "invalid form"
             });
         } else {
@@ -375,7 +375,7 @@ router.post('/update_int_in', (req, res, next) => {
                     sendConnectedUser(logged, res);
                 } else {
                     res.json({
-                        "status": "error"
+                        "status": false
                     });
                 }
             });
@@ -387,12 +387,12 @@ function sendConnectedUser(logged, res) {
     UserCtrl.getConnectedUser(logged.login, (user) => {
         if (user) {
             res.json({
-                "status": "success",
+                "status": true,
                 "data": user
             });
         } else {
             res.json({
-                "status": "error"
+                "status": false
             });
         }
     });
@@ -408,7 +408,7 @@ router.post('/change_password', (req, res, next) => {
     if (logged) {
         if (!(oldPwd && newPwd && newPwd.length > 5 && newPwd.match(/\d/))) {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "invalid form"
             });
         } else {
@@ -417,7 +417,7 @@ router.post('/change_password', (req, res, next) => {
                     var user = users[0];
                     if (bcrypt.compareSync(oldPwd, user.password) == false) {
                         res.json({
-                            "status": "error",
+                            "status": false,
                             "msg": "Incorrect password"
                         });
                     } else {
@@ -425,18 +425,18 @@ router.post('/change_password', (req, res, next) => {
                         UsersModel.updatePassword(logged.login, password, "activated", (err, rows, fields) => {
                             if (rows && !err) {
                                 res.json({
-                                    "status": "success"
+                                    "status": true
                                 });
                             } else {
                                 res.json({
-                                    "status": "error"
+                                    "status": false
                                 });
                             }
                         });
                     }
                 } else {
                     res.json({
-                        "status": "error"
+                        "status": false
                     });
                 }
             })
@@ -459,18 +459,18 @@ router.post('/save_loc', (req, res, next) => {
         UsersModel.updateLocation(logged.login, JSON.stringify(loc), (err, rows, fields) => {
             if (!err) {
                 res.json({
-                    "status": "success"
+                    "status": true
                 });
             } else {
                 console.log("error", err);
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 
@@ -498,42 +498,42 @@ router.post('/new_image', (req, res, next) => {
                                     UserCtrl.getConnectedUser(logged.login, (user) => {
                                         if (user) {
                                             res.json({
-                                                "status": "success",
+                                                "status": true,
                                                 "data": user
                                             });
                                         } else {
                                             res.json({
-                                                "status": "error"
+                                                "status": false
                                             });
                                         }
                                     });
                                 } else {
                                     res.json({
-                                        "status": "error"
+                                        "status": false
                                     });
                                 }
                             });
                         } else {
                             res.json({
-                                "status": "error"
+                                "status": false
                             });
                         }
                     });
                 } else {
                     res.json({
-                        "status": "error",
+                        "status": false,
                         "msg": "Too many images"
                     });
                 }
             } else {
                 res.json({
-                    "status": "error"
+                    "status": false
                 });
             }
         });
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 
@@ -555,19 +555,19 @@ router.post('/del_image', (req, res, next) => {
                             UserCtrl.getConnectedUser(logged.login, (user) => {
                                 if (user) {
                                     res.json({
-                                        "status": "success",
+                                        "status": true,
                                         "data": user
                                     });
                                 } else {
                                     res.json({
-                                        "status": "error"
+                                        "status": false
                                     });
                                 }
                             });
                         });
                     } else {
                         res.json({
-                            "status": "error"
+                            "status": false
                         });
                     }
                 });
@@ -575,7 +575,7 @@ router.post('/del_image', (req, res, next) => {
         });
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 

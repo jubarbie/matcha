@@ -69,10 +69,6 @@ exports.validateUserInfos = (req) => {
         min: 1,
         max: 255
     }, errors);
-    infos.bio = required(data, 'bio', errors);
-    isLength(data, 'bio', {
-        min: 1
-    }, errors);
     return {
         data: infos,
         valid: (errors.length == 0),

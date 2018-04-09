@@ -1,27 +1,6 @@
 @import 'colors';
 
-#on-top {
-	.user-box .user-infos {
-		padding: 16px;
-	}
-	.user-btns {
-		button {
-			margin-right: 6px;
-		}
-	}
-	.tag {
-		padding: 0;
-		color: grey;
-		border: 0;
-		background: inherit;
-		height: inherit;
-		line-height: normal;
 
-		&.metoo {
-			color: $white;
-		}
-	}
-}
 
 #users-list {
 	padding-top: 56px;
@@ -56,50 +35,73 @@ ul.users-list {
 
   }
 }
+.user-card {
+	cursor: pointer;
+}
+.user-card, .user-box {
+	background: $grey-dark;
+	border-radius: 8px;
+	box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, .2);
+	.img-box {
+		background-size: cover !important;
+		width: 100%;
+		padding-bottom: 70%;
+		position: relative;
+		border-top-right-radius: 8px;
+		border-top-left-radius: 8px;
+	}
+	.user-infos {
+		padding: 8px;
+		h3 {
+			font-size: 1.4em;
+		}
+		.info-dist {
+			font-size: 0.8em;
+			color: $grey-light;
+			display: inline-block;
+			width: 50%;
+		}
+		.online-status {
+			display: inline-block;
+			font-size: 0.8em;
+			color: $grey-light;
+			width: 50%;
+			text-align: right;
 
+			&.on {
+				color: $green;
+			}
+		}
+	}
+	.like-btn {
+		padding: 0;
+		font-size: 2em;
+		border: 0;
+
+		&.liked {
+			color: $red;
+		}
+	}
+	.talk-btn {
+		padding: 0;
+		font-size: 2em;
+		border: 0;
+	}
+}
 .user-box {
-	 overflow-y: auto;
-	 position: relative;
-	 background: $grey-dark;
-	 border-radius: 8px;
-	 box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, .2);
-	 transition: all 0.5s ease;
-	 width: 100%;
-	 max-width: 580px;
-	 margin: 0 auto;
+	 position: fixed !important;
+	 top: 20px;
+	 left: 50%;
+	 margin-left: -260px;
+	 width: 580px;
+	 max-width: 100%;
+	 max-height: 90vh;
 
 	 &.appear {
-		  animation: userApparition 0.2s ease;
+		  animation: userApparition 0.1s ease;
 	 }
 	 .img-box {
-		 background-size: cover !important;
-		 width: 100%;
-		 padding-bottom: 70%;
-		 position: relative;
-
-		 .user-menu {
-			 position: absolute;
-			 top: 0;
-			 left: 0;
-			 width: 100%;
-			 height: 100%;
-			 bottom: 0;
-			 right: 0;
-			 background: rgba(0,0,0,0.4);
-			 opacity: 0;
-			 transition: all 0.2s ease;
-			 text-align: center;
-			 display: flex;
-			align-items: center;
-			justify-content: center;
-
-		 }
-		 .close {
-			 padding: 5px;
-			 font-size: 2em;
-			 border: 0;
-			 color: white;
-		 }
+		 box-shadow: inset 0 -10px 80px black;
 		 .gal-btn {
 				position: absolute;
 	 			 top: 0;
@@ -122,64 +124,47 @@ ul.users-list {
 		 }
 	 }
 	 .user-infos {
-		 padding: 8px;
+		 padding: 16px;
+ 		.tag {
+ 			padding: 0;
+ 			color: grey;
+ 			border: 0;
+ 			background: inherit;
+ 			height: inherit;
+ 			line-height: normal;
 
-		 h3 {
-			 font-size: 1.4em;
-		 }
+ 			&.metoo {
+ 				color: $white;
+ 			}
+ 		}
 		 .user-bio {
 			 margin: 10px 0;
+			 overflow-y: auto;
 			 color: $grey-light;
 			 font-size: 0.9em;
 			 text-align: justify;
 			 padding: 16px;
-		 }
-		 .info-dist {
-			 font-size: 0.8em;
-			 color: $grey-light;
-			 display: inline-block;
-			 width: 50%;
-		 }
-		 .online-status {
-			 display: inline-block;
-			 font-size: 0.8em;
-			 color: $grey-light;
-			 width: 50%;
-			 text-align: right;
-
-			 &.on {
-				 color: $green;
-			 }
+			 max-height: 100px;
 		 }
 	 }
+	 #profile-img img {
+ 	 width: 100%;
+ 	 margin: 0;
+ 	}
+	.user-btns {
+		position: absolute;
+		bottom: 0;
+		padding: 10px;
+		padding-bottom: 0;
+		width: 100%;
+		button {
+			margin-right: 6px;
+			margin-bottom: 0;
+		}
+	}
 
-	.user-link {
-	 position: absolute;
-	 width: 100%;
-	 height: 100%;
-	 top: 0;
-	 left: 0;
-	}
-	#profile-img img {
-	 width: 100%;
-	 margin: 0;
-	}
 }
 
-.like-btn {
-	padding: 0;
-	font-size: 2em;
-	border: 0;
-
-	&.liked {
-		color: $red;
-	}
-}
-.talk-btn {
-	padding: 0;
-	font-size: 2em;
-	border: 0;
-}
 
 .filter-menu {
 	position: fixed;
@@ -210,38 +195,59 @@ ul.users-list {
 		}
 	}
 }
+.tag-section {
+	input {
+		height: 24px;
+		border-radius: 12px;
+		font-size: 0.9em;
+		margin-top: 5px;
+	}
+	button {
+		background: $blue;
+		height: 24px !important;
+		width: 24px !important;
+		font-size: 0.9em;
+		line-height: 24px !important;
+		border-radius: 12px;
+		margin-left: -24px !important;
+		margin-top: 5px !important;
+		position: relative;
+		z-index: 20;
+		text-align: center !important;
+	}
+}
 
 .tag {
 	display: inline-block;
 	position: relative;
-	padding: 0 8px;
+	padding: 0 4px;
 	background: $grey-medium;
 	color: $grey-light;
 	border: 1px solid $grey-light;
 	margin-right: 8px;
-	border-radius: 14px;
-	font-size: 0.9em;
-	height: 26px;
-	line-height: 24px;
+	border-radius: 12px;
+	font-size: 0.7em;
+	line-height: normal;
 	font-size: 0.8em;
 
 	&.dismissable {
-		padding-right: 28px;
+		padding-right: 20px;
 	}
 	&.metoo {
 		color: white;
 	}
   .del {
 		position: absolute;
-		right: 2px;
-		top: 2px;
+		right: 0;
+		top: 0;
 		background: grey;
-		height: 20px;
-		width: 20px;
+		height: 18px;
+		width: 18px;
 		text-align: center;
 		color: $grey-medium;
-		border-radius: 10px;
-		line-height: 20px;
+		border-radius: 9px;
+		line-height: normal;
+		font-size: 1em;
   }
 }
 
@@ -257,9 +263,9 @@ ul.users-list {
 	margin: 0;
 
 	li {
-		width: 33.333%;
+		width: 50%;
 		display: inline-block;
-		padding: 10px;
+		padding: 0;
 		box-sizing: border-box;
 		margin: 0;
 
@@ -267,9 +273,8 @@ ul.users-list {
 		.img-box {
 			background-size: cover !important;
 	 		 width: 100%;
-	 		 padding-bottom: 66.66%;
+	 		 padding-bottom: 100%;
 	 		 position: relative;
-			 border-radius: 8px;
 
 			 .del {
 				 background: $red;
@@ -279,8 +284,10 @@ ul.users-list {
 				 width: 20px;
 				 color: white;
 				 border-radius: 10px;
-				 margin: 2px;
 				 border: 0;
+				 position: absolute;
+				 top: 10px;
+				 right: 10px;
 			 }
 		}
 	}
@@ -288,7 +295,7 @@ ul.users-list {
 
 
 .gender-btn {
-  font-size: 2em;
+  font-size: 1em;
 	color: $grey-light;
 
 	&.active {
@@ -402,15 +409,32 @@ ul.users-list {
   	ul.users-list li {
   		width: 50%;
     }
+
 		#users-list {
 			padding-top: 100px;
 		}
 		.xs-no-flex {
 			display: block !important;
 		}
-  }
+		.user-box {
+    		margin-left: -290px;
+    	}
+
+}
+@media screen and (max-width: 580px) {
+	  .user-box {
+  		left: 0;
+  		margin-left: 0;
+		.user-infos, .user-bio {
+			padding: 5px !important;
+		}
+  	}
+
+}
+
 @media screen and (max-width: 480px) {
   	ul.users-list li {
   		width: 100%;
     }
+
   }

@@ -3,6 +3,7 @@ module App.User.UserModel exposing (..)
 
 type alias UsersModel =
     { users : Users
+    , currentUser : Maybe String
     , userFilter : List FilterUsers
     , userSort : SortUsers
     , orderSort : OrderSort
@@ -108,6 +109,7 @@ type UserStatus
 
 initialUsersModel =
     { users = []
+    , currentUser = Nothing
     , userFilter = []
     , userSort = S_Afin
     , orderSort = ASC

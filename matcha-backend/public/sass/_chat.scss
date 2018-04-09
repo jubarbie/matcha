@@ -192,10 +192,9 @@
 	 	z-index: 200;
 		background: $grey-dark;
 		text-align: left;
+		left: 60px;
+		animation-duration: 0.2s;
  }
-.talks-expand #talks-list {
-	left: 60px;
-}
 ul.talk-list {
 	list-style-type: none;
 
@@ -220,7 +219,7 @@ ul.talk-list {
 	#current-talk{
 		bottom: 58px;
 	}
-	.talks-expand #talks-list {
+	#talks-list {
 		left: 0px;
 	}
 }

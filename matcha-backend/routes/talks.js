@@ -18,13 +18,13 @@ router.get('/all_talks', function(req, res, next) {
                 return talk;
             });
             res.json({
-                "status": "success",
+                "status": true,
                 "data": talks
             });
         });
     } else {
         res.json({
-            "status": "error",
+            "status": false,
             "msg": "Missing login"
         });
     }
@@ -49,7 +49,7 @@ router.post('/talk/:login', function(req, res, next) {
                 TalkModel.getTalkMessages(talks[0].id, userNb, function(err, mess, fields) {
                     TalkModel.getUnseenMessagesForTalk(talks[0].id, userNb, function(err, num, fields) {
                         res.json({
-                            "status": "success",
+                            "status": true,
                             "data": {
                                 "username": userTo,
                                 "messages": mess,
@@ -65,7 +65,7 @@ router.post('/talk/:login', function(req, res, next) {
                     if (rows.length > 0) {
                         TalkModel.newTalk(usersTab[0], usersTab[1], now, function(err, rows, fields) {
                             res.json({
-                                "status": "success",
+                                "status": true,
                                 "data": {
                                     "username": userTo,
                                     "messages": [],
@@ -76,7 +76,7 @@ router.post('/talk/:login', function(req, res, next) {
                         });
                     } else {
                         res.json({
-                            "status": "error",
+                            "status": false,
                             "msg": "Unknown user"
                         });
                     }
@@ -86,7 +86,7 @@ router.post('/talk/:login', function(req, res, next) {
 
     } else {
         res.json({
-            "status": "error"
+            "status": false
         });
     }
 });
@@ -109,12 +109,12 @@ router.post('/new_message', function(req, res, next) {
                     TalkModel.getTalkMessages(talkId, function(err, mess, fields) {
                         if (mess.length > 0) {
                             res.json({
-                                "status": "success",
+                                "status": true,
                                 "data": mess
                             });
                         } else {
                             res.json({
-                                "status": "error",
+                                "status": false,
                                 "msg": "Problem to get messages"
                             });
                         }
@@ -122,14 +122,14 @@ router.post('/new_message', function(req, res, next) {
                 });
             } else {
                 res.json({
-                    "status": "error",
+                    "status": false,
                     "msg": "No talks found with those 2 users"
                 });
             }
         });
     } else {
         res.json({
-            "status": "error",
+            "status": false,
             "msg": "Missing arguments"
         });
     }

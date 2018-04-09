@@ -191,8 +191,8 @@ exports.getTokenFromLogin = (login, cb) =>
 
 exports.insertUser = (user, date, cb) =>
     connection.query('\
-		INSERT INTO user (login, email, fname, lname, password, gender, bio, activated, rights, created_on, last_connection) \
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)', [user.login, user.email, user.fname, user.lname, user.password, user.gender, user.bio, user.activated, user.rights, date], cb);
+		INSERT INTO user (login, email, fname, lname, password, activated, rights, created_on, last_connection) \
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)', [user.login, user.email, user.fname, user.lname, user.password, user.activated, user.rights, date], cb);
 
 exports.updateInfos = (login, infos, activated, cb) =>
     connection.query('\

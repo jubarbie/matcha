@@ -52,10 +52,10 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case ( rep.status, rep.message ) of
-                        ( "success", _ ) ->
-                            ( updateAlertMsg "The password was succefully updated" model, Navigation.newUrl "/#/account" )
+                        ( True, _ ) ->
+                            ( updateAlertMsg "The password was succefully updated" model, Navigation.newUrl "/#/users/all" )
 
-                        ( "error", Just msg ) ->
+                        ( False, Just msg ) ->
                             ( updateAlertMsg msg model, Cmd.none )
 
                         _ ->
@@ -68,7 +68,7 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case ( rep.status, rep.data ) of
-                        ( "success", Just d ) ->
+                        ( True, Just d ) ->
                             let
                                 u =
                                     session.user
@@ -91,7 +91,7 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case ( rep.status, rep.data ) of
-                        ( "success", Just d ) ->
+                        ( True, Just d ) ->
                             ( updateAppModel { appModel | searchTag = d } model, Cmd.none )
 
                         _ ->
@@ -104,10 +104,19 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case ( rep.status, rep.data, rep.message ) of
-                        ( "success", Just u, _ ) ->
-                            ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, Cmd.none )
+                        ( True, Just u, _ ) ->
+                            let
+                                cmd =
+                                    case route of
+                                        UsersRoute a ->
+                                            getRelevantUsers a session.token
 
-                        ( "error", _, Just msg ) ->
+                                        _ ->
+                                            Cmd.none
+                            in
+                            ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, cmd )
+
+                        ( False, _, Just msg ) ->
                             ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
 
                         _ ->
@@ -123,13 +132,13 @@ updateApp msg route session appModel usersModel talksModel =
             case Debug.log "res" response of
                 Ok rep ->
                     case ( rep.status, rep.data, rep.message ) of
-                        ( "success", Just d, _ ) ->
+                        ( True, Just d, _ ) ->
                             if d == [] then
                                 ( updateAlertMsg "No users found" model, Cmd.none )
                             else
                                 ( Connected route session { appModel | message = Nothing } (updateUsers usersModel d) talksModel, Cmd.none )
 
-                        ( "error", _, Just msg ) ->
+                        ( False, _, Just msg ) ->
                             ( updateAlertMsg "Server error" model, Cmd.none )
 
                         _ ->
@@ -145,7 +154,7 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case rep.status of
-                        "success" ->
+                        True ->
                             let
                                 user =
                                     session.user
@@ -167,7 +176,7 @@ updateApp msg route session appModel usersModel talksModel =
         GetTalksResponse response ->
             case response of
                 Ok rep ->
-                    case ( rep.status == "success", rep.data ) of
+                    case ( rep.status, rep.data ) of
                         ( True, Just talks ) ->
                             ( Connected route session appModel usersModel { talksModel | talks = talks }, List.map (\t -> getTalk t.username_with (talksModel.currentTalk == Just t.username_with) session.token) talks |> Cmd.batch )
 
@@ -181,7 +190,7 @@ updateApp msg route session appModel usersModel talksModel =
             case response of
                 Ok rep ->
                     case ( rep.status, appModel.current_location ) of
-                        ( "success", Just l ) ->
+                        ( True, Just l ) ->
                             let
                                 user =
                                     session.user
@@ -222,9 +231,6 @@ updateApp msg route session appModel usersModel talksModel =
                     in
                     ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
 
-                UserRoute a ->
-                    ( Connected newRoute session newModel usersModel talksModel, Cmd.batch [ sendVisitNotif session.token a, getUser a session.token ] )
-
                 SearchRoute ->
                     ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
@@ -245,6 +251,19 @@ updateApp msg route session appModel usersModel talksModel =
 
         ToggleLike username ->
             ( model, toggleLike username session.token )
+
+        ShowUser username ->
+            ( Connected route session { appModel | showTalksList = False, showAccountMenu = False } { usersModel | currentUser = Just username } talksModel, Cmd.batch [ sendVisitNotif session.token username, getUser username session.token ] )
+
+        UnshowAll ->
+            let
+                curU =
+                    if appModel.showTalksList || appModel.showAccountMenu then
+                        usersModel.currentUser
+                    else
+                        Nothing
+            in
+            ( Connected route session { appModel | showTalksList = False, showAccountMenu = False } { usersModel | currentUser = curU } talksModel, Cmd.none )
 
         UpdateNewMessage msg ->
             case talksModel.currentTalk of
@@ -309,8 +328,8 @@ updateApp msg route session appModel usersModel talksModel =
                 Success locapi ->
                     let
                         loc =
-                            case ( locapi.status, locapi.lon, locapi.lat ) of
-                                ( "success", Just lo, Just la ) ->
+                            case ( locapi.status == "success", locapi.lon, locapi.lat ) of
+                                ( True, Just lo, Just la ) ->
                                     Just <| Localisation lo la
 
                                 _ ->
@@ -590,7 +609,7 @@ updateApp msg route session appModel usersModel talksModel =
             ( updateTalksModel { talksModel | currentTalk = Nothing } model, Cmd.none )
 
         ToggleTalksList ->
-            ( updateAppModel { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } model, Cmd.none )
+            ( Connected route session { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } usersModel talksModel, Cmd.none )
 
         ReportUser user ->
             ( model, reportUser user session.token )
@@ -716,10 +735,10 @@ handleApiResponse response updateData successUpdate errorMsg cmd model =
     case response of
         Ok rep ->
             case ( rep.status, rep.data, rep.message ) of
-                ( "success", Just d, _ ) ->
+                ( True, Just d, _ ) ->
                     ( successUpdate (updateData d) model, cmd )
 
-                ( "error", _, Just msg ) ->
+                ( False, _, Just msg ) ->
                     ( updateAlertMsg msg model, Cmd.none )
 
                 _ ->

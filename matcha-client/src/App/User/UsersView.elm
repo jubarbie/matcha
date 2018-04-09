@@ -43,10 +43,10 @@ searchView route session appModel model =
                     , locSearchView appModel.search
                     ]
                 , tagsSearchView session appModel
-                , button [ onClick ResetSearch, class "btn-no-style" ] [ text "Reset" ]
                 ]
             , button [ onClick AdvanceSearch ] [ text "Search" ]
             ]
+        , div [ class "center " ] [ button [ onClick ResetSearch, class "btn-no-style" ] [ text "Reset" ] ]
         ]
     else
         [ div []
@@ -378,10 +378,9 @@ cardUserView user i session model =
     Html.Keyed.node (String.filter Char.isLower user.username)
         []
         [ ( "div"
-          , div [ class <| "user-box animated fadeInUp", style [ ( "animation-delay", toString (toFloat i / 10) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
+          , div [ onClick <| ShowUser user.username, class <| "user-card animated fadeInUp", style [ ( "animation-delay", toString (toFloat i / 15) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
                 [ userImageView user session model
                 , userInfosView user model
-                , a [ href <| "http://localhost:3000/#/user/" ++ user.username, class "user-link" ] []
                 ]
           )
         ]
@@ -407,6 +406,4 @@ userImageView user session model =
                     "http://profile.actionsprout.com/default.jpeg"
     in
     div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ]
-        [ div [ class "user-menu" ]
-            [ userLikeButtonView session user ]
-        ]
+        []

@@ -48,19 +48,3 @@
 		}
 	}
 }
-
-.gallery {
-	.img-box {
-		display: inline-block;
-		width: 33.333%;
-		height: 0;
-		padding-top: 30%;
-		position: relative;
-		background-size: cover !important;
-		.del {
-			position: absolute;
-			top: 0;
-			right: 0;
-		}
-	}
-}

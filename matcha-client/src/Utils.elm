@@ -4,6 +4,7 @@ import App.User.UserModel exposing (..)
 import Date
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onWithOptions)
 import Html.Keyed exposing (..)
 import Http
 import Json.Decode exposing (..)
@@ -107,3 +108,8 @@ genderToIcon g =
 
         _ ->
             span [] []
+
+
+onClickCustom : Bool -> Bool -> msg -> Attribute msg
+onClickCustom pd sp msg =
+    onWithOptions "click" { preventDefault = pd, stopPropagation = sp } (Json.Decode.succeed msg)

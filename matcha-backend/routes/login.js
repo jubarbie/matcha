@@ -1,24 +1,18 @@
 const express = require('express');
 const apiRoutes = express.Router();
-const {
-    check,
-    validationResult
-} = require('express-validator/check');
-const {
-    matchedData
-} = require('express-validator/filter');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const saltRounds = 10;
 const config = require('../config');
 const jwt = require('jsonwebtoken');
 const Mailer = require('../middlewares/mailer');
+const validation = require('../middlewares/validation.js');
 const UserCtrl = require('../controllers/user_ctrl.js');
 const UsersModel = require('../models/users_model.js');
 const ImageModel = require('../models/image_model');
 const uuidv1 = require('uuid/v1');
 
-apiRoutes.post('/', (req, res, next) => {
+apiRoutes.post('/token', (req, res, next) => {
 
     var login = req.body.login;
     var pwd = req.body.password;
@@ -27,12 +21,12 @@ apiRoutes.post('/', (req, res, next) => {
         if (user) {
             if (bcrypt.compareSync(pwd, user.password) == false) {
                 res.json({
-                    "status": "error",
+                    "status": false,
                     "msg": "Incorrect login or password"
                 });
             } else if (user.activated != "activated" && user.activated != "incomplete" && user.activated != "resetpwd") {
                 res.json({
-                    "status": "error",
+                    "status": false,
                     "msg": "You must activate your email first"
                 });
             } else {
@@ -46,7 +40,7 @@ apiRoutes.post('/', (req, res, next) => {
                 console.log(user);
                 UsersModel.updateConnectionDate(user.id, now, uuid, (err, rows, fields) => {
                     res.json({
-                        "status": "success",
+                        "status": true,
                         "token": token,
                         "data": user
                     });
@@ -54,7 +48,7 @@ apiRoutes.post('/', (req, res, next) => {
             }
         } else {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "Incorrect login or password"
             });
         }
@@ -67,56 +61,50 @@ var buildUserFromRequest = function(req) {
     user.email = req.body.email;
     user.fname = req.body.fname;
     user.lname = req.body.lname;
-    user.gender = (req.body.gender) ? req.body.gender : "";
-    user.int_in = (req.body.int_in) ? req.body.int_in : "";
-    user.bio = (req.body.bio) ? req.body.bio : "";
     user.password = bcrypt.hashSync(req.body.password, saltRounds);
     user.activated = crypto.randomBytes(64).toString('hex');
     user.rights = 1;
     return user;
 };
 
-/* Insert new user with minimum infos */
-apiRoutes.post('/newfast', [
-    check('username').exists(),
-    check('fname').exists(),
-    check('lname').exists(),
-    check('email').exists().isEmail(),
-    check('password').exists().isLength({
-        min: 5
-    }).matches(/\d/)
-], (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+/* Insert new user */
+apiRoutes.post('/new', (req, res, next) => {
+
+    const valid = validation.validateUserInfos(req);
+
+    if (!valid.valid) {
+        console.log(valid);
         res.status(422).json({
-            "status": "error",
-            "msg": errors
+            "status": false,
+            "msg": valid.errors
+        });
+    } else {
+        UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
+            if (rows.length > 0) {
+                console.log("Login already used");
+                res.status(422).json({
+                    "status": false,
+                    "msg": "Login already used"
+                });
+            } else {
+                var user = buildUserFromRequest(req);
+                var now = Date.now();
+                UsersModel.insertUser(user, now, function(err, rows, fields) {
+                    if (!err) {
+                        Mailer.sendVerifEmail(user.email, user.login, user.activated);
+                        res.json({
+                            "status": true
+                        });
+                    } else {
+                        console.log('Error insert new user', err);
+                        res.json({
+                            "status": false
+                        });
+                    }
+                });
+            }
         });
     }
-    UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
-        if (rows[0]) {
-            res.json({
-                "status": "error",
-                "msg": "Login already used"
-            });
-        } else {
-            var user = buildUserFromRequest(req);
-            var now = Date.now();
-            UsersModel.insertUser(user, now, function(err, rows, fields) {
-                if (!err) {
-                    Mailer.sendVerifEmail(user.email, user.login, user.activated);
-                    res.json({
-                        "status": "success"
-                    });
-                } else {
-                    console.log('Error insert new user', err);
-                    res.json({
-                        "status": "error"
-                    });
-                }
-            });
-        }
-    });
 });
 
 /* Send verification email */
@@ -127,14 +115,14 @@ apiRoutes.post('/send_email_verification', (req, res, next) => {
     UsersModel.getUserWithLogin(username, function(err, rows, fields) {
         if (err || !rows) {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "User doesn't exist"
             });
         } else {
             var user = rows[0];
             Mailer.sendVerifEmail(user.email, user.login, user.activated);
             res.json({
-                "status": "success"
+                "status": true
             });
         }
     });
@@ -149,7 +137,7 @@ apiRoutes.post('/reset_password', (req, res, next) => {
     UsersModel.getUserWithLoginAndEmail(username, email, (err, rows, fields) => {
         if (err || rows.length == 0) {
             res.json({
-                "status": "error",
+                "status": false,
                 "msg": "No user with this login and email address"
             });
         } else {
@@ -161,12 +149,12 @@ apiRoutes.post('/reset_password', (req, res, next) => {
                 if (!err) {
                     Mailer.sendResetPasswordEmail(user.email, user.login, pwd);
                     res.json({
-                        "status": "success"
+                        "status": true
                     });
                 } else {
                     console.log(err);
                     res.json({
-                        "status": "error"
+                        "status": false
                     });
                 }
             });
