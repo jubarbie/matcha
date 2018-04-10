@@ -186,7 +186,7 @@ getIpLocalisation : Cmd Msg
 getIpLocalisation =
     Http.get "http://ip-api.com/json" decodeLocalisationResponse
         |> RemoteData.sendRequest
-        |> Cmd.map GetIpLocalisation
+        |> Cmd.map GetIpLocalisationResponse
 
 
 saveLocation : Localisation -> String -> Cmd Msg

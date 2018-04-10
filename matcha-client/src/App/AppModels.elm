@@ -12,8 +12,6 @@ import Time exposing (..)
 type AppRoutes
     = UsersRoute String
     | SearchRoute
-    | EditAccountRoute
-    | ChangePwdRoute
     | NotFoundAppRoute
 
 
@@ -48,6 +46,8 @@ type alias AppModel =
     , showAdvanceFilters : Bool
     , showEmoList : Bool
     , search : SearchModel
+    , showEditAccountForm : Bool
+    , showResetPwdForm : Bool
     }
 
 
@@ -86,6 +86,8 @@ initialAppModel =
     , showAdvanceFilters = False
     , showEmoList = False
     , search = initialSearchModel
+    , showEditAccountForm = False
+    , showResetPwdForm = False
     }
 
 

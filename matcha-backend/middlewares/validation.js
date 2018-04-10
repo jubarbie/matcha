@@ -69,6 +69,7 @@ exports.validateUserInfos = (req) => {
         min: 1,
         max: 255
     }, errors);
+    infos.bio = (data['bio'] != undefined) ? data['bio'] : NULL;
     return {
         data: infos,
         valid: (errors.length == 0),

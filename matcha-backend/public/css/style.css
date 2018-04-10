@@ -236,21 +236,15 @@ ul.talk-list {
   opacity: 0; }
 
 .edit-form {
-  width: 400px;
-  max-width: 100%;
-  text-align: center;
-  margin: 3rem auto; }
-  .edit-form form {
-    padding: 8px;
-    border: 1px solid grey;
-    border-radius: 8px; }
-    .edit-form form .input {
-      text-align: left;
-      width: 100%; }
-    .edit-form form input, .edit-form form textarea {
-      width: 100%; }
-    .edit-form form label {
-      color: grey; }
+  width: 100%; }
+  .edit-form form .input {
+    text-align: left;
+    width: 100%; }
+  .edit-form form input, .edit-form form textarea {
+    width: 100%; }
+  .edit-form form label {
+    font-size: 0.9em;
+    color: grey; }
 
 #users-list {
   padding-top: 56px; }
@@ -582,6 +576,21 @@ ul.users-list {
     width: 100%; } }
 #map {
   height: 500px; }
+
+#map .map-btn {
+  position: absolute;
+  z-index: 2;
+  right: 10px;
+  top: 110px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  min-width: 0;
+  margin: 0;
+  line-height: normal;
+  background: white;
+  border: 0;
+  color: black; }
 
 #map button {
   margin-bottom: 0; }

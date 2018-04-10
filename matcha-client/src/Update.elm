@@ -47,7 +47,7 @@ updateConnexion msg route =
                                     Connected route session initialAppModel initialUsersModel initialTalksModel
 
                                 cmds =
-                                    [ getTalks session.token ] ++
+                                    [ getTalks session.token, Navigation.newUrl ("/#/users/all") ] ++
                                       if u.localisation.lon == 0 && u.localisation.lat == 0 then
                                         [ getIpLocalisation ]
                                       else
@@ -55,21 +55,13 @@ updateConnexion msg route =
                             in
                             case u.status of
                                 Activated ->
-                                    case route of
-                                        UsersRoute a ->
-                                            ( model, Cmd.batch <| Navigation.newUrl ("/#/users/" ++ a) :: cmds )
-
-                                        EditAccountRoute ->
-                                            ( model, Cmd.batch <| Navigation.newUrl "/#/edit_account" :: cmds )
-
-                                        _ ->
-                                            ( model, Cmd.batch cmds )
+                                    ( model, Cmd.batch cmds )
 
                                 ResetPassword ->
-                                    ( Connected route session { initialAppModel | message = Just "Please reset your password" } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_password" :: cmds )
+                                    ( Connected route session { initialAppModel | message = Just "Please reset your password", showResetPwdForm = True } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_password" :: cmds )
 
                                 Incomplete ->
-                                    ( Connected route session { initialAppModel | message = Just "Please complete your profile" } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/account" :: cmds )
+                                    ( Connected route session { initialAppModel | message = Just "Please complete your profile", showEditAccountForm = True } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_account" :: cmds )
 
                                 NotActivated ->
                                     ( NotConnected LoginRoute { initialLoginModel | message = Just "Please activate your email" }, Navigation.newUrl "/#/login" )

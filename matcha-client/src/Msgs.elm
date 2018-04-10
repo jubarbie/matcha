@@ -49,7 +49,7 @@ type Msg
     | NewMessage String
     | FetchTalk String Time.Time
     | LoadMap Time.Time
-    | GetIpLocalisation (WebData LocalisationApi)
+    | GetIpLocalisationResponse (WebData LocalisationApi)
     | Localize
     | UpdateEditAccountForm String String
     | SaveAccountUpdates
@@ -92,3 +92,5 @@ type Msg
     | UpdateLocSearch String
     | ResetSearch
     | UpdateBirth String
+    | ToggleAccountForm
+    | ToggleResetPwdForm

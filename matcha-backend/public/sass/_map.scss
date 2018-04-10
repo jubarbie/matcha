@@ -3,6 +3,21 @@
 #map {
 	height: 500px;
 }
+#map .map-btn {
+	position: absolute;
+    z-index: 2;
+    right: 10px;
+    top: 110px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    min-width: 0;
+    margin: 0;
+    line-height: normal;
+    background: white;
+    border: 0;
+    color: black;
+}
 #map button {
 	margin-bottom: 0;
 }

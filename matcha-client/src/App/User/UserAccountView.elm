@@ -1,4 +1,4 @@
-module App.User.UserAccountView exposing (view, viewChangePwd, viewDateOfBirthInput, viewEditAccount, viewLocalisation, viewEditAccountForm, viewGenderForm, viewImages, viewIntInForm, viewTagSection)
+module App.User.UserAccountView exposing (view)
 
 import App.AppModels exposing (..)
 import App.User.UserModel exposing (..)
@@ -13,20 +13,49 @@ import Msgs exposing (..)
 import Utils exposing (..)
 
 
-view : Session -> AppModel -> Html Msg
+view : Session -> AppModel -> List (Html Msg)
 view session model =
-    Html.Keyed.node "div" [] [ ( "div", viewAccount model session.user ) ]
-
-
-viewAccount : AppModel -> SessionUser -> Html Msg
-viewAccount model user =
-    div [ class "content" ]
-        [ viewInfosMessage user
-        , viewUserInfos model user
-        , viewImages model user
-        , viewLocalisation
+    let
+        shortBio =
+          case session.user.bio of
+            Just bio ->
+              if String.length bio == 0 then
+                  "No bio"
+              else if String.length bio < 50 then
+                  bio
+              else
+                  String.left 50 bio ++ "..."
+            _ -> "No bio"
+    in
+    if model.showAccountMenu then
+        [ div [ style [ ( "width", "100%" ) ] ]
+            [ div [class "layout-padding"]
+              <| if model.showEditAccountForm then
+                  [ viewEditAccountForm model.editAccountForm session.user]
+              else
+                [ h2 [] [ text session.user.username ]
+                , div [] [ text <| session.user.fname ++ " " ++ session.user.lname ]
+                , div [] [ text session.user.email ]
+                , div [] [ text shortBio ]
+                , button [class "btn-no-style", onClick ToggleAccountForm] [  text "Edit infos" ]
+                ]
+            , div [class "layout-padding center"]
+              [ if model.showResetPwdForm then
+                  viewEditPwdForm model.changePwdForm
+                else
+                  button [class "btn-no-style", onClick ToggleResetPwdForm] [ text "Edit password" ]
+              ]
+            , div [ class "layout-padding center" ] [ viewTagSection model session.user ]
+            , div [ class "layout-padding center" ] [ viewDateOfBirthInput session.user ]
+            , div [ class "layout-padding center" ] [ viewGenderForm session.user.gender ]
+            , div [ class "layout-padding center" ] [ viewIntInForm session.user.intIn ]
+            , div [] [ viewImages model session.user ]
+            , viewLocalisation
+            , div [ onClick Logout, class "center logout-btn" ] [ text "Logout ", icon "fas fa-power-off" ]
+            ]
         ]
-
+    else
+        []
 
 viewInfosMessage : SessionUser -> Html Msg
 viewInfosMessage user =
@@ -47,25 +76,6 @@ viewInfosMessage user =
         ]
 
 
-viewUserInfos : AppModel -> SessionUser -> Html Msg
-viewUserInfos model user =
-    div [ class "row" ]
-        [ div [ class "six columns" ]
-            [ h2 [] [ text "Infos" ]
-            , div [] [ text user.username ]
-            , div [] [ text user.fname, text " ", text user.lname ]
-            , div [] [ text user.email ]
-            , div [] [ text <| getUserBio user ]
-            , a [ href "/#/edit_account" ] [ text "Edit infos" ]
-            , br [] []
-            , a [ href "/#/edit_password" ] [ text "Change password" ]
-            ]
-        , div [ class "six columns" ]
-            [ h2 [] [ text "Interest" ]
-            , viewTagSection model user
-            ]
-        ]
-
 getUserBio : SessionUser -> String
 getUserBio user =
   case user.bio of
@@ -77,8 +87,7 @@ viewLocalisation =
     div [ class "row" ]
         [ hr [] []
         , h2 [] [ text "Localisation" ]
-        , div [ id "map" ] []
-        , button [ onClick Localize ] [ text "Localize me" ]
+        , div [ id "map" ] [button [ onClick Localize, class "map-btn" ] [ icon "fas fa-location-arrow" ]]
         ]
 
 
@@ -168,16 +177,6 @@ viewTagForm model =
         ]
 
 
-viewChangePwd : AppModel -> Html Msg
-viewChangePwd model =
-    viewEditPwdForm model.changePwdForm
-
-
-viewEditAccount : Session -> AppModel -> Html Msg
-viewEditAccount session model =
-    div [ class "content" ]
-        [ viewEditAccountForm model.editAccountForm session.user
-        ]
 
 
 viewGenderForm : Maybe Gender -> Html Msg
@@ -380,7 +379,7 @@ viewEditAccountForm accountForm user =
                         ]
                         []
                    ]
-        , a [ onClick <| GoBack 1 ] [ text "Cancel" ]
+        , button [ onClick ToggleAccountForm ] [ text "Cancel" ]
         ]
 
 
@@ -403,5 +402,5 @@ viewEditPwdForm formm =
                         ]
                         []
                    ]
-        , a [ onClick <| GoBack 1 ] [ text "Cancel" ]
+        , button [ onClick ToggleResetPwdForm ] [ text "Cancel" ]
         ]

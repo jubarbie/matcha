@@ -162,7 +162,7 @@ updateApp msg route session appModel usersModel talksModel =
                                 newUser =
                                     { user | email = email, fname = fname, lname = lname, bio = Just bio }
                             in
-                            ( Connected route { session | user = newUser } { appModel | message = Just "Information saved" } usersModel talksModel, Cmd.none )
+                            ( Connected route { session | user = newUser } { appModel | message = Just "Information saved", showEditAccountForm = False } usersModel talksModel, Cmd.none )
 
                         _ ->
                             ( Connected route session { appModel | message = rep.message } usersModel talksModel, Cmd.none )
@@ -232,12 +232,6 @@ updateApp msg route session appModel usersModel talksModel =
                     ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
 
                 SearchRoute ->
-                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
-
-                EditAccountRoute ->
-                    ( Connected newRoute session { newModel | editAccountForm = initEditAccountForm session.user } usersModel talksModel, Cmd.none )
-
-                ChangePwdRoute ->
                     ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
                 NotFoundAppRoute ->
@@ -320,7 +314,7 @@ updateApp msg route session appModel usersModel talksModel =
                 _ ->
                     ( model, Cmd.none )
 
-        GetIpLocalisation resp ->
+        GetIpLocalisationResponse resp ->
             case Debug.log "local" resp of
                 Success locapi ->
                     let
@@ -335,8 +329,10 @@ updateApp msg route session appModel usersModel talksModel =
                         cmd =
                             case loc of
                                 Just l ->
-                                    Cmd.batch [ localize [ l.lon, l.lat ], saveLocation (Localisation l.lon l.lat) session.token ]
-
+                                      if appModel.map_state == App.AppModels.Rendered then
+                                        Cmd.batch  [localize [ l.lon, l.lat ], saveLocation (Localisation l.lon l.lat) session.token ]
+                                      else
+                                        saveLocation (Localisation l.lon l.lat) session.token
                                 _ ->
                                     Cmd.none
                     in
@@ -725,6 +721,12 @@ updateApp msg route session appModel usersModel talksModel =
                     { user | date_of_birth = newBirth }
             in
             ( Connected route { session | user = newUser } appModel usersModel talksModel, Cmd.none )
+
+        ToggleAccountForm ->
+          (Connected route session { appModel | editAccountForm = initEditAccountForm session.user, showEditAccountForm = not appModel.showEditAccountForm, showResetPwdForm = False } usersModel talksModel, Cmd.none)
+
+        ToggleResetPwdForm ->
+          (Connected route session { appModel | showResetPwdForm = not appModel.showResetPwdForm, showEditAccountForm = False } usersModel talksModel, Cmd.none)
 
         _ ->
             ( model, Cmd.none )

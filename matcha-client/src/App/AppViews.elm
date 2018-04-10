@@ -30,12 +30,6 @@ view route session appModel usersModel talksModel =
                 SearchRoute ->
                     div [] <| App.User.UsersView.searchView route session appModel usersModel
 
-                EditAccountRoute ->
-                    App.User.UserAccountView.viewEditAccount session appModel
-
-                ChangePwdRoute ->
-                    App.User.UserAccountView.viewChangePwd appModel
-
                 NotFoundAppRoute ->
                     view404
 
@@ -52,8 +46,7 @@ view route session appModel usersModel talksModel =
                             ""
                        )
             ]
-            [ alertMessageView appModel
-            , viewCurrentTalk appModel talksModel
+            [ viewCurrentTalk appModel talksModel
             , view
             ]
         ]
@@ -69,7 +62,7 @@ view route session appModel usersModel talksModel =
                         )
                             ++ (if appModel.showAccountMenu then
                                     [ div [ class "animated fadeInLeft", id "account-menu" ] <|
-                                        viewAccountBox
+                                        App.User.UserAccountView.view
                                             session
                                             appModel
                                     ]
@@ -87,7 +80,7 @@ view route session appModel usersModel talksModel =
                 else
                     []
                )
-            ++ [ viewMenu route session appModel talksModel ]
+            ++ [ viewMenu route session appModel talksModel, alertMessageView appModel ]
 
 
 viewCurrentTalk : AppModel -> TalksModel -> Html Msg
@@ -138,41 +131,7 @@ viewMenu route session appModel talksModel =
         ]
 
 
-viewAccountBox : Session -> AppModel -> List (Html Msg)
-viewAccountBox session model =
-    let
-        shortBio =
-          case session.user.bio of
-            Just bio ->
-              if String.length bio == 0 then
-                  "No bio"
-              else if String.length bio < 50 then
-                  bio
-              else
-                  String.left 50 bio ++ "..."
-            _ -> "No bio"
-    in
-    if model.showAccountMenu then
-        [ div [ style [ ( "width", "100%" ) ] ]
-            [ div [ class "layout-padding" ]
-                [ h2 [] [ text session.user.username ]
-                , div [] [ text <| session.user.fname ++ " " ++ session.user.lname ]
-                , div [] [ text session.user.email ]
-                , div [] [ text shortBio ]
-                , div [] [ a [ href "http://localhost:3000/#/edit_account" ] [ text "Edit infos" ] ]
-                , div [] [ a [ href "http://localhost:3000/#/edit_password" ] [ text "Edit password" ] ]
-                ]
-            , div [ class "layout-padding center" ] [ viewTagSection model session.user ]
-            , div [ class "layout-padding center" ] [ viewDateOfBirthInput session.user ]
-            , div [ class "layout-padding center" ] [ viewGenderForm session.user.gender ]
-            , div [ class "layout-padding center" ] [ viewIntInForm session.user.intIn ]
-            , div [] [ viewImages model session.user ]
-            , viewLocalisation
-            , div [ onClick Logout, class "center logout-btn" ] [ text "Logout ", icon "fas fa-power-off" ]
-            ]
-        ]
-    else
-        []
+
 
 
 getMenuClass : AppRoutes -> AppRoutes -> Attribute msg
