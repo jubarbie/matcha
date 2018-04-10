@@ -34,7 +34,7 @@ apiRoutes.post('/token', (req, res, next) => {
                 var token = jwt.sign({
                     "id": uuid
                 }, config.secret, {
-                    expiresIn: "15 min"
+                    expiresIn: "120 min"
                 });
                 var now = Date.now();
                 console.log(user);

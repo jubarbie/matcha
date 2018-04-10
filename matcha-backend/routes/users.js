@@ -374,6 +374,33 @@ router.post('/update_int_in', (req, res, next) => {
                 if (!err) {
                     sendConnectedUser(logged, res);
                 } else {
+                    console.log("error", err);
+                    res.json({
+                        "status": false
+                    });
+                }
+            });
+        }
+    }
+});
+
+/* Update specific field */
+router.post('/update_dob', (req, res, next) => {
+
+    var logged = req.logged_user;
+    let dob = req.body.dob;
+
+    if (logged) {
+        if (!(Number.isInteger(dob) && dob < (new Date()).getFullYear() - 18 && dob > 1900)) {
+            res.json({
+                "status": false,
+                "msg": "invalid form"
+            });
+        } else {
+            UsersModel.updateField(logged.login, 'birth',dob, (err, rows, fields) => {
+                if (!err) {
+                    sendConnectedUser(logged, res);
+                } else {
                     res.json({
                         "status": false
                     });

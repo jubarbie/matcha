@@ -46,7 +46,11 @@ updateApp msg route session appModel usersModel talksModel =
             ( initialModel LoginRoute, Cmd.batch [ Navigation.newUrl "/#/login", deleteSession (), logout session.token ] )
 
         NoDataApiResponse reponse ->
-            ( model, Cmd.none )
+            case route of
+              UsersRoute a ->
+                ( model, getRelevantUsers a session.token )
+              _ ->
+                ( model, Cmd.none )
 
         ChangePwdRespone response ->
             case response of
@@ -79,7 +83,7 @@ updateApp msg route session appModel usersModel talksModel =
                                 newSession =
                                     { session | user = newUser }
                             in
-                            ( updateSessionModel newSession model, Cmd.none )
+                              ( updateSessionModel newSession model, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -471,7 +475,7 @@ updateApp msg route session appModel usersModel talksModel =
           let
             mapStatus = if not appModel.showAccountMenu then App.AppModels.Loading else App.AppModels.NoMap
           in
-            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu, showTalksList = False, map_state = mapStatus } usersModel talksModel, Cmd.none )
+            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu, showTalksList = False, map_state = mapStatus, showResetPwdForm = False, showEditAccountForm = False } usersModel talksModel, Cmd.none )
 
         ChangeImage user to ->
             let
@@ -599,7 +603,7 @@ updateApp msg route session appModel usersModel talksModel =
             ( Connected route session appModel { usersModel | userFilter = filters } talksModel, Cmd.none )
 
         SetCurrentTalk talk ->
-            ( Connected route session { appModel | showTalksList = False } usersModel { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
+            ( Connected route session { appModel | showTalksList = False } { usersModel | currentUser = Nothing } { talksModel | currentTalk = Just talk }, getTalk talk True session.token )
 
         CloseCurrentTalk ->
             ( updateTalksModel { talksModel | currentTalk = Nothing } model, Cmd.none )
@@ -608,10 +612,10 @@ updateApp msg route session appModel usersModel talksModel =
             ( Connected route session { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } usersModel talksModel, Cmd.none )
 
         ReportUser user ->
-            ( model, reportUser user session.token )
+            ( Connected route session appModel {usersModel | currentUser = Nothing} talksModel, reportUser user session.token )
 
         BlockUser user ->
-            ( model, blockUser user session.token )
+            ( Connected route session appModel {usersModel | currentUser = Nothing}  talksModel, blockUser user session.token )
 
         AdvanceSearch ->
             ( model, searchUser appModel.search session.token )
@@ -705,22 +709,19 @@ updateApp msg route session appModel usersModel talksModel =
             )
 
         UpdateBirth date ->
-            let
-                newBirth =
-                    case String.toInt date of
-                        Ok d ->
-                            Just d
+            case String.toInt date of
+                Ok d ->
+                    let
+                      user = session.user
 
-                        _ ->
-                            Nothing
+                      newUser = { user | date_of_birth = Just d }
+                    in
+                      ( Connected route { session | user = newUser } appModel usersModel talksModel, updateDateOfBirth d session.token )
 
-                user =
-                    session.user
+                _ ->
+                  (model, Cmd.none)
 
-                newUser =
-                    { user | date_of_birth = newBirth }
-            in
-            ( Connected route { session | user = newUser } appModel usersModel talksModel, Cmd.none )
+
 
         ToggleAccountForm ->
           (Connected route session { appModel | editAccountForm = initEditAccountForm session.user, showEditAccountForm = not appModel.showEditAccountForm, showResetPwdForm = False } usersModel talksModel, Cmd.none)

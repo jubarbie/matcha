@@ -128,7 +128,7 @@ initEditAccountForm user =
 initLoginForm : Form
 initLoginForm =
     [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "password" "Mot de passe" "pwd" (Just <| TextValidator 2 255) Nothing
+    , initInput Nothing "password" "Password" "pwd" (Just <| TextValidator 2 255) Nothing
     ]
 
 
@@ -141,9 +141,9 @@ initResetPwdForm =
 
 initChangePwdForm : Form
 initChangePwdForm =
-    [ initInput Nothing "password" "Ancien mot de passe" "old_pwd" Nothing Nothing
-    , initInput Nothing "password" "Nouveau mot de passe" "new_pwd" (Just PasswordValidator) (Just "At least 6 chars including 1 number")
-    , initInput Nothing "password" "Confirmer le mot de passe" "confirm_new_pwd" (Just <| PasswordConfirmValidator "new_pwd") (Just "Re-enter your password")
+    [ initInput Nothing "password" "Current password" "old_pwd" Nothing Nothing
+    , initInput Nothing "password" "New password" "new_pwd" (Just PasswordValidator) (Just "At least 6 chars including 1 number")
+    , initInput Nothing "password" "Confirm password" "confirm_new_pwd" (Just <| PasswordConfirmValidator "new_pwd") (Just "Re-enter your password")
     ]
 
 

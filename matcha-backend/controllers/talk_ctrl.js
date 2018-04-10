@@ -8,6 +8,7 @@ talk.new_message = (from, to, message) => {
 
 	var usersTab = [from, to].sort();
 
+
 	TalkModel.getTalkFromUsers(usersTab[0], usersTab[1], function(err, talks, fields) {
 
 		if (talks.length > 0) {

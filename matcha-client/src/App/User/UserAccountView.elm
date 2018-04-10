@@ -28,8 +28,8 @@ view session model =
             _ -> "No bio"
     in
     if model.showAccountMenu then
-        [ div [ style [ ( "width", "100%" ) ] ]
-            [ div [class "layout-padding"]
+        [ div [ style [ ( "width", "100%" ), ("padding", "14px") ] ]
+            [ div []
               <| if model.showEditAccountForm then
                   [ viewEditAccountForm model.editAccountForm session.user]
               else
@@ -39,17 +39,17 @@ view session model =
                 , div [] [ text shortBio ]
                 , button [class "btn-no-style", onClick ToggleAccountForm] [  text "Edit infos" ]
                 ]
-            , div [class "layout-padding center"]
+            , div []
               [ if model.showResetPwdForm then
                   viewEditPwdForm model.changePwdForm
                 else
                   button [class "btn-no-style", onClick ToggleResetPwdForm] [ text "Edit password" ]
               ]
-            , div [ class "layout-padding center" ] [ viewTagSection model session.user ]
-            , div [ class "layout-padding center" ] [ viewDateOfBirthInput session.user ]
-            , div [ class "layout-padding center" ] [ viewGenderForm session.user.gender ]
-            , div [ class "layout-padding center" ] [ viewIntInForm session.user.intIn ]
-            , div [] [ viewImages model session.user ]
+            , viewDateOfBirthInput session.user
+            , viewGenderForm session.user.gender
+            , viewIntInForm session.user.intIn
+            , viewTagSection model session.user
+            , viewImages model session.user
             , viewLocalisation
             , div [ onClick Logout, class "center logout-btn" ] [ text "Logout ", icon "fas fa-power-off" ]
             ]
@@ -84,16 +84,17 @@ getUserBio user =
 
 viewLocalisation : Html Msg
 viewLocalisation =
-    div [ class "row" ]
-        [ hr [] []
-        , h2 [] [ text "Localisation" ]
+    div [ ]
+        [ h3 [] [text "Localisation"]
         , div [ id "map" ] [button [ onClick Localize, class "map-btn" ] [ icon "fas fa-location-arrow" ]]
         ]
 
 
 viewImages : AppModel -> SessionUser -> Html Msg
 viewImages model user =
-    div [ class "row gallery" ]
+    div []
+      [ h3 [] [text "Images"]
+      , div [ class "row gallery" ]
         [ if List.length user.photos > 0 then
             Html.ul [ class "img-account-list" ] <|
                 List.map
@@ -112,6 +113,7 @@ viewImages model user =
           else
             div [] []
         ]
+      ]
 
 
 viewNewImgeForm : AppModel -> Html Msg
@@ -125,7 +127,7 @@ viewNewImgeForm model =
                 Nothing ->
                     text ""
     in
-    div [ class "imageWrapper" ]
+    div [ class "imageWrapper center" ]
         [ label [ for model.idImg, class "label-upload button" ]
             [ input
                 [ type_ "file"
@@ -151,7 +153,9 @@ viewImagePreview image =
 
 viewTagSection : AppModel -> SessionUser -> Html Msg
 viewTagSection model user =
-    div [ class "tag-section" ] <|
+    div [ class "tag-section center" ] <|
+      h3 [] [text "Tags"]
+      ::
         List.map
             (\t ->
                 div [ class "tag dismissable" ]
@@ -165,11 +169,11 @@ viewTagSection model user =
 
 viewTagForm : AppModel -> Html Msg
 viewTagForm model =
-    div [ class "input" ]
+    div [ class "input", id "search-input" ]
         [ Html.form []
             [ input [ type_ "text", onInput SearchTag, value model.tagInput ] []
             , button
-                [ class "btn-no-style", onClickCustom False True AddNewTag, type_ "submit" ]
+                [ class "btn-no-style", onClickCustom True True AddNewTag, type_ "submit" ]
                 [ text "+" ]
             , Html.ul [ class "search-list" ] <|
                 List.map (\i -> li [ onClickCustom False True (AddTag i), class "pointer" ] [ text i ]) model.searchTag
@@ -181,8 +185,8 @@ viewTagForm model =
 
 viewGenderForm : Maybe Gender -> Html Msg
 viewGenderForm gender =
-    div []
-        [ div [] [ label [] [ text "I am" ] ]
+    div [ class "center" ]
+        [ h3 [] [ text "I am" ]
         , div [ class "row" ]
             [ label
                 [ for "gmale"
@@ -274,8 +278,8 @@ viewGenderForm gender =
 
 viewIntInForm : List Gender -> Html Msg
 viewIntInForm intIn =
-    div []
-        [ div [] [ label [] [ text "I am interested in" ] ]
+    div [ class "center" ]
+        [ h3 [] [ text "I am interested in" ]
         , div [ class "row" ]
             [ label
                 [ for "imale"
@@ -368,8 +372,7 @@ viewIntInForm intIn =
 viewEditAccountForm : Form -> SessionUser -> Html Msg
 viewEditAccountForm accountForm user =
     div [ class "edit-form" ]
-        [ h1 [] [ text <| "Edit account" ]
-        , Html.form [] <|
+        [ Html.form [] <|
             List.map (\i -> viewInput (UpdateEditAccountForm i.id) i) accountForm
                 ++ [ input
                         [ onClickCustom True True SaveAccountUpdates
@@ -378,21 +381,50 @@ viewEditAccountForm accountForm user =
                         , value "SAVE"
                         ]
                         []
-                   ]
-        , button [ onClick ToggleAccountForm ] [ text "Cancel" ]
+                  , button [ onClickCustom True True ToggleAccountForm, class "btn-no-style", style [("padding","5px")] ] [ text "Cancel" ]
+                  ]
         ]
 
 
 viewDateOfBirthInput : SessionUser -> Html Msg
 viewDateOfBirthInput user =
-    select [ onInput UpdateBirth ] <| List.map (\d -> option [ value <| toString d ] [ text <| toString d ]) (List.range 1900 2000)
+  div [ class "center" ] <|
+    h3 [] [ text "Date of birth" ]
+    ::
+    if user.date_of_birth == Nothing then
+        [div [][text "Please set your date of birth"]]
+    else []
+    ++
+    [ select [ onInput UpdateBirth ] <|
+      option
+          ([ value "NaN" ]
+              ++ (if user.date_of_birth == Nothing then
+                      [ Html.Attributes.attribute "selected" "selected" ]
+                  else
+                      []
+                 )
+          )
+          [ text "No" ]
+          :: List.map
+              (\a ->
+                  option
+                      ([ value <| toString a ]
+                          ++ (if user.date_of_birth == Just a then
+                                  [ Html.Attributes.attribute "selected" "selected" ]
+                              else
+                                  []
+                             )
+                      )
+                      [ text <| toString a ]
+              )
+              (List.range 1900 2000)
+    ]
 
 
 viewEditPwdForm : Form -> Html Msg
 viewEditPwdForm formm =
     div [ class "edit-form" ]
-        [ h1 [] [ text <| "Edit password" ]
-        , Html.form [] <|
+        [ Html.form [] <|
             List.map (\i -> viewInput (UpdateEditPwdForm i.id) i) formm
                 ++ [ input
                         [ onClickCustom True True ChangePwd
@@ -402,5 +434,5 @@ viewEditPwdForm formm =
                         ]
                         []
                    ]
-        , button [ onClick ToggleResetPwdForm ] [ text "Cancel" ]
+        , button [ onClickCustom True True ToggleResetPwdForm ] [ text "Cancel" ]
         ]

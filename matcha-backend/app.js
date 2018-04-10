@@ -62,63 +62,71 @@ app.ws('/ws', function(ws, req) {
         var now = Date.now();
         try {
             var decoded = jwt.verify(data.jwt, config.secret);
-            switch (data.action) {
-                case "new_message":
-                    var usersTab = [decoded.login, data.to].sort();
-                    var userNb = "user" + (usersTab.indexOf(decoded.login) + 1) + "_last";
-                    Ctrl_talks.new_message(decoded.username, data.to, data.message);
-                    TalksModel.getTalkNotif(usersTab, userNb, (err, rows, fields) => {
-                      if (!err && rows.length > 0) {
-                        aWss.clients.forEach(function each(client) {
-                            client.send(JSON.stringify({
-                                message: 'message',
-                                to: data.to,
-                                from: decoded.username,
-                                notif: rows[0].unread
-                            }));
-                          });
-                        }
-                       else {
-                         console.log(err);
-                       }
-                      });
-                    break;
-                case "like":
-                    LikesModel.getNotifLike(data.to, (err, rows, fields) => {
-                      if (rows.length > 0) {
-                        aWss.clients.forEach(function each(client) {
-                            client.send(JSON.stringify({
-                                message: 'like',
-                                to: data.to,
-                                from: decoded.username,
-                                notif: rows[0].notif
-                            }));
-                        });
-                      }
-                    });
-                    break;
-                  case "visit":
-                      VisitsModel.addVisit(decoded.username, data.to, now, (err1, rows1, fields) => {
-                        VisitsModel.getNotifVisit(data.to, (err2, rows2, fields) => {
-                          if (rows2.length > 0) {
-                            console.log(rows2);
-                            aWss.clients.forEach(function each(client) {
-                                client.send(JSON.stringify({
-                                    message: 'visit',
-                                    to: data.to,
-                                    from: decoded.username,
-                                    notif: rows2[0].notif
-                                }));
+            UsersModel.getUserWithUuid(decoded.id, function(err, rows, fields) {
+                if (!err && rows.length > 0) {
+                    let logged_user = rows[0];
+
+                    switch (data.action) {
+                        case "new_message":
+                            var usersTab = [logged_user.login, data.to].sort();
+                            var userNb = "user" + (usersTab.indexOf(logged_user.login) + 1) + "_last";
+                            Ctrl_talks.new_message(logged_user.login, data.to, data.message);
+                            TalksModel.getTalkNotif(usersTab, userNb, (err, rows, fields) => {
+                              if (!err && rows.length > 0) {
+                                aWss.clients.forEach(function each(client) {
+                                    client.send(JSON.stringify({
+                                        message: 'message',
+                                        to: data.to,
+                                        from: logged_user.login,
+                                        notif: rows[0].unread
+                                    }));
+                                  });
+                                }
+                               else {
+                                 console.log(err);
+                               }
+                              });
+                            break;
+                        case "like":
+                            LikesModel.getNotifLike(data.to, (err, rows, fields) => {
+                              if (rows.length > 0) {
+                                aWss.clients.forEach(function each(client) {
+                                    client.send(JSON.stringify({
+                                        message: 'like',
+                                        to: data.to,
+                                        from: logged_user.login,
+                                        notif: rows[0].notif
+                                    }));
+                                });
+                              }
                             });
-                          }
-                        });
-                      });
-                      break;
-                default:
-                    aWss.clients.forEach(function each(client) {
-                        client.send('somethign!');
-                    });
-            }
+                            break;
+                          case "visit":
+                              VisitsModel.addVisit(logged_user.login, data.to, now, (err1, rows1, fields) => {
+                                VisitsModel.getNotifVisit(data.to, (err2, rows2, fields) => {
+                                  if (rows2.length > 0) {
+                                    console.log(rows2);
+                                    aWss.clients.forEach(function each(client) {
+                                        client.send(JSON.stringify({
+                                            message: 'visit',
+                                            to: data.to,
+                                            from: logged_user.login,
+                                            notif: rows2[0].notif
+                                        }));
+                                    });
+                                  }
+                                });
+                              });
+                              break;
+                        default:
+                            aWss.clients.forEach(function each(client) {
+                                client.send('somethign!');
+                            });
+                    }
+                  } else {
+                    console.log('Unauthorized user');
+                  }
+                  });
         } catch (err) {
             console.log(err)
         }

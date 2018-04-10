@@ -196,25 +196,52 @@ ul.users-list {
 	}
 }
 .tag-section {
-	input {
-		height: 24px;
-		border-radius: 12px;
-		font-size: 0.9em;
-		margin-top: 5px;
-	}
-	button {
-		background: $blue;
-		height: 24px !important;
-		width: 24px !important;
-		font-size: 0.9em;
-		line-height: 24px !important;
-		border-radius: 12px;
-		margin-left: -24px !important;
-		margin-top: 5px !important;
+	text-align: center;
+	#search-input {
 		position: relative;
-		z-index: 20;
-		text-align: center !important;
+		width: 250px;
+		margin: 0 auto;
+		input {
+			height: 24px;
+			border-radius: 12px;
+			font-size: 0.9em;
+			margin-top: 5px;
+			width: 100%;
+		}
+		button {
+			background: $blue;
+			height: 24px !important;
+			width: 24px !important;
+			font-size: 0.9em;
+			line-height: 24px !important;
+			border-radius: 12px;
+			margin-left: -24px !important;
+			margin-top: 5px !important;
+			position: relative;
+			z-index: 20;
+			text-align: center !important;
+		}
+		.search-list {
+			position: absolute;
+			background: $white;
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+			top: 35px;
+			width: 100%;
+			border-radius: 6px;
+			z-index: 3;
+			li {
+				border-bottom: 1px solid $grey-light;
+				margin-bottom: 0;
+				&:last-child {
+					border-bottom: 0;
+				}
+			}
+		}
 	}
+
+
 }
 
 .tag {
@@ -251,11 +278,6 @@ ul.users-list {
   }
 }
 
-.search-list {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-}
 
 .img-account-list {
 	list-style-type: none;
@@ -297,6 +319,7 @@ ul.users-list {
 .gender-btn {
   font-size: 1em;
 	color: $grey-light;
+	cursor: pointer;
 
 	&.active {
 		color: $white;

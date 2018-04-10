@@ -253,6 +253,20 @@ updateIntIn genders token =
     apiPostRequest (Just decodeSessionUser) token url body
         |> Http.send UpdateFieldResponse
 
+updateDateOfBirth : Int -> String -> Cmd Msg
+updateDateOfBirth date token =
+    let
+        url =
+            "http://localhost:3001/api/users/update_dob"
+
+        body =
+            Http.jsonBody <|
+                JsonEnc.object
+                    [ ( "dob", JsonEnc.int date ) ]
+    in
+    apiPostRequest (Just decodeSessionUser) token url body
+        |> Http.send UpdateFieldResponse
+
 
 searchTag : String -> String -> Cmd Msg
 searchTag token search =

@@ -58,10 +58,10 @@ updateConnexion msg route =
                                     ( model, Cmd.batch cmds )
 
                                 ResetPassword ->
-                                    ( Connected route session { initialAppModel | message = Just "Please reset your password", showResetPwdForm = True } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_password" :: cmds )
+                                    ( Connected route session { initialAppModel | message = Just "Please reset your password", showResetPwdForm = True, showAccountMenu = True } initialUsersModel initialTalksModel, Cmd.batch cmds )
 
                                 Incomplete ->
-                                    ( Connected route session { initialAppModel | message = Just "Please complete your profile", showEditAccountForm = True } initialUsersModel initialTalksModel, Cmd.batch <| Navigation.newUrl "/#/edit_account" :: cmds )
+                                    ( Connected route session { initialAppModel | message = Just "Please complete your profile", showEditAccountForm = True, showAccountMenu = True } initialUsersModel initialTalksModel, Cmd.batch cmds )
 
                                 NotActivated ->
                                     ( NotConnected LoginRoute { initialLoginModel | message = Just "Please activate your email" }, Navigation.newUrl "/#/login" )
@@ -93,11 +93,11 @@ updateConnexion msg route =
                             )
 
                         _ ->
-                            ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
+                            ( NotConnected LoginRoute {initialLoginModel | message = Just "Wrong login or password"}, Cmd.none )
 
                 _ ->
-                    ( NotConnected LoginRoute initialLoginModel
-                    , Navigation.newUrl "/#/login"
+                    ( NotConnected LoginRoute {initialLoginModel | message = Just "Wrong login or password"}
+                    , Cmd.none
                     )
 
         _ ->

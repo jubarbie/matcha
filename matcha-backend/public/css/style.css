@@ -20,7 +20,9 @@
   40%, 60% {
     transform: translate3d(4px, 0, 0); } }
 #talk {
-  overflow-y: hidden; }
+  overflow-y: hidden;
+  border: 1px solid grey;
+  border-bottom: 0; }
 
 #current-talk {
   position: fixed;
@@ -245,6 +247,8 @@ ul.talk-list {
   .edit-form form label {
     font-size: 0.9em;
     color: grey; }
+  .edit-form form input[type="submit"] {
+    width: inherit; }
 
 #users-list {
   padding-top: 56px; }
@@ -392,23 +396,45 @@ ul.users-list {
     .filter-menu li.active .button .sort-arrow, .filter-menu li.active svg .sort-arrow {
       display: inline-block; }
 
-.tag-section input {
-  height: 24px;
-  border-radius: 12px;
-  font-size: 0.9em;
-  margin-top: 5px; }
-.tag-section button {
-  background: #1EAEDB;
-  height: 24px !important;
-  width: 24px !important;
-  font-size: 0.9em;
-  line-height: 24px !important;
-  border-radius: 12px;
-  margin-left: -24px !important;
-  margin-top: 5px !important;
-  position: relative;
-  z-index: 20;
-  text-align: center !important; }
+.tag-section {
+  text-align: center; }
+  .tag-section #search-input {
+    position: relative;
+    width: 250px;
+    margin: 0 auto; }
+    .tag-section #search-input input {
+      height: 24px;
+      border-radius: 12px;
+      font-size: 0.9em;
+      margin-top: 5px;
+      width: 100%; }
+    .tag-section #search-input button {
+      background: #1EAEDB;
+      height: 24px !important;
+      width: 24px !important;
+      font-size: 0.9em;
+      line-height: 24px !important;
+      border-radius: 12px;
+      margin-left: -24px !important;
+      margin-top: 5px !important;
+      position: relative;
+      z-index: 20;
+      text-align: center !important; }
+    .tag-section #search-input .search-list {
+      position: absolute;
+      background: white;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      top: 35px;
+      width: 100%;
+      border-radius: 6px;
+      z-index: 3; }
+      .tag-section #search-input .search-list li {
+        border-bottom: 1px solid grey;
+        margin-bottom: 0; }
+        .tag-section #search-input .search-list li:last-child {
+          border-bottom: 0; }
 
 .tag {
   display: inline-block;
@@ -438,11 +464,6 @@ ul.users-list {
     border-radius: 9px;
     line-height: normal;
     font-size: 1em; }
-
-.search-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0; }
 
 .img-account-list {
   list-style-type: none;
@@ -474,7 +495,8 @@ ul.users-list {
 
 .gender-btn {
   font-size: 1em;
-  color: grey; }
+  color: grey;
+  cursor: pointer; }
   .gender-btn.active {
     color: white; }
   .gender-btn input {
@@ -699,13 +721,6 @@ button.btn-no-style {
 h1 {
   font-size: 2em; }
 
-.important-font {
-  font-size: 22px;
-  text-transform: uppercase;
-  font-style: italic;
-  color: #252525;
-  text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white, 0px 1px 0 white, 0px -1px 0 white, -1px 0px 0 white, 1px 0px 0 white; }
-
 /* ALERT AND NOTIF */
 .alert {
   position: fixed;
@@ -811,6 +826,26 @@ h1 {
     padding: 14px;
     color: #a72424;
     cursor: pointer; }
+  #account-menu h3 {
+    font-size: 1em;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    letter-spacing: 3px;
+    margin-top: 2rem; }
+    #account-menu h3:before {
+      content: "";
+      width: 95%;
+      height: 1px;
+      background: grey;
+      margin-right: 5px; }
+    #account-menu h3:after {
+      content: "";
+      width: 95%;
+      height: 1px;
+      background: grey;
+      margin-left: 5px; }
 
 /* FOOTER */
 .footer {
