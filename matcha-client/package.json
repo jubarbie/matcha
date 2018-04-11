@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "client": "webpack-dev-server --port 3000",
-    "watch": "chokidar '**/*.elm' -c './node_modules/elm/binwrappers/elm-make Main.elm --output=matcha.js' --initial"
+    "watch": "chokidar '**/*.elm' -c './node_modules/elm/binwrappers/elm-make Main.elm --output=matcha.js' --initial",
+    "prod": "./node_modules/elm/binwrappers/elm-make Main.elm --output=matcha.js && cp matcha.js ../matcha-backend/public/js/"
   },
   "author": "jubarbie",
   "license": "ISC",
