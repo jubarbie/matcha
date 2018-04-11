@@ -16,17 +16,19 @@ exports.newMessage = (id_talk, message, username, date, cb) => {
 };
 
 exports.getUserTalks = (username, cb) => {
-	connection.query(' \
+	connection.query('\
 		SELECT t.username2 AS username, \
 			(SELECT COUNT(message.id) FROM message WHERE id_talk=t.id AND date > t.user1_last AND message.username <> ?) AS unread \
 		FROM talk AS t \
 		WHERE t.username1 = ? \
+		AND NOT EXISTS ( SELECT * FROM blocks WHERE (blocks.user_to = t.username2 AND blocks.user_from = ?) OR (blocks.user_to = ? AND blocks.user_from = t.username2)) \
 		UNION \
 		SELECT t.username1 AS username, \
 			(SELECT COUNT(message.id) FROM message WHERE id_talk=t.id AND date > t.user2_last AND message.username <> ?) AS unread \
 		FROM talk AS t \
 		WHERE t.username2 = ? \
-		', [username, username, username, username], cb);
+		AND NOT EXISTS ( SELECT * FROM blocks WHERE (blocks.user_to = t.username1 AND blocks.user_from = ?) OR (blocks.user_to = ? AND blocks.user_from = t.username1)) \
+		', [username, username, username, username, username, username, username, username], cb);
 };
 
 exports.getTalkMessages = (id, user, cb) => {

@@ -60,9 +60,9 @@ userButtonsView s user =
 userReportView : String -> Html Msg
 userReportView username =
     div [ class "text-right" ]
-        [ button [ class "btn-no-style", onClick <| ReportUser username ] [ text "block" ]
+        [ button [ class "btn-no-style", onClick <| BlockUser username ] [ text "block" ]
         , text " "
-        , button [ class "btn-no-style", onClick <| BlockUser username ] [ text "report" ]
+        , button [ class "btn-no-style", onClick <| ReportUser username ] [ text "report" ]
         ]
 
 

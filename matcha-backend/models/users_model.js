@@ -218,4 +218,7 @@ exports.updateSexuality = (login, genders, cb) => {
         else
             cb();
     })
-}
+};
+
+exports.getBlocked = (from, to, cb) =>
+  connection.query('SELECT * FROM blocks WHERE (user_from = ? AND user_to = ?) OR (user_from = ? AND user_to = ?)', [from, to, to, from], cb);

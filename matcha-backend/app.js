@@ -8,6 +8,7 @@ const Users = require('./routes/users');
 const Talks = require('./routes/talks');
 const Tag = require('./routes/tag');
 const Ctrl_talks = require('./controllers/talk_ctrl');
+const Ctrl_users = require('./controllers/user_ctrl');
 const app = express();
 const expressWs = require('express-ws')(app);
 const config = require('./config');
@@ -40,7 +41,7 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function(req, res) {
-    res.send('Hello! The API is at http://localhost:' + port + '/api');
+    res.send('js/matcha.js');
 });
 
 app.use('/auth', Login);
@@ -70,23 +71,29 @@ app.ws('/ws', function(ws, req) {
                         case "new_message":
                             var usersTab = [logged_user.login, data.to].sort();
                             var userNb = "user" + (usersTab.indexOf(logged_user.login) + 1) + "_last";
-                            Ctrl_talks.new_message(logged_user.login, data.to, data.message);
-                            TalksModel.getTalkNotif(usersTab, userNb, (err, rows, fields) => {
-                              if (!err && rows.length > 0) {
-                                aWss.clients.forEach(function each(client) {
-                                    client.send(JSON.stringify({
-                                        message: 'message',
-                                        to: data.to,
-                                        from: logged_user.login,
-                                        notif: rows[0].unread
-                                    }));
+                            Ctrl_users.is_blocked(logged_user.login, data.to, (resp) => {
+                              if (!resp) {
+                                Ctrl_talks.new_message(logged_user.login, data.to, data.message);
+                                TalksModel.getTalkNotif(usersTab, userNb, (err, rows, fields) => {
+                                  if (!err && rows.length > 0) {
+                                    aWss.clients.forEach(function each(client) {
+                                        client.send(JSON.stringify({
+                                            message: 'message',
+                                            to: data.to,
+                                            from: logged_user.login,
+                                            notif: rows[0].unread
+                                        }));
+                                      });
+                                    }
+                                   else {
+                                     console.log(err);
+                                   }
                                   });
-                                }
-                               else {
-                                 console.log(err);
-                               }
-                              });
-                            break;
+                              } else {
+
+                            }
+                          });
+                          break;
                         case "like":
                             LikesModel.getNotifLike(data.to, (err, rows, fields) => {
                               if (rows.length > 0) {

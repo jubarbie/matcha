@@ -44,35 +44,43 @@ router.post('/add', (req, res, next) => {
     var tag = req.body.tag;
 
     if (logged && tag) {
-        TagModel.addTag(logged.login, tag, (err, rows, fields) => {
-            if (!err) {
-                TagModel.getTagsFromLogin(logged.login, (err, tags, fields) => {
-                    if (!err) {
-                        if (tags.length > 0) {
-                            tags = tags.map((tag) => {
-                                return tag.tag;
-                            });
-                        }
-                        console.log(tags);
-                        res.json({
-                            "status": true,
-                            "data": tags
-                        });
-                    } else {
-                        console.log(err);
-                        res.json({
-                            "status": false,
-                            "msg": "Missing search"
-                        });
-                    }
-                });
-            } else {
-                console.log(err);
-                res.json({
-                    "status": false
-                });
-            }
-        });
+        if (tag.length > 30) {
+          console.log("char too long");
+          res.json({
+              "status": false,
+              "msg": "Tag too long. 30 char max."
+          });
+        } else {
+          TagModel.addTag(logged.login, tag, (err, rows, fields) => {
+              if (!err) {
+                  TagModel.getTagsFromLogin(logged.login, (err, tags, fields) => {
+                      if (!err) {
+                          if (tags.length > 0) {
+                              tags = tags.map((tag) => {
+                                  return tag.tag;
+                              });
+                          }
+                          console.log(tags);
+                          res.json({
+                              "status": true,
+                              "data": tags
+                          });
+                      } else {
+                          console.log(err);
+                          res.json({
+                              "status": false,
+                              "msg": "Missing search"
+                          });
+                      }
+                  });
+              } else {
+                  console.log(err);
+                  res.json({
+                      "status": false
+                  });
+              }
+          });
+        }
     } else {
         console.log("oup");
         res.json({

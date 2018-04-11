@@ -170,7 +170,7 @@ viewTagSection model user =
 viewTagForm : AppModel -> Html Msg
 viewTagForm model =
     div [ class "input", id "search-input" ]
-        [ Html.form []
+        [ Html.form [] <|
             [ input [ type_ "text", onInput SearchTag, value model.tagInput ] []
             , button
                 [ class "btn-no-style", onClickCustom True True AddNewTag, type_ "submit" ]
@@ -178,6 +178,10 @@ viewTagForm model =
             , Html.ul [ class "search-list" ] <|
                 List.map (\i -> li [ onClickCustom False True (AddTag i), class "pointer" ] [ text i ]) model.searchTag
             ]
+            ++
+            case validTag <| Just model.tagInput of
+              NotValid err -> [ div [ class "input-tip"] [text err] ]
+              _ -> []
         ]
 
 

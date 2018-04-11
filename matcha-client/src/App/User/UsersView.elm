@@ -296,23 +296,23 @@ userMenuView : AppRoutes -> AppModel -> Html Msg
 userMenuView route model =
     ul [ class "group-btn" ]
         [ li [ class <| getActiveClass (route == UsersRoute "all") ]
-            [ a [ class "button", href "http://localhost:3000/#/users/" ]
+            [ a [ class "button", href "/#/users/" ]
                 [ text "Around me" ]
             ]
         , li [ class <| getActiveClass (route == UsersRoute "visitors") ]
-            [ a [ class "button", href "http://localhost:3000/#/users/visitors" ]
+            [ a [ class "button", href "/#/users/visitors" ]
                 [ text "Visitors "
                 , notif model.notifVisit
                 ]
             ]
         , li [ class <| getActiveClass (route == UsersRoute "likers") ]
-            [ a [ class "button", href "http://localhost:3000/#/users/likers" ]
+            [ a [ class "button", href "/#/users/likers" ]
                 [ text "Likers "
                 , notif model.notifLike
                 ]
             ]
         , li [ class <| getActiveClass (route == UsersRoute "matchers") ]
-            [ a [ class "button", href "http://localhost:3000/#/users/matchers" ]
+            [ a [ class "button", href "/#/users/matchers" ]
                 [ text "Matchers "
                 , notif model.notifLike
                 ]

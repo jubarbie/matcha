@@ -48,7 +48,7 @@ updateApp msg route session appModel usersModel talksModel =
         NoDataApiResponse reponse ->
             case route of
               UsersRoute a ->
-                ( model, getRelevantUsers a session.token )
+                ( model, Cmd.batch [getRelevantUsers a session.token, getTalks session.token] )
               _ ->
                 ( model, Cmd.none )
 
@@ -615,7 +615,10 @@ updateApp msg route session appModel usersModel talksModel =
             ( Connected route session appModel {usersModel | currentUser = Nothing} talksModel, reportUser user session.token )
 
         BlockUser user ->
-            ( Connected route session appModel {usersModel | currentUser = Nothing}  talksModel, blockUser user session.token )
+          let
+            cuT = if talksModel.currentTalk == Just user then Nothing else talksModel.currentTalk
+          in
+            ( Connected route session appModel {usersModel | currentUser = Nothing}  { talksModel | currentTalk = cuT }, blockUser user session.token )
 
         AdvanceSearch ->
             ( model, searchUser appModel.search session.token )
@@ -644,7 +647,7 @@ updateApp msg route session appModel usersModel talksModel =
                 newSearch =
                     { searchModel | tags = newTags }
             in
-            ( updateAppModel { appModel | search = Debug.log "search" newSearch } model, Cmd.none )
+            ( updateAppModel { appModel | search = newSearch } model, Cmd.none )
 
         UpdateMinYearSearch year ->
             let

@@ -262,6 +262,14 @@ ul.talk-list {
   .edit-form form input[type="submit"] {
     width: inherit; }
 
+.home-form {
+  margin: 0 auto;
+  max-width: 480px; }
+  .home-form .input label {
+    text-align: left; }
+  .home-form .input input {
+    width: 100%; }
+
 .text-warning {
   color: #cc6c44; }
 

@@ -147,26 +147,12 @@ initChangePwdForm =
     ]
 
 
-initNewUserForm : Form
-initNewUserForm =
-    [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "text" "Email" "email" (Just EmailValidator) Nothing
-    , initInput Nothing "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars including 1 number")
-    , initInput Nothing "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-enter your password")
-    , initInput Nothing "text" "Gender" "gender" (Just GenderValidator) Nothing
-    , initInput Nothing "text" "Interested in" "int_in" (Just GenderValidator) Nothing
-    , initInput Nothing "text" "Bio" "bio" Nothing Nothing
-    ]
-
-
 initFastNewUserForm : Form
 initFastNewUserForm =
-    [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "text" "First name" "fname" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "text" "Last name" "lname" (Just <| TextValidator 2 255) Nothing
-    , initInput Nothing "text" "Email" "email" (Just EmailValidator) Nothing
+    [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) (Just "Must be between 2 and 255 char")
+    , initInput Nothing "text" "First name" "fname" (Just <| TextValidator 2 255) (Just "Must be between 2 and 255 char")
+    , initInput Nothing "text" "Last name" "lname" (Just <| TextValidator 2 255) (Just "Must be between 2 and 255 char")
+    , initInput Nothing "text" "Email" "email" (Just EmailValidator) (Just "Must be a valid email")
     , initInput Nothing "password" "Password" "pwd" (Just PasswordValidator) (Just "At least 6 chars and 1 number")
     , initInput Nothing "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-type your password")
     ]
@@ -193,7 +179,10 @@ validTag value =
 
         Just a ->
             if contains (regex "^[a-zA-Z0-9_.+-]+$") a then
-                Valid a
+                (if String.length a <= 30 then
+                  Valid a
+                else
+                  NotValid "30 char max")
             else
                 NotValid "Only numbers and chars"
 

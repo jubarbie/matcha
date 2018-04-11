@@ -29,7 +29,7 @@ view route model =
                 NotFoundLoginRoute ->
                     view404
     in
-    div [ class "layout-column center" ]
+    div [ class "layout-column center container" ]
         [ img [ src "http://localhost:3001/images/DARKROOM_logo.svg", alt "DARKROOM" ] []
         , case model.message of
             Just m -> div [] [ text m ]
@@ -45,7 +45,7 @@ view404 =
 
 viewLoginForm : LoginModel -> Html Msg
 viewLoginForm model =
-    Html.form [] <|
+    Html.form [class "home-form"] <|
         List.map (\i -> viewInput (UpdateLoginForm i.id) i) model.loginForm
             ++ [ input
                     [ onClickCustom True False SendLogin
@@ -63,7 +63,7 @@ viewLoginForm model =
 
 viewNewUserForm : LoginModel -> Html Msg
 viewNewUserForm model =
-    Html.form [] <|
+    Html.form [ class "home-form" ] <|
         List.map (\i -> viewInput (UpdateNewUserForm i.id) i) model.newUserForm
             ++ [ input
                     [ onClickCustom True False NewUser
@@ -83,7 +83,7 @@ viewResetPwdForm : LoginModel -> Html Msg
 viewResetPwdForm model =
     div []
         [ p [] [ text "In order to reset your password, please give us your login and the email you used when you created your account. You'll recieve an email with your new password" ]
-        , Html.form [] <|
+        , Html.form [class "home-form"] <|
             List.map (\i -> viewInput (UpdateResetPwdForm i.id) i) model.resetPwdForm
                 ++ [ input
                         [ onWithOptions

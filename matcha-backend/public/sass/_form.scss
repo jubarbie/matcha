@@ -46,3 +46,14 @@
 		}
 	}
 }
+
+.home-form {
+	margin: 0 auto;
+	max-width: 480px;
+	.input {
+		label {text-align: left;}
+		input {
+			width: 100%;
+		}
+	}
+}

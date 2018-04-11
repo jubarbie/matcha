@@ -184,4 +184,20 @@ ctrl.getLikers = (logged, callback) => {
     });
 };
 
+ctrl.is_blocked = (from, to, cb) => {
+
+  UsersModel.getBlocked(from, to, (err, rows, fields) => {
+    if (!err) {
+      if (rows.length > 0) {
+        cb(true);
+      } else {
+        cb(false);
+      }
+    } else {
+      cb(false);
+    }
+  });
+
+}
+
 module.exports = ctrl;

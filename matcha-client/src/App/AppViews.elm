@@ -108,7 +108,7 @@ view404 : Html msg
 view404 =
     div []
         [ text "404 error, page not found"
-        , a [ href "http://localhost:3000/#/users" ] [ text "Back to homepage" ]
+        , a [ href "/#/users" ] [ text "Back to homepage" ]
         ]
 
 
@@ -118,7 +118,7 @@ viewMenu route session appModel talksModel =
         [ nav [ class "navbar" ]
             [ Html.ul [ class "navbar-list" ] <|
                 [ Html.ul []
-                    [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
+                    [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "/#/users/all" ] [ icon "fas fa-th" ] ]
                     , li [ getMenuClass SearchRoute route ] [ button [ onClick ResetSearch ] [ icon "fas fa-search" ] ]
                     , li [ class "notif-menu" ]
                         [ button [ onClick ToggleTalksList ] [ icon "fas fa-comments" ]
