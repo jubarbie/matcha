@@ -391,7 +391,7 @@ router.post('/update_dob', (req, res, next) => {
     let dob = req.body.dob;
 
     if (logged) {
-        if (!(Number.isInteger(dob) && dob < (new Date()).getFullYear() - 18 && dob > 1900)) {
+        if (!(Number.isInteger(dob) && dob < (new Date()).getFullYear() - 18 && dob >= 1900)) {
             res.json({
                 "status": false,
                 "msg": "invalid form"

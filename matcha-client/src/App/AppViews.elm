@@ -1,6 +1,7 @@
 module App.AppViews exposing (view)
 
 import App.AppModels exposing (..)
+import App.AppUtils exposing (..)
 import App.Talk.TalkModel exposing (..)
 import App.Talk.TalkUtils exposing (..)
 import App.Talk.TalkView exposing (..)
@@ -120,17 +121,16 @@ viewMenu route session appModel talksModel =
                     [ li [ getMenuClass (UsersRoute "all") route ] [ a [ href "http://localhost:3000/#/users/all" ] [ icon "fas fa-th" ] ]
                     , li [ getMenuClass SearchRoute route ] [ button [ onClick ResetSearch ] [ icon "fas fa-search" ] ]
                     , li [ class "notif-menu" ]
-                        [ button [ onClick ToggleTalksList ]
-                            [ icon "fas fa-comments" ]
+                        [ button [ onClick ToggleTalksList ] [ icon "fas fa-comments" ]
                         , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
                         ]
                     ]
-                , li [] [ button [ onClick ToggleAccountMenu ] [ icon "fas fa-user" ] ]
+                , li [ class "notif-menu" ] [ button [ onClick ToggleAccountMenu ] [ icon "fas fa-user" ]
+                        , notif <| getAccountNotif session.user
+                        ]
                 ]
             ]
         ]
-
-
 
 
 

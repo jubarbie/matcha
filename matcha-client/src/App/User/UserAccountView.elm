@@ -20,12 +20,12 @@ view session model =
           case session.user.bio of
             Just bio ->
               if String.length bio == 0 then
-                  "No bio"
+                  span [class "text-warning pointer", onClick ToggleAccountForm] [text "Please add a bio"]
               else if String.length bio < 50 then
-                  bio
+                  text bio
               else
-                  String.left 50 bio ++ "..."
-            _ -> "No bio"
+                  text <| String.left 50 bio ++ "..."
+            _ -> span [class "text-warning pointer", onClick ToggleAccountForm] [text "Please add a bio"]
     in
     if model.showAccountMenu then
         [ div [ style [ ( "width", "100%" ), ("padding", "14px") ] ]
@@ -36,7 +36,7 @@ view session model =
                 [ h2 [] [ text session.user.username ]
                 , div [] [ text <| session.user.fname ++ " " ++ session.user.lname ]
                 , div [] [ text session.user.email ]
-                , div [] [ text shortBio ]
+                , div [] [ shortBio ]
                 , button [class "btn-no-style", onClick ToggleAccountForm] [  text "Edit infos" ]
                 ]
             , div []
@@ -107,7 +107,7 @@ viewImages model user =
                     )
                     user.photos
           else
-            div [] [ text "You haven't uploaded any pictures yet" ]
+            div [class "center text-warning"] [ text "You haven't uploaded any pictures yet" ]
         , if List.length user.photos < 5 then
             viewNewImgeForm model
           else
@@ -185,9 +185,12 @@ viewTagForm model =
 
 viewGenderForm : Maybe Gender -> Html Msg
 viewGenderForm gender =
-    div [ class "center" ]
-        [ h3 [] [ text "I am" ]
-        , div [ class "row" ]
+    div [ class "center" ] <|
+        h3 [] [ text "I am" ]
+        ::
+        (if gender == Nothing then [span [class "text-warning"] [text "Please select your gender"]] else [])
+        ++
+        [ div [ class "row" ]
             [ label
                 [ for "gmale"
                 , class <|
@@ -278,9 +281,12 @@ viewGenderForm gender =
 
 viewIntInForm : List Gender -> Html Msg
 viewIntInForm intIn =
-    div [ class "center" ]
-        [ h3 [] [ text "I am interested in" ]
-        , div [ class "row" ]
+    div [ class "center" ] <|
+        h3 [] [ text "I am interested in" ]
+        ::
+        (if intIn == [] then [span [class "text-warning"] [text "Please select the gender(s) you like"] ] else [])
+        ++
+        [ div [ class "row" ]
             [ label
                 [ for "imale"
                 , class <|
@@ -391,9 +397,9 @@ viewDateOfBirthInput user =
   div [ class "center" ] <|
     h3 [] [ text "Date of birth" ]
     ::
-    if user.date_of_birth == Nothing then
-        [div [][text "Please set your date of birth"]]
-    else []
+    (if user.date_of_birth == Nothing then
+        [div [ class "text-warning" ][text "Please set your date of birth"]]
+    else [])
     ++
     [ select [ onInput UpdateBirth ] <|
       option

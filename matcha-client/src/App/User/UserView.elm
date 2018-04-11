@@ -1,6 +1,7 @@
 module App.User.UserView exposing (..)
 
 import App.AppModels exposing (..)
+import App.AppUtils exposing (..)
 import App.User.UserHelper exposing (..)
 import App.User.UserModel exposing (..)
 import Date
@@ -23,7 +24,8 @@ view username session appModel model =
                 Just user ->
                     [ userImagesView user session
                     , div [ class "user-infos" ]
-                        [ userNameView user
+                        [ alertView session.user
+                        , userNameView user
                         , userTagsView user session
                         , userBioView user
                         , userReportView user.username
@@ -37,6 +39,12 @@ view username session appModel model =
     in
     div [ class "user-box appear" ] view
 
+alertView : SessionUser -> Html Msg
+alertView user =
+  if getAccountNotif user > 0 then
+    div [ class "center pointer text-warning", onClick ToggleAccountMenu ][text "Please complete your profile to interract with user"]
+  else
+    div [] []
 
 userButtonsView : Session -> User -> Html Msg
 userButtonsView s user =
@@ -120,7 +128,7 @@ userLikeButtonView session user =
             , preventDefault = False
             }
     in
-    if List.length session.user.photos <= 0 then
+    if getAccountNotif session.user > 0 then
         div [] []
     else
         button

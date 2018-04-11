@@ -1,3 +1,9 @@
+.text-warning {
+  color: #cc6c44; }
+
+.text-warning {
+  color: #cc6c44; }
+
 #logo {
   width: 300px;
   margin: 0 auto;
@@ -19,6 +25,9 @@
     transform: translate3d(-4px, 0, 0); }
   40%, 60% {
     transform: translate3d(4px, 0, 0); } }
+.text-warning {
+  color: #cc6c44; }
+
 #talk {
   overflow-y: hidden;
   border: 1px solid grey;
@@ -212,6 +221,9 @@ ul.talk-list {
 
   #talks-list {
     left: 0px; } }
+.text-warning {
+  color: #cc6c44; }
+
 .input {
   margin-bottom: 1rem; }
 
@@ -249,6 +261,9 @@ ul.talk-list {
     color: grey; }
   .edit-form form input[type="submit"] {
     width: inherit; }
+
+.text-warning {
+  color: #cc6c44; }
 
 #users-list {
   padding-top: 56px; }
@@ -596,6 +611,9 @@ ul.users-list {
 @media screen and (max-width: 480px) {
   ul.users-list li {
     width: 100%; } }
+.text-warning {
+  color: #cc6c44; }
+
 #map {
   height: 500px; }
 

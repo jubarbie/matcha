@@ -1,6 +1,7 @@
 module App.User.UsersView exposing (searchView, view)
 
 import App.AppModels exposing (..)
+import App.AppUtils exposing (..)
 import App.User.UserHelper exposing (..)
 import App.User.UserModel exposing (..)
 import App.User.UserView exposing (..)
@@ -329,7 +330,11 @@ viewUsers session appModel model =
                 viewUsersList session appModel model
     in
     div [ id "users-list", class "layout-column" ]
-        [ view
+        [ if getAccountNotif session.user > 0 then
+            div [ onClick ToggleAccountMenu, class "text-warning pointer center" ] [ text "Please complete your account to be able to interract with users" ]
+          else
+            div [][]
+        , view
         ]
 
 
