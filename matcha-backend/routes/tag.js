@@ -45,7 +45,6 @@ router.post('/add', (req, res, next) => {
 
     if (logged && tag) {
         if (tag.length > 30) {
-          console.log("char too long");
           res.json({
               "status": false,
               "msg": "Tag too long. 30 char max."
@@ -60,13 +59,11 @@ router.post('/add', (req, res, next) => {
                                   return tag.tag;
                               });
                           }
-                          console.log(tags);
                           res.json({
                               "status": true,
                               "data": tags
                           });
                       } else {
-                          console.log(err);
                           res.json({
                               "status": false,
                               "msg": "Missing search"
@@ -74,7 +71,6 @@ router.post('/add', (req, res, next) => {
                       }
                   });
               } else {
-                  console.log(err);
                   res.json({
                       "status": false
                   });
@@ -82,7 +78,6 @@ router.post('/add', (req, res, next) => {
           });
         }
     } else {
-        console.log("oup");
         res.json({
             "status": false,
             "msg": "Missing args"
@@ -107,13 +102,11 @@ router.post('/remove', (req, res, next) => {
                                 return tag.tag;
                             });
                         }
-                        console.log(tags);
                         res.json({
                             "status": true,
                             "data": tags
                         });
                     } else {
-                        console.log(err);
                         res.json({
                             "status": false,
                             "msg": "Missing search"
@@ -121,14 +114,12 @@ router.post('/remove', (req, res, next) => {
                     }
                 });
             } else {
-                console.log(err);
                 res.json({
                     "status": false
                 });
             }
         });
     } else {
-        console.log("oup");
         res.json({
             "status": false,
             "msg": "Missing args"

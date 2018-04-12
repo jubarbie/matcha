@@ -28,6 +28,25 @@ app.ports.deleteSession.subscribe(function() {
     window.sessionStorage.removeItem('token');
 });
 
+app.ports.tryToLocalize.subscribe(function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendPosition, noLoc);
+    } else {
+        console.log("no");
+        app.ports.noLocalization.send(false);
+    }
+  function noLoc( error ){
+    console.log(error);
+    app.ports.noLocalization.send(false);
+  }
+  function sendPosition(position) {
+    console.log("pos",position);
+    let pos = [position.coords.longitude, position.coords.latitude];
+    app.ports.localized.send(pos);
+  }
+
+});
+
 app.ports.localize.subscribe(function(loc) {
 
     mapboxgl.accessToken = 'pk.eyJ1IjoianViYXJiaWUiLCJhIjoiY2o4cjV1YmY0MHJtaDJ3cDFhbGZ4aHd2ZCJ9.T1ztr8SLVvZymkDPHCUcBQ';

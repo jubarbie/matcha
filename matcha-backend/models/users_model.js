@@ -5,11 +5,9 @@ let connection = mysql.createConnection(config.database);
 
 exports.getAllUsers = (cb) =>
     connection.query('\
-  		SELECT u.*, GROUP_CONCAT(DISTINCT i.src) AS photos \
+  		SELECT u.* \
   			FROM user AS u \
-  			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-  			LEFT JOIN image AS i ON i.id = rel.id_image \
-  			GROUP BY u.id', cb);
+  			', cb);
 
 exports.getAdvanceSearch = (logged, gender, int_in, searchLogin, searchTags, yearMin, yearMax, cb) => {
     var tagOperator = (searchTags.length == 0) ? 'NOT IN' : 'IN';
@@ -17,15 +15,18 @@ exports.getAdvanceSearch = (logged, gender, int_in, searchLogin, searchTags, yea
     connection.query('\
       SELECT u.login AS login, u.birth AS birth, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
       CASE WHEN u.uuid IS NULL THEN 0 ELSE 1 END AS online, \
+      ( SELECT COUNT(visits.id) FROM visits WHERE visits.user_to = u.login ) AS visits, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
-      GROUP_CONCAT(DISTINCT i.src) AS photos, \
+      (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+        FROM image \
+        JOIN rel_user_image ON image.id=rel_user_image.id_image \
+        LEFT JOIN user ON user.id = rel_user_image.id_user \
+        WHERE rel_user_image.id_user = u.id) AS images, \
       GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
       GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
         FROM user AS u \
-        LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-        INNER JOIN image AS i ON i.id = rel.id_image \
         LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
         LEFT JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
         JOIN sex_orientation AS s ON u.login = s.login \
@@ -46,38 +47,44 @@ exports.getRelevantProfiles = (logged, gender, int_in, cb) =>
     connection.query('\
         SELECT u.login AS login, u.birth AS birth, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
         CASE WHEN u.uuid IS NULL THEN 0 ELSE 1 END AS online, \
+        ( SELECT COUNT(visits.id) FROM visits WHERE visits.user_to = u.login ) AS visits, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
-  		GROUP_CONCAT(DISTINCT i.src) AS photos, \
       GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
-      GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
-  			FROM user AS u \
-  			LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-  			INNER JOIN image AS i ON i.id = rel.id_image \
-  			LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
-  			LEFT JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
-  			JOIN sex_orientation AS s ON u.login = s.login \
-  			WHERE u.gender IN (?) \
-        AND NOT EXISTS ( SELECT reports.id FROM reports WHERE reports.user_to = u.login ) \
-        AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE ( blocks.user_to = u.login AND blocks.user_from = ? ) OR ( blocks.user_to = ? AND blocks.user_from = u.login ) ) \
-  			AND s.gender = ? \
-  			AND (u.activated = "activated" OR u.activated = "resetpwd") \
-  			AND u.login != ? \
-  			GROUP BY u.id', [logged, logged, logged, gender, logged, logged, int_in, logged], cb);
+      GROUP_CONCAT(DISTINCT v.user_from) AS visitor, \
+      (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+  	 	  FROM image \
+  	 	  JOIN rel_user_image ON image.id=rel_user_image.id_image \
+  		  LEFT JOIN user ON user.id = rel_user_image.id_user \
+  		  WHERE rel_user_image.id_user = u.id) AS images \
+  		FROM user AS u \
+  		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+  		LEFT JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
+  		JOIN sex_orientation AS s ON u.login = s.login \
+  		WHERE u.gender IN (?) \
+      AND NOT EXISTS ( SELECT reports.id FROM reports WHERE reports.user_to = u.login ) \
+      AND NOT EXISTS ( SELECT blocks.id FROM blocks WHERE ( blocks.user_to = u.login AND blocks.user_from = ? ) OR ( blocks.user_to = ? AND blocks.user_from = u.login ) ) \
+  		AND s.gender = ? \
+  		AND (u.activated = "activated" OR u.activated = "resetpwd") \
+  		AND u.login != ? \
+  		GROUP BY u.id', [logged, logged, logged, gender, logged, logged, int_in, logged], cb);
 
 exports.getVisitors = (logged, gender, int_in, cb) =>
     connection.query('\
 			SELECT u.login AS login, u.birth AS birth, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, u.localisation AS localisation, \
             CASE WHEN u.uuid IS NULL THEN 0 ELSE 1 END AS online, \
+      ( SELECT COUNT(visits.id) FROM visits WHERE visits.user_to = u.login ) AS visits, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
-      GROUP_CONCAT(DISTINCT i.src) AS photos, \
+      (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+        FROM image \
+        JOIN rel_user_image ON image.id=rel_user_image.id_image \
+        LEFT JOIN user ON user.id = rel_user_image.id_user \
+        WHERE rel_user_image.id_user = u.id) AS images, \
       GROUP_CONCAT(DISTINCT relt.tag) AS tags \
 				FROM user AS u \
-				LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-				LEFT JOIN image AS i ON i.id = rel.id_image \
 				LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
 				JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
 				JOIN sex_orientation AS s ON u.login = s.login \
@@ -94,14 +101,17 @@ exports.getLikers = (logged, gender, int_in, cb) =>
     connection.query('\
 					SELECT u.login AS login, u.birth AS birth, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, u.localisation AS localisation, \
                     CASE WHEN u.uuid IS NULL THEN 0 ELSE 1 END AS online, \
+          ( SELECT COUNT(visits.id) FROM visits WHERE visits.user_to = u.login ) AS visits, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
-          GROUP_CONCAT(DISTINCT i.src) AS photos, \
+          (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+      	 	  FROM image \
+      	 	  JOIN rel_user_image ON image.id=rel_user_image.id_image \
+      		  LEFT JOIN user ON user.id = rel_user_image.id_user \
+      		  WHERE rel_user_image.id_user = u.id) AS images, \
           GROUP_CONCAT(DISTINCT relt.tag) AS tags \
 						FROM user AS u \
-						LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-						LEFT JOIN image AS i ON i.id = rel.id_image \
 						LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
 						JOIN likes AS l ON l.user_to = ? AND l.user_from = u.login \
 						JOIN sex_orientation AS s ON u.login = s.login \
@@ -118,14 +128,17 @@ exports.getMatchers = (logged, gender, int_in, cb) =>
     connection.query('\
 					SELECT u.login AS login, u.birth AS birth, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, u.localisation AS localisation, \
                     CASE WHEN u.uuid IS NULL THEN 0 ELSE 1 END AS online, \
+          ( SELECT COUNT(visits.id) FROM visits WHERE visits.user_to = u.login ) AS visits, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
           ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
-          GROUP_CONCAT(DISTINCT i.src) AS photos, \
+          (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+      	 	  FROM image \
+      	 	  JOIN rel_user_image ON image.id=rel_user_image.id_image \
+      		  LEFT JOIN user ON user.id = rel_user_image.id_user \
+      		  WHERE rel_user_image.id_user = u.id) AS images, \
           GROUP_CONCAT(DISTINCT relt.tag) AS tags \
 						FROM user AS u \
-						LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-						LEFT JOIN image AS i ON i.id = rel.id_image \
 						LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
 						JOIN likes AS l ON l.user_to = ? AND l.user_from = u.login \
 						JOIN sex_orientation AS s ON u.login = s.login \
@@ -143,16 +156,19 @@ exports.getFullDataUserWithLogin = (logged, login, cb) =>
     connection.query('\
   		SELECT u.login AS login, u.birth AS birth, u.localisation AS localisation, u.gender AS gender, u.bio AS bio, u.last_connection AS last_connection, \
         CASE WHEN u.uuid IS NULL THEN 0 ELSE 1 END AS online, \
-      GROUP_CONCAT(DISTINCT i.src) AS photos, \
+        (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+          FROM image \
+          JOIN rel_user_image ON image.id=rel_user_image.id_image \
+          LEFT JOIN user ON user.id = rel_user_image.id_user \
+          WHERE rel_user_image.id_user = u.id) AS images, \
       ( SELECT COUNT(talk.id) FROM talk WHERE username1 = ? AND username2 = ? ) AS talks, GROUP_CONCAT(DISTINCT relt.tag) AS tags, \
+      ( SELECT COUNT(visits.id) FROM visits WHERE visits.user_to = u.login ) AS visits, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
   		GROUP_CONCAT(DISTINCT s.gender) AS interested_in, \
       GROUP_CONCAT(DISTINCT v.user_from) AS visitor \
     		FROM user AS u \
-    		LEFT JOIN rel_user_image AS rel ON rel.id_user = u.id \
-    		LEFT JOIN image AS i ON i.id = rel.id_image \
     		LEFT JOIN sex_orientation AS s ON u.login = s.login \
     		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
     		LEFT JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
@@ -161,22 +177,34 @@ exports.getFullDataUserWithLogin = (logged, login, cb) =>
 
 exports.getUserWithLogin = (login, cb) =>
     connection.query(' \
-    		SELECT u.*, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags  \
-      		FROM user AS u \
-      		LEFT JOIN sex_orientation AS s ON s.login = u.login \
-      		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
-      		WHERE u.login = ? \
-      		GROUP BY u.id \
+    		SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
+        (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+    	 	  FROM image \
+    	 	  JOIN rel_user_image ON image.id=rel_user_image.id_image \
+    		  LEFT JOIN user ON user.id = rel_user_image.id_user \
+    		  WHERE rel_user_image.id_user = u.id) AS images \
+    		FROM user AS u \
+    		LEFT JOIN sex_orientation AS s ON s.login = u.login \
+        LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+    		WHERE u.login = ? \
+    		GROUP BY u.id \
       		', [login], cb);
+
 exports.getUserWithUuid = (id, cb) =>
     connection.query(' \
-    		SELECT u.*, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags  \
-      		FROM user AS u \
-      		LEFT JOIN sex_orientation AS s ON s.login = u.login \
-      		LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
-      		WHERE u.uuid = ? \
-      		GROUP BY u.id \
+      SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
+      (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+        FROM image \
+        JOIN rel_user_image ON image.id=rel_user_image.id_image \
+        LEFT JOIN user ON user.id = rel_user_image.id_user \
+        WHERE rel_user_image.id_user = u.id) AS images \
+      FROM user AS u \
+      LEFT JOIN sex_orientation AS s ON s.login = u.login \
+      LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+      WHERE u.uuid = ? \
+      GROUP BY u.id \
       		', [id], cb);
+
 exports.getUserWithLoginAndEmail = (login, email, cb) =>
     connection.query('SELECT * FROM user WHERE login = ? AND email = ?', [login, email], cb);
 

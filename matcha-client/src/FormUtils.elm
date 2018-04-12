@@ -184,7 +184,7 @@ validTag value =
                 else
                   NotValid "30 char max")
             else
-                NotValid "Only numbers and chars"
+                NotValid "Only letter, numbers and '_'"
 
 
 validPassword : Maybe String -> FormStatus

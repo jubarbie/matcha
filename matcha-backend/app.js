@@ -86,7 +86,7 @@ app.ws('/ws', function(ws, req) {
                                       });
                                     }
                                    else {
-                                     console.log(err);
+                                     //console.log(err);
                                    }
                                   });
                               } else {

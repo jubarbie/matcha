@@ -28,7 +28,7 @@ updateLogin msg route loginModel =
                     ( initialModel LoginRoute, Cmd.none )
 
         NewUserResponse response ->
-            case Debug.log "rep" response of
+            case response of
                 Success rep ->
                     if rep.status then
                       ( NotConnected route { loginModel | message = Just "Your account has been created, check your emails" }
@@ -115,7 +115,7 @@ updateLogin msg route loginModel =
                 newRoute =
                     parseLoginLocation location
             in
-            ( NotConnected newRoute loginModel, Cmd.none )
+            ( NotConnected newRoute { loginModel | message = Nothing } , Cmd.none )
 
         _ ->
             ( NotConnected route loginModel, Cmd.none )

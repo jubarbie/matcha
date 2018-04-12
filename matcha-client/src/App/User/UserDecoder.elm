@@ -97,14 +97,13 @@ decodeSessionUser =
         |: maybe (field "birth" JsonDec.int)
         |: field "tags" (JsonDec.list JsonDec.string)
         |: field "localisation" decodeLocalisation
-        |: field "photos" decodeImgs
-        |: field "rights" decodeRole
+        |: field "images" decodeImgs
         |: field "activated" decodeUserStatus
 
 
-decodeImgs : Decoder (List ( Int, String ))
+decodeImgs : Decoder (List ( Int, String, Bool ))
 decodeImgs =
-    JsonDec.list <| arrayAsTuple2 JsonDec.int JsonDec.string
+    JsonDec.list <| arrayAsTuple3 JsonDec.int JsonDec.string JsonDec.bool
 
 
 decodeUser : Decoder User
@@ -117,10 +116,11 @@ decodeUser =
         |: field "liking" JsonDec.bool
         |: field "liked" JsonDec.bool
         |: field "likes" JsonDec.int
+        |: field "visits" JsonDec.int
         |: field "has_talk" JsonDec.bool
         |: field "visitor" JsonDec.bool
         |: field "tags" (JsonDec.list JsonDec.string)
-        |: field "photos" (JsonDec.list JsonDec.string)
+        |: field "images" decodeImgs
         |: field "last_connection" JsonDec.string
         |: field "online" JsonDec.bool
         |: field "distance" JsonDec.float
@@ -150,4 +150,17 @@ arrayAsTuple2 a b =
             (\aVal ->
                 index 1 b
                     |> JsonDec.andThen (\bVal -> JsonDec.succeed ( aVal, bVal ))
+            )
+
+arrayAsTuple3 : Decoder a -> Decoder b -> Decoder c -> Decoder ( a, b, c )
+arrayAsTuple3 a b c =
+    index 0 a
+        |> JsonDec.andThen
+            (\aVal ->
+                index 1 b
+                    |> JsonDec.andThen
+                        (\bVal ->
+                            index 2 c
+                              |> JsonDec.andThen (\cVal -> JsonDec.succeed ( aVal, bVal, cVal ))
+                        )
             )

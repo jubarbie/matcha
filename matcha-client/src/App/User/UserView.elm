@@ -68,12 +68,20 @@ userReportView username =
 
 userPopuView : User -> Html Msg
 userPopuView user =
+  let
+    popu = getPopu user
+  in
     div [ class "pull-right" ] <|
-        List.indexedMap (getStar user.likes) [ 5, 10, 50, 100, 250 ]
+        span [] [ text <| toString popu ++ " " ]
+        ::
+        List.indexedMap (getStar <| round popu) [ 5, 10, 50, 100, 200 ]
 
+getPopu : User -> Float
+getPopu user =
+  toFloat user.likes * 2 + toFloat user.visits * 0.5
 
 getStar : Int -> Int -> Int -> Html Msg
-getStar likes index step =
+getStar popu index step =
     let
         att =
             if (index % 2) /= 0 then
@@ -81,7 +89,7 @@ getStar likes index step =
             else
                 []
     in
-    if likes >= step then
+    if popu >= step then
         i ([ class "fas fa-star" ] ++ att) []
     else
         i ([ class "far fa-star" ] ++ att) []
@@ -172,16 +180,8 @@ userOnlineStatusView model user =
                 _ ->
                     Date.fromTime 0
 
-        online =
-            case ( String.toFloat user.lastOn, model.currentTime ) of
-                ( Ok l, Just ct ) ->
-                    if l > ct - 7200000 && user.online then
-                        True
-                    else
-                        False
+        online = getOnlineStatus model user
 
-                _ ->
-                    False
     in
     if online then
         div [ class "online-status on" ] [ text "Online ", icon "fas fa-circle" ]
@@ -239,14 +239,14 @@ userImagesView user session =
     let
         imgSrc =
             case List.head user.photos of
-                Just src ->
+                Just (id_, src, main) ->
                     src
 
                 _ ->
                     "http://profile.actionsprout.com/default.jpeg"
     in
     div [ style [ ( "background", "url(" ++ imgSrc ++ ") center center no-repeat" ) ], class "img-box" ] <|
-        galleryButtonView user.photos user
+        galleryButtonView (List.map (\(a, b, c) -> b) user.photos) user
             ++ [ userButtonsView session user ]
 
 

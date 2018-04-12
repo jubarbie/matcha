@@ -11,6 +11,7 @@
 .input .input-tip {
 	font-size: 0.8em;
 	text-align: left;
+	color: $grey-light;
 }
 .input.input-error input, .input.input-error textarea {
 	border-bottom: 1px solid red !important;
@@ -18,8 +19,13 @@
 .input.input-error .input-tip {
 	color: $red;
 }
-.input.input-success input, .input.input-success textarea {
-	border: 1px solid green;
+.input.input-success {
+	.input-tip {
+		color: $green;
+	}
+	input, textarea {
+		border: 1px solid $green;
+	}
 }
 .label-upload input {
 	position: absolute;

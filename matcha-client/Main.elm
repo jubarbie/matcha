@@ -4,7 +4,6 @@ import Navigation exposing (Location)
 import Routing exposing (..)
 import WebSocket
 import Time
-
 import Views exposing (view)
 import Models exposing (..)
 import App.AppModels exposing (..)
@@ -26,7 +25,7 @@ init location =
               route -> NotConnected route initialLoginModel
           route -> Connexion route
   in
-    ( Debug.log "model" model, getToken () )
+    ( model, getToken () )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -44,6 +43,8 @@ subscriptions model =
               _ -> Sub.none
         in
           Sub.batch [ newLocalisation SetNewLocalisation
+                    , noLocalization LocalizeIp
+                    , localized NewLoc 
                     , fileContentRead ImageRead
                     , subAnim
                     , subRoute

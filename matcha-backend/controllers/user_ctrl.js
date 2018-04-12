@@ -49,27 +49,27 @@ ctrl.getConnectedUser = function(login, callback) {
                     return talk;
                 });
                 user.talks = talks;
-                user.photos = [];
                 user.interested_in = (user.interested_in) ? user.interested_in.split(',') : [];
                 user.tags = (user.tags) ? user.tags.split(',') : [];
-                ImageModel.getImagesFromUserId(user.id, function(err, imgs, fields) {
-                    if (!err && imgs.length > 0) {
-                        user.photos = imgs.map(function(img) {
-                            return [img.id, config.root_url + config.upload_path + img.src];
-                        });
-                    }
-                    if (user.localisation) {
-                        user.localisation = JSON.parse(user.localisation);
-                    } else {
-                        user.localisation = {
-                            'lon': 0,
-                            'lat': 0
-                        };
-                    }
-                    callback(user);
-                });
+                user.images = (user.images) ? user.images.split(',').map((line) => {
+                  let img = line.split(";");
+                  img[0] = parseInt(img[0]);
+                  img[1] = config.root_url + "upload/images/" + img[1];
+                  img[2] = (img[2] == 1);
+                  return img;
+                } ) : [];
+                if (user.localisation) {
+                    user.localisation = JSON.parse(user.localisation);
+                } else {
+                    user.localisation = {
+                        'lon': 0,
+                        'lat': 0
+                    };
+                }
+                callback(user);
             });
         } else {
+          console.log("error",err);
             callback(null);
         }
     });
@@ -115,10 +115,14 @@ ctrl.getAdvanceSearch = (logged, searchLogin, searchTags, min, max, dist, callba
 
 function formatUser(row, logged) {
     row.has_talk = false;
-    row.photos = (row.photos) ? row.photos.split(",") : ["M", "F", "O", "NB"];
-    row.photos = row.photos.map(function(img) {
-        return config.root_url + config.upload_path + img;
-    });
+    row.interested_in = (row.interested_in) ? row.interested_in.split(",") : ["M", "F", "O", "NB"];
+    row.images = (row.images) ? row.images.split(',').map((line) => {
+      let img = line.split(";");
+      img[0] = parseInt(img[0]);
+      img[1] = config.root_url + "upload/images/" + img[1];
+      img[2] = (img[2] == 1);
+      return img;
+    } ) : [];
     row.tags = (row.tags) ? row.tags.split(',') : [];
     row.visitor = (row.visitor != null) ? true : false;
     if (row.localisation && logged.localisation) {

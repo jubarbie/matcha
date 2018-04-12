@@ -21,8 +21,7 @@ type alias SessionUser =
     , date_of_birth : Maybe Int
     , tags : List String
     , localisation : Localisation
-    , photos : List ( Int, String )
-    , role : UserRole
+    , photos : List ( Int, String, Bool )
     , status : UserStatus
     }
 
@@ -35,10 +34,11 @@ type alias User =
     , liking : Bool
     , liked : Bool
     , likes : Int
+    , visits : Int
     , has_talk : Bool
     , visitor : Bool
     , tags : List String
-    , photos : List String
+    , photos : List ( Int, String, Bool )
     , lastOn : String
     , online : Bool
     , distance : Float

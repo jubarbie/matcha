@@ -26,7 +26,10 @@ view talk appModel model =
             [ div [ id "current-talk", class "layout-row flex" ]
                 [ div
                     [ id "talk", class <| "layout-column" ++ getEmoListClass appModel.showEmoList ]
-                    [ div [ id "talk-title" ] [ h6 [] [ text talk, button [ onClick CloseCurrentTalk, class "pull-right btn-no-style" ] [ text "x" ] ] ]
+                    [ div [ id "talk-title" ]
+                      [ h6 []
+                        [ text talk
+                        , button [ onClick CloseCurrentTalk, class "pull-right btn-no-style" ] [ text "x" ] ] ]
                     , div [ id "talk-list", class "message-list content" ] (List.map (messageView t.username_with) messages)
                     , div [ id "talk-foot" ]
                         [ emoListView emoticonList talk

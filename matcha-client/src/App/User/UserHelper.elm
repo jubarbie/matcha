@@ -1,6 +1,19 @@
 module App.User.UserHelper exposing (..)
 
 import App.User.UserModel exposing (..)
+import App.AppModels exposing (..)
+
+getOnlineStatus: AppModel -> User -> Bool
+getOnlineStatus model user =
+  case ( String.toFloat user.lastOn, model.currentTime ) of
+    ( Ok l, Just ct ) ->
+        if l > ct - 7200000 && user.online then
+            True
+        else
+            False
+
+    _ ->
+        False
 
 findUserByName: String -> Users -> Maybe User
 findUserByName username users =

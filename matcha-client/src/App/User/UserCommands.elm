@@ -179,7 +179,7 @@ sendVisitNotif token to =
                     , ( "to", JsonEnc.string to )
                     ]
     in
-    WebSocket.send "ws://localhost:3001/ws" <| Debug.log "notif" body
+    WebSocket.send "ws://localhost:3001/ws" body
 
 
 getIpLocalisation : Cmd Msg
@@ -333,6 +333,20 @@ delImg id_ token =
     let
         url =
             "http://localhost:3001/api/users/del_image"
+
+        body =
+            Http.jsonBody <|
+                JsonEnc.object
+                    [ ( "id_img", JsonEnc.int id_ ) ]
+    in
+    apiPostRequest (Just decodeSessionUser) token url body
+        |> Http.send UpdateFieldResponse
+
+mainImg : Int -> String -> Cmd Msg
+mainImg id_ token =
+    let
+        url =
+            "http://localhost:3001/api/users/update_main_image"
 
         body =
             Http.jsonBody <|

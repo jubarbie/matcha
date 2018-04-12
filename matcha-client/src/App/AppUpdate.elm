@@ -118,7 +118,7 @@ updateApp msg route session appModel usersModel talksModel =
                                         _ ->
                                             Cmd.none
                             in
-                            ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, cmd )
+                              ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, cmd )
 
                         ( False, _, Just msg ) ->
                             ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
@@ -133,7 +133,7 @@ updateApp msg route session appModel usersModel talksModel =
             handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none model
 
         SearchResponse response ->
-            case Debug.log "res" response of
+            case response of
                 Ok rep ->
                     case ( rep.status, rep.data, rep.message ) of
                         ( True, Just d, _ ) ->
@@ -201,8 +201,13 @@ updateApp msg route session appModel usersModel talksModel =
 
                                 newSession =
                                     { session | user = { user | localisation = l } }
+
+                                cmd =
+                                 case route of
+                                   UsersRoute a -> getRelevantUsers a session.token
+                                   _ -> Cmd.none
                             in
-                            ( Connected route newSession appModel usersModel talksModel, Cmd.none )
+                            ( Connected route newSession appModel usersModel talksModel, cmd  )
 
                         _ ->
                             ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
@@ -308,7 +313,10 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         Localize ->
-            ( model, getIpLocalisation )
+            ( model, tryToLocalize () )
+
+        LocalizeIp worked ->
+          ( model, getIpLocalisation )
 
         SetNewLocalisation loc ->
             case loc of
@@ -318,8 +326,16 @@ updateApp msg route session appModel usersModel talksModel =
                 _ ->
                     ( model, Cmd.none )
 
+        NewLoc loc ->
+            case Debug.log "loc" loc of
+                [ long, lat ] ->
+                    ( Connected route session { appModel | current_location = Just <| Localisation long lat } usersModel talksModel, localize [ long, lat ] )
+
+                _  ->
+                    ( model, Cmd.none )
+
         GetIpLocalisationResponse resp ->
-            case Debug.log "local" resp of
+            case resp of
                 Success locapi ->
                     let
                         loc =
@@ -368,7 +384,7 @@ updateApp msg route session appModel usersModel talksModel =
                         _ ->
                             Nothing
             in
-            ( Connected route session { appModel | matchAnim = Debug.log "newAnim" newAnim } usersModel talksModel, Cmd.none )
+            ( Connected route session { appModel | matchAnim = newAnim } usersModel talksModel, Cmd.none )
 
         SaveAccountUpdates ->
             let
@@ -724,7 +740,8 @@ updateApp msg route session appModel usersModel talksModel =
                 _ ->
                   (model, Cmd.none)
 
-
+        UpdateMainImage id_ ->
+          (model, mainImg id_ session.token)
 
         ToggleAccountForm ->
           (Connected route session { appModel | editAccountForm = initEditAccountForm session.user, showEditAccountForm = not appModel.showEditAccountForm, showResetPwdForm = False } usersModel talksModel, Cmd.none)

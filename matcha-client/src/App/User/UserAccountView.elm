@@ -98,10 +98,16 @@ viewImages model user =
         [ if List.length user.photos > 0 then
             Html.ul [ class "img-account-list" ] <|
                 List.map
-                    (\( id_, s ) ->
+                    (\( id_, s, main ) ->
                         li []
                             [ div [ style [ ( "background", "url(" ++ s ++ ") center center no-repeat" ) ], class "img-box" ]
                                 [ button [ class "del", onClickCustom True False (DeleteImg id_) ] [ icon "fas fa-times" ]
+                                , button [ class "img-main", onClickCustom True False (UpdateMainImage id_ ) ]
+                                        [ if main then
+                                            Html.Keyed.node "main" [ class "fas fa-star" ] []
+                                          else
+                                            Html.Keyed.node "nomain" [ class "far fa-star" ] []
+                                        ]
                                 ]
                             ]
                     )

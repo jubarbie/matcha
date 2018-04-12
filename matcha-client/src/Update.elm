@@ -35,7 +35,7 @@ updateConnexion : Msg -> AppRoutes -> ( Model, Cmd Msg )
 updateConnexion msg route =
     case msg of
         SessionUserResponse token response ->
-            case Debug.log "sessionUserResponse" response of
+            case response of
                 Ok rep ->
                     case ( rep.status, rep.data ) of
                         ( True, Just u ) ->
@@ -84,7 +84,7 @@ updateConnexion msg route =
                     ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
 
         LoginResponse response ->
-            case Debug.log "login" response of
+            case response of
                 Success rep ->
                     case ( rep.status, rep.token, rep.user ) of
                         ( True, Just t, Just user ) ->

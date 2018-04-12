@@ -11,7 +11,6 @@ ImageModel.getAllImages((err, imgs, fields) => {
     });
     UsersModel.getAllUsers((err, rows, fields) => {
       if (!err && rows.length > 0) {
-        console.log(rows);
         var yo = rows.map((row) => {
           ImageModel.relUserImage(row.id, imgs[Math.floor(Math.random()*imgs.length)]);
           return row;

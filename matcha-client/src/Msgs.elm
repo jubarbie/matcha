@@ -51,6 +51,8 @@ type Msg
     | LoadMap Time.Time
     | GetIpLocalisationResponse (WebData LocalisationApi)
     | Localize
+    | LocalizeIp Bool
+    | NewLoc (List Float)
     | UpdateEditAccountForm String String
     | SaveAccountUpdates
     | UpdateAnim Time.Time
@@ -94,3 +96,4 @@ type Msg
     | UpdateBirth String
     | ToggleAccountForm
     | ToggleResetPwdForm
+    | UpdateMainImage Int

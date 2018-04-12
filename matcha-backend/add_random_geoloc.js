@@ -6,7 +6,6 @@ var config = require('./config');
 
 UsersModel.getAllUsers((err, rows, fields) => {
   if (!err && rows.length > 0) {
-    console.log(rows);
     var yo = rows.map((row) => {
       UsersModel.updateLocation(row.login, get_random_loc(2.271423,48.840317,2.409439,48.901741));
       return row;

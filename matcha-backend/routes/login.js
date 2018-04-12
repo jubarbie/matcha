@@ -37,7 +37,7 @@ apiRoutes.post('/token', (req, res, next) => {
                     expiresIn: "120 min"
                 });
                 var now = Date.now();
-                console.log(user);
+                delete user.password;
                 UsersModel.updateConnectionDate(user.id, now, uuid, (err, rows, fields) => {
                     res.json({
                         "status": true,
@@ -74,7 +74,6 @@ apiRoutes.post('/new', (req, res, next) => {
     const valid = validation.validateUserInfos(req);
 
     if (!valid.valid) {
-        console.log(valid);
         res.json({
             "status": false,
             "msg": valid.errors
@@ -82,7 +81,6 @@ apiRoutes.post('/new', (req, res, next) => {
     } else {
         UsersModel.getUserWithLogin(req.body.username, function(err, rows, fields) {
             if (rows.length > 0) {
-                console.log("Login already used");
                 res.json({
                     "status": false,
                     "msg": "Login already used"
@@ -98,7 +96,6 @@ apiRoutes.post('/new', (req, res, next) => {
                             "msg": url
                         });
                     } else {
-                        console.log('Error insert new user', err);
                         res.json({
                             "status": false
                         });
@@ -154,7 +151,6 @@ apiRoutes.post('/reset_password', (req, res, next) => {
                         "status": true
                     });
                 } else {
-                    console.log(err);
                     res.json({
                         "status": false
                     });

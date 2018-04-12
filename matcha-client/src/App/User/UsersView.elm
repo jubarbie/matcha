@@ -372,39 +372,45 @@ viewUsersList session appModel model =
     ul [ class <| "users-list" ] <|
         List.map
             (\( i, u ) ->
-                li [] [ cardUserView u i session model ]
+                li [] [ cardUserView appModel u i session model ]
             )
         <|
             listOrdered
 
 
-cardUserView : User -> Int -> Session -> UsersModel -> Html Msg
-cardUserView user i session model =
+cardUserView : AppModel -> User -> Int -> Session -> UsersModel -> Html Msg
+cardUserView appModel user i session model =
     Html.Keyed.node (String.filter Char.isLower user.username)
         []
         [ ( "div"
           , div [ onClick <| ShowUser user.username, class <| "user-card animated fadeInUp", style [ ( "animation-delay", toString (toFloat i / 15) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
                 [ userImageView user session model
-                , userInfosView user model
+                , userInfosView appModel user model
                 ]
           )
         ]
 
 
-userInfosView : User -> UsersModel -> Html Msg
-userInfosView user model =
-    div [ class "user-infos" ]
+userInfosView : AppModel -> User -> UsersModel -> Html Msg
+userInfosView appModel user model =
+    div [ class "user-infos" ] <|
         [ userNameView user
         , userDistanceView user
-        ]
+        ] ++
+        if getOnlineStatus appModel user then
+            [ div [ class "online-status on" ] [ text "Online ", icon "fas fa-circle" ] ]
+        else []
 
+isMainImage : (Int, String, Bool) -> Bool
+isMainImage (a, b, c) =
+  c
 
 userImageView : User -> Session -> UsersModel -> Html Msg
 userImageView user session model =
     let
         imgSrc =
-            case List.head user.photos of
-                Just src ->
+            case List.head <| List.filter isMainImage user.photos of
+                Just (id_, src, main) ->
                     src
 
                 _ ->

@@ -14,7 +14,7 @@ exports.hasRole = function(role) {
             var decoded = jwt.verify(token, config.secret);
 
             UsersModel.getUserWithUuid(decoded.id, function(err, rows, fields) {
-                if (!err && rows.length > 0 && rows[0].rights <= role) {
+                if (!err && rows.length > 0) {
                     req.logged_user = rows[0];
                     next();
                 } else {

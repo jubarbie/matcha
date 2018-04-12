@@ -234,7 +234,8 @@ ul.talk-list {
 
 .input .input-tip {
   font-size: 0.8em;
-  text-align: left; }
+  text-align: left;
+  color: grey; }
 
 .input.input-error input, .input.input-error textarea {
   border-bottom: 1px solid red !important; }
@@ -242,6 +243,8 @@ ul.talk-list {
 .input.input-error .input-tip {
   color: #a72424; }
 
+.input.input-success .input-tip {
+  color: green; }
 .input.input-success input, .input.input-success textarea {
   border: 1px solid green; }
 
@@ -503,7 +506,7 @@ ul.users-list {
       width: 100%;
       padding-bottom: 100%;
       position: relative; }
-      .img-account-list li .img-box .del {
+      .img-account-list li .img-box .del, .img-account-list li .img-box .img-main {
         background: #a72424;
         padding: 0;
         line-height: normal;
@@ -515,6 +518,10 @@ ul.users-list {
         position: absolute;
         top: 10px;
         right: 10px; }
+      .img-account-list li .img-box .img-main {
+        background: white;
+        color: grey;
+        top: 35px; }
 
 .gender-btn {
   font-size: 1em;

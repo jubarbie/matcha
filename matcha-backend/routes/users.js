@@ -49,10 +49,8 @@ router.post('/search', (req, res, next) => {
     let searchMax = req.body.searchMax;
     let searchLoc = req.body.searchLoc;
 
-    console.log(req.body);
 
     UserCtrl.getAdvanceSearch(logged, searchLogin, searchTags, searchMin, searchMax, searchLoc, function(users) {
-        console.log(users);
         if (users) {
             res.json({
                 "status": true,
@@ -124,7 +122,6 @@ router.get('/matchers', (req, res, next) => {
     UserCtrl.getMatchers(logged, function(users) {
         if (users) {
             LikesModel.updateLikeLast(logged.login, now);
-            console.log(users);
             res.json({
                 "status": true,
                 "data": users
@@ -156,7 +153,7 @@ router.get('/connected_user', (req, res, next) => {
 
     UserCtrl.getConnectedUser(logged.login, function(user) {
         if (user) {
-            console.log(user);
+            delete user.password;
             res.json({
                 "status": true,
                 "data": user
@@ -374,7 +371,6 @@ router.post('/update_int_in', (req, res, next) => {
                 if (!err) {
                     sendConnectedUser(logged, res);
                 } else {
-                    console.log("error", err);
                     res.json({
                         "status": false
                     });
@@ -489,7 +485,6 @@ router.post('/save_loc', (req, res, next) => {
                     "status": true
                 });
             } else {
-                console.log("error", err);
                 res.json({
                     "status": false
                 });
@@ -566,7 +561,7 @@ router.post('/new_image', (req, res, next) => {
 
 });
 
-/* Like or unlike user. */
+/* Delete image */
 router.post('/del_image', (req, res, next) => {
 
     var logged = req.logged_user;
@@ -606,6 +601,34 @@ router.post('/del_image', (req, res, next) => {
         });
     }
 
+});
+
+/* Like or unlike user. */
+router.post('/update_main_image', (req, res, next) => {
+
+  var logged = req.logged_user;
+  var id_img = req.body.id_img;
+
+  if (logged && id_img) {
+      ImageModel.getImageFromUserAndId(logged.id, id_img, (err, imgs, fields) => {
+        if (!err) {
+          if (imgs.length > 0) {
+            UsersModel.updateField(logged.login, 'img_id', id_img);
+            sendConnectedUser(logged, res);
+          } else {
+            res.json({
+                "status": false,
+                "msg": "The image does not belong to this user"
+            });
+          }
+        } else {
+          res.json({
+              "status": false,
+              "msg": "An error occured while updting profile picture"
+          });
+        }
+      });
+  }
 });
 
 function decodeBase64Image(dataString) {

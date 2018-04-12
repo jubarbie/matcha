@@ -298,7 +298,7 @@ ul.users-list {
 	 		 padding-bottom: 100%;
 	 		 position: relative;
 
-			 .del {
+			 .del, .img-main {
 				 background: $red;
 				 padding: 0;
 				 line-height: normal;
@@ -311,6 +311,11 @@ ul.users-list {
 				 top: 10px;
 				 right: 10px;
 			 }
+			 .img-main {
+				 	background: $white;
+					color: $grey-light;
+		 			top: 35px;
+		 	}
 		}
 	}
 }
