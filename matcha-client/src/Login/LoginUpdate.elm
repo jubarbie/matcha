@@ -115,7 +115,12 @@ updateLogin msg route loginModel =
                 newRoute =
                     parseLoginLocation location
             in
-            ( NotConnected newRoute { loginModel | message = Nothing } , Cmd.none )
+            ( NotConnected
+              newRoute
+              { loginModel | message = Nothing
+                            , loginForm = initLoginForm
+                            , newUserForm = initFastNewUserForm
+                            , resetPwdForm = initResetPwdForm } , Cmd.none )
 
         _ ->
             ( NotConnected route loginModel, Cmd.none )

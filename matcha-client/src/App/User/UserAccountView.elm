@@ -50,7 +50,7 @@ view session model =
             , viewIntInForm session.user.intIn
             , viewTagSection model session.user
             , viewImages model session.user
-            , viewLocalisation
+            , viewLocalisation model
             , div [ onClick Logout, class "center logout-btn" ] [ text "Logout ", icon "fas fa-power-off" ]
             ]
         ]
@@ -82,11 +82,16 @@ getUserBio user =
     Just bio -> bio
     _ -> ""
 
-viewLocalisation : Html Msg
-viewLocalisation =
-    div [ ]
+viewLocalisation : AppModel -> Html Msg
+viewLocalisation model =
+    div (if model.localizing then [class "localizing"] else [])
         [ h3 [] [text "Localisation"]
-        , div [ id "map" ] [button [ onClick Localize, class "map-btn" ] [ icon "fas fa-location-arrow" ]]
+        , div [ id "map" ]
+              [ if model.localizing then
+                  button [ class "map-btn", Html.Attributes.attribute "disabled" "disabled" ] [  Html.Keyed.node "loc" [ class "fas fa-spinner fa-pulse" ][] ]
+                else
+                  button [ onClick Localize, class "map-btn" ] [  Html.Keyed.node "nloc" [ class  "fas fa-location-arrow" ] [] ]
+              ]
         ]
 
 

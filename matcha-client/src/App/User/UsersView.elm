@@ -398,7 +398,7 @@ userInfosView appModel user model =
         , userDistanceView user
         ] ++
         if getOnlineStatus appModel user then
-            [ div [ class "online-status on" ] [ text "Online ", icon "fas fa-circle" ] ]
+            [ div [ class "online-status on" ] [ text "Online ", Html.Keyed.node "online" [class "fas fa-circle"][] ] ]
         else []
 
 isMainImage : (Int, String, Bool) -> Bool

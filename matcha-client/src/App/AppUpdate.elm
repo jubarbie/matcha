@@ -207,13 +207,13 @@ updateApp msg route session appModel usersModel talksModel =
                                    UsersRoute a -> getRelevantUsers a session.token
                                    _ -> Cmd.none
                             in
-                            ( Connected route newSession appModel usersModel talksModel, cmd  )
+                            ( Connected route newSession { appModel | localizing = False } usersModel talksModel, cmd  )
 
                         _ ->
-                            ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
+                            ( Connected route session { appModel | message = Just "Error while saving localisation. Try again", localizing = False } usersModel talksModel, Cmd.none )
 
                 _ ->
-                    ( Connected route session { appModel | message = Just "Error while saving localisation. Try again" } usersModel talksModel, Cmd.none )
+                    ( Connected route session { appModel | message = Just "Error while saving localisation. Try again", localizing = False } usersModel talksModel, Cmd.none )
 
         OnLocationChange location ->
             let
@@ -223,28 +223,28 @@ updateApp msg route session appModel usersModel talksModel =
                 newModel =
                     { appModel | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False, search = initialSearchModel, showTalksList = False }
             in
-            case newRoute of
-                UsersRoute a ->
-                    let
-                        likeNotif =
-                            if a == "likers" then
-                                0
-                            else
-                                appModel.notifLike
+              case newRoute of
+                      UsersRoute a ->
+                          let
+                              likeNotif =
+                                  if a == "likers" then
+                                      0
+                                  else
+                                      appModel.notifLike
 
-                        visitNotif =
-                            if a == "visitors" then
-                                0
-                            else
-                                appModel.notifVisit
-                    in
-                    ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
+                              visitNotif =
+                                  if a == "visitors" then
+                                      0
+                                  else
+                                      appModel.notifVisit
+                          in
+                          ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
 
-                SearchRoute ->
-                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
+                      SearchRoute ->
+                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
-                NotFoundAppRoute ->
-                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
+                      NotFoundAppRoute ->
+                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
         GoBack amount ->
             ( model, Navigation.back amount )
@@ -263,7 +263,7 @@ updateApp msg route session appModel usersModel talksModel =
                     else
                         Nothing
             in
-            ( Connected route session { appModel | showTalksList = False, showAccountMenu = False } { usersModel | currentUser = curU } talksModel, Cmd.none )
+            ( Connected route session { appModel | showTalksList = False, showAccountMenu = False, map_state = App.AppModels.NoMap } { usersModel | currentUser = curU } talksModel, Cmd.none )
 
         UpdateNewMessage msg ->
             case talksModel.currentTalk of
@@ -313,12 +313,12 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         Localize ->
-            ( model, tryToLocalize () )
+            ( Connected route session { appModel | localizing = True } usersModel talksModel, tryToLocalize () )
 
         LocalizeIp worked ->
-          ( model, getIpLocalisation )
+            ( Connected route session { appModel | localizing = True } usersModel talksModel, getIpLocalisation )
 
-        SetNewLocalisation loc ->
+        SaveLocalisation loc ->
             case loc of
                 [ long, lat ] ->
                     ( Connected route session { appModel | current_location = Just <| Localisation long lat } usersModel talksModel, saveLocation (Localisation long lat) session.token )
@@ -327,12 +327,15 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         NewLoc loc ->
-            case Debug.log "loc" loc of
-                [ long, lat ] ->
-                    ( Connected route session { appModel | current_location = Just <| Localisation long lat } usersModel talksModel, localize [ long, lat ] )
+            case (loc, appModel.map_state) of
 
+                ( [ long, lat ], App.AppModels.Rendered ) ->
+                    ( Connected route session { appModel | current_location = Just <| Localisation long lat, localizing = False } usersModel talksModel, Cmd.batch [localize [ long, lat ], saveLocation (Localisation long lat) session.token ] )
+
+                ( [ long, lat ], _ ) ->
+                    ( Connected route session { appModel | current_location = Just <| Localisation long lat, localizing = False } usersModel talksModel, saveLocation (Localisation long lat) session.token )
                 _  ->
-                    ( model, Cmd.none )
+                    ( Connected route session { appModel | localizing = False } usersModel talksModel, Cmd.none )
 
         GetIpLocalisationResponse resp ->
             case resp of
@@ -356,10 +359,10 @@ updateApp msg route session appModel usersModel talksModel =
                                 _ ->
                                     Cmd.none
                     in
-                    ( Connected route session { appModel | current_location = loc } usersModel talksModel, cmd )
+                    ( Connected route session { appModel | current_location = loc, localizing = False } usersModel talksModel, cmd )
 
                 _ ->
-                    ( model, Cmd.none )
+                    ( Connected route session { appModel | localizing = False } usersModel talksModel, Cmd.none )
 
         UpdateEditAccountForm id_ value ->
             let
@@ -489,9 +492,10 @@ updateApp msg route session appModel usersModel talksModel =
 
         ToggleAccountMenu ->
           let
-            mapStatus = if not appModel.showAccountMenu then App.AppModels.Loading else App.AppModels.NoMap
+            newAcc = not appModel.showAccountMenu
+            mapStatus = if newAcc then App.AppModels.Loading else App.AppModels.NoMap
           in
-            ( Connected route session { appModel | showAccountMenu = not appModel.showAccountMenu, showTalksList = False, map_state = mapStatus, showResetPwdForm = False, showEditAccountForm = False } usersModel talksModel, Cmd.none )
+            ( Connected route session { appModel | showAccountMenu = newAcc, showTalksList = False, map_state = mapStatus, showResetPwdForm = False, showEditAccountForm = False } usersModel talksModel, Cmd.none )
 
         ChangeImage user to ->
             let

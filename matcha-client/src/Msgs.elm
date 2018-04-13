@@ -34,7 +34,7 @@ type Msg
     | UnshowAll
     | OnLocationChange Location
     | SaveToken (List String)
-    | SetNewLocalisation (List Float)
+    | SaveLocalisation (List Float)
     | UpdateNewUserForm String String
     | UpdateLoginForm String String
     | UpdateResetPwdForm String String

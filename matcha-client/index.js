@@ -30,17 +30,14 @@ app.ports.deleteSession.subscribe(function() {
 
 app.ports.tryToLocalize.subscribe(function() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(sendPosition, noLoc);
+        navigator.geolocation.getCurrentPosition(sendPosition, noLoc, {timeout: 10000});
     } else {
-        console.log("no");
         app.ports.noLocalization.send(false);
     }
   function noLoc( error ){
-    console.log(error);
     app.ports.noLocalization.send(false);
   }
   function sendPosition(position) {
-    console.log("pos",position);
     let pos = [position.coords.longitude, position.coords.latitude];
     app.ports.localized.send(pos);
   }

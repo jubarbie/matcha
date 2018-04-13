@@ -42,9 +42,9 @@ subscriptions model =
               Just t -> Time.every Time.millisecond UpdateAnim
               _ -> Sub.none
         in
-          Sub.batch [ newLocalisation SetNewLocalisation
+          Sub.batch [ newLocalisation SaveLocalisation
                     , noLocalization LocalizeIp
-                    , localized NewLoc 
+                    , localized NewLoc
                     , fileContentRead ImageRead
                     , subAnim
                     , subRoute

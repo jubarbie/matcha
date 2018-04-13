@@ -48,6 +48,7 @@ type alias AppModel =
     , search : SearchModel
     , showEditAccountForm : Bool
     , showResetPwdForm : Bool
+    , localizing : Bool
     }
 
 
@@ -88,6 +89,7 @@ initialAppModel =
     , search = initialSearchModel
     , showEditAccountForm = False
     , showResetPwdForm = False
+    , localizing = False
     }
 
 

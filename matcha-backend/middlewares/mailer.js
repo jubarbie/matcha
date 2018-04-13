@@ -1,5 +1,6 @@
 var nodemailer = require('nodemailer');
 var config = require('../config');
+var qs = require('querystring');
 
 var mailer = {};
 
@@ -24,7 +25,7 @@ mailer.sendVerifEmail = function (mailTo, login, key) {
         from: '"DARKROOM" <noreply@darkroom.com>', // sender address
         to: mailTo, // list of receivers
         subject: 'Welcome into the DARKROOM', // Subject line
-        html: '<b>Please verify you email by clicking on this <a href="'+config.root_url+'/auth/emailverif/'+login+'?r='+key+'">link</a></b>' // html body
+        html: '<b>Please verify you email by clicking on this <a href="'+config.root_url+'auth/emailverif/'+qs.escape(login)+'?r='+qs.escape(key)+'">link</a></b>' // html body
     };
 
     // send mail with defined transport object

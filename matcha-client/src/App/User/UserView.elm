@@ -90,9 +90,9 @@ getStar popu index step =
                 []
     in
     if popu >= step then
-        i ([ class "fas fa-star" ] ++ att) []
+        Html.Keyed.node "fastar" ([ class "fas fa-star" ] ++ att) []
     else
-        i ([ class "far fa-star" ] ++ att) []
+        Html.Keyed.node "fartar"  ([ class "far fa-star" ] ++ att) []
 
 
 userLikeButtonView : Session -> User -> Html Msg
@@ -202,7 +202,7 @@ userNameView user =
 userDistanceView : User -> Html Msg
 userDistanceView user =
     div [ class "info-dist" ]
-        [ icon "fas fa-location-arrow"
+        [ Html.Keyed.node "dist" [class "fas fa-location-arrow"][]
         , text <|
             if user.distance < 1 then
                 " " ++ (toString <| round (user.distance * 1000)) ++ " m away"
