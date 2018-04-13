@@ -16,4 +16,4 @@ exports.updateVisitLast = (to, date) =>
     connection.query('UPDATE visits SET last = ? WHERE user_to = ?', [date, to]);
 
 exports.getNotifVisit = (logged, cb) =>
-    connection.query('SELECT COUNT(id) AS notif FROM visits WHERE user_to = ? AND last < date', [logged], cb);
+    connection.query('SELECT user_from FROM visits WHERE user_to = ? AND last < date', [logged], cb);

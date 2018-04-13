@@ -154,6 +154,22 @@ updateApp msg route session appModel usersModel talksModel =
         UserResponse response ->
             handleApiResponse response (updateUser usersModel) updateUsersModel "User not found" Cmd.none model
 
+        LikeResponse response ->
+              case response of
+                  Ok rep ->
+                      case ( rep.status, rep.data ) of
+                          ( True, Just d ) ->
+                              ( Connected route session { appModel | message = Nothing } (updateUser usersModel d) talksModel, Cmd.batch [ sendUnlikeNotif session.token d.username, sendLikeNotif session.token d.username ] )
+
+                          ( False, _ ) ->
+                              ( updateAlertMsg "Server error" model, Cmd.none )
+
+                          _ ->
+                              ( model, Cmd.none )
+
+                  _ ->
+                      ( updateAlertMsg "Server error" model, Cmd.none )
+
         EditAccountResponse email fname lname bio response ->
             case response of
                 Ok rep ->
@@ -232,13 +248,19 @@ updateApp msg route session appModel usersModel talksModel =
                                   else
                                       appModel.notifLike
 
+                              unLikeNotif =
+                                  if route == UsersRoute "likers" then
+                                      []
+                                  else
+                                      appModel.notifUnlike
+
                               visitNotif =
                                   if a == "visitors" then
                                       0
                                   else
                                       appModel.notifVisit
                           in
-                          ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif } usersModel talksModel, getRelevantUsers a session.token )
+                          ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif, notifUnlike = unLikeNotif } usersModel talksModel, getRelevantUsers a session.token )
 
                       SearchRoute ->
                           ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
@@ -538,15 +560,23 @@ updateApp msg route session appModel usersModel talksModel =
 
                         NotifLike ->
                             if notif.to == session.user.username && route /= UsersRoute "likers" then
-                                ( Connected route session { appModel | notifLike = notif.notif } usersModel talksModel, Cmd.none )
+                                ( Connected route session { appModel | notifLike = List.length notif.notif } usersModel talksModel, Cmd.none )
                             else if notif.to == session.user.username && route == UsersRoute "likers" then
                                 ( model, getRelevantUsers "likers" session.token )
                             else
                                 ( model, Cmd.none )
 
+                        NotifUnlike ->
+                            if notif.to == session.user.username && route /= UsersRoute "likers" then
+                                ( Connected route session { appModel | notifUnlike = notif.notif } usersModel talksModel, Cmd.none )
+                            else if notif.to == session.user.username && route == UsersRoute "likers" then
+                                ( Connected route session { appModel | notifUnlike = notif.notif } usersModel talksModel, getRelevantUsers "likers" session.token )
+                            else
+                                ( model, Cmd.none )
+
                         NotifVisit ->
                             if notif.to == session.user.username && route /= UsersRoute "visitors" then
-                                ( Connected route session { appModel | notifVisit = notif.notif } usersModel talksModel, Cmd.none )
+                                ( Connected route session { appModel | notifVisit = List.length notif.notif } usersModel talksModel, Cmd.none )
                             else if notif.to == session.user.username && route == UsersRoute "visitors" then
                                 ( model, getRelevantUsers "visitors" session.token )
                             else

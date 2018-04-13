@@ -47,9 +47,9 @@ updateConnexion msg route =
                                     Connected route session initialAppModel initialUsersModel initialTalksModel
 
                                 cmds =
-                                    [ getTalks session.token, Navigation.newUrl ("/#/users/all") ] ++
+                                    [ getTalks session.token, sendLikeNotif token u.username, sendUnlikeNotif token u.username, sendVisitNotif token u.username, Navigation.newUrl ("/#/users/all") ] ++
                                       if u.localisation.lon == 0 && u.localisation.lat == 0 then
-                                        [ getIpLocalisation ]
+                                        [ tryToLocalize () ]
                                       else
                                         []
                             in
@@ -64,7 +64,7 @@ updateConnexion msg route =
                                     ( Connected route session { initialAppModel | message = Just "Please complete your profile", showEditAccountForm = True, showAccountMenu = True } initialUsersModel initialTalksModel, Cmd.batch cmds )
 
                                 NotActivated ->
-                                    ( NotConnected LoginRoute { initialLoginModel | message = Just "Please activate your email" }, Navigation.newUrl "/#/login" )
+                                    ( NotConnected LoginRoute { initialLoginModel | message = Just "Please activate your email" }, Cmd.none )
 
                         _ ->
                             ( NotConnected LoginRoute initialLoginModel, Cmd.none )
@@ -86,17 +86,18 @@ updateConnexion msg route =
         LoginResponse response ->
             case response of
                 Success rep ->
-                    case ( rep.status, rep.token, rep.user ) of
-                        ( True, Just t, Just user ) ->
+                    case ( rep.status, rep.token, rep.user, rep.message ) of
+                        ( True, Just t, Just user, _ ) ->
                             ( Connexion (UsersRoute "all")
                             , Cmd.batch [ getSessionUser t, storeToken [ t ] ]
                             )
 
-                        _ ->
-                            ( NotConnected LoginRoute {initialLoginModel | message = Just "Wrong login or password"}, Cmd.none )
+                        (_, _, _, msg) ->
+                            ( NotConnected LoginRoute {initialLoginModel | message = msg}, Cmd.none )
+
 
                 _ ->
-                    ( NotConnected LoginRoute {initialLoginModel | message = Just "Wrong login or password"}
+                    ( NotConnected LoginRoute {initialLoginModel | message = Just "Error"}
                     , Cmd.none
                     )
 

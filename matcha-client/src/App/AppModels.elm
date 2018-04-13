@@ -34,6 +34,7 @@ type alias AppModel =
     , searchTag : List String
     , notifVisit : Int
     , notifLike : Int
+    , notifUnlike : List String
     , message : Maybe String
     , map_state : MapState
     , current_location : Maybe Localisation
@@ -75,6 +76,7 @@ initialAppModel =
     , searchTag = []
     , notifVisit = 0
     , notifLike = 0
+    , notifUnlike = []
     , message = Nothing
     , map_state = NoMap
     , current_location = Nothing

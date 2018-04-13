@@ -10,7 +10,7 @@ notificationDecoder =
         |: field "message" notifTypeDecoder
         |: field "to" JsonDec.string
         |: field "from" JsonDec.string
-        |: field "notif" JsonDec.int
+        |: field "notif" (JsonDec.list JsonDec.string)
 
 
 notifTypeDecoder : Decoder NotificationType
@@ -27,6 +27,9 @@ notifTypeDecoder =
 
                     "like" ->
                         JsonDec.succeed NotifLike
+
+                    "unlike" ->
+                        JsonDec.succeed NotifUnlike
 
                     _ ->
                         JsonDec.fail "Notif unknown"

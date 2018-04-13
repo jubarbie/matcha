@@ -21,10 +21,16 @@ view : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
 view route session appModel model =
     [ div []
         [ usersMenuView route session appModel model
-        , viewUsers session appModel model
+        , viewUsers route session appModel model
         ]
     ]
 
+notifUnlikeView : AppRoutes -> AppModel -> Html Msg
+notifUnlikeView route appModel =
+  if route == UsersRoute "likers" then
+    div [] <| List.map (\n -> div [class "text-warning center"][text <| n ++ " unliked you"] ) appModel.notifUnlike
+  else
+    div [][]
 
 searchView : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
 searchView route session appModel model =
@@ -53,7 +59,7 @@ searchView route session appModel model =
         [ div []
             [ div [ class "filter-menu center" ]
                 [ div [ class "layout xs-no-flex" ] [ sortMenuView model ] ]
-            , viewUsers session appModel model
+            , viewUsers route session appModel model
             ]
         ]
 
@@ -308,20 +314,19 @@ userMenuView route model =
         , li [ class <| getActiveClass (route == UsersRoute "likers") ]
             [ a [ class "button", href "/#/users/likers" ]
                 [ text "Likers "
-                , notif model.notifLike
+                , notif <| model.notifLike + List.length model.notifUnlike
                 ]
             ]
         , li [ class <| getActiveClass (route == UsersRoute "matchers") ]
             [ a [ class "button", href "/#/users/matchers" ]
                 [ text "Matchers "
-                , notif model.notifLike
                 ]
             ]
         ]
 
 
-viewUsers : Session -> AppModel -> UsersModel -> Html Msg
-viewUsers session appModel model =
+viewUsers : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
+viewUsers route session appModel model =
     let
         view =
             if List.length model.users == 0 then
@@ -334,6 +339,7 @@ viewUsers session appModel model =
             div [ onClick ToggleAccountMenu, class "text-warning pointer center" ] [ text "Please complete your account to be able to interract with users" ]
           else
             div [][]
+        , notifUnlikeView route appModel
         , view
         ]
 

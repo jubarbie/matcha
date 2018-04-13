@@ -207,7 +207,9 @@ router.post('/toggle_like', (req, res, next) => {
     if (logged && username) {
         LikesModel.getLikeBetweenUsers(logged.login, username, function(err, rows, fields) {
             if (rows[0]) {
-                LikesModel.unLike(logged.login, username, function(err, rows, fields) {
+                var now = Date.now();
+                LikesModel.removeLike(logged.login, username);
+                LikesModel.unLike(logged.login, username, now, function(err, rows, fields) {
                     if (rows) {
                         sendUser(logged, username, res);
                     } else {
@@ -218,6 +220,7 @@ router.post('/toggle_like', (req, res, next) => {
                 });
             } else {
                 var now = Date.now();
+                LikesModel.removeUnLike(logged.login, username);
                 LikesModel.like(logged.login, username, now, function(err, rows, fields) {
                     if (rows) {
                         sendUser(logged, username, res)

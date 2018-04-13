@@ -81,7 +81,7 @@ app.ws('/ws', function(ws, req) {
                                             message: 'message',
                                             to: data.to,
                                             from: logged_user.login,
-                                            notif: rows[0].unread
+                                            notif: rows.map(row => row.user_from)
                                         }));
                                       });
                                     }
@@ -102,23 +102,36 @@ app.ws('/ws', function(ws, req) {
                                         message: 'like',
                                         to: data.to,
                                         from: logged_user.login,
-                                        notif: rows[0].notif
+                                        notif: rows.map(row => row.user_from)
                                     }));
                                 });
                               }
                             });
                             break;
+                        case "unlike":
+                              LikesModel.getNotifUnLike(data.to, (err, rows, fields) => {
+                                if (rows.length > 0) {
+                                  aWss.clients.forEach(function each(client) {
+                                      client.send(JSON.stringify({
+                                          message: 'unlike',
+                                          to: data.to,
+                                          from: logged_user.login,
+                                          notif: rows.map(row => row.user_from)
+                                      }));
+                                  });
+                                }
+                              });
+                              break;
                           case "visit":
                               VisitsModel.addVisit(logged_user.login, data.to, now, (err1, rows1, fields) => {
                                 VisitsModel.getNotifVisit(data.to, (err2, rows2, fields) => {
                                   if (rows2.length > 0) {
-                                    console.log(rows2);
                                     aWss.clients.forEach(function each(client) {
                                         client.send(JSON.stringify({
                                             message: 'visit',
                                             to: data.to,
                                             from: logged_user.login,
-                                            notif: rows2[0].notif
+                                            notif: rows2.map(row => row.user_from)
                                         }));
                                     });
                                   }

@@ -78,14 +78,13 @@ exports.getVisitors = (logged, gender, int_in, cb) =>
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_to = u.login ) AS likes, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = ? AND likes.user_to = u.login ) AS liking, \
       ( SELECT COUNT(likes.id) FROM likes WHERE likes.user_from = u.login AND likes.user_to = ? ) AS liked, \
-      (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+      ( SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
         FROM image \
         JOIN rel_user_image ON image.id=rel_user_image.id_image \
         LEFT JOIN user ON user.id = rel_user_image.id_user \
         WHERE rel_user_image.id_user = u.id) AS images, \
-      GROUP_CONCAT(DISTINCT relt.tag) AS tags \
+      ( SELECT GROUP_CONCAT(DISTINCT relt.tag) FROM rel_user_tag AS relt WHERE relt.login = u.login ) AS tags   \
 				FROM user AS u \
-				LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
 				JOIN visits AS v ON v.user_to = ? AND v.user_from = u.login \
 				JOIN sex_orientation AS s ON u.login = s.login \
 				WHERE u.gender IN (?) \

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `image` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `src` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=164 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=165 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `likes` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   `date` varchar(200) DEFAULT NULL,
   `last` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=205 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=227 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `message` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `rel_user_image` (
   `id_user` int(6) unsigned NOT NULL,
   `id_image` int(6) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `rel_user_tag` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `sex_orientation` (
   `login` varchar(255) DEFAULT NULL,
   `gender` varchar(2) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=506 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=522 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `talk` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -74,6 +74,15 @@ CREATE TABLE IF NOT EXISTS `talk` (
   `user2_last` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `unlikes` (
+  `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
+  `user_from` varchar(255) DEFAULT NULL,
+  `user_to` varchar(255) DEFAULT NULL,
+  `date` varchar(200) DEFAULT NULL,
+  `last` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=230 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -93,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `uuid` varchar(255) DEFAULT NULL,
   `img_id` int(6) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `visits` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -102,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `visits` (
   `last` varchar(200) DEFAULT NULL,
   `date` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `blocks` (`id`,`user_from`,`user_to`,`date`) VALUES (168,'marshall','fames','1520245796919');
 
@@ -125,28 +134,27 @@ INSERT INTO `image` (`id`,`src`) VALUES (153,'SyDBcUooz.jpg');
 INSERT INTO `image` (`id`,`src`) VALUES (161,'ry2YB5sjf.jpg');
 INSERT INTO `image` (`id`,`src`) VALUES (162,'SkU4B32sz.jpg');
 INSERT INTO `image` (`id`,`src`) VALUES (163,'rkXy1b6iG.jpg');
+INSERT INTO `image` (`id`,`src`) VALUES (164,'SJl4oHAiz.jpg');
 
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (106,'undefined','tincidunt','1517958198000','1517958198000');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (111,'jubarbie','eu','1517958198000','1517958198000');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (115,'marshall','Nullam','1517958198000','1517958198000');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (116,'jubarbie','mauris','1517960330007',NULL);
-INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (118,'marshall','jubarbie','1518078186717','1523546390468');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (118,'marshall','jubarbie','1518078186717','1523644231919');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (120,'jubarbie','belinda','1518082615607','1518107893057');
-INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (125,'belinda','jubarbie','1518087305303','1523546390468');
-INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (134,'jubarbie','marshall','1518799872772','1520270462108');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (125,'belinda','jubarbie','1518087305303','1523644231919');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (142,'jubarbie','ipsum','1519381023112','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (146,'jubarbie','Nullam','1519394408892','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (147,'marshall','tincidunt','1517958198000','1517958198000');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (148,'facilisis','tincidunt','1517958198000','1517958198000');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (149,'belinda','tincidunt','1517958198000','1517958198000');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (155,'jubarbie','Aliquam','1519931432445','0');
-INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (166,'jubarbie','tincidunt','1521213205137','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (171,'merde','Quisque','1523440024403','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (172,'merde','adipiscing','1523440028799','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (173,'merde','jujubarbie','1523440237073','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (174,'jujubarbie','merde','1523440293000','1523442727039');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (176,'jubarbie','jordan','1523449409012','1523449590892');
-INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (178,'jordan','jubarbie','1523449575181','1523546390468');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (178,'jordan','jubarbie','1523449575181','1523644231919');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (179,'jordan','marshall','1523450843596','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (181,'jordan','facilisis','1523459696181','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (183,'jubarbie','neque','1523625585633','0');
@@ -156,6 +164,7 @@ INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (198,'juba
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (199,'jubarbie','adipiscing','1523626223915','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (202,'jubarbie','senectus','1523626267994','0');
 INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (204,'jubarbie','egestas','1523626275633','0');
+INSERT INTO `likes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (223,'jubarbie','TESTOOo','1523643267614','1523643916683');
 
 INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (131,109,'marshall','1509886447068','Hi mi, what a nice name you have ;)');
 INSERT INTO `message` (`id`,`id_talk`,`username`,`date`,`message`) VALUES (132,110,'jubarbie','1510909969167','Salut \n');
@@ -436,6 +445,7 @@ INSERT INTO `rel_user_image` (`id`,`id_user`,`id_image`) VALUES (223,120,153);
 INSERT INTO `rel_user_image` (`id`,`id_user`,`id_image`) VALUES (231,122,161);
 INSERT INTO `rel_user_image` (`id`,`id_user`,`id_image`) VALUES (232,123,162);
 INSERT INTO `rel_user_image` (`id`,`id_user`,`id_image`) VALUES (233,111,163);
+INSERT INTO `rel_user_image` (`id`,`id_user`,`id_image`) VALUES (234,128,164);
 
 INSERT INTO `rel_user_tag` (`id`,`login`,`tag`) VALUES (114,'tincidunt','princess');
 INSERT INTO `rel_user_tag` (`id`,`login`,`tag`) VALUES (115,'tincidunt','rich_bitch');
@@ -1070,6 +1080,13 @@ INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (502,'mon_login','O
 INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (503,'mon_login','F');
 INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (504,'mon_login','M');
 INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (505,'mon_login','NB');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (512,'TESTO','O');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (513,'TESTO','F');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (514,'TESTO','M');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (515,'TESTO','NB');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (519,'TESTOOo','NB');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (520,'TESTOOo','F');
+INSERT INTO `sex_orientation` (`id`,`login`,`gender`) VALUES (521,'TESTOOo','M');
 
 INSERT INTO `talk` (`id`,`username1`,`username2`,`user1_last`,`user2_last`) VALUES (105,'jubarbie','tincidunt','1523449641096','1517665668000');
 INSERT INTO `talk` (`id`,`username1`,`username2`,`user1_last`,`user2_last`) VALUES (107,'Aenean','jubarbie','1517665668000','1523457909349');
@@ -1079,6 +1096,10 @@ INSERT INTO `talk` (`id`,`username1`,`username2`,`user1_last`,`user2_last`) VALU
 INSERT INTO `talk` (`id`,`username1`,`username2`,`user1_last`,`user2_last`) VALUES (113,'belinda','jubarbie','1520270309986','1523548432762');
 INSERT INTO `talk` (`id`,`username1`,`username2`,`user1_last`,`user2_last`) VALUES (114,'jujubarbie','merde','1523442756049','1523442756052');
 INSERT INTO `talk` (`id`,`username1`,`username2`,`user1_last`,`user2_last`) VALUES (115,'jordan','jubarbie','1523463728840','1523626261761');
+
+INSERT INTO `unlikes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (217,'jubarbie','tincidunt','1523640224157','0');
+INSERT INTO `unlikes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (224,'jubarbie','marshall','1523643100132','0');
+INSERT INTO `unlikes` (`id`,`user_from`,`user_to`,`date`,`last`) VALUES (229,'TESTOOo','jubarbie','1523644169728','0');
 
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (14,'tincidunt','KBI60RZD5FU','Signe','Quin','euismod.in@fringillacursuspurus.edu','M','a neque. Nullam ut nisi a odio semper cursus. Integer mollis. Integer tincidunt aliquam arcu. Aliquam ultrices iaculis odio. Nam interdum enim non nisi. Aenean eget metus. In nec orci. Donec nibh. Quisque nonummy ipsum non arcu. Vivamus sit amet risus. Donec egestas. Aliquam nec enim. Nunc ut erat. Sed nunc est, mollis non, cursus non, egestas a, dui. Cras pellentesque. Sed dictum. Proin eget odio. Aliquam vulputate ullamcorper magna. Sed eu eros. Nam consequat dolor vitae dolor. Donec fringilla. Donec feugiat metus sit amet ante. Vivamus non lorem vitae odio sagittis semper. Nam tempor diam dictum sapien. Aenean massa. Integer vitae nibh. Donec est mauris, rhoncus id, mollis nec, cursus a, enim. Suspendisse aliquet, sem ut cursus luctus, ipsum leo elementum sem, vitae aliquam eros','activated',1,'1509719024','{\"lon\":\"2.306836190987\",\"lat\":\"48.867282952505\"}','1511452860000',1973,NULL,129);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (16,'Aenean','MTG37IIL0KU','Bruce','Leroy','mollis@orciadipiscingnon.ca','M','nec luctus felis purus ac tellus. Suspendisse sed dolor. Fusce mi lorem, vehicula et, rutrum eu, ultrices sit amet, risus. Donec nibh enim, gravida sit amet, dapibus id, blandit at, nisi. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vel nisl. Quisque fringilla euismod enim. Etiam gravida molestie arcu. Sed eu nibh vulputate mauris sagittis placerat. Cras dictum ultricies ligula. Nullam enim. Sed nulla ante, iaculis nec, eleifend non, dapibus rutrum, justo. Praesent luctus. Curabitur egestas nunc sed libero. Proin sed turpis nec mauris blandit mattis. Cras eget nisi dictum augue malesuada malesuada. Integer id magna et ipsum cursus vestibulum. Mauris','activated',1,'1509719024','{\"lon\":\"2.351074845673\",\"lat\":\"48.868375030381\"}','1511452860000',1924,NULL,119);
@@ -1143,7 +1164,7 @@ INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bi
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (98,'Nunc','GWM87VIQ5NB','Dillon','Cally','In@temporarcuVestibulum.ca','M','est. Nunc ullamcorper, velit in aliquet lobortis, nisi nibh lacinia orci, consectetuer euismod est arcu ac orci. Ut semper pretium neque. Morbi quis urna. Nunc quis arcu vel quam dignissim pharetra. Nam ac nulla. In','activated',1,'1509719024','{\"lon\":\"2.395375761912\",\"lat\":\"48.861865608812\"}','1511452860000',1932,NULL,NULL);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (99,'arcu.','LXF21APG8WR','Olympia','Cheyenne','egestas@idliberoDonec.co.uk','M','nonummy. Fusce fermentum fermentum arcu. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere','activated',1,'1509719024','{\"lon\":\"2.401269965482\",\"lat\":\"48.877008904674\"}','1511452860000',1941,NULL,133);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (100,'ipsum','MFA12BKM0HW','Xander','Matthew','cursus.et.eros@liberoat.ca','F','vel est tempor bibendum. Donec felis orci, adipiscing non, luctus sit amet, faucibus ut, nulla. Cras eu tellus eu augue porttitor interdum. Sed auctor odio a purus. Duis elementum, dui quis accumsan convallis, ante lectus convallis est,','activated',1,'1509719024','{\"lon\":\"2.399986523137\",\"lat\":\"48.876865100058\"}','1511452860000',1932,NULL,133);
-INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (101,'jubarbie','$2a$10$o/vJBCeF3gO9.w4jDDFtSOdkic2EGyTv/iRP4dGH4qQmrUdW1o1M.','Jules','Barbier','jubarbie@student.42.fr','M','I am the administrator of the app. <script>alert(\'Ouch ? Noo\')</script>','activated',0,'1509719024','{\"lon\":2.3333,\"lat\":48.8667}','1523626241956',1967,'dcba0f30-3f1e-11e8-890b-bfacff5fe9df',128);
+INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (101,'jubarbie','$2a$10$o/vJBCeF3gO9.w4jDDFtSOdkic2EGyTv/iRP4dGH4qQmrUdW1o1M.','Jules','Barbier','jubarbie@student.42.fr','M','I am the administrator of the app. <script>alert(\'Ouch ? Noo\')</script>','activated',0,'1509719024','{\"lon\":2.3333,\"lat\":48.8667}','1523638273678',1967,'e0314ae0-3f3a-11e8-b97b-85ed73c38501',128);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (107,'marshall','$2a$10$ZC.Q4hdHBmICzP99e77.9uliewcAMfaB04bn.JaaI/FpH55C4vu3O','Marshall','Sigfrid','marshall@marshall.com','M','Je suis Marshall et je vous emmerde','activated',1,'1509808921344','{\"lon\":2.3780185099161315,\"lat\":48.85980951655901}','1520245602883',1945,NULL,137);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (108,'jules','$2a$10$5OBxvYhXt0eJgWUqeeazmurckn4ZSw1dzEkhDbBnpPuVm7h.KogSu','','','jules.barbier.fr@gmail.com','','','0225f792cd7dec33b3eb90c2c5cd01c350145834ab193bf1104277ddc4563faf64dcf76b0c25db229875d0109a6ccc09008e392e073fbe6e5b9e4d6575d15eb2',1,'1510838824685','{\"lon\":\"2.385907138011\",\"lat\":\"48.866342520217\"}','1511452860000',1960,NULL,NULL);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (109,'yep','$2a$10$lBmuw/h0OqnV99fL7C09ROOVuGRpjBnV0tcAZduIiPwg8Ayb1zcC.','Jules','Barbier','jules.barbier.fr@gmail.com','','','activated',1,'1510917330757','{\"lon\":\"2.317567697927\",\"lat\":\"48.869569821222\"}','1511452860000',1975,NULL,NULL);
@@ -1164,6 +1185,8 @@ INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bi
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (124,'Jules#$D','$2a$10$ycBnlLIi5HlYh0wg5AhNm.DGsPqyysWK/ddVaj3lNSu8yBDC6.bbG','jules','jules','jules@jules.com',NULL,NULL,'1f60e74cf3b7643bcf4afff4d9fa7715585da828873e454cbf01d257183f29701b4f2f781cf77c6a6a1692317a52e45d2acabfd763981063e345283ef5fbb68f',1,'1523621905977',NULL,'0',NULL,NULL,NULL);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (125,'testestestest','$2a$10$T/SqxDuBYfV/8h1OfK7BYei6845YC/EOWmTt211PumFFVRQjs/57i','test','test','test@test.com',NULL,NULL,'incomplete',1,'1523622240302',NULL,'0',NULL,NULL,NULL);
 INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (126,'testestestest#d?sfre','$2a$10$21sZXW7eZTssRzM5rdc0Se8HKWdFNaT9zEPXlC8qEy5.ONSwMbSJq','test','test','test@test.com',NULL,NULL,'8c111706af8125ba3af6315d65fee2d2906b57fcd984b7dea1a6b9c25789f464c23ca2c425cc68f22bc51b0ce296015496e33c5323ea904e4b359352530b82df',1,'1523624825483',NULL,'0',NULL,NULL,NULL);
+INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (127,'Thisis','$2a$10$15x7qzKGAAfxy0CRtKN8MePAlzqRhDgS4F.gKNF67NLUPZj0ls1wW','jules','jules','jules.barbier.fr@gmail.com',NULL,NULL,'incomplete',1,'1523632477332','{\"lon\":2.3183532,\"lat\":48.8967142}','1523632513173',NULL,'76a9d540-3f2d-11e8-b0fb-6513cf18f8fc',NULL);
+INSERT INTO `user` (`id`,`login`,`password`,`fname`,`lname`,`email`,`gender`,`bio`,`activated`,`rights`,`created_on`,`localisation`,`last_connection`,`birth`,`uuid`,`img_id`) VALUES (128,'TESTOOo','$2a$10$zB9wDLW4b2FHCkw//VcqBO75NUTm0NPb8NOVCCMlSaGEf5RIymoS2','test','test','test@test.com','M','LOOVE\n','activated',1,'1523632897380','{\"lon\":2.3183659,\"lat\":48.8966893}','1523637853218',1911,'e5943020-3f39-11e8-b97b-85ed73c38501',164);
 
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (115,'jubarbie','marshall','1520270373384','1517958198000');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (117,'jubarbie','tincidunt','1517958198000','1517958198000');
@@ -1193,7 +1216,7 @@ INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (160,'jub
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (161,'jubarbie','senectus','0','1518793023976');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (162,'jubarbie','tellus','0','1518793658581');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (163,'jubarbie','fringilla','0','1518793743118');
-INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (164,'marshall','jubarbie','1523546391706','1518793827468');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (164,'marshall','jubarbie','1523644233831','1518793827468');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (165,'jubarbie','nisl','0','1518795454768');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (166,'jubarbie','risus.','0','1518795695409');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (167,'jubarbie','amet,','0','1518797588793');
@@ -1234,7 +1257,6 @@ INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (201,'jub
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (202,'jubarbie','mus.','0','1519931640570');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (203,'jubarbie','est,','0','1520013639144');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (204,'jubarbie','libero.','0','1520019471018');
-INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (205,'marshall','risus.','0','1520245610064');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (206,'marshall','augue.','0','1520245617311');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (207,'marshall','lorem,','0','1520245619702');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (208,'marshall','odio.','0','1520245621190');
@@ -1261,7 +1283,7 @@ INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (228,NULL
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (229,NULL,'belinda','0','1523351080956');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (230,NULL,'belinda','0','1523351287876');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (231,NULL,'belinda','0','1523352034027');
-INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (232,'jujubarbie','jubarbie','1523546391706','1523433180937');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (232,'jujubarbie','jubarbie','1523644233831','1523433180937');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (233,'jujubarbie','Sed','0','1523439073450');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (234,'jujubarbie','Quisque','0','1523439093229');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (235,'merde','Quisque','0','1523440020629');
@@ -1270,7 +1292,7 @@ INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (237,'mer
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (238,'merde','jujubarbie','1523442814429','1523440236043');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (239,'jujubarbie','merde','1523442440385','1523440291585');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (240,'jujubarbie','marshall','0','1523442817941');
-INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (241,'jordan','jubarbie','1523546391706','1523449388279');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (241,'jordan','jubarbie','1523644233831','1523449388279');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (242,'jubarbie','jordan','1523449591404','1523449407744');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (243,'jordan','merde','0','1523449549631');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (244,'jubarbie','jujubarbie','0','1523449860249');
@@ -1278,7 +1300,7 @@ INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (245,'jor
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (246,'jordan','Nullam','0','1523459678225');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (247,'jordan','facilisis','0','1523459682383');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (248,'mon_login','tincidunt','0','1523528977728');
-INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (249,'mon_login','jubarbie','1523546391706','1523530119290');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (249,'mon_login','jubarbie','1523644233831','1523530119290');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (250,'mon_login','facilisis','0','1523530129516');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (251,'mon_login','marshall','0','1523530131091');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (252,'mon_login','Sed','0','1523530136283');
@@ -1287,3 +1309,7 @@ INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (254,'mon
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (255,'mon_login','belinda','0','1523533035089');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (256,'jubarbie','mon_login','1523533420913','1523533190145');
 INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (257,'jubarbie','fames','0','1523547770141');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (258,'jubarbie','TESTOOo','1523643916135','1523633349123');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (260,'TESTOOo','jubarbie','1523644233831','1523636903147');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (263,'jubarbie','jubarbie','1523644233831','1523638273733');
+INSERT INTO `visits` (`id`,`user_from`,`user_to`,`last`,`date`) VALUES (264,'TESTOOo','TESTOOo','1523643916135','1523642236779');

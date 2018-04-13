@@ -4,10 +4,11 @@ type alias Notif =
   { type_ : NotificationType
   , to : String
   , from : String
-  , notif : Int
+  , notif : List String
   }
 
 type NotificationType
     = NotifMessage
     | NotifVisit
     | NotifLike
+    | NotifUnlike

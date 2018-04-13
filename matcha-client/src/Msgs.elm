@@ -17,6 +17,7 @@ type Msg
     | SearchResponse (Result Http.Error (ApiResponse (Maybe (List User))))
     | SessionUserResponse String (Result Http.Error (ApiResponse (Maybe SessionUser)))
     | UserResponse (Result Http.Error (ApiResponse (Maybe User)))
+    | LikeResponse (Result Http.Error (ApiResponse (Maybe User)))
     | LoginResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | GetTalkResponse (Result Http.Error (ApiResponse (Maybe Talk)))

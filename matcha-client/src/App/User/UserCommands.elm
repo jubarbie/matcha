@@ -131,7 +131,7 @@ toggleLike username token =
                     [ ( "username", JsonEnc.string username ) ]
     in
     apiPostRequest (Just decodeUser) token url body
-        |> Http.send UserResponse
+        |> Http.send LikeResponse
 
 
 reportUser : String -> String -> Cmd Msg
@@ -162,6 +162,19 @@ sendLikeNotif token to =
                 JsonEnc.object
                     [ ( "jwt", JsonEnc.string token )
                     , ( "action", JsonEnc.string "like" )
+                    , ( "to", JsonEnc.string to )
+                    ]
+    in
+    WebSocket.send "ws://localhost:3001/ws" body
+
+sendUnlikeNotif : String -> String -> Cmd Msg
+sendUnlikeNotif token to =
+    let
+        body =
+            JsonEnc.encode 0 <|
+                JsonEnc.object
+                    [ ( "jwt", JsonEnc.string token )
+                    , ( "action", JsonEnc.string "unlike" )
                     , ( "to", JsonEnc.string to )
                     ]
     in

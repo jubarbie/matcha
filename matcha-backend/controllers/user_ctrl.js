@@ -148,6 +148,7 @@ ctrl.getVisitors = (logged, callback) => {
             });
             callback(users);
         } else {
+          console.log(err);
             callback(null);
         }
     });
