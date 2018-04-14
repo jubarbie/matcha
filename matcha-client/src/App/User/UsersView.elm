@@ -375,10 +375,10 @@ viewUsersList session appModel model =
             else
                 list |> List.indexedMap (,)
     in
-    ul [ class <| "users-list" ] <|
+    Html.Keyed.node "ul" [ class <| "users-list" ] <|
         List.map
             (\( i, u ) ->
-                li [] [ cardUserView appModel u i session model ]
+                (u.username, li [] [ cardUserView appModel u i session model ] )
             )
         <|
             listOrdered
@@ -386,15 +386,10 @@ viewUsersList session appModel model =
 
 cardUserView : AppModel -> User -> Int -> Session -> UsersModel -> Html Msg
 cardUserView appModel user i session model =
-    Html.Keyed.node (String.filter Char.isLower user.username)
-        []
-        [ ( "div"
-          , div [ onClick <| ShowUser user.username, class <| "user-card animated fadeInUp", style [ ( "animation-delay", toString (toFloat i / 15) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
+    div [ onClick <| ShowUser user.username, class <| "user-card animated fadeInUp", style [ ( "animation-delay", toString (toFloat i / 15) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
                 [ userImageView user session model
                 , userInfosView appModel user model
                 ]
-          )
-        ]
 
 
 userInfosView : AppModel -> User -> UsersModel -> Html Msg

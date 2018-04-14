@@ -34,7 +34,7 @@ view session model =
                   [ viewEditAccountForm model.editAccountForm session.user]
               else
                 [ h2 [] [ text session.user.username ]
-                , div [ class "name" ] [ text <| session.user.fname ++ " " ++ session.user.lname ]
+                , Html.Keyed.node "username" [] [ ("usrn", text <| session.user.fname ++ " " ++ session.user.lname) ]
                 , div [] [ text session.user.email ]
                 , div [] [ shortBio ]
                 , button [class "btn-no-style", onClick ToggleAccountForm] [  text "Edit infos" ]

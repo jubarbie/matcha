@@ -22639,20 +22639,21 @@ var _user$project$App_User_UserAccountView$view = F2(
 								}),
 							_1: {
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
+								_0: A3(
+									_elm_lang$html$Html_Keyed$node,
+									'username',
+									{ctor: '[]'},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('name'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												session.user.fname,
-												A2(_elm_lang$core$Basics_ops['++'], ' ', session.user.lname))),
+										_0: {
+											ctor: '_Tuple2',
+											_0: 'usrn',
+											_1: _elm_lang$html$Html$text(
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													session.user.fname,
+													A2(_elm_lang$core$Basics_ops['++'], ' ', session.user.lname)))
+										},
 										_1: {ctor: '[]'}
 									}),
 								_1: {
@@ -23567,59 +23568,47 @@ var _user$project$App_User_UsersView$userInfosView = F3(
 	});
 var _user$project$App_User_UsersView$cardUserView = F5(
 	function (appModel, user, i, session, model) {
-		return A3(
-			_elm_lang$html$Html_Keyed$node,
-			A2(_elm_lang$core$String$filter, _elm_lang$core$Char$isLower, user.username),
-			{ctor: '[]'},
+		return A2(
+			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'div',
-					_1: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(
-								_user$project$Msgs$ShowUser(user.username)),
-							_1: {
+				_0: _elm_lang$html$Html_Events$onClick(
+					_user$project$Msgs$ShowUser(user.username)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('user-card animated fadeInUp'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$style(
+							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('user-card animated fadeInUp'),
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'animation-delay',
+									_1: A2(
+										_elm_lang$core$Basics_ops['++'],
+										_elm_lang$core$Basics$toString(
+											_elm_lang$core$Basics$toFloat(i) / 15),
+										's')
+								},
 								_1: {
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: {
-												ctor: '_Tuple2',
-												_0: 'animation-delay',
-												_1: A2(
-													_elm_lang$core$Basics_ops['++'],
-													_elm_lang$core$Basics$toString(
-														_elm_lang$core$Basics$toFloat(i) / 15),
-													's')
-											},
-											_1: {
-												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'animation-duration', _1: '.3s'},
-												_1: {ctor: '[]'}
-											}
-										}),
+									_0: {ctor: '_Tuple2', _0: 'animation-duration', _1: '.3s'},
 									_1: {ctor: '[]'}
 								}
-							}
-						},
-						{
-							ctor: '::',
-							_0: A3(_user$project$App_User_UsersView$userImageView, user, session, model),
-							_1: {
-								ctor: '::',
-								_0: A3(_user$project$App_User_UsersView$userInfosView, appModel, user, model),
-								_1: {ctor: '[]'}
-							}
-						})
-				},
-				_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A3(_user$project$App_User_UsersView$userImageView, user, session, model),
+				_1: {
+					ctor: '::',
+					_0: A3(_user$project$App_User_UsersView$userInfosView, appModel, user, model),
+					_1: {ctor: '[]'}
+				}
 			});
 	});
 var _user$project$App_User_UsersView$viewUsersList = F3(
@@ -23677,8 +23666,9 @@ var _user$project$App_User_UsersView$viewUsersList = F3(
 					return {ctor: '_Tuple2', _0: v0, _1: v1};
 				}),
 			list);
-		return A2(
-			_elm_lang$html$Html$ul,
+		return A3(
+			_elm_lang$html$Html_Keyed$node,
+			'ul',
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$class('users-list'),
@@ -23688,14 +23678,19 @@ var _user$project$App_User_UsersView$viewUsersList = F3(
 				_elm_lang$core$List$map,
 				function (_p4) {
 					var _p5 = _p4;
-					return A2(
-						_elm_lang$html$Html$li,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: A5(_user$project$App_User_UsersView$cardUserView, appModel, _p5._1, _p5._0, session, model),
-							_1: {ctor: '[]'}
-						});
+					var _p6 = _p5._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _p6.username,
+						_1: A2(
+							_elm_lang$html$Html$li,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A5(_user$project$App_User_UsersView$cardUserView, appModel, _p6, _p5._0, session, model),
+								_1: {ctor: '[]'}
+							})
+					};
 				},
 				listOrdered));
 	});
@@ -24063,8 +24058,8 @@ var _user$project$App_User_UsersView$tagsFilterView = F2(
 				session.user.tags));
 	});
 var _user$project$App_User_UsersView$sortArrow = function (order) {
-	var _p6 = order;
-	if (_p6.ctor === 'ASC') {
+	var _p7 = order;
+	if (_p7.ctor === 'ASC') {
 		return '↑';
 	} else {
 		return '↓';
