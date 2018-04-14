@@ -131,7 +131,7 @@ toggleLike username token =
                     [ ( "username", JsonEnc.string username ) ]
     in
     apiPostRequest (Just decodeUser) token url body
-        |> Http.send LikeResponse
+        |> Http.send (LikeResponse username)
 
 
 reportUser : String -> String -> Cmd Msg

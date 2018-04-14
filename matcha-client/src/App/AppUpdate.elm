@@ -154,12 +154,12 @@ updateApp msg route session appModel usersModel talksModel =
         UserResponse response ->
             handleApiResponse response (updateUser usersModel) updateUsersModel "User not found" Cmd.none model
 
-        LikeResponse response ->
+        LikeResponse user response ->
               case response of
                   Ok rep ->
                       case ( rep.status, rep.data ) of
                           ( True, Just d ) ->
-                              ( Connected route session { appModel | message = Nothing } (updateUser usersModel d) talksModel, Cmd.batch [ sendUnlikeNotif session.token d.username, sendLikeNotif session.token d.username ] )
+                              ( Connected route session { appModel | message = Nothing } (updateUser usersModel d) talksModel, Cmd.batch [ sendUnlikeNotif session.token user, sendLikeNotif session.token user ] )
 
                           ( False, _ ) ->
                               ( updateAlertMsg "Server error" model, Cmd.none )
@@ -305,7 +305,7 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         SendNewMessage ->
-            case talksModel.currentTalk of
+            case Debug.log "send" talksModel.currentTalk of
                 Just u ->
                     case getTalkWith u talksModel.talks of
                         Just t ->

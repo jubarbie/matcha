@@ -210,7 +210,7 @@ router.post('/toggle_like', (req, res, next) => {
                 var now = Date.now();
                 LikesModel.removeLike(logged.login, username);
                 LikesModel.unLike(logged.login, username, now, function(err, rows, fields) {
-                    if (rows) {
+                    if (!err) {
                         sendUser(logged, username, res);
                     } else {
                         res.json({
@@ -222,7 +222,7 @@ router.post('/toggle_like', (req, res, next) => {
                 var now = Date.now();
                 LikesModel.removeUnLike(logged.login, username);
                 LikesModel.like(logged.login, username, now, function(err, rows, fields) {
-                    if (rows) {
+                    if (!err) {
                         sendUser(logged, username, res)
                     } else {
                         res.json({

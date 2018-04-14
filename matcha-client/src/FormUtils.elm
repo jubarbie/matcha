@@ -36,6 +36,7 @@ type FormValidator
     | PasswordValidator
     | PasswordConfirmValidator String
     | TagValidator
+    | RegexValidator String
 
 
 initInput : Maybe String -> String -> String -> String -> Maybe FormValidator -> Maybe String -> Input
@@ -105,6 +106,9 @@ validationForm validator form value =
         Just TagValidator ->
             validTag value
 
+        Just (RegexValidator reg) ->
+           validRegex reg value
+
 
 findInput : Form -> String -> Maybe Input
 findInput form id =
@@ -149,7 +153,7 @@ initChangePwdForm =
 
 initFastNewUserForm : Form
 initFastNewUserForm =
-    [ initInput Nothing "text" "Login" "login" (Just <| TextValidator 2 255) (Just "Must be between 2 and 255 char")
+    [ initInput Nothing "text" "Login" "login" (Just <| RegexValidator "^[A-Za-z0-9_-]{2,255}$") (Just "Letters, numbers, -, _. Between 2 and 255 chars")
     , initInput Nothing "text" "First name" "fname" (Just <| TextValidator 2 255) (Just "Must be between 2 and 255 char")
     , initInput Nothing "text" "Last name" "lname" (Just <| TextValidator 2 255) (Just "Must be between 2 and 255 char")
     , initInput Nothing "text" "Email" "email" (Just EmailValidator) (Just "Must be a valid email")
@@ -157,6 +161,17 @@ initFastNewUserForm =
     , initInput Nothing "password" "Confirm password" "repwd" (Just <| PasswordConfirmValidator "pwd") (Just "Re-type your password")
     ]
 
+validRegex : String -> Maybe String -> FormStatus
+validRegex reg value =
+  case value of
+      Nothing ->
+          Waiting
+
+      Just a ->
+          if contains (regex reg) a then
+              Valid a
+          else
+              NotValid <| "Doesn't match regex " ++ reg
 
 validEmail : Maybe String -> FormStatus
 validEmail value =

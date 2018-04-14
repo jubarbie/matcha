@@ -48,6 +48,9 @@ exports.getLikeBetweenUsers = (user_from, user_to, cb) =>
 exports.updateLikeLast = (to, date) =>
     connection.query('UPDATE likes SET last = ? WHERE user_to = ?', [date, to]);
 
+exports.updateUnlikeLast = (to, date) =>
+    connection.query('UPDATE unlikes SET last = ? WHERE user_to = ?', [date, to]);
+
 exports.getNotifLike = (logged, cb) =>
     connection.query('SELECT user_from FROM likes WHERE user_to = ? AND last < date', [logged], cb);
 

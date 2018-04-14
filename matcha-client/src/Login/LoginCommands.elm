@@ -45,8 +45,8 @@ resetPwd login email =
         |> Cmd.map ResetPwdResponse
 
 
-sendFastNewUser : String -> String -> String -> String -> String -> String -> Localisation -> Cmd Msg
-sendFastNewUser username fname lname email pwd repwd loc =
+sendFastNewUser : String -> String -> String -> String -> String -> String -> Cmd Msg
+sendFastNewUser username fname lname email pwd repwd =
     let
         body =
             Http.jsonBody <|
@@ -57,8 +57,6 @@ sendFastNewUser username fname lname email pwd repwd loc =
                     , ( "email", JsonEnc.string email )
                     , ( "password", JsonEnc.string pwd )
                     , ( "rePassword", JsonEnc.string repwd )
-                    , ( "lon", JsonEnc.float loc.lon)
-                    , ( "lat", JsonEnc.float loc.lat)
                     ]
     in
     Http.post "http://localhost:3001/auth/new" body (decodeApiResponse Nothing)

@@ -52,6 +52,37 @@ let isLength = (data, field, options, errors) => {
         return null;
 }
 
+let isRegex = (data, field, reg, errors) => {
+  if (data[field]) {
+      let m = data[field].match(reg);
+      if (m == null) {
+          errors.push({
+              field: field,
+              validation: 'is regex',
+              message: 'Field ' + field + ' must be like ' + reg.toString()
+          });
+      }
+      return data[field];
+  } else
+      return null;
+}
+
+exports.validateNewUserInfos = (req) => {
+  let valid = this.validateUserInfos(req);
+  let infos = valid.data;
+  let errors = valid.errors;
+  let data = req.body;
+
+  infos.username = required(data, 'username', errors);
+  isRegex(data, 'username', /^[A-Za-z0-9_-]{2,}$/, errors);
+
+  return {
+      data: infos,
+      valid: (errors.length == 0),
+      errors: errors
+  }
+}
+
 exports.validateUserInfos = (req) => {
     let infos = {};
     let errors = [];

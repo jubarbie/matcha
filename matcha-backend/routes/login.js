@@ -71,7 +71,7 @@ var buildUserFromRequest = function(req) {
 /* Insert new user */
 apiRoutes.post('/new', (req, res, next) => {
 
-    const valid = validation.validateUserInfos(req);
+    const valid = validation.validateNewUserInfos(req);
 
     if (!valid.valid) {
         res.json({

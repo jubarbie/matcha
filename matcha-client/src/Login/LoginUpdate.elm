@@ -105,7 +105,7 @@ updateLogin msg route loginModel =
             in
               case values of
                   [ Valid username, Valid fname, Valid lname, Valid email, Valid pwd, Valid repwd ] ->
-                      ( NotConnected route loginModel, sendFastNewUser username fname lname email pwd repwd loginModel.localisation )
+                      ( NotConnected route loginModel, sendFastNewUser username fname lname email pwd repwd )
 
                   _ ->
                       ( NotConnected route loginModel, Cmd.none )

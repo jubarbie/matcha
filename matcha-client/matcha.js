@@ -12481,9 +12481,10 @@ var _user$project$Msgs$NewUserResponse = function (a) {
 var _user$project$Msgs$LoginResponse = function (a) {
 	return {ctor: 'LoginResponse', _0: a};
 };
-var _user$project$Msgs$LikeResponse = function (a) {
-	return {ctor: 'LikeResponse', _0: a};
-};
+var _user$project$Msgs$LikeResponse = F2(
+	function (a, b) {
+		return {ctor: 'LikeResponse', _0: a, _1: b};
+	});
 var _user$project$Msgs$UserResponse = function (a) {
 	return {ctor: 'UserResponse', _0: a};
 };
@@ -17780,7 +17781,7 @@ var _user$project$App_User_UserCommands$toggleLike = F2(
 		var url = 'http://localhost:3001/api/users/toggle_like';
 		return A2(
 			_elm_lang$http$Http$send,
-			_user$project$Msgs$LikeResponse,
+			_user$project$Msgs$LikeResponse(username),
 			A4(
 				_user$project$Api_ApiRequest$apiPostRequest,
 				_elm_lang$core$Maybe$Just(_user$project$App_User_UserDecoder$decodeUser),
@@ -19123,16 +19124,16 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_elm_lang$core$Platform_Cmd$none,
 					model);
 			case 'LikeResponse':
-				var _p27 = _p8._0;
+				var _p30 = _p8._0;
+				var _p27 = _p8._1;
 				if (_p27.ctor === 'Ok') {
-					var _p30 = _p27._0;
-					var _p28 = {ctor: '_Tuple2', _0: _p30.status, _1: _p30.data};
+					var _p29 = _p27._0;
+					var _p28 = {ctor: '_Tuple2', _0: _p29.status, _1: _p29.data};
 					_v21_2:
 					do {
 						if (_p28.ctor === '_Tuple2') {
 							if (_p28._0 === true) {
 								if (_p28._1.ctor === 'Just') {
-									var _p29 = _p28._1._0;
 									return {
 										ctor: '_Tuple2',
 										_0: A5(
@@ -19142,15 +19143,15 @@ var _user$project$App_AppUpdate$updateApp = F6(
 											_elm_lang$core$Native_Utils.update(
 												appModel,
 												{message: _elm_lang$core$Maybe$Nothing}),
-											A2(_user$project$App_User_UserUpdate$updateUser, usersModel, _p29),
+											A2(_user$project$App_User_UserUpdate$updateUser, usersModel, _p28._1._0),
 											talksModel),
 										_1: _elm_lang$core$Platform_Cmd$batch(
 											{
 												ctor: '::',
-												_0: A2(_user$project$App_User_UserCommands$sendUnlikeNotif, session.token, _p29.username),
+												_0: A2(_user$project$App_User_UserCommands$sendUnlikeNotif, session.token, _p30),
 												_1: {
 													ctor: '::',
-													_0: A2(_user$project$App_User_UserCommands$sendLikeNotif, session.token, _p29.username),
+													_0: A2(_user$project$App_User_UserCommands$sendLikeNotif, session.token, _p30),
 													_1: {ctor: '[]'}
 												}
 											})

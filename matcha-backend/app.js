@@ -75,7 +75,7 @@ app.ws('/ws', function(ws, req) {
                               if (!resp) {
                                 Ctrl_talks.new_message(logged_user.login, data.to, data.message);
                                 TalksModel.getTalkNotif(usersTab, userNb, (err, rows, fields) => {
-                                  if (!err && rows.length > 0) {
+                                  if (!err) {
                                     aWss.clients.forEach(function each(client) {
                                         client.send(JSON.stringify({
                                             message: 'message',
@@ -96,13 +96,13 @@ app.ws('/ws', function(ws, req) {
                           break;
                         case "like":
                             LikesModel.getNotifLike(data.to, (err, rows, fields) => {
-                              if (rows.length > 0) {
+                              if (!err) {
                                 aWss.clients.forEach(function each(client) {
                                     client.send(JSON.stringify({
                                         message: 'like',
                                         to: data.to,
                                         from: logged_user.login,
-                                        notif: rows.map(row => row.user_from)
+                                        notif: (rows.length > 0) ? rows.map(row => row.user_from) : []
                                     }));
                                 });
                               }
@@ -110,13 +110,14 @@ app.ws('/ws', function(ws, req) {
                             break;
                         case "unlike":
                               LikesModel.getNotifUnLike(data.to, (err, rows, fields) => {
-                                if (rows.length > 0) {
+                                if (!err) {
+                                  LikesModel.updateUnlikeLast(logged_user.login, now);
                                   aWss.clients.forEach(function each(client) {
                                       client.send(JSON.stringify({
                                           message: 'unlike',
                                           to: data.to,
                                           from: logged_user.login,
-                                          notif: rows.map(row => row.user_from)
+                                          notif: (rows.length > 0) ? rows.map(row => row.user_from) : []
                                       }));
                                   });
                                 }
