@@ -642,7 +642,7 @@ ul.users-list {
 
 #map .map-btn {
   position: absolute;
-  z-index: 2;
+  z-index: 20;
   right: 10px;
   top: 110px;
   width: 30px;

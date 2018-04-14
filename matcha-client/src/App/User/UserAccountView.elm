@@ -34,7 +34,7 @@ view session model =
                   [ viewEditAccountForm model.editAccountForm session.user]
               else
                 [ h2 [] [ text session.user.username ]
-                , div [] [ text <| session.user.fname ++ " " ++ session.user.lname ]
+                , div [ class "name" ] [ text <| session.user.fname ++ " " ++ session.user.lname ]
                 , div [] [ text session.user.email ]
                 , div [] [ shortBio ]
                 , button [class "btn-no-style", onClick ToggleAccountForm] [  text "Edit infos" ]
@@ -87,10 +87,12 @@ viewLocalisation model =
     div (if model.localizing then [class "localizing"] else [])
         [ h3 [] [text "Localisation"]
         , div [ id "map" ]
-              [ if model.localizing then
+              [ if model.localizing && model.map_state == Rendered then
                   button [ class "map-btn", Html.Attributes.attribute "disabled" "disabled" ] [  Html.Keyed.node "loc" [ class "fas fa-spinner fa-pulse" ][] ]
-                else
+                else if model.map_state == Rendered then
                   button [ onClick Localize, class "map-btn" ] [  Html.Keyed.node "nloc" [ class  "fas fa-location-arrow" ] [] ]
+                else
+                  div [] []
               ]
         ]
 

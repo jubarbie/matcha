@@ -11641,19 +11641,21 @@ var _user$project$FormUtils$Valid = function (a) {
 	return {ctor: 'Valid', _0: a};
 };
 var _user$project$FormUtils$Waiting = {ctor: 'Waiting'};
+var _user$project$FormUtils$validRegex = F2(
+	function (reg, value) {
+		var _p5 = value;
+		if (_p5.ctor === 'Nothing') {
+			return _user$project$FormUtils$Waiting;
+		} else {
+			var _p6 = _p5._0;
+			return A2(
+				_elm_lang$core$Regex$contains,
+				_elm_lang$core$Regex$regex(reg),
+				_p6) ? _user$project$FormUtils$Valid(_p6) : _user$project$FormUtils$NotValid(
+				A2(_elm_lang$core$Basics_ops['++'], 'Doesn\'t match regex ', reg));
+		}
+	});
 var _user$project$FormUtils$validEmail = function (value) {
-	var _p5 = value;
-	if (_p5.ctor === 'Nothing') {
-		return _user$project$FormUtils$Waiting;
-	} else {
-		var _p6 = _p5._0;
-		return A2(
-			_elm_lang$core$Regex$contains,
-			_elm_lang$core$Regex$regex('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$'),
-			_p6) ? _user$project$FormUtils$Valid(_p6) : _user$project$FormUtils$NotValid('Must be email');
-	}
-};
-var _user$project$FormUtils$validTag = function (value) {
 	var _p7 = value;
 	if (_p7.ctor === 'Nothing') {
 		return _user$project$FormUtils$Waiting;
@@ -11661,34 +11663,46 @@ var _user$project$FormUtils$validTag = function (value) {
 		var _p8 = _p7._0;
 		return A2(
 			_elm_lang$core$Regex$contains,
-			_elm_lang$core$Regex$regex('^[a-zA-Z0-9_.+-]+$'),
-			_p8) ? ((_elm_lang$core$Native_Utils.cmp(
-			_elm_lang$core$String$length(_p8),
-			30) < 1) ? _user$project$FormUtils$Valid(_p8) : _user$project$FormUtils$NotValid('30 char max')) : _user$project$FormUtils$NotValid('Only letter, numbers and \'_\'');
+			_elm_lang$core$Regex$regex('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$'),
+			_p8) ? _user$project$FormUtils$Valid(_p8) : _user$project$FormUtils$NotValid('Must be email');
 	}
 };
-var _user$project$FormUtils$validPassword = function (value) {
+var _user$project$FormUtils$validTag = function (value) {
 	var _p9 = value;
 	if (_p9.ctor === 'Nothing') {
 		return _user$project$FormUtils$Waiting;
 	} else {
 		var _p10 = _p9._0;
+		return A2(
+			_elm_lang$core$Regex$contains,
+			_elm_lang$core$Regex$regex('^[a-zA-Z0-9_.+-]+$'),
+			_p10) ? ((_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$String$length(_p10),
+			30) < 1) ? _user$project$FormUtils$Valid(_p10) : _user$project$FormUtils$NotValid('30 char max')) : _user$project$FormUtils$NotValid('Only letter, numbers and \'_\'');
+	}
+};
+var _user$project$FormUtils$validPassword = function (value) {
+	var _p11 = value;
+	if (_p11.ctor === 'Nothing') {
+		return _user$project$FormUtils$Waiting;
+	} else {
+		var _p12 = _p11._0;
 		return (A2(
 			_elm_lang$core$Regex$contains,
 			_elm_lang$core$Regex$regex('\\d'),
-			_p10) && (_elm_lang$core$Native_Utils.cmp(
-			_elm_lang$core$String$length(_p10),
-			6) > -1)) ? _user$project$FormUtils$Valid(_p10) : _user$project$FormUtils$NotValid('Should be at least 6 chars and 1 number');
+			_p12) && (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$String$length(_p12),
+			6) > -1)) ? _user$project$FormUtils$Valid(_p12) : _user$project$FormUtils$NotValid('Should be at least 6 chars and 1 number');
 	}
 };
 var _user$project$FormUtils$validConfirmPassword = F2(
 	function (inp, value) {
-		var _p11 = inp.status;
-		if (_p11.ctor === 'Valid') {
-			var _p13 = _p11._0;
-			var _p12 = value;
-			if (_p12.ctor === 'Just') {
-				return _elm_lang$core$Native_Utils.eq(_p13, _p12._0) ? _user$project$FormUtils$Valid(_p13) : _user$project$FormUtils$NotValid('Both password doesn\'t match');
+		var _p13 = inp.status;
+		if (_p13.ctor === 'Valid') {
+			var _p15 = _p13._0;
+			var _p14 = value;
+			if (_p14.ctor === 'Just') {
+				return _elm_lang$core$Native_Utils.eq(_p15, _p14._0) ? _user$project$FormUtils$Valid(_p15) : _user$project$FormUtils$NotValid('Both password doesn\'t match');
 			} else {
 				return _user$project$FormUtils$Waiting;
 			}
@@ -11698,13 +11712,13 @@ var _user$project$FormUtils$validConfirmPassword = F2(
 	});
 var _user$project$FormUtils$validText = F3(
 	function (min, max, t) {
-		var _p14 = t;
-		if (_p14.ctor === 'Just') {
-			var _p16 = _p14._0;
-			var size = _elm_lang$core$String$length(_p16);
-			var _p15 = (_elm_lang$core$Native_Utils.cmp(size, min) > -1) && (_elm_lang$core$Native_Utils.cmp(size, max) < 1);
-			if (_p15 === true) {
-				return _user$project$FormUtils$Valid(_p16);
+		var _p16 = t;
+		if (_p16.ctor === 'Just') {
+			var _p18 = _p16._0;
+			var size = _elm_lang$core$String$length(_p18);
+			var _p17 = (_elm_lang$core$Native_Utils.cmp(size, min) > -1) && (_elm_lang$core$Native_Utils.cmp(size, max) < 1);
+			if (_p17 === true) {
+				return _user$project$FormUtils$Valid(_p18);
 			} else {
 				return _user$project$FormUtils$NotValid(
 					A2(
@@ -11723,10 +11737,10 @@ var _user$project$FormUtils$validText = F3(
 		}
 	});
 var _user$project$FormUtils$validGender = function (g) {
-	var _p17 = g;
-	if (_p17.ctor === 'Just') {
-		var _p18 = _p17._0;
-		switch (_p18) {
+	var _p19 = g;
+	if (_p19.ctor === 'Just') {
+		var _p20 = _p19._0;
+		switch (_p20) {
 			case 'M':
 				return _user$project$FormUtils$Valid('M');
 			case 'F':
@@ -11740,24 +11754,24 @@ var _user$project$FormUtils$validGender = function (g) {
 };
 var _user$project$FormUtils$validationForm = F3(
 	function (validator, form, value) {
-		var _p19 = validator;
-		if (_p19.ctor === 'Nothing') {
+		var _p21 = validator;
+		if (_p21.ctor === 'Nothing') {
 			return _user$project$FormUtils$Valid(
 				function () {
-					var _p20 = value;
-					if (_p20.ctor === 'Just') {
-						return _p20._0;
+					var _p22 = value;
+					if (_p22.ctor === 'Just') {
+						return _p22._0;
 					} else {
 						return '';
 					}
 				}());
 		} else {
-			switch (_p19._0.ctor) {
+			switch (_p21._0.ctor) {
 				case 'Required':
-					var _p21 = value;
-					if (_p21.ctor === 'Just') {
-						var _p22 = _p21._0;
-						return (!_elm_lang$core$Native_Utils.eq(_p22, '')) ? _user$project$FormUtils$Valid(_p22) : _user$project$FormUtils$NotValid('Required Field');
+					var _p23 = value;
+					if (_p23.ctor === 'Just') {
+						var _p24 = _p23._0;
+						return (!_elm_lang$core$Native_Utils.eq(_p24, '')) ? _user$project$FormUtils$Valid(_p24) : _user$project$FormUtils$NotValid('Required Field');
 					} else {
 						return _user$project$FormUtils$NotValid('Required field');
 					}
@@ -11768,18 +11782,20 @@ var _user$project$FormUtils$validationForm = F3(
 				case 'PasswordValidator':
 					return _user$project$FormUtils$validPassword(value);
 				case 'PasswordConfirmValidator':
-					var _p24 = _p19._0._0;
-					var _p23 = A2(_user$project$FormUtils$findInput, form, _p24);
-					if (_p23.ctor === 'Just') {
-						return A2(_user$project$FormUtils$validConfirmPassword, _p23._0, value);
+					var _p26 = _p21._0._0;
+					var _p25 = A2(_user$project$FormUtils$findInput, form, _p26);
+					if (_p25.ctor === 'Just') {
+						return A2(_user$project$FormUtils$validConfirmPassword, _p25._0, value);
 					} else {
 						return _user$project$FormUtils$NotValid(
-							A2(_elm_lang$core$Basics_ops['++'], 'No input found with id : ', _p24));
+							A2(_elm_lang$core$Basics_ops['++'], 'No input found with id : ', _p26));
 					}
 				case 'TextValidator':
-					return A3(_user$project$FormUtils$validText, _p19._0._0, _p19._0._1, value);
-				default:
+					return A3(_user$project$FormUtils$validText, _p21._0._0, _p21._0._1, value);
+				case 'TagValidator':
 					return _user$project$FormUtils$validTag(value);
+				default:
+					return A2(_user$project$FormUtils$validRegex, _p21._0._0, value);
 			}
 		}
 	});
@@ -11813,6 +11829,9 @@ var _user$project$FormUtils$updateInput = F3(
 			},
 			form);
 	});
+var _user$project$FormUtils$RegexValidator = function (a) {
+	return {ctor: 'RegexValidator', _0: a};
+};
 var _user$project$FormUtils$TagValidator = {ctor: 'TagValidator'};
 var _user$project$FormUtils$PasswordConfirmValidator = function (a) {
 	return {ctor: 'PasswordConfirmValidator', _0: a};
@@ -11944,8 +11963,8 @@ var _user$project$FormUtils$initFastNewUserForm = {
 		'Login',
 		'login',
 		_elm_lang$core$Maybe$Just(
-			A2(_user$project$FormUtils$TextValidator, 2, 255)),
-		_elm_lang$core$Maybe$Just('Must be between 2 and 255 char')),
+			_user$project$FormUtils$RegexValidator('^[A-Za-z0-9_-]{2,255}$')),
+		_elm_lang$core$Maybe$Just('Letters, numbers, -, _. Between 2 and 255 chars')),
 	_1: {
 		ctor: '::',
 		_0: A6(
@@ -12008,16 +12027,10 @@ var _user$project$FormUtils$initFastNewUserForm = {
 };
 var _user$project$FormUtils$Required = {ctor: 'Required'};
 
-var _user$project$Login_LoginModels$initialLoginModel = {
-	loginForm: _user$project$FormUtils$initLoginForm,
-	newUserForm: _user$project$FormUtils$initFastNewUserForm,
-	resetPwdForm: _user$project$FormUtils$initResetPwdForm,
-	localisation: {lon: 0, lat: 0},
-	message: _elm_lang$core$Maybe$Nothing
-};
-var _user$project$Login_LoginModels$LoginModel = F5(
-	function (a, b, c, d, e) {
-		return {loginForm: a, newUserForm: b, resetPwdForm: c, localisation: d, message: e};
+var _user$project$Login_LoginModels$initialLoginModel = {loginForm: _user$project$FormUtils$initLoginForm, newUserForm: _user$project$FormUtils$initFastNewUserForm, resetPwdForm: _user$project$FormUtils$initResetPwdForm, message: _elm_lang$core$Maybe$Nothing};
+var _user$project$Login_LoginModels$LoginModel = F4(
+	function (a, b, c, d) {
+		return {loginForm: a, newUserForm: b, resetPwdForm: c, message: d};
 	});
 var _user$project$Login_LoginModels$NotFoundLoginRoute = {ctor: 'NotFoundLoginRoute'};
 var _user$project$Login_LoginModels$ResetPwdRoute = {ctor: 'ResetPwdRoute'};
@@ -18299,8 +18312,8 @@ var _user$project$App_User_UserUpdate$showImage = F3(
 			users);
 	});
 
-var _user$project$Login_LoginCommands$sendFastNewUser = F7(
-	function (username, fname, lname, email, pwd, repwd, loc) {
+var _user$project$Login_LoginCommands$sendFastNewUser = F6(
+	function (username, fname, lname, email, pwd, repwd) {
 		var body = _elm_lang$http$Http$jsonBody(
 			_elm_lang$core$Json_Encode$object(
 				{
@@ -18345,23 +18358,7 @@ var _user$project$Login_LoginCommands$sendFastNewUser = F7(
 											_0: 'rePassword',
 											_1: _elm_lang$core$Json_Encode$string(repwd)
 										},
-										_1: {
-											ctor: '::',
-											_0: {
-												ctor: '_Tuple2',
-												_0: 'lon',
-												_1: _elm_lang$core$Json_Encode$float(loc.lon)
-											},
-											_1: {
-												ctor: '::',
-												_0: {
-													ctor: '_Tuple2',
-													_0: 'lat',
-													_1: _elm_lang$core$Json_Encode$float(loc.lat)
-												},
-												_1: {ctor: '[]'}
-											}
-										}
+										_1: {ctor: '[]'}
 									}
 								}
 							}
@@ -19485,7 +19482,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'SendNewMessage':
-				var _p46 = talksModel.currentTalk;
+				var _p46 = A2(_elm_lang$core$Debug$log, 'send', talksModel.currentTalk);
 				if (_p46.ctor === 'Just') {
 					var _p47 = A2(_user$project$App_Talk_TalkUtils$getTalkWith, _p46._0, talksModel.talks);
 					if (_p47.ctor === 'Just') {
@@ -22437,7 +22434,7 @@ var _user$project$App_User_UserAccountView$viewLocalisation = function (model) {
 					},
 					{
 						ctor: '::',
-						_0: model.localizing ? A2(
+						_0: (model.localizing && _elm_lang$core$Native_Utils.eq(model.map_state, _user$project$App_AppModels$Rendered)) ? A2(
 							_elm_lang$html$Html$button,
 							{
 								ctor: '::',
@@ -22460,7 +22457,7 @@ var _user$project$App_User_UserAccountView$viewLocalisation = function (model) {
 									},
 									{ctor: '[]'}),
 								_1: {ctor: '[]'}
-							}) : A2(
+							}) : (_elm_lang$core$Native_Utils.eq(model.map_state, _user$project$App_AppModels$Rendered) ? A2(
 							_elm_lang$html$Html$button,
 							{
 								ctor: '::',
@@ -22483,7 +22480,10 @@ var _user$project$App_User_UserAccountView$viewLocalisation = function (model) {
 									},
 									{ctor: '[]'}),
 								_1: {ctor: '[]'}
-							}),
+							}) : A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							{ctor: '[]'})),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
@@ -22641,7 +22641,11 @@ var _user$project$App_User_UserAccountView$view = F2(
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$div,
-									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('name'),
+										_1: {ctor: '[]'}
+									},
 									{
 										ctor: '::',
 										_0: _elm_lang$html$Html$text(
@@ -25993,7 +25997,7 @@ var _user$project$Login_LoginUpdate$updateLogin = F3(
 					return {
 						ctor: '_Tuple2',
 						_0: A2(_user$project$Models$NotConnected, route, loginModel),
-						_1: A7(_user$project$Login_LoginCommands$sendFastNewUser, _p7._0._0, _p7._1._0._0, _p7._1._1._0._0, _p7._1._1._1._0._0, _p7._1._1._1._1._0._0, _p7._1._1._1._1._1._0._0, loginModel.localisation)
+						_1: A6(_user$project$Login_LoginCommands$sendFastNewUser, _p7._0._0, _p7._1._0._0, _p7._1._1._0._0, _p7._1._1._1._0._0, _p7._1._1._1._1._0._0, _p7._1._1._1._1._1._0._0)
 					};
 				} else {
 					return {
