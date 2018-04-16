@@ -315,7 +315,8 @@ ul.users-list {
   .user-card .user-infos, .user-box .user-infos {
     padding: 8px; }
     .user-card .user-infos h3, .user-box .user-infos h3 {
-      font-size: 1.4em; }
+      font-size: 1.2em;
+      font-weight: normal; }
     .user-card .user-infos .info-dist, .user-box .user-infos .info-dist {
       font-size: 0.8em;
       color: grey;

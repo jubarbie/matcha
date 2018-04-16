@@ -221,6 +221,11 @@ exports.insertUser = (user, date, cb) =>
 		INSERT INTO user (login, email, fname, lname, password, activated, rights, created_on, last_connection) \
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)', [user.login, user.email, user.fname, user.lname, user.password, user.activated, user.rights, date], cb);
 
+exports.insertFullUser = (user, date, cb) =>
+    connection.query('\
+		INSERT INTO user (login, email, fname, lname, password, gender, bio, activated, rights, created_on, localisation, birth, last_connection) \
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)', [user.login, user.email, user.fname, user.lname, user.password, user.gender, user.bio, user.activated, user.rights, date, user.localisation, user.birth], cb);
+
 exports.updateInfos = (login, infos, activated, cb) =>
     connection.query('\
 		UPDATE user SET email = ?, fname = ?, lname = ?, bio = ?, activated = ? \
@@ -248,4 +253,4 @@ exports.updateSexuality = (login, genders, cb) => {
 };
 
 exports.getBlocked = (from, to, cb) =>
-  connection.query('SELECT * FROM blocks WHERE (user_from = ? AND user_to = ?) OR (user_from = ? AND user_to = ?)', [from, to, to, from], cb);
+    connection.query('SELECT * FROM blocks WHERE (user_from = ? AND user_to = ?) OR (user_from = ? AND user_to = ?)', [from, to, to, from], cb);
