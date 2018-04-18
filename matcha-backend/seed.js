@@ -1,4 +1,3 @@
-const express = require('express');
 const UsersModel = require('./models/users_model');
 const ImageModel = require('./models/image_model');
 const TagModel = require('./models/tag_model');
@@ -70,7 +69,8 @@ async function insert_random_profiles(max) {
         user.lname = faker.name.lastName();
         user.fname = faker.name.firstName();
         user.email = faker.internet.email();
-        user.password = bcrypt.hashSync(user.login + "_PWD", saltRounds);
+        let pwd = user.login + "_PWD";
+        user.password = bcrypt.hashSync(pwd, saltRounds);
         user.activated = "activated";
         user.rights = 1;
         user.gender = genders[get_random_num(0, 3)];
@@ -207,8 +207,8 @@ function get_random_num(min, max) {
 
 function get_random_loc(min_lon, min_lat, max_lon, max_lat) {
     var loc = {};
-    loc.lon = (Math.random() * (max_lon - min_lon) + min_lon).toFixed(12);
-    loc.lat = (Math.random() * (max_lat - min_lat) + min_lat).toFixed(12);
+    loc.lon = parseFloat((Math.random() * (max_lon - min_lon) + min_lon).toFixed(12));
+    loc.lat = parseFloat((Math.random() * (max_lat - min_lat) + min_lat).toFixed(12));
     return JSON.stringify(loc);
 }
 

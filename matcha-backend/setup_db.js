@@ -16,10 +16,7 @@ var connection = mysql.createConnection({
 });
 
 var fs = require('fs');
-var dataset = fs.readFileSync('./create_tables.sql', "utf8");
-var create_database = 'DROP DATABASE IF EXISTS matcha_db ;';
-create_database += 'CREATE DATABASE matcha_db ; USE matcha_db;';
-create_database += dataset;
+var create_database = fs.readFileSync('./matcha_db.sql', "utf8");
 
 connection.query(create_database, function(err, rows, fields) {
     connection.end();

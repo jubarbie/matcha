@@ -300,6 +300,8 @@ ul.users-list {
 
 .user-card {
   cursor: pointer; }
+  .user-card.new-card {
+    border: 2px solid #a72424; }
 
 .user-card, .user-box {
   background: #181818;

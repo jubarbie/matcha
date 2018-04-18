@@ -32,8 +32,8 @@ type alias AppModel =
     , changePwdForm : Form
     , tagInput : String
     , searchTag : List String
-    , notifVisit : Int
-    , notifLike : Int
+    , notifVisit : List String
+    , notifLike : List String
     , notifUnlike : List String
     , message : Maybe String
     , map_state : MapState
@@ -74,8 +74,8 @@ initialAppModel =
     , changePwdForm = initChangePwdForm
     , tagInput = ""
     , searchTag = []
-    , notifVisit = 0
-    , notifLike = 0
+    , notifVisit = []
+    , notifLike = []
     , notifUnlike = []
     , message = Nothing
     , map_state = NoMap

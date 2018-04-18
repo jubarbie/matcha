@@ -25,12 +25,14 @@ view route session appModel model =
         ]
     ]
 
+
 notifUnlikeView : AppRoutes -> AppModel -> Html Msg
 notifUnlikeView route appModel =
-  if route == UsersRoute "likers" then
-    div [] <| List.map (\n -> div [class "text-warning center"][text <| n ++ " unliked you"] ) appModel.notifUnlike
-  else
-    div [][]
+    if route == UsersRoute "likers" then
+        div [] <| List.map (\n -> div [ class "text-warning center" ] [ text <| n ++ " unliked you" ]) appModel.notifUnlike
+    else
+        div [] []
+
 
 searchView : AppRoutes -> Session -> AppModel -> UsersModel -> List (Html Msg)
 searchView route session appModel model =
@@ -308,13 +310,13 @@ userMenuView route model =
         , li [ class <| getActiveClass (route == UsersRoute "visitors") ]
             [ a [ class "button", href "/#/users/visitors" ]
                 [ text "Visitors "
-                , notif model.notifVisit
+                , notif <| List.length model.notifVisit
                 ]
             ]
         , li [ class <| getActiveClass (route == UsersRoute "likers") ]
             [ a [ class "button", href "/#/users/likers" ]
                 [ text "Likers "
-                , notif <| model.notifLike + List.length model.notifUnlike
+                , notif <| List.length model.notifLike + List.length model.notifUnlike
                 ]
             ]
         , li [ class <| getActiveClass (route == UsersRoute "matchers") ]
@@ -332,13 +334,13 @@ viewUsers route session appModel model =
             if List.length model.users == 0 then
                 emptyUsersView
             else
-                viewUsersList session appModel model
+                viewUsersList route session appModel model
     in
     div [ id "users-list", class "layout-column" ]
         [ if getAccountNotif session.user > 0 then
             div [ onClick ToggleAccountMenu, class "text-warning pointer center" ] [ text "Please complete your account to be able to interract with users" ]
           else
-            div [][]
+            div [] []
         , notifUnlikeView route appModel
         , view
         ]
@@ -349,8 +351,8 @@ emptyUsersView =
     div [ class "layout-column flex center" ] [ text "No users" ]
 
 
-viewUsersList : Session -> AppModel -> UsersModel -> Html Msg
-viewUsersList session appModel model =
+viewUsersList : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
+viewUsersList route session appModel model =
     let
         listF =
             List.filter (filterUser model.userFilter) model.users
@@ -378,18 +380,38 @@ viewUsersList session appModel model =
     Html.Keyed.node "ul" [ class <| "users-list" ] <|
         List.map
             (\( i, u ) ->
-                (u.username, li [] [ cardUserView appModel u i session model ] )
+                ( u.username, li [] [ cardUserView route appModel u i session model ] )
             )
         <|
             listOrdered
 
 
-cardUserView : AppModel -> User -> Int -> Session -> UsersModel -> Html Msg
-cardUserView appModel user i session model =
-    div [ onClick <| ShowUser user.username, class <| "user-card animated fadeInUp", style [ ( "animation-delay", toString (toFloat i / 15) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
-                [ userImageView user session model
-                , userInfosView appModel user model
-                ]
+cardUserView : AppRoutes -> AppModel -> User -> Int -> Session -> UsersModel -> Html Msg
+cardUserView route appModel user i session model =
+    let
+        clss =
+            "user-card animated fadeInUp"
+                ++ (case route of
+                        UsersRoute "likers" ->
+                            if List.member user.username appModel.notifLike then
+                                " new-card"
+                            else
+                                ""
+
+                        UsersRoute "visitors" ->
+                            if List.member user.username appModel.notifVisit then
+                                " new-card"
+                            else
+                                ""
+
+                        _ ->
+                            ""
+                   )
+    in
+    div [ onClick <| ShowUser user.username, class clss, style [ ( "animation-delay", toString (toFloat i / 15) ++ "s" ), ( "animation-duration", ".3s" ) ] ]
+        [ userImageView user session model
+        , userInfosView appModel user model
+        ]
 
 
 userInfosView : AppModel -> User -> UsersModel -> Html Msg
@@ -397,21 +419,25 @@ userInfosView appModel user model =
     div [ class "user-infos" ] <|
         [ userNameView user
         , userDistanceView user
-        ] ++
-        if getOnlineStatus appModel user then
-            [ div [ class "online-status on" ] [ text "Online ", Html.Keyed.node "online" [class "fas fa-circle"][] ] ]
-        else []
+        ]
+            ++ (if getOnlineStatus appModel user then
+                    [ div [ class "online-status on" ] [ text "Online ", Html.Keyed.node "online" [ class "fas fa-circle" ] [] ] ]
+                else
+                    []
+               )
 
-isMainImage : (Int, String, Bool) -> Bool
-isMainImage (a, b, c) =
-  c
+
+isMainImage : ( Int, String, Bool ) -> Bool
+isMainImage ( a, b, c ) =
+    c
+
 
 userImageView : User -> Session -> UsersModel -> Html Msg
 userImageView user session model =
     let
         imgSrc =
             case List.head <| List.filter isMainImage user.photos of
-                Just (id_, src, main) ->
+                Just ( id_, src, main ) ->
                     src
 
                 _ ->

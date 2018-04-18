@@ -37,6 +37,10 @@ ul.users-list {
 }
 .user-card {
 	cursor: pointer;
+
+	&.new-card {
+		border: 2px solid $red;
+	}
 }
 .user-card, .user-box {
 	background: $grey-dark;

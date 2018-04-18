@@ -20,11 +20,13 @@ apiRoutes.post('/token', (req, res, next) => {
     UserCtrl.getConnectedUser(login, function(user) {
         if (user) {
             if (bcrypt.compareSync(pwd, user.password) == false) {
+                console.log("Wrong pwd")
                 res.json({
                     "status": false,
                     "msg": "Incorrect login or password"
                 });
             } else if (user.activated != "activated" && user.activated != "incomplete" && user.activated != "resetpwd") {
+                console.log("Not activated")
                 res.json({
                     "status": false,
                     "msg": "You must activate your email first"
@@ -47,6 +49,7 @@ apiRoutes.post('/token', (req, res, next) => {
                 });
             }
         } else {
+            console.log("User does not exists");
             res.json({
                 "status": false,
                 "msg": "Incorrect login or password"
@@ -200,8 +203,8 @@ apiRoutes.get('/emailverif/:login', (req, res, next) => {
 });
 
 function getTemplate(msg) {
-  var tmp =
-    "<html> \
+    var tmp =
+        "<html> \
     <head> \
       <style> \
         html, body { \
@@ -214,7 +217,7 @@ function getTemplate(msg) {
      <div>" + msg + "</div> \
     </body> \
     </html> "
-  return tmp;
+    return tmp;
 }
 
 module.exports = apiRoutes;

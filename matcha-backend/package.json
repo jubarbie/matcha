@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "start": "PORT=3001 node ./bin/www",
+        "build": "node setup_db.js && node seed.js",
         "watch": "PORT=3001 ./node_modules/nodemon/bin/nodemon.js ./bin/www"
     },
     "dependencies": {
@@ -22,7 +23,7 @@
         "mysql": "^2.14.1",
         "mysqldump": "^1.4.2",
         "node-base64-image": "^1.0.4",
-        "nodemailer": "^4.2.0",
+        "nodemailer": "^4.6.4",
         "querystring": "^0.2.0",
         "shortid": "^2.2.8",
         "websocket": "^1.0.25"

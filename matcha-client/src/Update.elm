@@ -47,11 +47,12 @@ updateConnexion msg route =
                                     Connected route session initialAppModel initialUsersModel initialTalksModel
 
                                 cmds =
-                                    [ getTalks session.token, sendLikeNotif token u.username, sendUnlikeNotif token u.username, sendVisitNotif token u.username, Navigation.newUrl ("/#/users/all") ] ++
-                                      if u.localisation.lon == 0 && u.localisation.lat == 0 then
-                                        [ tryToLocalize () ]
-                                      else
-                                        []
+                                    [ getTalks session.token, sendLikeNotif token u.username, sendUnlikeNotif token u.username, sendVisitNotif token u.username, Navigation.newUrl "/#/users/all" ]
+                                        ++ (if u.localisation.lon == 0 && u.localisation.lat == 0 then
+                                                [ tryToLocalize () ]
+                                            else
+                                                []
+                                           )
                             in
                             case u.status of
                                 Activated ->
@@ -92,12 +93,11 @@ updateConnexion msg route =
                             , Cmd.batch [ getSessionUser t, storeToken [ t ] ]
                             )
 
-                        (_, _, _, msg) ->
-                            ( NotConnected LoginRoute {initialLoginModel | message = msg}, Cmd.none )
-
+                        ( _, _, _, msg ) ->
+                            ( NotConnected LoginRoute { initialLoginModel | message = msg }, Cmd.none )
 
                 _ ->
-                    ( NotConnected LoginRoute {initialLoginModel | message = Just "Error"}
+                    ( NotConnected LoginRoute { initialLoginModel | message = Just "Error" }
                     , Cmd.none
                     )
 

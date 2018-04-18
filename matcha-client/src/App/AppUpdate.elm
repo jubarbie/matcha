@@ -47,10 +47,11 @@ updateApp msg route session appModel usersModel talksModel =
 
         NoDataApiResponse reponse ->
             case route of
-              UsersRoute a ->
-                ( model, Cmd.batch [getRelevantUsers a session.token, getTalks session.token] )
-              _ ->
-                ( model, Cmd.none )
+                UsersRoute a ->
+                    ( model, Cmd.batch [ getRelevantUsers a session.token, getTalks session.token ] )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ChangePwdRespone response ->
             case response of
@@ -83,13 +84,13 @@ updateApp msg route session appModel usersModel talksModel =
                                 newSession =
                                     { session | user = newUser }
                             in
-                              ( updateSessionModel newSession model, Cmd.none )
+                            ( updateSessionModel newSession model, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
 
-                _ ->
-                    ( model, Cmd.none )
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         SearchTagResponse response ->
             case response of
@@ -101,8 +102,8 @@ updateApp msg route session appModel usersModel talksModel =
                         _ ->
                             ( model, Cmd.none )
 
-                _ ->
-                    ( model, Cmd.none )
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         UpdateFieldResponse response ->
             case response of
@@ -118,7 +119,7 @@ updateApp msg route session appModel usersModel talksModel =
                                         _ ->
                                             Cmd.none
                             in
-                              ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, cmd )
+                            ( updateSessionModel { session | user = u } <| updateAppModel { appModel | mImage = Nothing } model, cmd )
 
                         ( False, _, Just msg ) ->
                             ( Connected route session { appModel | message = Just msg } usersModel talksModel, Cmd.none )
@@ -126,8 +127,8 @@ updateApp msg route session appModel usersModel talksModel =
                         _ ->
                             ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing } usersModel talksModel, Cmd.none )
 
-                _ ->
-                    ( Connected route session { appModel | message = Just "Network error. Please try again", mImage = Nothing } usersModel talksModel, Cmd.none )
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         UsersResponse response ->
             handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none model
@@ -148,27 +149,27 @@ updateApp msg route session appModel usersModel talksModel =
                         _ ->
                             ( model, Cmd.none )
 
-                _ ->
-                    ( updateAlertMsg "Server error" model, Cmd.none )
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         UserResponse response ->
             handleApiResponse response (updateUser usersModel) updateUsersModel "User not found" Cmd.none model
 
         LikeResponse user response ->
-              case response of
-                  Ok rep ->
-                      case ( rep.status, rep.data ) of
-                          ( True, Just d ) ->
-                              ( Connected route session { appModel | message = Nothing } (updateUser usersModel d) talksModel, Cmd.batch [ sendUnlikeNotif session.token user, sendLikeNotif session.token user ] )
+            case response of
+                Ok rep ->
+                    case ( rep.status, rep.data ) of
+                        ( True, Just d ) ->
+                            ( Connected route session { appModel | message = Nothing } (updateUser usersModel d) talksModel, Cmd.batch [ sendUnlikeNotif session.token user, sendLikeNotif session.token user ] )
 
-                          ( False, _ ) ->
-                              ( updateAlertMsg "Server error" model, Cmd.none )
+                        ( False, _ ) ->
+                            ( updateAlertMsg "Server error" model, Cmd.none )
 
-                          _ ->
-                              ( model, Cmd.none )
+                        _ ->
+                            ( model, Cmd.none )
 
-                  _ ->
-                      ( updateAlertMsg "Server error" model, Cmd.none )
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         EditAccountResponse email fname lname bio response ->
             case response of
@@ -187,8 +188,8 @@ updateApp msg route session appModel usersModel talksModel =
                         _ ->
                             ( Connected route session { appModel | message = rep.message } usersModel talksModel, Cmd.none )
 
-                _ ->
-                    disconnect
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         GetTalkResponse response ->
             handleApiResponse response (updateTalks talksModel) updateTalksModel "Talk not found" (Task.attempt (always NoOp) <| Scroll.toBottom "talk-list") model
@@ -203,8 +204,8 @@ updateApp msg route session appModel usersModel talksModel =
                         _ ->
                             ( Connected route session { appModel | message = Just "user not found" } usersModel talksModel, Navigation.newUrl "/#/users" )
 
-                _ ->
-                    disconnect
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         SaveLocRespone response ->
             case response of
@@ -219,17 +220,20 @@ updateApp msg route session appModel usersModel talksModel =
                                     { session | user = { user | localisation = l } }
 
                                 cmd =
-                                 case route of
-                                   UsersRoute a -> getRelevantUsers a session.token
-                                   _ -> Cmd.none
+                                    case route of
+                                        UsersRoute a ->
+                                            getRelevantUsers a session.token
+
+                                        _ ->
+                                            Cmd.none
                             in
-                            ( Connected route newSession { appModel | localizing = False } usersModel talksModel, cmd  )
+                            ( Connected route newSession { appModel | localizing = False } usersModel talksModel, cmd )
 
                         _ ->
                             ( Connected route session { appModel | message = Just "Error while saving localisation. Try again", localizing = False } usersModel talksModel, Cmd.none )
 
-                _ ->
-                    ( Connected route session { appModel | message = Just "Error while saving localisation. Try again", localizing = False } usersModel talksModel, Cmd.none )
+                Err err ->
+                    handleErrorRequest err model Cmd.none
 
         OnLocationChange location ->
             let
@@ -239,34 +243,34 @@ updateApp msg route session appModel usersModel talksModel =
                 newModel =
                     { appModel | message = Nothing, showEmoList = False, showAccountMenu = False, showAdvanceFilters = False, search = initialSearchModel, showTalksList = False }
             in
-              case newRoute of
-                      UsersRoute a ->
-                          let
-                              likeNotif =
-                                  if a == "likers" then
-                                      0
-                                  else
-                                      appModel.notifLike
+            case newRoute of
+                UsersRoute a ->
+                    let
+                        likeNotif =
+                            if route == UsersRoute "likers" then
+                                []
+                            else
+                                appModel.notifLike
 
-                              unLikeNotif =
-                                  if route == UsersRoute "likers" then
-                                      []
-                                  else
-                                      appModel.notifUnlike
+                        unLikeNotif =
+                            if route == UsersRoute "likers" then
+                                []
+                            else
+                                appModel.notifUnlike
 
-                              visitNotif =
-                                  if a == "visitors" then
-                                      0
-                                  else
-                                      appModel.notifVisit
-                          in
-                          ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif, notifUnlike = unLikeNotif } usersModel talksModel, getRelevantUsers a session.token )
+                        visitNotif =
+                            if route == UsersRoute "visitors" then
+                                []
+                            else
+                                appModel.notifVisit
+                    in
+                    ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif, notifUnlike = unLikeNotif } usersModel talksModel, getRelevantUsers a session.token )
 
-                      SearchRoute ->
-                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
+                SearchRoute ->
+                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
-                      NotFoundAppRoute ->
-                          ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
+                NotFoundAppRoute ->
+                    ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
 
         GoBack amount ->
             ( model, Navigation.back amount )
@@ -327,8 +331,8 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, Cmd.none )
 
         LoadMap t ->
-            case ( appModel.map_state ) of
-                ( App.AppModels.Loading ) ->
+            case appModel.map_state of
+                App.AppModels.Loading ->
                     ( Connected route session { appModel | map_state = Rendered } usersModel talksModel, localize [ session.user.localisation.lon, session.user.localisation.lat ] )
 
                 _ ->
@@ -349,14 +353,14 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         NewLoc loc ->
-            case (loc, appModel.map_state) of
-
+            case ( loc, appModel.map_state ) of
                 ( [ long, lat ], App.AppModels.Rendered ) ->
-                    ( Connected route session { appModel | current_location = Just <| Localisation long lat, localizing = False } usersModel talksModel, Cmd.batch [localize [ long, lat ], saveLocation (Localisation long lat) session.token ] )
+                    ( Connected route session { appModel | current_location = Just <| Localisation long lat, localizing = False } usersModel talksModel, Cmd.batch [ localize [ long, lat ], saveLocation (Localisation long lat) session.token ] )
 
                 ( [ long, lat ], _ ) ->
                     ( Connected route session { appModel | current_location = Just <| Localisation long lat, localizing = False } usersModel talksModel, saveLocation (Localisation long lat) session.token )
-                _  ->
+
+                _ ->
                     ( Connected route session { appModel | localizing = False } usersModel talksModel, Cmd.none )
 
         GetIpLocalisationResponse resp ->
@@ -374,10 +378,11 @@ updateApp msg route session appModel usersModel talksModel =
                         cmd =
                             case loc of
                                 Just l ->
-                                      if appModel.map_state == App.AppModels.Rendered then
-                                        Cmd.batch  [localize [ l.lon, l.lat ], saveLocation (Localisation l.lon l.lat) session.token ]
-                                      else
+                                    if appModel.map_state == App.AppModels.Rendered then
+                                        Cmd.batch [ localize [ l.lon, l.lat ], saveLocation (Localisation l.lon l.lat) session.token ]
+                                    else
                                         saveLocation (Localisation l.lon l.lat) session.token
+
                                 _ ->
                                     Cmd.none
                     in
@@ -513,10 +518,16 @@ updateApp msg route session appModel usersModel talksModel =
             ( model, now )
 
         ToggleAccountMenu ->
-          let
-            newAcc = not appModel.showAccountMenu
-            mapStatus = if newAcc then App.AppModels.Loading else App.AppModels.NoMap
-          in
+            let
+                newAcc =
+                    not appModel.showAccountMenu
+
+                mapStatus =
+                    if newAcc then
+                        App.AppModels.Loading
+                    else
+                        App.AppModels.NoMap
+            in
             ( Connected route session { appModel | showAccountMenu = newAcc, showTalksList = False, map_state = mapStatus, showResetPwdForm = False, showEditAccountForm = False } usersModel talksModel, Cmd.none )
 
         ChangeImage user to ->
@@ -560,7 +571,7 @@ updateApp msg route session appModel usersModel talksModel =
 
                         NotifLike ->
                             if notif.to == session.user.username && route /= UsersRoute "likers" then
-                                ( Connected route session { appModel | notifLike = List.length notif.notif } usersModel talksModel, Cmd.none )
+                                ( Connected route session { appModel | notifLike = notif.notif } usersModel talksModel, Cmd.none )
                             else if notif.to == session.user.username && route == UsersRoute "likers" then
                                 ( model, getRelevantUsers "likers" session.token )
                             else
@@ -576,7 +587,7 @@ updateApp msg route session appModel usersModel talksModel =
 
                         NotifVisit ->
                             if notif.to == session.user.username && route /= UsersRoute "visitors" then
-                                ( Connected route session { appModel | notifVisit = List.length notif.notif } usersModel talksModel, Cmd.none )
+                                ( Connected route session { appModel | notifVisit = notif.notif } usersModel talksModel, Cmd.none )
                             else if notif.to == session.user.username && route == UsersRoute "visitors" then
                                 ( model, getRelevantUsers "visitors" session.token )
                             else
@@ -662,13 +673,17 @@ updateApp msg route session appModel usersModel talksModel =
             ( Connected route session { appModel | showTalksList = not appModel.showTalksList, showAccountMenu = False } usersModel talksModel, Cmd.none )
 
         ReportUser user ->
-            ( Connected route session appModel {usersModel | currentUser = Nothing} talksModel, reportUser user session.token )
+            ( Connected route session appModel { usersModel | currentUser = Nothing } talksModel, reportUser user session.token )
 
         BlockUser user ->
-          let
-            cuT = if talksModel.currentTalk == Just user then Nothing else talksModel.currentTalk
-          in
-            ( Connected route session appModel {usersModel | currentUser = Nothing}  { talksModel | currentTalk = cuT }, blockUser user session.token )
+            let
+                cuT =
+                    if talksModel.currentTalk == Just user then
+                        Nothing
+                    else
+                        talksModel.currentTalk
+            in
+            ( Connected route session appModel { usersModel | currentUser = Nothing } { talksModel | currentTalk = cuT }, blockUser user session.token )
 
         AdvanceSearch ->
             ( model, searchUser appModel.search session.token )
@@ -765,23 +780,25 @@ updateApp msg route session appModel usersModel talksModel =
             case String.toInt date of
                 Ok d ->
                     let
-                      user = session.user
+                        user =
+                            session.user
 
-                      newUser = { user | date_of_birth = Just d }
+                        newUser =
+                            { user | date_of_birth = Just d }
                     in
-                      ( Connected route { session | user = newUser } appModel usersModel talksModel, updateDateOfBirth d session.token )
+                    ( Connected route { session | user = newUser } appModel usersModel talksModel, updateDateOfBirth d session.token )
 
                 _ ->
-                  (model, Cmd.none)
+                    ( model, Cmd.none )
 
         UpdateMainImage id_ ->
-          (model, mainImg id_ session.token)
+            ( model, mainImg id_ session.token )
 
         ToggleAccountForm ->
-          (Connected route session { appModel | editAccountForm = initEditAccountForm session.user, showEditAccountForm = not appModel.showEditAccountForm, showResetPwdForm = False } usersModel talksModel, Cmd.none)
+            ( Connected route session { appModel | editAccountForm = initEditAccountForm session.user, showEditAccountForm = not appModel.showEditAccountForm, showResetPwdForm = False } usersModel talksModel, Cmd.none )
 
         ToggleResetPwdForm ->
-          (Connected route session { appModel | showResetPwdForm = not appModel.showResetPwdForm, showEditAccountForm = False } usersModel talksModel, Cmd.none)
+            ( Connected route session { appModel | showResetPwdForm = not appModel.showResetPwdForm, showEditAccountForm = False } usersModel talksModel, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
@@ -800,6 +817,19 @@ handleApiResponse response updateData successUpdate errorMsg cmd model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        Err err ->
+            handleErrorRequest err model Cmd.none
+
+
+handleErrorRequest : Http.Error -> Model -> Cmd Msg -> ( Model, Cmd Msg )
+handleErrorRequest err model cmd =
+    case err of
+        Http.BadStatus s ->
+            if s.status.code == 401 then
+                ( NotConnected LoginRoute initialLoginModel, Cmd.none )
+            else
+                ( updateAlertMsg "Error server" model, Cmd.none )
 
         _ ->
             ( updateAlertMsg "Error server" model, Cmd.none )

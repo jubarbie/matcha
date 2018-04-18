@@ -1,3 +1,7 @@
+DROP DATABASE IF EXISTS matcha_db;
+CREATE DATABASE matcha_db;
+USE matcha_db;
+
 CREATE TABLE IF NOT EXISTS `blocks` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `user_from` varchar(255) DEFAULT NULL,
