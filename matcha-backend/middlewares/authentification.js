@@ -3,28 +3,31 @@ const jwt = require('jsonwebtoken');
 const UsersModel = require('../models/users_model');
 
 // Check if token is provided, user role
-exports.hasRole = function(role) {
+exports.hasRole = (role) => {
 
-    return function(req, res, next) {
+    return (req, res, next) => {
 
-        var token = (req.headers.authorization) ? req.headers.authorization.split(" ")[1] : "";
+        let token = (req.headers.authorization) ? req.headers.authorization.split(" ")[1] : "";
 
-        try {
-
-            var decoded = jwt.verify(token, config.secret);
-
-            UsersModel.getUserWithUuid(decoded.id, function(err, rows, fields) {
-                if (!err && rows.length > 0) {
-                    req.logged_user = rows[0];
-                    next();
+        jwt.verify(token, config.secret, (err, decoded) => {
+          if (err) {
+            console.log(err);
+            res.status(401).send();
+          } else {
+            UsersModel.getUserWithUuid(decoded.id, (err2, rows, fields) => {
+                if (!err2) {
+                    if (rows.length > 0 && role >= rows[0].rights) {
+                      req.logged_user = rows[0];
+                      next();
+                    } else {
+                      res.status(401).send("Unauthorized");
+                    }
                 } else {
+                    console.log(err2);
                     res.status(401).send();
                 }
             });
-
-        } catch (err) {
-            res.status(401).send();
-        }
-    }
-
+          }
+        });
+  }
 };

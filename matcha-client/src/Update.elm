@@ -6,6 +6,7 @@ import App.Talk.TalkCommands exposing (..)
 import App.Talk.TalkModel exposing (..)
 import App.User.UserCommands exposing (..)
 import App.User.UserModel exposing (..)
+import App.Admin.AdminUpdate exposing (..)
 import FormUtils exposing (..)
 import Login.LoginCommands exposing (..)
 import Login.LoginModels exposing (..)
@@ -29,6 +30,9 @@ update msg model =
 
         ( Connected route session appModel usersModel talksModel, msg ) ->
             updateApp msg route session appModel usersModel talksModel
+
+        ( Admin session adminModel, msg ) ->
+            updateAdmin msg session adminModel
 
 
 updateConnexion : Msg -> AppRoutes -> ( Model, Cmd Msg )
@@ -84,20 +88,20 @@ updateConnexion msg route =
                 _ ->
                     ( NotConnected LoginRoute initialLoginModel, Navigation.newUrl "/#/login" )
 
-        LoginResponse response ->
+        TokenResponse response ->
             case response of
                 Success rep ->
-                    case ( rep.status, rep.token, rep.user, rep.message ) of
-                        ( True, Just t, Just user, _ ) ->
+                    case ( rep.status, rep.token, rep.message ) of
+                        ( True, Just t, _ ) ->
                             ( Connexion (UsersRoute "all")
                             , Cmd.batch [ getSessionUser t, storeToken [ t ] ]
                             )
 
-                        ( _, _, _, msg ) ->
+                        ( _, _, msg ) ->
                             ( NotConnected LoginRoute { initialLoginModel | message = msg }, Cmd.none )
 
                 _ ->
-                    ( NotConnected LoginRoute { initialLoginModel | message = Just "Error" }
+                    ( NotConnected LoginRoute { initialLoginModel | message = Just "Server error" }
                     , Cmd.none
                     )
 

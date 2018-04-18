@@ -6,6 +6,7 @@ const Auth = require('./middlewares/authentification');
 const Login = require('./routes/login');
 const Users = require('./routes/users');
 const Talks = require('./routes/talks');
+const Admin = require('./routes/admin');
 const Tag = require('./routes/tag');
 const Ctrl_talks = require('./controllers/talk_ctrl');
 const Ctrl_users = require('./controllers/user_ctrl');
@@ -45,11 +46,17 @@ app.get('/', function(req, res) {
 });
 
 app.use('/auth', Login);
+
+app.get('/api/admin/*', Auth.hasRole(0));
+app.post('/api/admin/*', Auth.hasRole(0));
+app.use('/api/admin', Admin);
+
 app.get('/api/*', Auth.hasRole(1));
 app.post('/api/*', Auth.hasRole(1));
 app.use('/api/users', Users);
 app.use('/api/tag', Tag);
 app.use('/api/talks', Talks);
+
 
 var aWss = expressWs.getWss('/');
 var clients = [];

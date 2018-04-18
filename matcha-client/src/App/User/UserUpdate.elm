@@ -24,4 +24,8 @@ updateUsers model users =
 
 updateUser : UsersModel -> User -> UsersModel
 updateUser model user =
-  { model | users = List.map (\u -> if (user.username == u.username) then user else u) model.users }
+  { model | users = List.map (\u -> if (user.username == u.username) then { user | photos = sortPhotos user.photos } else u) model.users }
+
+sortPhotos : List (Int, String, Bool) -> List  (Int, String, Bool)
+sortPhotos photos =
+  List.sortBy (\(a, b, c) -> toString c) photos |> List.reverse

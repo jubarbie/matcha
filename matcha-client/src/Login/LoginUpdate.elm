@@ -81,7 +81,7 @@ updateLogin msg route loginModel =
             in
             case values of
                 [ Valid a, Valid b ] ->
-                    ( Connexion (UsersRoute "all"), sendLogin a b )
+                    ( Connexion (UsersRoute "all"), getApiToken a b )
 
                 _ ->
                     ( NotConnected route loginModel, Cmd.none )

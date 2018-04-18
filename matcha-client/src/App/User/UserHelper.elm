@@ -3,6 +3,10 @@ module App.User.UserHelper exposing (..)
 import App.User.UserModel exposing (..)
 import App.AppModels exposing (..)
 
+isMainImage : ( Int, String, Bool ) -> Bool
+isMainImage ( a, b, c ) =
+    c
+    
 getOnlineStatus: AppModel -> User -> Bool
 getOnlineStatus model user =
   case ( String.toFloat user.lastOn, model.currentTime ) of

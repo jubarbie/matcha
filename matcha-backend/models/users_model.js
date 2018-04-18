@@ -176,7 +176,37 @@ exports.getFullDataUserWithLogin = (logged, login, cb) =>
 
 exports.getUserWithLogin = (login, cb) =>
     connection.query(' \
-    		SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
+    		SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.rights, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
+        (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+    	 	  FROM image \
+    	 	  JOIN rel_user_image ON image.id=rel_user_image.id_image \
+    		  LEFT JOIN user ON user.id = rel_user_image.id_user \
+    		  WHERE rel_user_image.id_user = u.id) AS images, \
+        (SELECT GROUP_CONCAT(f.username,";",f.unread) \
+          FROM ( \
+            SELECT t.username2 AS username, \
+        			(SELECT COUNT(message.id) FROM message WHERE id_talk=t.id AND date > t.user1_last AND message.username <> t.username1) AS unread \
+        		FROM talk AS t \
+        		WHERE t.username1 = ? \
+        		AND NOT EXISTS ( SELECT * FROM blocks WHERE (blocks.user_to = t.username2 AND blocks.user_from = t.username1) OR (blocks.user_to = t.username1 AND blocks.user_from = t.username2)) \
+        		UNION \
+        		SELECT t.username1 AS username, \
+        			(SELECT COUNT(message.id) FROM message WHERE id_talk=t.id AND date > t.user2_last AND message.username <> t.username2) AS unread \
+        		FROM talk AS t \
+        		WHERE t.username2 = ? \
+        		AND NOT EXISTS ( SELECT * FROM blocks WHERE (blocks.user_to = t.username1 AND blocks.user_from = t.username2) OR (blocks.user_to = t.username2 AND blocks.user_from = t.username1)) \
+          ) AS f \
+          ) AS talks \
+    		FROM user AS u \
+    		LEFT JOIN sex_orientation AS s ON s.login = u.login \
+        LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+    		WHERE u.login = ? \
+    		GROUP BY u.id \
+      		', [login, login, login], cb);
+
+exports.getAllProfiles = (cb) =>
+    connection.query(' \
+    		SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.rights, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
         (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
     	 	  FROM image \
     	 	  JOIN rel_user_image ON image.id=rel_user_image.id_image \
@@ -185,13 +215,28 @@ exports.getUserWithLogin = (login, cb) =>
     		FROM user AS u \
     		LEFT JOIN sex_orientation AS s ON s.login = u.login \
         LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
-    		WHERE u.login = ? \
     		GROUP BY u.id \
-      		', [login], cb);
+      		', [], cb);
+
+exports.getReportedUsers = (cb) =>
+  connection.query(' \
+    SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.rights, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
+    (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
+      FROM image \
+      JOIN rel_user_image ON image.id=rel_user_image.id_image \
+      LEFT JOIN user ON user.id = rel_user_image.id_user \
+      WHERE rel_user_image.id_user = u.id) AS images, \
+    (SELECT GROUP_CONCAT(DISTINCT rp.user_from)) AS reports \
+    FROM user AS u \
+    LEFT JOIN sex_orientation AS s ON s.login = u.login \
+    LEFT JOIN rel_user_tag AS relt ON relt.login = u.login \
+    JOIN reports AS rp ON rp.user_to = u.login \
+    GROUP BY u.id \
+      ', [], cb);
 
 exports.getUserWithUuid = (id, cb) =>
     connection.query(' \
-      SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
+      SELECT u.id, u.password, u.login, u.fname, u.lname, u.email, u.gender, u.bio, u.activated, u.rights, u.localisation, u.last_connection, u.birth, GROUP_CONCAT(DISTINCT s.gender) AS interested_in, GROUP_CONCAT(DISTINCT relt.tag) AS tags,  \
       (SELECT GROUP_CONCAT(image.id, ";", image.src, ";", CASE WHEN image.id=user.img_id THEN true ELSE false END) \
         FROM image \
         JOIN rel_user_image ON image.id=rel_user_image.id_image \

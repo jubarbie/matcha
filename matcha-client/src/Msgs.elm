@@ -14,11 +14,12 @@ import Time
 type Msg
     = NoOp
     | UsersResponse (Result Http.Error (ApiResponse (Maybe (List User))))
+    | AdminUsersResponse (Result Http.Error (ApiResponse (Maybe (List SessionUser))))
     | SearchResponse (Result Http.Error (ApiResponse (Maybe (List User))))
     | SessionUserResponse String (Result Http.Error (ApiResponse (Maybe SessionUser)))
     | UserResponse (Result Http.Error (ApiResponse (Maybe User)))
     | LikeResponse String (Result Http.Error (ApiResponse (Maybe User)))
-    | LoginResponse (WebData AuthResponse)
+    | TokenResponse (WebData AuthResponse)
     | NewUserResponse (WebData (ApiResponse (Maybe User)))
     | GetTalkResponse (Result Http.Error (ApiResponse (Maybe Talk)))
     | GetTalksResponse (Result Http.Error (ApiResponse (Maybe (List Talk))))
@@ -30,6 +31,11 @@ type Msg
     | SearchTagResponse (Result Http.Error (ApiResponse (Maybe (List String))))
     | ReqTagResponse (Result Http.Error (ApiResponse (Maybe (List String))))
     | NoDataApiResponse (Result Http.Error (ApiResponse (Maybe String)))
+    | ShowAdmin
+    | NextPage
+    | ReportedUsers
+    | AllUsers
+    | DeleteUser String
     | Logout
     | ShowUser String
     | UnshowAll

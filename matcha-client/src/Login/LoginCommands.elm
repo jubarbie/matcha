@@ -23,15 +23,15 @@ decodeAuthResponse =
         (maybe (at [ "data" ] decodeSessionUser))
 
 
-sendLogin : String -> String -> Cmd Msg
-sendLogin login pwd =
+getApiToken : String -> String -> Cmd Msg
+getApiToken login pwd =
     let
         body =
             Http.jsonBody <| JsonEnc.object [ ( "login", JsonEnc.string login ), ( "password", JsonEnc.string pwd ) ]
     in
     Http.post "http://localhost:3001/auth/token" body decodeAuthResponse
         |> RemoteData.sendRequest
-        |> Cmd.map LoginResponse
+        |> Cmd.map TokenResponse
 
 
 resetPwd : String -> String -> Cmd Msg

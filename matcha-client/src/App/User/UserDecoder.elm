@@ -99,7 +99,20 @@ decodeSessionUser =
         |: field "localisation" decodeLocalisation
         |: field "images" decodeImgs
         |: field "activated" decodeUserStatus
+        |: field "rights" decodeRights
 
+decodeRights : Decoder UserRole
+decodeRights =
+  JsonDec.int
+      |> JsonDec.andThen
+          (\a ->
+              case a of
+                  0 ->
+                      JsonDec.succeed ADMIN
+
+                  _ ->
+                      JsonDec.succeed USER
+          )
 
 decodeImgs : Decoder (List ( Int, String, Bool ))
 decodeImgs =

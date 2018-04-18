@@ -151,20 +151,17 @@ router.get('/connected_user', (req, res, next) => {
 
     const logged = req.logged_user;
 
-    UserCtrl.getConnectedUser(logged.login, function(user) {
-        if (user) {
-            delete user.password;
-            res.json({
-                "status": true,
-                "data": user
-            });
-        } else {
-            res.json({
-                "status": false,
-                "msg": "User " + logged.login + " doesn't exists"
-            });
-        }
-    });
+    UserCtrl.getConnectedUser(logged.login)
+      .then(user =>
+        res.json({
+          "status": true,
+          "data": user
+        })
+    ).catch(err => res.json({
+          "status": false,
+          "msg": err
+    })
+    );
 
 });
 

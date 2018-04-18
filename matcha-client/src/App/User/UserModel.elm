@@ -23,6 +23,7 @@ type alias SessionUser =
     , localisation : Localisation
     , photos : List ( Int, String, Bool )
     , status : UserStatus
+    , rights : UserRole
     }
 
 

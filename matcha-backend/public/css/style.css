@@ -669,6 +669,9 @@ ul.users-list {
   border-radius: 50%;
   cursor: pointer; }
 
+.text-warning {
+  color: #cc6c44; }
+
 /* GENERIC STUFF */
 body {
   background: #252525;

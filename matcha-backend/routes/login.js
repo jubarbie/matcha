@@ -17,45 +17,43 @@ apiRoutes.post('/token', (req, res, next) => {
     var login = req.body.login;
     var pwd = req.body.password;
 
-    UserCtrl.getConnectedUser(login, function(user) {
-        if (user) {
-            if (bcrypt.compareSync(pwd, user.password) == false) {
-                console.log("Wrong pwd")
-                res.json({
-                    "status": false,
-                    "msg": "Incorrect login or password"
-                });
-            } else if (user.activated != "activated" && user.activated != "incomplete" && user.activated != "resetpwd") {
-                console.log("Not activated")
-                res.json({
-                    "status": false,
-                    "msg": "You must activate your email first"
-                });
-            } else {
-                var uuid = uuidv1();
-                var token = jwt.sign({
-                    "id": uuid
-                }, config.secret, {
-                    expiresIn: "120 min"
-                });
-                var now = Date.now();
-                delete user.password;
-                UsersModel.updateConnectionDate(user.id, now, uuid, (err, rows, fields) => {
-                    res.json({
-                        "status": true,
-                        "token": token,
-                        "data": user
-                    });
-                });
-            }
-        } else {
-            console.log("User does not exists");
-            res.json({
-                "status": false,
-                "msg": "Incorrect login or password"
-            });
-        }
-    });
+    UserCtrl.getConnectedUser(login).then(user => {
+      if (bcrypt.compareSync(pwd, user.password) == false) {
+          console.log("Wrong pwd")
+          res.json({
+              "status": false,
+              "msg": "Incorrect login or password"
+          });
+      } else if (user.activated != "activated" && user.activated != "incomplete" && user.activated != "resetpwd") {
+          console.log("Not activated")
+          res.json({
+              "status": false,
+              "msg": "You must activate your email first"
+          });
+      } else {
+          var uuid = uuidv1();
+          var token = jwt.sign({
+              "id": uuid
+          }, config.secret, {
+              expiresIn: "120 min"
+          });
+          var now = Date.now();
+          delete user.password;
+          UsersModel.updateConnectionDate(user.id, now, uuid, (err2, rows, fields) => {
+              res.json({
+                  "status": true,
+                  "token": token,
+                  "data": user
+              });
+          });
+      }
+    }).catch(err => {
+        console.log("User does not exists");
+        res.json({
+            "status": false,
+            "msg": "Incorrect login or password"
+        });
+      });
 });
 
 var buildUserFromRequest = function(req) {

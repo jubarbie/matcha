@@ -4,6 +4,7 @@ import Html exposing (..)
 import Models exposing (..)
 import Msgs exposing (..)
 import App.AppViews exposing (view)
+import App.Admin.AdminView exposing (view)
 import Login.LoginView exposing (view)
 
 
@@ -16,6 +17,8 @@ view model =
       connectionView
     Connected route session appModel usersModel talksModel ->
       App.AppViews.view route session appModel usersModel talksModel
+    Admin session adminModel ->
+      App.Admin.AdminView.view adminModel
 
 connectionView : Html Msg
 connectionView =

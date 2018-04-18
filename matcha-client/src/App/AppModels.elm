@@ -50,6 +50,7 @@ type alias AppModel =
     , showEditAccountForm : Bool
     , showResetPwdForm : Bool
     , localizing : Bool
+    , fetching : Bool
     }
 
 
@@ -92,6 +93,7 @@ initialAppModel =
     , showEditAccountForm = False
     , showResetPwdForm = False
     , localizing = False
+    , fetching = False
     }
 
 

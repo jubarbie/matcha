@@ -10,7 +10,9 @@ import App.Talk.TalkUtils exposing (..)
 import App.User.UserCommands exposing (..)
 import App.User.UserHelper exposing (..)
 import App.User.UserModel exposing (..)
+import App.Admin.AdminModel exposing (..)
 import App.User.UserUpdate exposing (..)
+import App.Admin.AdminCommands exposing (..)
 import Dom
 import Dom.Scroll as Scroll
 import FormUtils exposing (..)
@@ -44,6 +46,9 @@ updateApp msg route session appModel usersModel talksModel =
 
         Logout ->
             ( initialModel LoginRoute, Cmd.batch [ Navigation.newUrl "/#/login", deleteSession (), logout session.token ] )
+
+        ShowAdmin ->
+            ( Admin session { initAdminModel | fetching = True }, fetchAdminUsers session.token 1 )
 
         NoDataApiResponse reponse ->
             case route of
@@ -131,7 +136,7 @@ updateApp msg route session appModel usersModel talksModel =
                     handleErrorRequest err model Cmd.none
 
         UsersResponse response ->
-            handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none model
+            handleApiResponse response (updateUsers usersModel) updateUsersModel "Impossible to retrieve users" Cmd.none (updateAppModel { appModel | fetching = False } model)
 
         SearchResponse response ->
             case response of
@@ -264,10 +269,11 @@ updateApp msg route session appModel usersModel talksModel =
                             else
                                 appModel.notifVisit
                     in
-                    ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif, notifUnlike = unLikeNotif } usersModel talksModel, getRelevantUsers a session.token )
+                    ( Connected newRoute session { newModel | notifLike = likeNotif, notifVisit = visitNotif, notifUnlike = unLikeNotif, fetching = True } usersModel talksModel, getRelevantUsers a session.token )
 
                 SearchRoute ->
                     ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
+
 
                 NotFoundAppRoute ->
                     ( Connected newRoute session newModel usersModel talksModel, Cmd.none )
@@ -309,7 +315,7 @@ updateApp msg route session appModel usersModel talksModel =
                     ( model, Cmd.none )
 
         SendNewMessage ->
-            case Debug.log "send" talksModel.currentTalk of
+            case talksModel.currentTalk of
                 Just u ->
                     case getTalkWith u talksModel.talks of
                         Just t ->
@@ -827,7 +833,7 @@ handleErrorRequest err model cmd =
     case err of
         Http.BadStatus s ->
             if s.status.code == 401 then
-                ( NotConnected LoginRoute initialLoginModel, Cmd.none )
+                ( NotConnected LoginRoute initialLoginModel, deleteSession () )
             else
                 ( updateAlertMsg "Error server" model, Cmd.none )
 

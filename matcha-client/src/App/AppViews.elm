@@ -9,6 +9,7 @@ import App.User.UserAccountView exposing (..)
 import App.User.UserModel exposing (..)
 import App.User.UserView exposing (view)
 import App.User.UsersView exposing (searchView, view)
+import App.Admin.AdminView exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -125,9 +126,15 @@ viewMenu route session appModel talksModel =
                         , notif <| App.Talk.TalkUtils.getTalkNotif talksModel.talks
                         ]
                     ]
-                , li [ class "notif-menu" ] [ button [ onClick ToggleAccountMenu ] [ icon "fas fa-user" ]
+                , Html.ul [] <|
+                  (if session.user.rights == ADMIN then
+                    [ li [ ] [ button [ onClick ShowAdmin ] [icon "fas fa-address-book"] ] ]
+                  else [])
+                  ++
+                  [ li [ class "notif-menu" ] [ button [ onClick ToggleAccountMenu ] [ icon "fas fa-user" ]
                         , notif <| getAccountNotif session.user
                         ]
+                  ]
                 ]
             ]
         ]

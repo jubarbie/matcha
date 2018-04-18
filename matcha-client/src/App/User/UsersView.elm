@@ -331,19 +331,21 @@ viewUsers : AppRoutes -> Session -> AppModel -> UsersModel -> Html Msg
 viewUsers route session appModel model =
     let
         view =
-            if List.length model.users == 0 then
+            if appModel.fetching then
+               div [ class "center flex"] [ text "searching users ..."]
+            else if List.length model.users == 0 then
                 emptyUsersView
             else
                 viewUsersList route session appModel model
     in
-    div [ id "users-list", class "layout-column" ]
-        [ if getAccountNotif session.user > 0 then
-            div [ onClick ToggleAccountMenu, class "text-warning pointer center" ] [ text "Please complete your account to be able to interract with users" ]
-          else
-            div [] []
-        , notifUnlikeView route appModel
-        , view
-        ]
+      div [ id "users-list", class "layout-column" ]
+          [ if getAccountNotif session.user > 0 then
+              div [ onClick ToggleAccountMenu, class "text-warning pointer center" ] [ text "Please complete your account to be able to interract with users" ]
+            else
+              div [] []
+          , notifUnlikeView route appModel
+          , view
+          ]
 
 
 emptyUsersView : Html Msg
@@ -425,11 +427,6 @@ userInfosView appModel user model =
                 else
                     []
                )
-
-
-isMainImage : ( Int, String, Bool ) -> Bool
-isMainImage ( a, b, c ) =
-    c
 
 
 userImageView : User -> Session -> UsersModel -> Html Msg
