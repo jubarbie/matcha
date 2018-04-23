@@ -12668,6 +12668,7 @@ var _user$project$Msgs$DeleteUser = function (a) {
 	return {ctor: 'DeleteUser', _0: a};
 };
 var _user$project$Msgs$AllUsers = {ctor: 'AllUsers'};
+var _user$project$Msgs$QuitAdmin = {ctor: 'QuitAdmin'};
 var _user$project$Msgs$ReportedUsers = {ctor: 'ReportedUsers'};
 var _user$project$Msgs$NextPage = {ctor: 'NextPage'};
 var _user$project$Msgs$ShowAdmin = {ctor: 'ShowAdmin'};
@@ -12887,6 +12888,18 @@ var _user$project$App_Admin_AdminUpdate$updateAdmin = F3(
 					_0: A2(_user$project$Models$Admin, session, adminModel),
 					_1: A2(_user$project$App_Admin_AdminCommands$deleteUser, session.token, _p2._0)
 				};
+			case 'QuitAdmin':
+				return {
+					ctor: '_Tuple2',
+					_0: A5(
+						_user$project$Models$Connected,
+						_user$project$App_AppModels$UsersRoute('all'),
+						session,
+						_user$project$App_AppModels$initialAppModel,
+						_user$project$App_User_UserModel$initialUsersModel,
+						_user$project$App_Talk_TalkModel$initialTalksModel),
+					_1: _elm_lang$navigation$Navigation$newUrl('/#/users/all')
+				};
 			default:
 				return {
 					ctor: '_Tuple2',
@@ -13092,12 +13105,12 @@ var _user$project$App_Admin_AdminView$viewButtons = function (model) {
 						_elm_lang$html$Html$button,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$NextPage),
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$QuitAdmin),
 							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('Next'),
+							_0: _elm_lang$html$Html$text('Quit'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}

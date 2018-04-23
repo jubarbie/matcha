@@ -30,7 +30,7 @@ viewButtons model =
   case model.users of
     All a -> div []
           [ button [ onClick ReportedUsers ][ text "Reported" ]
-          , button [ onClick NextPage ][ text "Next" ]
+          , button [ onClick QuitAdmin ][ text "Quit" ]
           ]
     Reported a -> div []
           [ button [ onClick AllUsers ][ text "All" ]

@@ -34,6 +34,7 @@ type Msg
     | ShowAdmin
     | NextPage
     | ReportedUsers
+    | QuitAdmin
     | AllUsers
     | DeleteUser String
     | Logout

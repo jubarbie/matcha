@@ -47,6 +47,9 @@ updateAdmin msg session adminModel =
         DeleteUser username  ->
           (Admin session adminModel, deleteUser session.token username)
 
+        QuitAdmin ->
+          (Connected (UsersRoute "all") session initialAppModel initialUsersModel initialTalksModel, Navigation.newUrl "/#/users/all")
+
         _ ->
           ( Admin session { adminModel | fetching = False }, Cmd.none )
 
