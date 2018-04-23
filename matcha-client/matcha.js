@@ -11372,7 +11372,9 @@ var _user$project$App_User_UserModel$SessionUser = function (a) {
 									return function (j) {
 										return function (k) {
 											return function (l) {
-												return {username: a, fname: b, lname: c, email: d, gender: e, intIn: f, bio: g, date_of_birth: h, tags: i, localisation: j, photos: k, status: l};
+												return function (m) {
+													return {username: a, fname: b, lname: c, email: d, gender: e, intIn: f, bio: g, date_of_birth: h, tags: i, localisation: j, photos: k, status: l, rights: m};
+												};
 											};
 										};
 									};
@@ -12070,7 +12072,9 @@ var _user$project$App_AppModels$AppModel = function (a) {
 																			return function (t) {
 																				return function (u) {
 																					return function (v) {
-																						return {editAccountForm: a, changePwdForm: b, tagInput: c, searchTag: d, notifVisit: e, notifLike: f, notifUnlike: g, message: h, map_state: i, current_location: j, matchAnim: k, idImg: l, mImage: m, currentTime: n, showTalksList: o, showAccountMenu: p, showAdvanceFilters: q, showEmoList: r, search: s, showEditAccountForm: t, showResetPwdForm: u, localizing: v};
+																						return function (w) {
+																							return {editAccountForm: a, changePwdForm: b, tagInput: c, searchTag: d, notifVisit: e, notifLike: f, notifUnlike: g, message: h, map_state: i, current_location: j, matchAnim: k, idImg: l, mImage: m, currentTime: n, showTalksList: o, showAccountMenu: p, showAdvanceFilters: q, showEmoList: r, search: s, showEditAccountForm: t, showResetPwdForm: u, localizing: v, fetching: w};
+																						};
 																					};
 																				};
 																			};
@@ -12114,8 +12118,8 @@ var _user$project$App_AppModels$initialAppModel = {
 	changePwdForm: _user$project$FormUtils$initChangePwdForm,
 	tagInput: '',
 	searchTag: {ctor: '[]'},
-	notifVisit: 0,
-	notifLike: 0,
+	notifVisit: {ctor: '[]'},
+	notifLike: {ctor: '[]'},
 	notifUnlike: {ctor: '[]'},
 	message: _elm_lang$core$Maybe$Nothing,
 	map_state: _user$project$App_AppModels$NoMap,
@@ -12131,28 +12135,114 @@ var _user$project$App_AppModels$initialAppModel = {
 	search: _user$project$App_AppModels$initialSearchModel,
 	showEditAccountForm: false,
 	showResetPwdForm: false,
-	localizing: false
+	localizing: false,
+	fetching: false
 };
 
-var _user$project$App_Notif_NotifDecoder$notifTypeDecoder = A2(
+var _user$project$App_User_UserDecoder$arrayAsTuple3 = F3(
+	function (a, b, c) {
+		return A2(
+			_elm_lang$core$Json_Decode$andThen,
+			function (aVal) {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					function (bVal) {
+						return A2(
+							_elm_lang$core$Json_Decode$andThen,
+							function (cVal) {
+								return _elm_lang$core$Json_Decode$succeed(
+									{ctor: '_Tuple3', _0: aVal, _1: bVal, _2: cVal});
+							},
+							A2(_elm_lang$core$Json_Decode$index, 2, c));
+					},
+					A2(_elm_lang$core$Json_Decode$index, 1, b));
+			},
+			A2(_elm_lang$core$Json_Decode$index, 0, a));
+	});
+var _user$project$App_User_UserDecoder$arrayAsTuple2 = F2(
+	function (a, b) {
+		return A2(
+			_elm_lang$core$Json_Decode$andThen,
+			function (aVal) {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					function (bVal) {
+						return _elm_lang$core$Json_Decode$succeed(
+							{ctor: '_Tuple2', _0: aVal, _1: bVal});
+					},
+					A2(_elm_lang$core$Json_Decode$index, 1, b));
+			},
+			A2(_elm_lang$core$Json_Decode$index, 0, a));
+	});
+var _user$project$App_User_UserDecoder$decodeRole = A2(
 	_elm_lang$core$Json_Decode$andThen,
 	function (a) {
 		var _p0 = a;
 		switch (_p0) {
-			case 'message':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifMessage);
-			case 'visit':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifVisit);
-			case 'like':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifLike);
-			case 'unlike':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifUnlike);
+			case 0:
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$ADMIN);
+			case 1:
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$USER);
 			default:
-				return _elm_lang$core$Json_Decode$fail('Notif unknown');
+				return _elm_lang$core$Json_Decode$fail('Unknown role');
+		}
+	},
+	_elm_lang$core$Json_Decode$int);
+var _user$project$App_User_UserDecoder$decodeImgs = _elm_lang$core$Json_Decode$list(
+	A3(_user$project$App_User_UserDecoder$arrayAsTuple3, _elm_lang$core$Json_Decode$int, _elm_lang$core$Json_Decode$string, _elm_lang$core$Json_Decode$bool));
+var _user$project$App_User_UserDecoder$decodeRights = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (a) {
+		var _p1 = a;
+		if (_p1 === 0) {
+			return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$ADMIN);
+		} else {
+			return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$USER);
+		}
+	},
+	_elm_lang$core$Json_Decode$int);
+var _user$project$App_User_UserDecoder$decodeLocalisation = A2(
+	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+	A2(
+		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+		_elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$Localisation),
+		A2(_elm_lang$core$Json_Decode$field, 'lon', _elm_lang$core$Json_Decode$float)),
+	A2(_elm_lang$core$Json_Decode$field, 'lat', _elm_lang$core$Json_Decode$float));
+var _user$project$App_User_UserDecoder$decodeUserStatus = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (a) {
+		var _p2 = a;
+		switch (_p2) {
+			case 'activated':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$Activated);
+			case 'resetpwd':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$ResetPassword);
+			case 'incomplete':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$Incomplete);
+			default:
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$NotActivated);
 		}
 	},
 	_elm_lang$core$Json_Decode$string);
-var _user$project$App_Notif_NotifDecoder$notificationDecoder = A2(
+var _user$project$App_User_UserDecoder$decodeGender = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (a) {
+		var _p3 = a;
+		switch (_p3) {
+			case 'M':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$M);
+			case 'F':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$F);
+			case 'NB':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$NB);
+			case 'O':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$O);
+			default:
+				return _elm_lang$core$Json_Decode$fail('Gender must be M, F, NB or O');
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _user$project$App_User_UserDecoder$decodeUser = A2(
 	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 	A2(
 		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
@@ -12160,47 +12250,164 @@ var _user$project$App_Notif_NotifDecoder$notificationDecoder = A2(
 			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 			A2(
 				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-				_elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$Notif),
-				A2(_elm_lang$core$Json_Decode$field, 'message', _user$project$App_Notif_NotifDecoder$notifTypeDecoder)),
-			A2(_elm_lang$core$Json_Decode$field, 'to', _elm_lang$core$Json_Decode$string)),
-		A2(_elm_lang$core$Json_Decode$field, 'from', _elm_lang$core$Json_Decode$string)),
+				A2(
+					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+					A2(
+						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+						A2(
+							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+							A2(
+								_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+								A2(
+									_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+									A2(
+										_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+										A2(
+											_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+											A2(
+												_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+												A2(
+													_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+													A2(
+														_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+														A2(
+															_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+															_elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$User),
+															A2(_elm_lang$core$Json_Decode$field, 'login', _elm_lang$core$Json_Decode$string)),
+														_elm_lang$core$Json_Decode$maybe(
+															A2(_elm_lang$core$Json_Decode$field, 'gender', _user$project$App_User_UserDecoder$decodeGender))),
+													A2(_elm_lang$core$Json_Decode$field, 'bio', _elm_lang$core$Json_Decode$string)),
+												A2(_elm_lang$core$Json_Decode$field, 'birth', _elm_lang$core$Json_Decode$int)),
+											A2(_elm_lang$core$Json_Decode$field, 'liking', _elm_lang$core$Json_Decode$bool)),
+										A2(_elm_lang$core$Json_Decode$field, 'liked', _elm_lang$core$Json_Decode$bool)),
+									A2(_elm_lang$core$Json_Decode$field, 'likes', _elm_lang$core$Json_Decode$int)),
+								A2(_elm_lang$core$Json_Decode$field, 'visits', _elm_lang$core$Json_Decode$int)),
+							A2(_elm_lang$core$Json_Decode$field, 'has_talk', _elm_lang$core$Json_Decode$bool)),
+						A2(_elm_lang$core$Json_Decode$field, 'visitor', _elm_lang$core$Json_Decode$bool)),
+					A2(
+						_elm_lang$core$Json_Decode$field,
+						'tags',
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))),
+				A2(_elm_lang$core$Json_Decode$field, 'images', _user$project$App_User_UserDecoder$decodeImgs)),
+			A2(_elm_lang$core$Json_Decode$field, 'last_connection', _elm_lang$core$Json_Decode$string)),
+		A2(_elm_lang$core$Json_Decode$field, 'online', _elm_lang$core$Json_Decode$bool)),
+	A2(_elm_lang$core$Json_Decode$field, 'distance', _elm_lang$core$Json_Decode$float));
+var _user$project$App_User_UserDecoder$decodeIntIn = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeGender);
+var _user$project$App_User_UserDecoder$decodeSessionUser = A2(
+	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 	A2(
-		_elm_lang$core$Json_Decode$field,
-		'notif',
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)));
+		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+		A2(
+			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+			A2(
+				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+				A2(
+					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+					A2(
+						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+						A2(
+							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+							A2(
+								_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+								A2(
+									_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+									A2(
+										_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+										A2(
+											_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+											A2(
+												_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+												A2(
+													_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+													_elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$SessionUser),
+													A2(_elm_lang$core$Json_Decode$field, 'login', _elm_lang$core$Json_Decode$string)),
+												A2(_elm_lang$core$Json_Decode$field, 'fname', _elm_lang$core$Json_Decode$string)),
+											A2(_elm_lang$core$Json_Decode$field, 'lname', _elm_lang$core$Json_Decode$string)),
+										A2(_elm_lang$core$Json_Decode$field, 'email', _elm_lang$core$Json_Decode$string)),
+									_elm_lang$core$Json_Decode$maybe(
+										A2(_elm_lang$core$Json_Decode$field, 'gender', _user$project$App_User_UserDecoder$decodeGender))),
+								A2(_elm_lang$core$Json_Decode$field, 'interested_in', _user$project$App_User_UserDecoder$decodeIntIn)),
+							_elm_lang$core$Json_Decode$maybe(
+								A2(_elm_lang$core$Json_Decode$field, 'bio', _elm_lang$core$Json_Decode$string))),
+						_elm_lang$core$Json_Decode$maybe(
+							A2(_elm_lang$core$Json_Decode$field, 'birth', _elm_lang$core$Json_Decode$int))),
+					A2(
+						_elm_lang$core$Json_Decode$field,
+						'tags',
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))),
+				A2(_elm_lang$core$Json_Decode$field, 'localisation', _user$project$App_User_UserDecoder$decodeLocalisation)),
+			A2(_elm_lang$core$Json_Decode$field, 'images', _user$project$App_User_UserDecoder$decodeImgs)),
+		A2(_elm_lang$core$Json_Decode$field, 'activated', _user$project$App_User_UserDecoder$decodeUserStatus)),
+	A2(_elm_lang$core$Json_Decode$field, 'rights', _user$project$App_User_UserDecoder$decodeRights));
+var _user$project$App_User_UserDecoder$usersSessionDecoder = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeSessionUser);
+var _user$project$App_User_UserDecoder$usersDecoder = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeUser);
+var _user$project$App_User_UserDecoder$encodeIntIn = function (intIn) {
+	return _elm_lang$core$Json_Encode$list(
+		A2(
+			_elm_lang$core$List$map,
+			function (g) {
+				return _elm_lang$core$Json_Encode$string(
+					_user$project$App_User_UserModel$genderToString(
+						_elm_lang$core$Maybe$Just(g)));
+			},
+			intIn));
+};
+var _user$project$App_User_UserDecoder$decodeLocalisationResponse = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$App_User_UserModel$LocalisationApi,
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'status',
+			_1: {ctor: '[]'}
+		},
+		_elm_lang$core$Json_Decode$string),
+	_elm_lang$core$Json_Decode$maybe(
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'lon',
+				_1: {ctor: '[]'}
+			},
+			_elm_lang$core$Json_Decode$float)),
+	_elm_lang$core$Json_Decode$maybe(
+		A2(
+			_elm_lang$core$Json_Decode$at,
+			{
+				ctor: '::',
+				_0: 'lat',
+				_1: {ctor: '[]'}
+			},
+			_elm_lang$core$Json_Decode$float)));
 
-var _user$project$App_Talk_TalkDecoder$decodeMessage = A2(
-	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-	A2(
-		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-		A2(
-			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-			_elm_lang$core$Json_Decode$succeed(_user$project$App_Talk_TalkModel$Message),
-			A2(_elm_lang$core$Json_Decode$field, 'date', _elm_lang$core$Json_Decode$string)),
-		A2(_elm_lang$core$Json_Decode$field, 'message', _elm_lang$core$Json_Decode$string)),
-	A2(_elm_lang$core$Json_Decode$field, 'username', _elm_lang$core$Json_Decode$string));
-var _user$project$App_Talk_TalkDecoder$talkDecoder = _elm_lang$core$Json_Decode$list(_user$project$App_Talk_TalkDecoder$decodeMessage);
-var _user$project$App_Talk_TalkDecoder$decodeTalk = A2(
-	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-	A2(
-		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-		A2(
-			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-			A2(
-				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-				_elm_lang$core$Json_Decode$succeed(_user$project$App_Talk_TalkModel$Talk),
-				A2(_elm_lang$core$Json_Decode$field, 'username', _elm_lang$core$Json_Decode$string)),
-			A2(_elm_lang$core$Json_Decode$field, 'unread', _elm_lang$core$Json_Decode$int)),
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'messages',
-			_elm_lang$core$Json_Decode$list(_user$project$App_Talk_TalkDecoder$decodeMessage))),
-	A2(_elm_lang$core$Json_Decode$field, 'new_message', _elm_lang$core$Json_Decode$string));
-var _user$project$App_Talk_TalkDecoder$decodeTalks = _elm_lang$core$Json_Decode$list(_user$project$App_Talk_TalkDecoder$decodeTalk);
+var _user$project$App_Admin_AdminDecoder$decodeAdminUsers = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeSessionUser);
+
+var _user$project$App_Admin_AdminModel$AdminModel = F3(
+	function (a, b, c) {
+		return {users: a, fetching: b, page: c};
+	});
+var _user$project$App_Admin_AdminModel$All = function (a) {
+	return {ctor: 'All', _0: a};
+};
+var _user$project$App_Admin_AdminModel$initAdminModel = {
+	users: _user$project$App_Admin_AdminModel$All(
+		{ctor: '[]'}),
+	fetching: false,
+	page: 1
+};
+var _user$project$App_Admin_AdminModel$Reported = function (a) {
+	return {ctor: 'Reported', _0: a};
+};
 
 var _user$project$Models$AuthResponse = F4(
 	function (a, b, c, d) {
 		return {status: a, message: b, token: c, user: d};
+	});
+var _user$project$Models$Admin = F2(
+	function (a, b) {
+		return {ctor: 'Admin', _0: a, _1: b};
 	});
 var _user$project$Models$Connected = F5(
 	function (a, b, c, d, e) {
@@ -12457,6 +12664,13 @@ var _user$project$Msgs$ShowUser = function (a) {
 	return {ctor: 'ShowUser', _0: a};
 };
 var _user$project$Msgs$Logout = {ctor: 'Logout'};
+var _user$project$Msgs$DeleteUser = function (a) {
+	return {ctor: 'DeleteUser', _0: a};
+};
+var _user$project$Msgs$AllUsers = {ctor: 'AllUsers'};
+var _user$project$Msgs$ReportedUsers = {ctor: 'ReportedUsers'};
+var _user$project$Msgs$NextPage = {ctor: 'NextPage'};
+var _user$project$Msgs$ShowAdmin = {ctor: 'ShowAdmin'};
 var _user$project$Msgs$NoDataApiResponse = function (a) {
 	return {ctor: 'NoDataApiResponse', _0: a};
 };
@@ -12491,8 +12705,8 @@ var _user$project$Msgs$GetTalkResponse = function (a) {
 var _user$project$Msgs$NewUserResponse = function (a) {
 	return {ctor: 'NewUserResponse', _0: a};
 };
-var _user$project$Msgs$LoginResponse = function (a) {
-	return {ctor: 'LoginResponse', _0: a};
+var _user$project$Msgs$TokenResponse = function (a) {
+	return {ctor: 'TokenResponse', _0: a};
 };
 var _user$project$Msgs$LikeResponse = F2(
 	function (a, b) {
@@ -12508,10 +12722,641 @@ var _user$project$Msgs$SessionUserResponse = F2(
 var _user$project$Msgs$SearchResponse = function (a) {
 	return {ctor: 'SearchResponse', _0: a};
 };
+var _user$project$Msgs$AdminUsersResponse = function (a) {
+	return {ctor: 'AdminUsersResponse', _0: a};
+};
 var _user$project$Msgs$UsersResponse = function (a) {
 	return {ctor: 'UsersResponse', _0: a};
 };
 var _user$project$Msgs$NoOp = {ctor: 'NoOp'};
+
+var _user$project$App_Admin_AdminCommands$fetchReportedUsers = function (token) {
+	var url = 'http://localhost:3001/api/admin/reported_users';
+	return A2(
+		_elm_lang$http$Http$send,
+		_user$project$Msgs$AdminUsersResponse,
+		A3(
+			_user$project$Api_ApiRequest$apiGetRequest,
+			_elm_lang$core$Maybe$Just(_user$project$App_Admin_AdminDecoder$decodeAdminUsers),
+			token,
+			url));
+};
+var _user$project$App_Admin_AdminCommands$deleteUser = F2(
+	function (token, username) {
+		var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:3001/api/admin/delete/', username);
+		return A2(
+			_elm_lang$http$Http$send,
+			_user$project$Msgs$NoDataApiResponse,
+			A3(_user$project$Api_ApiRequest$apiGetRequest, _elm_lang$core$Maybe$Nothing, token, url));
+	});
+var _user$project$App_Admin_AdminCommands$fetchAdminUsers = F2(
+	function (token, page) {
+		var url = 'http://localhost:3001/api/admin/users';
+		return A2(
+			_elm_lang$http$Http$send,
+			_user$project$Msgs$AdminUsersResponse,
+			A3(
+				_user$project$Api_ApiRequest$apiGetRequest,
+				_elm_lang$core$Maybe$Just(_user$project$App_Admin_AdminDecoder$decodeAdminUsers),
+				token,
+				url));
+	});
+
+var _user$project$App_Admin_AdminUpdate$handleAdminErrorRequest = F4(
+	function (err, model, session, cmd) {
+		var _p0 = err;
+		if (_p0.ctor === 'BadStatus') {
+			return _elm_lang$core$Native_Utils.eq(_p0._0.status.code, 401) ? {
+				ctor: '_Tuple2',
+				_0: A5(
+					_user$project$Models$Connected,
+					_user$project$App_AppModels$UsersRoute('all'),
+					session,
+					_user$project$App_AppModels$initialAppModel,
+					_user$project$App_User_UserModel$initialUsersModel,
+					_user$project$App_Talk_TalkModel$initialTalksModel),
+				_1: _elm_lang$navigation$Navigation$newUrl('/#/users/all')
+			} : {
+				ctor: '_Tuple2',
+				_0: _user$project$Models$initialModel(_user$project$Login_LoginModels$LoginRoute),
+				_1: _elm_lang$navigation$Navigation$newUrl('/#/login')
+			};
+		} else {
+			return {
+				ctor: '_Tuple2',
+				_0: _user$project$Models$initialModel(_user$project$Login_LoginModels$LoginRoute),
+				_1: _elm_lang$navigation$Navigation$newUrl('/#/login')
+			};
+		}
+	});
+var _user$project$App_Admin_AdminUpdate$updateUsers = F2(
+	function (m, u) {
+		var _p1 = m;
+		if (_p1.ctor === 'All') {
+			return _user$project$App_Admin_AdminModel$All(u);
+		} else {
+			return _user$project$App_Admin_AdminModel$Reported(u);
+		}
+	});
+var _user$project$App_Admin_AdminUpdate$updateAdmin = F3(
+	function (msg, session, adminModel) {
+		var model = A2(_user$project$Models$Admin, session, adminModel);
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'NoOp':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'AdminUsersResponse':
+				var _p3 = _p2._0;
+				if (_p3.ctor === 'Ok') {
+					var _p5 = _p3._0;
+					var _p4 = {ctor: '_Tuple2', _0: _p5.status, _1: _p5.data};
+					if (((_p4.ctor === '_Tuple2') && (_p4._0 === true)) && (_p4._1.ctor === 'Just')) {
+						return {
+							ctor: '_Tuple2',
+							_0: A2(
+								_user$project$Models$Admin,
+								session,
+								_elm_lang$core$Native_Utils.update(
+									adminModel,
+									{
+										users: A2(_user$project$App_Admin_AdminUpdate$updateUsers, adminModel.users, _p4._1._0),
+										fetching: false
+									})),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: A2(
+								_user$project$Models$Admin,
+								session,
+								_elm_lang$core$Native_Utils.update(
+									adminModel,
+									{fetching: false})),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					}
+				} else {
+					return A4(_user$project$App_Admin_AdminUpdate$handleAdminErrorRequest, _p3._0, model, session, _elm_lang$core$Platform_Cmd$none);
+				}
+			case 'NextPage':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Models$Admin,
+						session,
+						_elm_lang$core$Native_Utils.update(
+							adminModel,
+							{page: adminModel.page + 1, fetching: true})),
+					_1: A2(_user$project$App_Admin_AdminCommands$fetchAdminUsers, session.token, adminModel.page + 1)
+				};
+			case 'ReportedUsers':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Models$Admin,
+						session,
+						_elm_lang$core$Native_Utils.update(
+							adminModel,
+							{
+								fetching: true,
+								users: _user$project$App_Admin_AdminModel$Reported(
+									{ctor: '[]'})
+							})),
+					_1: _user$project$App_Admin_AdminCommands$fetchReportedUsers(session.token)
+				};
+			case 'AllUsers':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Models$Admin,
+						session,
+						_elm_lang$core$Native_Utils.update(
+							adminModel,
+							{
+								fetching: true,
+								users: _user$project$App_Admin_AdminModel$All(
+									{ctor: '[]'}),
+								page: 1
+							})),
+					_1: A2(_user$project$App_Admin_AdminCommands$fetchAdminUsers, session.token, 1)
+				};
+			case 'DeleteUser':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_user$project$Models$Admin, session, adminModel),
+					_1: A2(_user$project$App_Admin_AdminCommands$deleteUser, session.token, _p2._0)
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Models$Admin,
+						session,
+						_elm_lang$core$Native_Utils.update(
+							adminModel,
+							{fetching: false})),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
+
+var _user$project$Utils$onClickCustom = F3(
+	function (pd, sp, msg) {
+		return A3(
+			_elm_lang$html$Html_Events$onWithOptions,
+			'click',
+			{preventDefault: pd, stopPropagation: sp},
+			_elm_lang$core$Json_Decode$succeed(msg));
+	});
+var _user$project$Utils$genderToIcon = function (g) {
+	var _p0 = g;
+	if (_p0.ctor === 'Just') {
+		switch (_p0._0.ctor) {
+			case 'M':
+				return A3(
+					_elm_lang$html$Html_Keyed$node,
+					'male',
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('fas fa-mars'),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'});
+			case 'F':
+				return A3(
+					_elm_lang$html$Html_Keyed$node,
+					'female',
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('fas fa-venus'),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'});
+			case 'NB':
+				return A3(
+					_elm_lang$html$Html_Keyed$node,
+					'non-binary',
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('fas fa-transgender-alt'),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'});
+			default:
+				return A3(
+					_elm_lang$html$Html_Keyed$node,
+					'other',
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('fas fa-genderless'),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'});
+		}
+	} else {
+		return A2(
+			_elm_lang$html$Html$span,
+			{ctor: '[]'},
+			{ctor: '[]'});
+	}
+};
+var _user$project$Utils$icon = function (fa) {
+	return A2(
+		_elm_lang$html$Html$i,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class(fa),
+			_1: {ctor: '[]'}
+		},
+		{ctor: '[]'});
+};
+var _user$project$Utils$notif = function (notif) {
+	return (_elm_lang$core$Native_Utils.cmp(notif, 0) > 0) ? A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('notif'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(
+				_elm_lang$core$Basics$toString(notif)),
+			_1: {ctor: '[]'}
+		}) : A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{ctor: '[]'});
+};
+var _user$project$Utils$now = A2(
+	_elm_lang$core$Task$perform,
+	function (_p1) {
+		return _user$project$Msgs$SetCurrentTime(
+			_elm_lang$core$Maybe$Just(_p1));
+	},
+	_elm_lang$core$Time$now);
+var _user$project$Utils$formatDate = function (date) {
+	var s = _elm_lang$core$Basics$toString(
+		_elm_lang$core$Date$second(date));
+	var m = _elm_lang$core$Basics$toString(
+		_elm_lang$core$Date$minute(date));
+	var h = _elm_lang$core$Basics$toString(
+		_elm_lang$core$Date$hour(date));
+	var day = _elm_lang$core$Basics$toString(
+		_elm_lang$core$Date$day(date));
+	var month = function () {
+		var _p2 = _elm_lang$core$Date$month(date);
+		switch (_p2.ctor) {
+			case 'Jan':
+				return 'jan';
+			case 'Feb':
+				return 'feb';
+			case 'Mar':
+				return 'mar';
+			case 'Apr':
+				return 'apr';
+			case 'May':
+				return 'may';
+			case 'Jun':
+				return 'jun';
+			case 'Jul':
+				return 'jul';
+			case 'Aug':
+				return 'aug';
+			case 'Sep':
+				return 'sep';
+			case 'Oct':
+				return 'oct';
+			case 'Nov':
+				return 'nov';
+			default:
+				return 'dec';
+		}
+	}();
+	var year = _elm_lang$core$Basics$toString(
+		_elm_lang$core$Date$year(date));
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		day,
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			' ',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				month,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					' ',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						year,
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							' ',
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								h,
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									':',
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										m,
+										A2(_elm_lang$core$Basics_ops['++'], ':', s))))))))));
+};
+
+var _user$project$App_Admin_AdminView$viewButtons = function (model) {
+	var _p0 = model.users;
+	if (_p0.ctor === 'All') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$ReportedUsers),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Reported'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$NextPage),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Next'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$AllUsers),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('All'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	}
+};
+var _user$project$App_Admin_AdminView$getUsers = function (u) {
+	var _p1 = u;
+	if (_p1.ctor === 'All') {
+		return _p1._0;
+	} else {
+		return _p1._0;
+	}
+};
+var _user$project$App_Admin_AdminView$viewUsersList = function (model) {
+	return A2(
+		_elm_lang$html$Html$table,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('u-full-width'),
+			_1: {ctor: '[]'}
+		},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$tr,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$th,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Login'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$th,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Fist Name'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$th,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Last Name'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$th,
+										{ctor: '[]'},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_elm_lang$core$List$map,
+				function (u) {
+					return A2(
+						_elm_lang$html$Html$tr,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$th,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(u.username),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$th,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text(u.fname),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$th,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(u.lname),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$th,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$button,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onClick(
+															_user$project$Msgs$DeleteUser(u.username)),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _user$project$Utils$icon('fas fa-trash'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						});
+				},
+				_user$project$App_Admin_AdminView$getUsers(model.users))));
+};
+var _user$project$App_Admin_AdminView$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('container'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h1,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('ADMIN'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _user$project$App_Admin_AdminView$viewButtons(model),
+				_1: {
+					ctor: '::',
+					_0: model.fetching ? A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('fetching users...'),
+							_1: {ctor: '[]'}
+						}) : _user$project$App_Admin_AdminView$viewUsersList(model),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+
+var _user$project$App_Notif_NotifDecoder$notifTypeDecoder = A2(
+	_elm_lang$core$Json_Decode$andThen,
+	function (a) {
+		var _p0 = a;
+		switch (_p0) {
+			case 'message':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifMessage);
+			case 'visit':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifVisit);
+			case 'like':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifLike);
+			case 'unlike':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$NotifUnlike);
+			default:
+				return _elm_lang$core$Json_Decode$fail('Notif unknown');
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _user$project$App_Notif_NotifDecoder$notificationDecoder = A2(
+	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+	A2(
+		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+		A2(
+			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+			A2(
+				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+				_elm_lang$core$Json_Decode$succeed(_user$project$App_Notif_NotifModel$Notif),
+				A2(_elm_lang$core$Json_Decode$field, 'message', _user$project$App_Notif_NotifDecoder$notifTypeDecoder)),
+			A2(_elm_lang$core$Json_Decode$field, 'to', _elm_lang$core$Json_Decode$string)),
+		A2(_elm_lang$core$Json_Decode$field, 'from', _elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'notif',
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)));
+
+var _user$project$App_Talk_TalkDecoder$decodeMessage = A2(
+	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+	A2(
+		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+		A2(
+			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+			_elm_lang$core$Json_Decode$succeed(_user$project$App_Talk_TalkModel$Message),
+			A2(_elm_lang$core$Json_Decode$field, 'date', _elm_lang$core$Json_Decode$string)),
+		A2(_elm_lang$core$Json_Decode$field, 'message', _elm_lang$core$Json_Decode$string)),
+	A2(_elm_lang$core$Json_Decode$field, 'username', _elm_lang$core$Json_Decode$string));
+var _user$project$App_Talk_TalkDecoder$talkDecoder = _elm_lang$core$Json_Decode$list(_user$project$App_Talk_TalkDecoder$decodeMessage);
+var _user$project$App_Talk_TalkDecoder$decodeTalk = A2(
+	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+	A2(
+		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+		A2(
+			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+			A2(
+				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+				_elm_lang$core$Json_Decode$succeed(_user$project$App_Talk_TalkModel$Talk),
+				A2(_elm_lang$core$Json_Decode$field, 'username', _elm_lang$core$Json_Decode$string)),
+			A2(_elm_lang$core$Json_Decode$field, 'unread', _elm_lang$core$Json_Decode$int)),
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'messages',
+			_elm_lang$core$Json_Decode$list(_user$project$App_Talk_TalkDecoder$decodeMessage))),
+	A2(_elm_lang$core$Json_Decode$field, 'new_message', _elm_lang$core$Json_Decode$string));
+var _user$project$App_Talk_TalkDecoder$decodeTalks = _elm_lang$core$Json_Decode$list(_user$project$App_Talk_TalkDecoder$decodeTalk);
 
 var _user$project$App_Talk_TalkCommands$sendMessage = F3(
 	function (token, to, message) {
@@ -17139,235 +17984,6 @@ var _user$project$App_Talk_TalkUtils$updateTalks = F2(
 			{talks: newTalks});
 	});
 
-var _user$project$App_User_UserDecoder$arrayAsTuple3 = F3(
-	function (a, b, c) {
-		return A2(
-			_elm_lang$core$Json_Decode$andThen,
-			function (aVal) {
-				return A2(
-					_elm_lang$core$Json_Decode$andThen,
-					function (bVal) {
-						return A2(
-							_elm_lang$core$Json_Decode$andThen,
-							function (cVal) {
-								return _elm_lang$core$Json_Decode$succeed(
-									{ctor: '_Tuple3', _0: aVal, _1: bVal, _2: cVal});
-							},
-							A2(_elm_lang$core$Json_Decode$index, 2, c));
-					},
-					A2(_elm_lang$core$Json_Decode$index, 1, b));
-			},
-			A2(_elm_lang$core$Json_Decode$index, 0, a));
-	});
-var _user$project$App_User_UserDecoder$arrayAsTuple2 = F2(
-	function (a, b) {
-		return A2(
-			_elm_lang$core$Json_Decode$andThen,
-			function (aVal) {
-				return A2(
-					_elm_lang$core$Json_Decode$andThen,
-					function (bVal) {
-						return _elm_lang$core$Json_Decode$succeed(
-							{ctor: '_Tuple2', _0: aVal, _1: bVal});
-					},
-					A2(_elm_lang$core$Json_Decode$index, 1, b));
-			},
-			A2(_elm_lang$core$Json_Decode$index, 0, a));
-	});
-var _user$project$App_User_UserDecoder$decodeRole = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (a) {
-		var _p0 = a;
-		switch (_p0) {
-			case 0:
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$ADMIN);
-			case 1:
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$USER);
-			default:
-				return _elm_lang$core$Json_Decode$fail('Unknown role');
-		}
-	},
-	_elm_lang$core$Json_Decode$int);
-var _user$project$App_User_UserDecoder$decodeImgs = _elm_lang$core$Json_Decode$list(
-	A3(_user$project$App_User_UserDecoder$arrayAsTuple3, _elm_lang$core$Json_Decode$int, _elm_lang$core$Json_Decode$string, _elm_lang$core$Json_Decode$bool));
-var _user$project$App_User_UserDecoder$decodeLocalisation = A2(
-	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-	A2(
-		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-		_elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$Localisation),
-		A2(_elm_lang$core$Json_Decode$field, 'lon', _elm_lang$core$Json_Decode$float)),
-	A2(_elm_lang$core$Json_Decode$field, 'lat', _elm_lang$core$Json_Decode$float));
-var _user$project$App_User_UserDecoder$decodeUserStatus = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (a) {
-		var _p1 = a;
-		switch (_p1) {
-			case 'activated':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$Activated);
-			case 'resetpwd':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$ResetPassword);
-			case 'incomplete':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$Incomplete);
-			default:
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$NotActivated);
-		}
-	},
-	_elm_lang$core$Json_Decode$string);
-var _user$project$App_User_UserDecoder$decodeGender = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (a) {
-		var _p2 = a;
-		switch (_p2) {
-			case 'M':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$M);
-			case 'F':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$F);
-			case 'NB':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$NB);
-			case 'O':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$O);
-			default:
-				return _elm_lang$core$Json_Decode$fail('Gender must be M, F, NB or O');
-		}
-	},
-	_elm_lang$core$Json_Decode$string);
-var _user$project$App_User_UserDecoder$decodeUser = A2(
-	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-	A2(
-		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-		A2(
-			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-			A2(
-				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-				A2(
-					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-					A2(
-						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-						A2(
-							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-							A2(
-								_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-								A2(
-									_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-									A2(
-										_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-										A2(
-											_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-											A2(
-												_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-												A2(
-													_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-													A2(
-														_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-														A2(
-															_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-															_elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$User),
-															A2(_elm_lang$core$Json_Decode$field, 'login', _elm_lang$core$Json_Decode$string)),
-														_elm_lang$core$Json_Decode$maybe(
-															A2(_elm_lang$core$Json_Decode$field, 'gender', _user$project$App_User_UserDecoder$decodeGender))),
-													A2(_elm_lang$core$Json_Decode$field, 'bio', _elm_lang$core$Json_Decode$string)),
-												A2(_elm_lang$core$Json_Decode$field, 'birth', _elm_lang$core$Json_Decode$int)),
-											A2(_elm_lang$core$Json_Decode$field, 'liking', _elm_lang$core$Json_Decode$bool)),
-										A2(_elm_lang$core$Json_Decode$field, 'liked', _elm_lang$core$Json_Decode$bool)),
-									A2(_elm_lang$core$Json_Decode$field, 'likes', _elm_lang$core$Json_Decode$int)),
-								A2(_elm_lang$core$Json_Decode$field, 'visits', _elm_lang$core$Json_Decode$int)),
-							A2(_elm_lang$core$Json_Decode$field, 'has_talk', _elm_lang$core$Json_Decode$bool)),
-						A2(_elm_lang$core$Json_Decode$field, 'visitor', _elm_lang$core$Json_Decode$bool)),
-					A2(
-						_elm_lang$core$Json_Decode$field,
-						'tags',
-						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))),
-				A2(_elm_lang$core$Json_Decode$field, 'images', _user$project$App_User_UserDecoder$decodeImgs)),
-			A2(_elm_lang$core$Json_Decode$field, 'last_connection', _elm_lang$core$Json_Decode$string)),
-		A2(_elm_lang$core$Json_Decode$field, 'online', _elm_lang$core$Json_Decode$bool)),
-	A2(_elm_lang$core$Json_Decode$field, 'distance', _elm_lang$core$Json_Decode$float));
-var _user$project$App_User_UserDecoder$decodeIntIn = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeGender);
-var _user$project$App_User_UserDecoder$decodeSessionUser = A2(
-	_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-	A2(
-		_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-		A2(
-			_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-			A2(
-				_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-				A2(
-					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-					A2(
-						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-						A2(
-							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-							A2(
-								_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-								A2(
-									_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-									A2(
-										_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-										A2(
-											_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-											A2(
-												_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-												_elm_lang$core$Json_Decode$succeed(_user$project$App_User_UserModel$SessionUser),
-												A2(_elm_lang$core$Json_Decode$field, 'login', _elm_lang$core$Json_Decode$string)),
-											A2(_elm_lang$core$Json_Decode$field, 'fname', _elm_lang$core$Json_Decode$string)),
-										A2(_elm_lang$core$Json_Decode$field, 'lname', _elm_lang$core$Json_Decode$string)),
-									A2(_elm_lang$core$Json_Decode$field, 'email', _elm_lang$core$Json_Decode$string)),
-								_elm_lang$core$Json_Decode$maybe(
-									A2(_elm_lang$core$Json_Decode$field, 'gender', _user$project$App_User_UserDecoder$decodeGender))),
-							A2(_elm_lang$core$Json_Decode$field, 'interested_in', _user$project$App_User_UserDecoder$decodeIntIn)),
-						_elm_lang$core$Json_Decode$maybe(
-							A2(_elm_lang$core$Json_Decode$field, 'bio', _elm_lang$core$Json_Decode$string))),
-					_elm_lang$core$Json_Decode$maybe(
-						A2(_elm_lang$core$Json_Decode$field, 'birth', _elm_lang$core$Json_Decode$int))),
-				A2(
-					_elm_lang$core$Json_Decode$field,
-					'tags',
-					_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string))),
-			A2(_elm_lang$core$Json_Decode$field, 'localisation', _user$project$App_User_UserDecoder$decodeLocalisation)),
-		A2(_elm_lang$core$Json_Decode$field, 'images', _user$project$App_User_UserDecoder$decodeImgs)),
-	A2(_elm_lang$core$Json_Decode$field, 'activated', _user$project$App_User_UserDecoder$decodeUserStatus));
-var _user$project$App_User_UserDecoder$usersSessionDecoder = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeSessionUser);
-var _user$project$App_User_UserDecoder$usersDecoder = _elm_lang$core$Json_Decode$list(_user$project$App_User_UserDecoder$decodeUser);
-var _user$project$App_User_UserDecoder$encodeIntIn = function (intIn) {
-	return _elm_lang$core$Json_Encode$list(
-		A2(
-			_elm_lang$core$List$map,
-			function (g) {
-				return _elm_lang$core$Json_Encode$string(
-					_user$project$App_User_UserModel$genderToString(
-						_elm_lang$core$Maybe$Just(g)));
-			},
-			intIn));
-};
-var _user$project$App_User_UserDecoder$decodeLocalisationResponse = A4(
-	_elm_lang$core$Json_Decode$map3,
-	_user$project$App_User_UserModel$LocalisationApi,
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'status',
-			_1: {ctor: '[]'}
-		},
-		_elm_lang$core$Json_Decode$string),
-	_elm_lang$core$Json_Decode$maybe(
-		A2(
-			_elm_lang$core$Json_Decode$at,
-			{
-				ctor: '::',
-				_0: 'lon',
-				_1: {ctor: '[]'}
-			},
-			_elm_lang$core$Json_Decode$float)),
-	_elm_lang$core$Json_Decode$maybe(
-		A2(
-			_elm_lang$core$Json_Decode$at,
-			{
-				ctor: '::',
-				_0: 'lat',
-				_1: {ctor: '[]'}
-			},
-			_elm_lang$core$Json_Decode$float)));
-
 var _user$project$App_User_UserCommands$logout = function (token) {
 	var url = 'http://localhost:3001/api/users/disconnect';
 	return A2(
@@ -18233,7 +18849,21 @@ var _user$project$App_User_UserHelper$getOnlineStatus = F2(
 			return false;
 		}
 	});
+var _user$project$App_User_UserHelper$isMainImage = function (_p14) {
+	var _p15 = _p14;
+	return _p15._2;
+};
 
+var _user$project$App_User_UserUpdate$sortPhotos = function (photos) {
+	return _elm_lang$core$List$reverse(
+		A2(
+			_elm_lang$core$List$sortBy,
+			function (_p0) {
+				var _p1 = _p0;
+				return _elm_lang$core$Basics$toString(_p1._2);
+			},
+			photos));
+};
 var _user$project$App_User_UserUpdate$updateUser = F2(
 	function (model, user) {
 		return _elm_lang$core$Native_Utils.update(
@@ -18242,7 +18872,11 @@ var _user$project$App_User_UserUpdate$updateUser = F2(
 				users: A2(
 					_elm_lang$core$List$map,
 					function (u) {
-						return _elm_lang$core$Native_Utils.eq(user.username, u.username) ? user : u;
+						return _elm_lang$core$Native_Utils.eq(user.username, u.username) ? _elm_lang$core$Native_Utils.update(
+							user,
+							{
+								photos: _user$project$App_User_UserUpdate$sortPhotos(user.photos)
+							}) : u;
 					},
 					model.users)
 			});
@@ -18255,30 +18889,30 @@ var _user$project$App_User_UserUpdate$updateUsers = F2(
 	});
 var _user$project$App_User_UserUpdate$changeUserImage = F2(
 	function (to, user) {
-		var _p0 = {ctor: '_Tuple2', _0: user.photos, _1: to};
-		_v0_2:
+		var _p2 = {ctor: '_Tuple2', _0: user.photos, _1: to};
+		_v1_2:
 		do {
-			if (_p0.ctor === '_Tuple2') {
-				switch (_p0._1) {
+			if (_p2.ctor === '_Tuple2') {
+				switch (_p2._1) {
 					case 1:
-						if (_p0._0.ctor === '::') {
+						if (_p2._0.ctor === '::') {
 							return _elm_lang$core$Native_Utils.update(
 								user,
 								{
 									photos: A2(
 										_elm_lang$core$Basics_ops['++'],
-										_p0._0._1,
+										_p2._0._1,
 										{
 											ctor: '::',
-											_0: _p0._0._0,
+											_0: _p2._0._0,
 											_1: {ctor: '[]'}
 										})
 								});
 						} else {
-							break _v0_2;
+							break _v1_2;
 						}
 					case -1:
-						var _p1 = _p0._0;
+						var _p3 = _p2._0;
 						return _elm_lang$core$Native_Utils.update(
 							user,
 							{
@@ -18286,18 +18920,18 @@ var _user$project$App_User_UserUpdate$changeUserImage = F2(
 									_elm_lang$core$Basics_ops['++'],
 									A2(
 										_elm_lang$core$List$drop,
-										_elm_lang$core$List$length(_p1) - 1,
-										_p1),
+										_elm_lang$core$List$length(_p3) - 1,
+										_p3),
 									A2(
 										_elm_lang$core$List$take,
-										_elm_lang$core$List$length(_p1) - 1,
-										_p1))
+										_elm_lang$core$List$length(_p3) - 1,
+										_p3))
 							});
 					default:
-						break _v0_2;
+						break _v1_2;
 				}
 			} else {
-				break _v0_2;
+				break _v1_2;
 			}
 		} while(false);
 		return user;
@@ -18444,7 +19078,7 @@ var _user$project$Login_LoginCommands$decodeAuthResponse = A5(
 				_1: {ctor: '[]'}
 			},
 			_user$project$App_User_UserDecoder$decodeSessionUser)));
-var _user$project$Login_LoginCommands$sendLogin = F2(
+var _user$project$Login_LoginCommands$getApiToken = F2(
 	function (login, pwd) {
 		var body = _elm_lang$http$Http$jsonBody(
 			_elm_lang$core$Json_Encode$object(
@@ -18467,7 +19101,7 @@ var _user$project$Login_LoginCommands$sendLogin = F2(
 				}));
 		return A2(
 			_elm_lang$core$Platform_Cmd$map,
-			_user$project$Msgs$LoginResponse,
+			_user$project$Msgs$TokenResponse,
 			_krisajenkins$remotedata$RemoteData$sendRequest(
 				A3(_elm_lang$http$Http$post, 'http://localhost:3001/auth/token', body, _user$project$Login_LoginCommands$decodeAuthResponse)));
 	});
@@ -18549,171 +19183,6 @@ var _user$project$Routing$parseLoginLocation = function (location) {
 	}
 };
 
-var _user$project$Utils$onClickCustom = F3(
-	function (pd, sp, msg) {
-		return A3(
-			_elm_lang$html$Html_Events$onWithOptions,
-			'click',
-			{preventDefault: pd, stopPropagation: sp},
-			_elm_lang$core$Json_Decode$succeed(msg));
-	});
-var _user$project$Utils$genderToIcon = function (g) {
-	var _p0 = g;
-	if (_p0.ctor === 'Just') {
-		switch (_p0._0.ctor) {
-			case 'M':
-				return A3(
-					_elm_lang$html$Html_Keyed$node,
-					'male',
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('fas fa-mars'),
-						_1: {ctor: '[]'}
-					},
-					{ctor: '[]'});
-			case 'F':
-				return A3(
-					_elm_lang$html$Html_Keyed$node,
-					'female',
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('fas fa-venus'),
-						_1: {ctor: '[]'}
-					},
-					{ctor: '[]'});
-			case 'NB':
-				return A3(
-					_elm_lang$html$Html_Keyed$node,
-					'non-binary',
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('fas fa-transgender-alt'),
-						_1: {ctor: '[]'}
-					},
-					{ctor: '[]'});
-			default:
-				return A3(
-					_elm_lang$html$Html_Keyed$node,
-					'other',
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('fas fa-genderless'),
-						_1: {ctor: '[]'}
-					},
-					{ctor: '[]'});
-		}
-	} else {
-		return A2(
-			_elm_lang$html$Html$span,
-			{ctor: '[]'},
-			{ctor: '[]'});
-	}
-};
-var _user$project$Utils$icon = function (fa) {
-	return A2(
-		_elm_lang$html$Html$i,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class(fa),
-			_1: {ctor: '[]'}
-		},
-		{ctor: '[]'});
-};
-var _user$project$Utils$notif = function (notif) {
-	return (_elm_lang$core$Native_Utils.cmp(notif, 0) > 0) ? A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('notif'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(
-				_elm_lang$core$Basics$toString(notif)),
-			_1: {ctor: '[]'}
-		}) : A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{ctor: '[]'});
-};
-var _user$project$Utils$now = A2(
-	_elm_lang$core$Task$perform,
-	function (_p1) {
-		return _user$project$Msgs$SetCurrentTime(
-			_elm_lang$core$Maybe$Just(_p1));
-	},
-	_elm_lang$core$Time$now);
-var _user$project$Utils$formatDate = function (date) {
-	var s = _elm_lang$core$Basics$toString(
-		_elm_lang$core$Date$second(date));
-	var m = _elm_lang$core$Basics$toString(
-		_elm_lang$core$Date$minute(date));
-	var h = _elm_lang$core$Basics$toString(
-		_elm_lang$core$Date$hour(date));
-	var day = _elm_lang$core$Basics$toString(
-		_elm_lang$core$Date$day(date));
-	var month = function () {
-		var _p2 = _elm_lang$core$Date$month(date);
-		switch (_p2.ctor) {
-			case 'Jan':
-				return 'jan';
-			case 'Feb':
-				return 'feb';
-			case 'Mar':
-				return 'mar';
-			case 'Apr':
-				return 'apr';
-			case 'May':
-				return 'may';
-			case 'Jun':
-				return 'jun';
-			case 'Jul':
-				return 'jul';
-			case 'Aug':
-				return 'aug';
-			case 'Sep':
-				return 'sep';
-			case 'Oct':
-				return 'oct';
-			case 'Nov':
-				return 'nov';
-			default:
-				return 'dec';
-		}
-	}();
-	var year = _elm_lang$core$Basics$toString(
-		_elm_lang$core$Date$year(date));
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		day,
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			' ',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				month,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					' ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						year,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' ',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								h,
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									':',
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										m,
-										A2(_elm_lang$core$Basics_ops['++'], ':', s))))))))));
-};
-
 var _user$project$App_AppUpdate$updateTalksModel = F2(
 	function (newTalks, model) {
 		var _p0 = model;
@@ -18766,50 +19235,68 @@ var _user$project$App_AppUpdate$updateAlertMsg = F2(
 			return model;
 		}
 	});
-var _user$project$App_AppUpdate$handleApiResponse = F6(
-	function (response, updateData, successUpdate, errorMsg, cmd, model) {
-		var _p5 = response;
-		if (_p5.ctor === 'Ok') {
-			var _p7 = _p5._0;
-			var _p6 = {ctor: '_Tuple3', _0: _p7.status, _1: _p7.data, _2: _p7.message};
-			_v6_2:
-			do {
-				if (_p6.ctor === '_Tuple3') {
-					if (_p6._0 === true) {
-						if (_p6._1.ctor === 'Just') {
-							return {
-								ctor: '_Tuple2',
-								_0: A2(
-									successUpdate,
-									updateData(_p6._1._0),
-									model),
-								_1: cmd
-							};
-						} else {
-							break _v6_2;
-						}
-					} else {
-						if (_p6._2.ctor === 'Just') {
-							return {
-								ctor: '_Tuple2',
-								_0: A2(_user$project$App_AppUpdate$updateAlertMsg, _p6._2._0, model),
-								_1: _elm_lang$core$Platform_Cmd$none
-							};
-						} else {
-							break _v6_2;
-						}
-					}
-				} else {
-					break _v6_2;
-				}
-			} while(false);
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+var _user$project$App_AppUpdate$handleErrorRequest = F3(
+	function (err, model, cmd) {
+		var _p5 = err;
+		if (_p5.ctor === 'BadStatus') {
+			return _elm_lang$core$Native_Utils.eq(_p5._0.status.code, 401) ? {
+				ctor: '_Tuple2',
+				_0: A2(_user$project$Models$NotConnected, _user$project$Login_LoginModels$LoginRoute, _user$project$Login_LoginModels$initialLoginModel),
+				_1: _user$project$Ports$deleteSession(
+					{ctor: '_Tuple0'})
+			} : {
+				ctor: '_Tuple2',
+				_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'Error server', model),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
 		} else {
 			return {
 				ctor: '_Tuple2',
 				_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'Error server', model),
 				_1: _elm_lang$core$Platform_Cmd$none
 			};
+		}
+	});
+var _user$project$App_AppUpdate$handleApiResponse = F6(
+	function (response, updateData, successUpdate, errorMsg, cmd, model) {
+		var _p6 = response;
+		if (_p6.ctor === 'Ok') {
+			var _p8 = _p6._0;
+			var _p7 = {ctor: '_Tuple3', _0: _p8.status, _1: _p8.data, _2: _p8.message};
+			_v7_2:
+			do {
+				if (_p7.ctor === '_Tuple3') {
+					if (_p7._0 === true) {
+						if (_p7._1.ctor === 'Just') {
+							return {
+								ctor: '_Tuple2',
+								_0: A2(
+									successUpdate,
+									updateData(_p7._1._0),
+									model),
+								_1: cmd
+							};
+						} else {
+							break _v7_2;
+						}
+					} else {
+						if (_p7._2.ctor === 'Just') {
+							return {
+								ctor: '_Tuple2',
+								_0: A2(_user$project$App_AppUpdate$updateAlertMsg, _p7._2._0, model),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						} else {
+							break _v7_2;
+						}
+					}
+				} else {
+					break _v7_2;
+				}
+			} while(false);
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		} else {
+			return A3(_user$project$App_AppUpdate$handleErrorRequest, _p6._0, model, _elm_lang$core$Platform_Cmd$none);
 		}
 	});
 var _user$project$App_AppUpdate$updateApp = F6(
@@ -18820,8 +19307,8 @@ var _user$project$App_AppUpdate$updateApp = F6(
 			_1: _elm_lang$navigation$Navigation$newUrl('/#/login')
 		};
 		var model = A5(_user$project$Models$Connected, route, session, appModel, usersModel, talksModel);
-		var _p8 = msg;
-		switch (_p8.ctor) {
+		var _p9 = msg;
+		switch (_p9.ctor) {
 			case 'NoOp':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'Logout':
@@ -18844,16 +19331,27 @@ var _user$project$App_AppUpdate$updateApp = F6(
 							}
 						})
 				};
+			case 'ShowAdmin':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Models$Admin,
+						session,
+						_elm_lang$core$Native_Utils.update(
+							_user$project$App_Admin_AdminModel$initAdminModel,
+							{fetching: true})),
+					_1: A2(_user$project$App_Admin_AdminCommands$fetchAdminUsers, session.token, 1)
+				};
 			case 'NoDataApiResponse':
-				var _p9 = route;
-				if (_p9.ctor === 'UsersRoute') {
+				var _p10 = route;
+				if (_p10.ctor === 'UsersRoute') {
 					return {
 						ctor: '_Tuple2',
 						_0: model,
 						_1: _elm_lang$core$Platform_Cmd$batch(
 							{
 								ctor: '::',
-								_0: A2(_user$project$App_User_UserCommands$getRelevantUsers, _p9._0, session.token),
+								_0: A2(_user$project$App_User_UserCommands$getRelevantUsers, _p10._0, session.token),
 								_1: {
 									ctor: '::',
 									_0: _user$project$App_Talk_TalkCommands$getTalks(session.token),
@@ -18865,32 +19363,32 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'ChangePwdRespone':
-				var _p10 = _p8._0;
-				if (_p10.ctor === 'Ok') {
-					var _p12 = _p10._0;
-					var _p11 = {ctor: '_Tuple2', _0: _p12.status, _1: _p12.message};
-					_v10_2:
+				var _p11 = _p9._0;
+				if (_p11.ctor === 'Ok') {
+					var _p13 = _p11._0;
+					var _p12 = {ctor: '_Tuple2', _0: _p13.status, _1: _p13.message};
+					_v11_2:
 					do {
-						if (_p11.ctor === '_Tuple2') {
-							if (_p11._0 === true) {
+						if (_p12.ctor === '_Tuple2') {
+							if (_p12._0 === true) {
 								return {
 									ctor: '_Tuple2',
 									_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'The password was succefully updated', model),
 									_1: _elm_lang$navigation$Navigation$newUrl('/#/users/all')
 								};
 							} else {
-								if (_p11._1.ctor === 'Just') {
+								if (_p12._1.ctor === 'Just') {
 									return {
 										ctor: '_Tuple2',
-										_0: A2(_user$project$App_AppUpdate$updateAlertMsg, _p11._1._0, model),
+										_0: A2(_user$project$App_AppUpdate$updateAlertMsg, _p12._1._0, model),
 										_1: _elm_lang$core$Platform_Cmd$none
 									};
 								} else {
-									break _v10_2;
+									break _v11_2;
 								}
 							}
 						} else {
-							break _v10_2;
+							break _v11_2;
 						}
 					} while(false);
 					return {
@@ -18906,15 +19404,15 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					};
 				}
 			case 'ReqTagResponse':
-				var _p13 = _p8._0;
-				if (_p13.ctor === 'Ok') {
-					var _p15 = _p13._0;
-					var _p14 = {ctor: '_Tuple2', _0: _p15.status, _1: _p15.data};
-					if (((_p14.ctor === '_Tuple2') && (_p14._0 === true)) && (_p14._1.ctor === 'Just')) {
+				var _p14 = _p9._0;
+				if (_p14.ctor === 'Ok') {
+					var _p16 = _p14._0;
+					var _p15 = {ctor: '_Tuple2', _0: _p16.status, _1: _p16.data};
+					if (((_p15.ctor === '_Tuple2') && (_p15._0 === true)) && (_p15._1.ctor === 'Just')) {
 						var u = session.user;
 						var newUser = _elm_lang$core$Native_Utils.update(
 							u,
-							{tags: _p14._1._0});
+							{tags: _p15._1._0});
 						var newSession = _elm_lang$core$Native_Utils.update(
 							session,
 							{user: newUser});
@@ -18927,21 +19425,21 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p14._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'SearchTagResponse':
-				var _p16 = _p8._0;
-				if (_p16.ctor === 'Ok') {
-					var _p18 = _p16._0;
-					var _p17 = {ctor: '_Tuple2', _0: _p18.status, _1: _p18.data};
-					if (((_p17.ctor === '_Tuple2') && (_p17._0 === true)) && (_p17._1.ctor === 'Just')) {
+				var _p17 = _p9._0;
+				if (_p17.ctor === 'Ok') {
+					var _p19 = _p17._0;
+					var _p18 = {ctor: '_Tuple2', _0: _p19.status, _1: _p19.data};
+					if (((_p18.ctor === '_Tuple2') && (_p18._0 === true)) && (_p18._1.ctor === 'Just')) {
 						return {
 							ctor: '_Tuple2',
 							_0: A2(
 								_user$project$App_AppUpdate$updateAppModel,
 								_elm_lang$core$Native_Utils.update(
 									appModel,
-									{searchTag: _p17._1._0}),
+									{searchTag: _p18._1._0}),
 								model),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
@@ -18949,22 +19447,22 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p17._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'UpdateFieldResponse':
-				var _p19 = _p8._0;
-				if (_p19.ctor === 'Ok') {
-					var _p22 = _p19._0;
-					var _p20 = {ctor: '_Tuple3', _0: _p22.status, _1: _p22.data, _2: _p22.message};
-					_v16_2:
+				var _p20 = _p9._0;
+				if (_p20.ctor === 'Ok') {
+					var _p23 = _p20._0;
+					var _p21 = {ctor: '_Tuple3', _0: _p23.status, _1: _p23.data, _2: _p23.message};
+					_v17_2:
 					do {
-						if (_p20.ctor === '_Tuple3') {
-							if (_p20._0 === true) {
-								if (_p20._1.ctor === 'Just') {
+						if (_p21.ctor === '_Tuple3') {
+							if (_p21._0 === true) {
+								if (_p21._1.ctor === 'Just') {
 									var cmd = function () {
-										var _p21 = route;
-										if (_p21.ctor === 'UsersRoute') {
-											return A2(_user$project$App_User_UserCommands$getRelevantUsers, _p21._0, session.token);
+										var _p22 = route;
+										if (_p22.ctor === 'UsersRoute') {
+											return A2(_user$project$App_User_UserCommands$getRelevantUsers, _p22._0, session.token);
 										} else {
 											return _elm_lang$core$Platform_Cmd$none;
 										}
@@ -18975,7 +19473,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 											_user$project$App_AppUpdate$updateSessionModel,
 											_elm_lang$core$Native_Utils.update(
 												session,
-												{user: _p20._1._0}),
+												{user: _p21._1._0}),
 											A2(
 												_user$project$App_AppUpdate$updateAppModel,
 												_elm_lang$core$Native_Utils.update(
@@ -18985,10 +19483,10 @@ var _user$project$App_AppUpdate$updateApp = F6(
 										_1: cmd
 									};
 								} else {
-									break _v16_2;
+									break _v17_2;
 								}
 							} else {
-								if (_p20._2.ctor === 'Just') {
+								if (_p21._2.ctor === 'Just') {
 									return {
 										ctor: '_Tuple2',
 										_0: A5(
@@ -18998,18 +19496,18 @@ var _user$project$App_AppUpdate$updateApp = F6(
 											_elm_lang$core$Native_Utils.update(
 												appModel,
 												{
-													message: _elm_lang$core$Maybe$Just(_p20._2._0)
+													message: _elm_lang$core$Maybe$Just(_p21._2._0)
 												}),
 											usersModel,
 											talksModel),
 										_1: _elm_lang$core$Platform_Cmd$none
 									};
 								} else {
-									break _v16_2;
+									break _v17_2;
 								}
 							}
 						} else {
-							break _v16_2;
+							break _v17_2;
 						}
 					} while(false);
 					return {
@@ -19029,45 +19527,35 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A5(
-							_user$project$Models$Connected,
-							route,
-							session,
-							_elm_lang$core$Native_Utils.update(
-								appModel,
-								{
-									message: _elm_lang$core$Maybe$Just('Network error. Please try again'),
-									mImage: _elm_lang$core$Maybe$Nothing
-								}),
-							usersModel,
-							talksModel),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p20._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'UsersResponse':
 				return A6(
 					_user$project$App_AppUpdate$handleApiResponse,
-					_p8._0,
+					_p9._0,
 					_user$project$App_User_UserUpdate$updateUsers(usersModel),
 					_user$project$App_AppUpdate$updateUsersModel,
 					'Impossible to retrieve users',
 					_elm_lang$core$Platform_Cmd$none,
-					model);
+					A2(
+						_user$project$App_AppUpdate$updateAppModel,
+						_elm_lang$core$Native_Utils.update(
+							appModel,
+							{fetching: false}),
+						model));
 			case 'SearchResponse':
-				var _p23 = _p8._0;
-				if (_p23.ctor === 'Ok') {
-					var _p26 = _p23._0;
-					var _p24 = {ctor: '_Tuple3', _0: _p26.status, _1: _p26.data, _2: _p26.message};
-					_v19_2:
+				var _p24 = _p9._0;
+				if (_p24.ctor === 'Ok') {
+					var _p27 = _p24._0;
+					var _p25 = {ctor: '_Tuple3', _0: _p27.status, _1: _p27.data, _2: _p27.message};
+					_v20_2:
 					do {
-						if (_p24.ctor === '_Tuple3') {
-							if (_p24._0 === true) {
-								if (_p24._1.ctor === 'Just') {
-									var _p25 = _p24._1._0;
+						if (_p25.ctor === '_Tuple3') {
+							if (_p25._0 === true) {
+								if (_p25._1.ctor === 'Just') {
+									var _p26 = _p25._1._0;
 									return _elm_lang$core$Native_Utils.eq(
-										_p25,
+										_p26,
 										{ctor: '[]'}) ? {
 										ctor: '_Tuple2',
 										_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'No users found', model),
@@ -19081,56 +19569,52 @@ var _user$project$App_AppUpdate$updateApp = F6(
 											_elm_lang$core$Native_Utils.update(
 												appModel,
 												{message: _elm_lang$core$Maybe$Nothing}),
-											A2(_user$project$App_User_UserUpdate$updateUsers, usersModel, _p25),
+											A2(_user$project$App_User_UserUpdate$updateUsers, usersModel, _p26),
 											talksModel),
 										_1: _elm_lang$core$Platform_Cmd$none
 									};
 								} else {
-									break _v19_2;
+									break _v20_2;
 								}
 							} else {
-								if (_p24._2.ctor === 'Just') {
+								if (_p25._2.ctor === 'Just') {
 									return {
 										ctor: '_Tuple2',
 										_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'Server error', model),
 										_1: _elm_lang$core$Platform_Cmd$none
 									};
 								} else {
-									break _v19_2;
+									break _v20_2;
 								}
 							}
 						} else {
-							break _v19_2;
+							break _v20_2;
 						}
 					} while(false);
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'Server error', model),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p24._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'UserResponse':
 				return A6(
 					_user$project$App_AppUpdate$handleApiResponse,
-					_p8._0,
+					_p9._0,
 					_user$project$App_User_UserUpdate$updateUser(usersModel),
 					_user$project$App_AppUpdate$updateUsersModel,
 					'User not found',
 					_elm_lang$core$Platform_Cmd$none,
 					model);
 			case 'LikeResponse':
-				var _p30 = _p8._0;
-				var _p27 = _p8._1;
-				if (_p27.ctor === 'Ok') {
-					var _p29 = _p27._0;
-					var _p28 = {ctor: '_Tuple2', _0: _p29.status, _1: _p29.data};
-					_v21_2:
+				var _p31 = _p9._0;
+				var _p28 = _p9._1;
+				if (_p28.ctor === 'Ok') {
+					var _p30 = _p28._0;
+					var _p29 = {ctor: '_Tuple2', _0: _p30.status, _1: _p30.data};
+					_v22_2:
 					do {
-						if (_p28.ctor === '_Tuple2') {
-							if (_p28._0 === true) {
-								if (_p28._1.ctor === 'Just') {
+						if (_p29.ctor === '_Tuple2') {
+							if (_p29._0 === true) {
+								if (_p29._1.ctor === 'Just') {
 									return {
 										ctor: '_Tuple2',
 										_0: A5(
@@ -19140,21 +19624,21 @@ var _user$project$App_AppUpdate$updateApp = F6(
 											_elm_lang$core$Native_Utils.update(
 												appModel,
 												{message: _elm_lang$core$Maybe$Nothing}),
-											A2(_user$project$App_User_UserUpdate$updateUser, usersModel, _p28._1._0),
+											A2(_user$project$App_User_UserUpdate$updateUser, usersModel, _p29._1._0),
 											talksModel),
 										_1: _elm_lang$core$Platform_Cmd$batch(
 											{
 												ctor: '::',
-												_0: A2(_user$project$App_User_UserCommands$sendUnlikeNotif, session.token, _p30),
+												_0: A2(_user$project$App_User_UserCommands$sendUnlikeNotif, session.token, _p31),
 												_1: {
 													ctor: '::',
-													_0: A2(_user$project$App_User_UserCommands$sendLikeNotif, session.token, _p30),
+													_0: A2(_user$project$App_User_UserCommands$sendLikeNotif, session.token, _p31),
 													_1: {ctor: '[]'}
 												}
 											})
 									};
 								} else {
-									break _v21_2;
+									break _v22_2;
 								}
 							} else {
 								return {
@@ -19164,31 +19648,27 @@ var _user$project$App_AppUpdate$updateApp = F6(
 								};
 							}
 						} else {
-							break _v21_2;
+							break _v22_2;
 						}
 					} while(false);
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A2(_user$project$App_AppUpdate$updateAlertMsg, 'Server error', model),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p28._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'EditAccountResponse':
-				var _p31 = _p8._4;
-				if (_p31.ctor === 'Ok') {
-					var _p33 = _p31._0;
-					var _p32 = _p33.status;
-					if (_p32 === true) {
+				var _p32 = _p9._4;
+				if (_p32.ctor === 'Ok') {
+					var _p34 = _p32._0;
+					var _p33 = _p34.status;
+					if (_p33 === true) {
 						var user = session.user;
 						var newUser = _elm_lang$core$Native_Utils.update(
 							user,
 							{
-								email: _p8._0,
-								fname: _p8._1,
-								lname: _p8._2,
-								bio: _elm_lang$core$Maybe$Just(_p8._3)
+								email: _p9._0,
+								fname: _p9._1,
+								lname: _p9._2,
+								bio: _elm_lang$core$Maybe$Just(_p9._3)
 							});
 						return {
 							ctor: '_Tuple2',
@@ -19217,19 +19697,19 @@ var _user$project$App_AppUpdate$updateApp = F6(
 								session,
 								_elm_lang$core$Native_Utils.update(
 									appModel,
-									{message: _p33.message}),
+									{message: _p34.message}),
 								usersModel,
 								talksModel),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					}
 				} else {
-					return disconnect;
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p32._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'GetTalkResponse':
 				return A6(
 					_user$project$App_AppUpdate$handleApiResponse,
-					_p8._0,
+					_p9._0,
 					_user$project$App_Talk_TalkUtils$updateTalks(talksModel),
 					_user$project$App_AppUpdate$updateTalksModel,
 					'Talk not found',
@@ -19239,12 +19719,12 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						_elm_lang$dom$Dom_Scroll$toBottom('talk-list')),
 					model);
 			case 'GetTalksResponse':
-				var _p34 = _p8._0;
-				if (_p34.ctor === 'Ok') {
-					var _p37 = _p34._0;
-					var _p35 = {ctor: '_Tuple2', _0: _p37.status, _1: _p37.data};
-					if (((_p35.ctor === '_Tuple2') && (_p35._0 === true)) && (_p35._1.ctor === 'Just')) {
-						var _p36 = _p35._1._0;
+				var _p35 = _p9._0;
+				if (_p35.ctor === 'Ok') {
+					var _p38 = _p35._0;
+					var _p36 = {ctor: '_Tuple2', _0: _p38.status, _1: _p38.data};
+					if (((_p36.ctor === '_Tuple2') && (_p36._0 === true)) && (_p36._1.ctor === 'Just')) {
+						var _p37 = _p36._1._0;
 						return {
 							ctor: '_Tuple2',
 							_0: A5(
@@ -19255,7 +19735,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 								usersModel,
 								_elm_lang$core$Native_Utils.update(
 									talksModel,
-									{talks: _p36})),
+									{talks: _p37})),
 							_1: _elm_lang$core$Platform_Cmd$batch(
 								A2(
 									_elm_lang$core$List$map,
@@ -19268,7 +19748,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 												_elm_lang$core$Maybe$Just(t.username_with)),
 											session.token);
 									},
-									_p36))
+									_p37))
 						};
 					} else {
 						return {
@@ -19288,17 +19768,17 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						};
 					}
 				} else {
-					return disconnect;
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p35._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'SaveLocRespone':
-				var _p38 = _p8._0;
-				if (_p38.ctor === 'Ok') {
-					var _p39 = {ctor: '_Tuple2', _0: _p38._0.status, _1: appModel.current_location};
-					if (((_p39.ctor === '_Tuple2') && (_p39._0 === true)) && (_p39._1.ctor === 'Just')) {
+				var _p39 = _p9._0;
+				if (_p39.ctor === 'Ok') {
+					var _p40 = {ctor: '_Tuple2', _0: _p39._0.status, _1: appModel.current_location};
+					if (((_p40.ctor === '_Tuple2') && (_p40._0 === true)) && (_p40._1.ctor === 'Just')) {
 						var cmd = function () {
-							var _p40 = route;
-							if (_p40.ctor === 'UsersRoute') {
-								return A2(_user$project$App_User_UserCommands$getRelevantUsers, _p40._0, session.token);
+							var _p41 = route;
+							if (_p41.ctor === 'UsersRoute') {
+								return A2(_user$project$App_User_UserCommands$getRelevantUsers, _p41._0, session.token);
 							} else {
 								return _elm_lang$core$Platform_Cmd$none;
 							}
@@ -19309,7 +19789,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 							{
 								user: _elm_lang$core$Native_Utils.update(
 									user,
-									{localisation: _p39._1._0})
+									{localisation: _p40._1._0})
 							});
 						return {
 							ctor: '_Tuple2',
@@ -19343,37 +19823,25 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						};
 					}
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A5(
-							_user$project$Models$Connected,
-							route,
-							session,
-							_elm_lang$core$Native_Utils.update(
-								appModel,
-								{
-									message: _elm_lang$core$Maybe$Just('Error while saving localisation. Try again'),
-									localizing: false
-								}),
-							usersModel,
-							talksModel),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return A3(_user$project$App_AppUpdate$handleErrorRequest, _p39._0, model, _elm_lang$core$Platform_Cmd$none);
 				}
 			case 'OnLocationChange':
 				var newModel = _elm_lang$core$Native_Utils.update(
 					appModel,
 					{message: _elm_lang$core$Maybe$Nothing, showEmoList: false, showAccountMenu: false, showAdvanceFilters: false, search: _user$project$App_AppModels$initialSearchModel, showTalksList: false});
-				var newRoute = _user$project$Routing$parseAppLocation(_p8._0);
-				var _p41 = newRoute;
-				switch (_p41.ctor) {
+				var newRoute = _user$project$Routing$parseAppLocation(_p9._0);
+				var _p42 = newRoute;
+				switch (_p42.ctor) {
 					case 'UsersRoute':
-						var _p42 = _p41._0;
-						var visitNotif = _elm_lang$core$Native_Utils.eq(_p42, 'visitors') ? 0 : appModel.notifVisit;
+						var visitNotif = _elm_lang$core$Native_Utils.eq(
+							route,
+							_user$project$App_AppModels$UsersRoute('visitors')) ? {ctor: '[]'} : appModel.notifVisit;
 						var unLikeNotif = _elm_lang$core$Native_Utils.eq(
 							route,
 							_user$project$App_AppModels$UsersRoute('likers')) ? {ctor: '[]'} : appModel.notifUnlike;
-						var likeNotif = _elm_lang$core$Native_Utils.eq(_p42, 'likers') ? 0 : appModel.notifLike;
+						var likeNotif = _elm_lang$core$Native_Utils.eq(
+							route,
+							_user$project$App_AppModels$UsersRoute('likers')) ? {ctor: '[]'} : appModel.notifLike;
 						return {
 							ctor: '_Tuple2',
 							_0: A5(
@@ -19382,10 +19850,10 @@ var _user$project$App_AppUpdate$updateApp = F6(
 								session,
 								_elm_lang$core$Native_Utils.update(
 									newModel,
-									{notifLike: likeNotif, notifVisit: visitNotif, notifUnlike: unLikeNotif}),
+									{notifLike: likeNotif, notifVisit: visitNotif, notifUnlike: unLikeNotif, fetching: true}),
 								usersModel,
 								talksModel),
-							_1: A2(_user$project$App_User_UserCommands$getRelevantUsers, _p42, session.token)
+							_1: A2(_user$project$App_User_UserCommands$getRelevantUsers, _p42._0, session.token)
 						};
 					case 'SearchRoute':
 						return {
@@ -19404,16 +19872,16 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _elm_lang$navigation$Navigation$back(_p8._0)
+					_1: _elm_lang$navigation$Navigation$back(_p9._0)
 				};
 			case 'ToggleLike':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_user$project$App_User_UserCommands$toggleLike, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$toggleLike, _p9._0, session.token)
 				};
 			case 'ShowUser':
-				var _p43 = _p8._0;
+				var _p43 = _p9._0;
 				return {
 					ctor: '_Tuple2',
 					_0: A5(
@@ -19468,7 +19936,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 								talksModel,
 								_elm_lang$core$Native_Utils.update(
 									_p45._0,
-									{new_message: _p8._0}));
+									{new_message: _p9._0}));
 						} else {
 							return talksModel;
 						}
@@ -19482,7 +19950,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'SendNewMessage':
-				var _p46 = A2(_elm_lang$core$Debug$log, 'send', talksModel.currentTalk);
+				var _p46 = talksModel.currentTalk;
 				if (_p46.ctor === 'Just') {
 					var _p47 = A2(_user$project$App_Talk_TalkUtils$getTalkWith, _p46._0, talksModel.talks);
 					if (_p47.ctor === 'Just') {
@@ -19515,7 +19983,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						_elm_lang$core$Native_Utils.update(
 							appModel,
 							{
-								message: _elm_lang$core$Maybe$Just(_p8._0)
+								message: _elm_lang$core$Maybe$Just(_p9._0)
 							}),
 						usersModel,
 						talksModel),
@@ -19581,7 +20049,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _user$project$App_User_UserCommands$getIpLocalisation
 				};
 			case 'SaveLocalisation':
-				var _p50 = _p8._0;
+				var _p50 = _p9._0;
 				if (((_p50.ctor === '::') && (_p50._1.ctor === '::')) && (_p50._1._1.ctor === '[]')) {
 					var _p52 = _p50._0;
 					var _p51 = _p50._1._0;
@@ -19608,7 +20076,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'NewLoc':
-				var _p53 = {ctor: '_Tuple2', _0: _p8._0, _1: appModel.map_state};
+				var _p53 = {ctor: '_Tuple2', _0: _p9._0, _1: appModel.map_state};
 				if ((((_p53.ctor === '_Tuple2') && (_p53._0.ctor === '::')) && (_p53._0._1.ctor === '::')) && (_p53._0._1._1.ctor === '[]')) {
 					if (_p53._1.ctor === 'Rendered') {
 						var _p55 = _p53._0._0;
@@ -19691,7 +20159,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					};
 				}
 			case 'GetIpLocalisationResponse':
-				var _p58 = _p8._0;
+				var _p58 = _p9._0;
 				if (_p58.ctor === 'Success') {
 					var _p62 = _p58._0;
 					var loc = function () {
@@ -19774,8 +20242,8 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				var newForm = A3(
 					_user$project$FormUtils$updateInput,
 					form_,
-					_p8._0,
-					_elm_lang$core$Maybe$Just(_p8._1));
+					_p9._0,
+					_elm_lang$core$Maybe$Just(_p9._1));
 				return {
 					ctor: '_Tuple2',
 					_0: A5(
@@ -19833,8 +20301,8 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				var newForm = A3(
 					_user$project$FormUtils$updateInput,
 					form_,
-					_p8._0,
-					_elm_lang$core$Maybe$Just(_p8._1));
+					_p9._0,
+					_elm_lang$core$Maybe$Just(_p9._1));
 				return {
 					ctor: '_Tuple2',
 					_0: A5(
@@ -19868,10 +20336,10 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_user$project$App_User_UserCommands$updateGender, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$updateGender, _p9._0, session.token)
 				};
 			case 'UpdateIntIn':
-				var _p67 = _p8._0;
+				var _p67 = _p9._0;
 				var newIntIn = A2(_elm_lang$core$List$member, _p67, session.user.intIn) ? A2(
 					_elm_lang$core$List$filter,
 					F2(
@@ -19885,7 +20353,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: A2(_user$project$App_User_UserCommands$updateIntIn, newIntIn, session.token)
 				};
 			case 'SearchTag':
-				var _p69 = _p8._0;
+				var _p69 = _p9._0;
 				var _p68 = {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.cmp(
@@ -19894,7 +20362,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _user$project$FormUtils$validTag(
 						_elm_lang$core$Maybe$Just(_p69))
 				};
-				_v43_2:
+				_v44_2:
 				do {
 					if (_p68.ctor === '_Tuple2') {
 						switch (_p68._1.ctor) {
@@ -19914,7 +20382,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 										_1: A2(_user$project$App_User_UserCommands$searchTag, session.token, _p69)
 									};
 								} else {
-									break _v43_2;
+									break _v44_2;
 								}
 							case 'NotValid':
 								return {
@@ -19931,10 +20399,10 @@ var _user$project$App_AppUpdate$updateApp = F6(
 									_1: A2(_user$project$App_User_UserCommands$searchTag, session.token, _p69)
 								};
 							default:
-								break _v43_2;
+								break _v44_2;
 						}
 					} else {
-						break _v43_2;
+						break _v44_2;
 					}
 				} while(false);
 				return {
@@ -19965,7 +20433,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 							}),
 						usersModel,
 						talksModel),
-					_1: A2(_user$project$App_User_UserCommands$addTag, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$addTag, _p9._0, session.token)
 				};
 			case 'AddNewTag':
 				var _p70 = _user$project$FormUtils$validTag(
@@ -19994,7 +20462,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_user$project$App_User_UserCommands$removeTag, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$removeTag, _p9._0, session.token)
 				};
 			case 'ImageSelected':
 				return {
@@ -20003,7 +20471,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _user$project$Ports$fileSelected(appModel.idImg)
 				};
 			case 'ImageRead':
-				var _p71 = _p8._0;
+				var _p71 = _p9._0;
 				var newImage = {contents: _p71.contents, filename: _p71.filename};
 				return {
 					ctor: '_Tuple2',
@@ -20024,7 +20492,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_user$project$App_User_UserCommands$delImg, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$delImg, _p9._0, session.token)
 				};
 			case 'SetCurrentTime':
 				return {
@@ -20035,7 +20503,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						session,
 						_elm_lang$core$Native_Utils.update(
 							appModel,
-							{currentTime: _p8._0}),
+							{currentTime: _p9._0}),
 						usersModel,
 						talksModel),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -20059,7 +20527,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ChangeImage':
-				var newUsers = A3(_user$project$App_User_UserUpdate$showImage, _p8._1, _p8._0, usersModel.users);
+				var newUsers = A3(_user$project$App_User_UserUpdate$showImage, _p9._1, _p9._0, usersModel.users);
 				return {
 					ctor: '_Tuple2',
 					_0: A5(
@@ -20077,10 +20545,10 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _elm_lang$navigation$Navigation$newUrl(_p8._0)
+					_1: _elm_lang$navigation$Navigation$newUrl(_p9._0)
 				};
 			case 'ChangeSort':
-				var _p72 = _p8._0;
+				var _p72 = _p9._0;
 				var orderSort = _elm_lang$core$Native_Utils.eq(_p72, usersModel.userSort) ? _user$project$App_User_UserHelper$toggleOrder(usersModel.orderSort) : _user$project$App_User_UserModel$ASC;
 				return {
 					ctor: '_Tuple2',
@@ -20099,7 +20567,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 						_elm_lang$dom$Dom_Scroll$toTop('main'))
 				};
 			case 'Notification':
-				var _p73 = A2(_elm_lang$core$Json_Decode$decodeString, _user$project$App_Notif_NotifDecoder$notificationDecoder, _p8._0);
+				var _p73 = A2(_elm_lang$core$Json_Decode$decodeString, _user$project$App_Notif_NotifDecoder$notificationDecoder, _p9._0);
 				if (_p73.ctor === 'Ok') {
 					var _p75 = _p73._0;
 					var _p74 = _p75.type_;
@@ -20139,9 +20607,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 									session,
 									_elm_lang$core$Native_Utils.update(
 										appModel,
-										{
-											notifLike: _elm_lang$core$List$length(_p75.notif)
-										}),
+										{notifLike: _p75.notif}),
 									usersModel,
 									talksModel),
 								_1: _elm_lang$core$Platform_Cmd$none
@@ -20193,9 +20659,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 									session,
 									_elm_lang$core$Native_Utils.update(
 										appModel,
-										{
-											notifVisit: _elm_lang$core$List$length(_p75.notif)
-										}),
+										{notifVisit: _p75.notif}),
 									usersModel,
 									talksModel),
 								_1: _elm_lang$core$Platform_Cmd$none
@@ -20225,7 +20689,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AddEmo':
-				var _p76 = A2(_user$project$App_Talk_TalkUtils$getTalkWith, _p8._0, talksModel.talks);
+				var _p76 = A2(_user$project$App_Talk_TalkUtils$getTalkWith, _p9._0, talksModel.talks);
 				if (_p76.ctor === 'Just') {
 					var _p77 = _p76._0;
 					var newTalk = _elm_lang$core$Native_Utils.update(
@@ -20237,7 +20701,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 								A2(
 									_elm_lang$core$Basics_ops['++'],
 									' ::__',
-									A2(_elm_lang$core$Basics_ops['++'], _p8._1, '__::')))
+									A2(_elm_lang$core$Basics_ops['++'], _p9._1, '__::')))
 						});
 					var newTalksModel = A2(_user$project$App_Talk_TalkUtils$updateTalks, talksModel, newTalk);
 					return {
@@ -20252,7 +20716,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'UpdateTagFilter':
-				var filters = A2(_user$project$App_User_UserHelper$updateFilterTag, usersModel.userFilter, _p8._0);
+				var filters = A2(_user$project$App_User_UserHelper$updateFilterTag, usersModel.userFilter, _p9._0);
 				return {
 					ctor: '_Tuple2',
 					_0: A5(
@@ -20268,7 +20732,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				};
 			case 'UpdateMinAgeFilter':
 				var filters = function () {
-					var _p78 = _elm_lang$core$String$toInt(_p8._0);
+					var _p78 = _elm_lang$core$String$toInt(_p9._0);
 					if (_p78.ctor === 'Ok') {
 						return A2(_user$project$App_User_UserHelper$updateMinAgeFilter, usersModel.userFilter, _p78._0);
 					} else {
@@ -20295,7 +20759,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				};
 			case 'UpdateMaxAgeFilter':
 				var filters = function () {
-					var _p79 = _elm_lang$core$String$toInt(_p8._0);
+					var _p79 = _elm_lang$core$String$toInt(_p9._0);
 					if (_p79.ctor === 'Ok') {
 						return A2(_user$project$App_User_UserHelper$updateMaxAgeFilter, usersModel.userFilter, _p79._0);
 					} else {
@@ -20352,7 +20816,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				};
 			case 'UpdateLocFilter':
 				var filters = function () {
-					var _p80 = _elm_lang$core$String$toFloat(_p8._0);
+					var _p80 = _elm_lang$core$String$toFloat(_p9._0);
 					if (_p80.ctor === 'Ok') {
 						return A2(_user$project$App_User_UserHelper$updateLocFilter, usersModel.userFilter, _p80._0);
 					} else {
@@ -20378,7 +20842,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'SetCurrentTalk':
-				var _p81 = _p8._0;
+				var _p81 = _p9._0;
 				return {
 					ctor: '_Tuple2',
 					_0: A5(
@@ -20435,10 +20899,10 @@ var _user$project$App_AppUpdate$updateApp = F6(
 							usersModel,
 							{currentUser: _elm_lang$core$Maybe$Nothing}),
 						talksModel),
-					_1: A2(_user$project$App_User_UserCommands$reportUser, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$reportUser, _p9._0, session.token)
 				};
 			case 'BlockUser':
-				var _p82 = _p8._0;
+				var _p82 = _p9._0;
 				var cuT = _elm_lang$core$Native_Utils.eq(
 					talksModel.currentTalk,
 					_elm_lang$core$Maybe$Just(_p82)) ? _elm_lang$core$Maybe$Nothing : talksModel.currentTalk;
@@ -20467,7 +20931,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				var searchModel = appModel.search;
 				var newSearch = _elm_lang$core$Native_Utils.update(
 					searchModel,
-					{login: _p8._0});
+					{login: _p9._0});
 				return {
 					ctor: '_Tuple2',
 					_0: A2(
@@ -20479,7 +20943,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'UpdateSearchTags':
-				var _p83 = _p8._0;
+				var _p83 = _p9._0;
 				var searchModel = appModel.search;
 				var newTags = A2(_elm_lang$core$List$member, _p83, searchModel.tags) ? A2(
 					_elm_lang$core$List$filter,
@@ -20503,7 +20967,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				};
 			case 'UpdateMinYearSearch':
 				var newYear = function () {
-					var _p84 = _elm_lang$core$String$toInt(_p8._0);
+					var _p84 = _elm_lang$core$String$toInt(_p9._0);
 					if (_p84.ctor === 'Ok') {
 						return _elm_lang$core$Maybe$Just(_p84._0);
 					} else {
@@ -20526,7 +20990,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				};
 			case 'UpdateMaxYearSearch':
 				var newYear = function () {
-					var _p85 = _elm_lang$core$String$toInt(_p8._0);
+					var _p85 = _elm_lang$core$String$toInt(_p9._0);
 					if (_p85.ctor === 'Ok') {
 						return _elm_lang$core$Maybe$Just(_p85._0);
 					} else {
@@ -20549,7 +21013,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				};
 			case 'UpdateLocSearch':
 				var newLoc = function () {
-					var _p86 = _elm_lang$core$String$toInt(_p8._0);
+					var _p86 = _elm_lang$core$String$toInt(_p9._0);
 					if (_p86.ctor === 'Ok') {
 						return _elm_lang$core$Maybe$Just(_p86._0);
 					} else {
@@ -20585,7 +21049,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 					_1: _elm_lang$core$Native_Utils.eq(route, _user$project$App_AppModels$SearchRoute) ? _elm_lang$core$Platform_Cmd$none : _elm_lang$navigation$Navigation$newUrl('/#/search')
 				};
 			case 'UpdateBirth':
-				var _p87 = _elm_lang$core$String$toInt(_p8._0);
+				var _p87 = _elm_lang$core$String$toInt(_p9._0);
 				if (_p87.ctor === 'Ok') {
 					var _p88 = _p87._0;
 					var user = session.user;
@@ -20614,7 +21078,7 @@ var _user$project$App_AppUpdate$updateApp = F6(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_user$project$App_User_UserCommands$mainImg, _p8._0, session.token)
+					_1: A2(_user$project$App_User_UserCommands$mainImg, _p9._0, session.token)
 				};
 			case 'ToggleAccountForm':
 				return {
@@ -23477,17 +23941,13 @@ var _user$project$App_User_UserView$view = F4(
 			view);
 	});
 
-var _user$project$App_User_UsersView$isMainImage = function (_p0) {
-	var _p1 = _p0;
-	return _p1._2;
-};
 var _user$project$App_User_UsersView$userImageView = F3(
 	function (user, session, model) {
 		var imgSrc = function () {
-			var _p2 = _elm_lang$core$List$head(
-				A2(_elm_lang$core$List$filter, _user$project$App_User_UsersView$isMainImage, user.photos));
-			if ((_p2.ctor === 'Just') && (_p2._0.ctor === '_Tuple3')) {
-				return _p2._0._1;
+			var _p0 = _elm_lang$core$List$head(
+				A2(_elm_lang$core$List$filter, _user$project$App_User_UserHelper$isMainImage, user.photos));
+			if ((_p0.ctor === 'Just') && (_p0._0.ctor === '_Tuple3')) {
+				return _p0._0._1;
 			} else {
 				return 'http://profile.actionsprout.com/default.jpeg';
 			}
@@ -23566,8 +24026,30 @@ var _user$project$App_User_UsersView$userInfosView = F3(
 					_1: {ctor: '[]'}
 				} : {ctor: '[]'}));
 	});
-var _user$project$App_User_UsersView$cardUserView = F5(
-	function (appModel, user, i, session, model) {
+var _user$project$App_User_UsersView$cardUserView = F6(
+	function (route, appModel, user, i, session, model) {
+		var clss = A2(
+			_elm_lang$core$Basics_ops['++'],
+			'user-card animated fadeInUp',
+			function () {
+				var _p1 = route;
+				_v1_2:
+				do {
+					if (_p1.ctor === 'UsersRoute') {
+						switch (_p1._0) {
+							case 'likers':
+								return A2(_elm_lang$core$List$member, user.username, appModel.notifLike) ? ' new-card' : '';
+							case 'visitors':
+								return A2(_elm_lang$core$List$member, user.username, appModel.notifVisit) ? ' new-card' : '';
+							default:
+								break _v1_2;
+						}
+					} else {
+						break _v1_2;
+					}
+				} while(false);
+				return '';
+			}());
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -23576,7 +24058,7 @@ var _user$project$App_User_UsersView$cardUserView = F5(
 					_user$project$Msgs$ShowUser(user.username)),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('user-card animated fadeInUp'),
+					_0: _elm_lang$html$Html_Attributes$class(clss),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$style(
@@ -23611,15 +24093,15 @@ var _user$project$App_User_UsersView$cardUserView = F5(
 				}
 			});
 	});
-var _user$project$App_User_UsersView$viewUsersList = F3(
-	function (session, appModel, model) {
+var _user$project$App_User_UsersView$viewUsersList = F4(
+	function (route, session, appModel, model) {
 		var listF = A2(
 			_elm_lang$core$List$filter,
 			_user$project$App_User_UserHelper$filterUser(model.userFilter),
 			model.users);
 		var list = function () {
-			var _p3 = model.userSort;
-			switch (_p3.ctor) {
+			var _p2 = model.userSort;
+			switch (_p2.ctor) {
 				case 'S_Dist':
 					return A2(
 						_elm_lang$core$List$sortBy,
@@ -23676,18 +24158,18 @@ var _user$project$App_User_UsersView$viewUsersList = F3(
 			},
 			A2(
 				_elm_lang$core$List$map,
-				function (_p4) {
-					var _p5 = _p4;
-					var _p6 = _p5._1;
+				function (_p3) {
+					var _p4 = _p3;
+					var _p5 = _p4._1;
 					return {
 						ctor: '_Tuple2',
-						_0: _p6.username,
+						_0: _p5.username,
 						_1: A2(
 							_elm_lang$html$Html$li,
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: A5(_user$project$App_User_UsersView$cardUserView, appModel, _p6, _p5._0, session, model),
+								_0: A6(_user$project$App_User_UsersView$cardUserView, route, appModel, _p5, _p4._0, session, model),
 								_1: {ctor: '[]'}
 							})
 					};
@@ -23782,7 +24264,8 @@ var _user$project$App_User_UsersView$userMenuView = F2(
 									_0: _elm_lang$html$Html$text('Visitors '),
 									_1: {
 										ctor: '::',
-										_0: _user$project$Utils$notif(model.notifVisit),
+										_0: _user$project$Utils$notif(
+											_elm_lang$core$List$length(model.notifVisit)),
 										_1: {ctor: '[]'}
 									}
 								}),
@@ -23820,7 +24303,7 @@ var _user$project$App_User_UsersView$userMenuView = F2(
 										_1: {
 											ctor: '::',
 											_0: _user$project$Utils$notif(
-												model.notifLike + _elm_lang$core$List$length(model.notifUnlike)),
+												_elm_lang$core$List$length(model.notifLike) + _elm_lang$core$List$length(model.notifUnlike)),
 											_1: {ctor: '[]'}
 										}
 									}),
@@ -24058,8 +24541,8 @@ var _user$project$App_User_UsersView$tagsFilterView = F2(
 				session.user.tags));
 	});
 var _user$project$App_User_UsersView$sortArrow = function (order) {
-	var _p7 = order;
-	if (_p7.ctor === 'ASC') {
+	var _p6 = order;
+	if (_p6.ctor === 'ASC') {
 		return '↑';
 	} else {
 		return '↓';
@@ -24857,9 +25340,20 @@ var _user$project$App_User_UsersView$notifUnlikeView = F2(
 	});
 var _user$project$App_User_UsersView$viewUsers = F4(
 	function (route, session, appModel, model) {
-		var view = _elm_lang$core$Native_Utils.eq(
+		var view = appModel.fetching ? A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('center flex'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('searching users ...'),
+				_1: {ctor: '[]'}
+			}) : (_elm_lang$core$Native_Utils.eq(
 			_elm_lang$core$List$length(model.users),
-			0) ? _user$project$App_User_UsersView$emptyUsersView : A3(_user$project$App_User_UsersView$viewUsersList, session, appModel, model);
+			0) ? _user$project$App_User_UsersView$emptyUsersView : A4(_user$project$App_User_UsersView$viewUsersList, route, session, appModel, model));
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -25077,8 +25571,26 @@ var _user$project$Login_LoginView$viewResetPwdForm = function (model) {
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('In order to reset your password, please give us your login and the email you used when you created your account. You\'ll recieve an email with your new password'),
-					_1: {ctor: '[]'}
+					_0: A2(
+						_elm_lang$html$Html$p,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('In order to reset your password, please enter your login and email.'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$p,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('You\'ll recieve an email with your new password'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}),
 			_1: {
 				ctor: '::',
@@ -25563,33 +26075,65 @@ var _user$project$App_AppViews$viewMenu = F4(
 								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$li,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('notif-menu'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$button,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$ToggleAccountMenu),
-													_1: {ctor: '[]'}
-												},
-												{
-													ctor: '::',
-													_0: _user$project$Utils$icon('fas fa-user'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {
+										_elm_lang$html$Html$ul,
+										{ctor: '[]'},
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											_elm_lang$core$Native_Utils.eq(session.user.rights, _user$project$App_User_UserModel$ADMIN) ? {
 												ctor: '::',
-												_0: _user$project$Utils$notif(
-													_user$project$App_AppUtils$getAccountNotif(session.user)),
+												_0: A2(
+													_elm_lang$html$Html$li,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$button,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$ShowAdmin),
+																_1: {ctor: '[]'}
+															},
+															{
+																ctor: '::',
+																_0: _user$project$Utils$icon('fas fa-address-book'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													}),
 												_1: {ctor: '[]'}
-											}
-										}),
+											} : {ctor: '[]'},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$li,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$class('notif-menu'),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$button,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onClick(_user$project$Msgs$ToggleAccountMenu),
+																_1: {ctor: '[]'}
+															},
+															{
+																ctor: '::',
+																_0: _user$project$Utils$icon('fas fa-user'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: _user$project$Utils$notif(
+																_user$project$App_AppUtils$getAccountNotif(session.user)),
+															_1: {ctor: '[]'}
+														}
+													}),
+												_1: {ctor: '[]'}
+											})),
 									_1: {ctor: '[]'}
 								}
 							}),
@@ -25950,7 +26494,7 @@ var _user$project$Login_LoginUpdate$updateLogin = F3(
 						ctor: '_Tuple2',
 						_0: _user$project$Models$Connexion(
 							_user$project$App_AppModels$UsersRoute('all')),
-						_1: A2(_user$project$Login_LoginCommands$sendLogin, _p5._0._0, _p5._1._0._0)
+						_1: A2(_user$project$Login_LoginCommands$getApiToken, _p5._0._0, _p5._1._0._0)
 					};
 				} else {
 					return {
@@ -26037,8 +26581,10 @@ var _user$project$Views$view = function (model) {
 			return A2(_user$project$Login_LoginView$view, _p0._0, _p0._1);
 		case 'Connexion':
 			return _user$project$Views$connectionView;
-		default:
+		case 'Connected':
 			return A5(_user$project$App_AppViews$view, _p0._0, _p0._1, _p0._2, _p0._3, _p0._4);
+		default:
+			return _user$project$App_Admin_AdminView$view(_p0._1);
 	}
 };
 
@@ -26177,12 +26723,12 @@ var _user$project$Update$updateConnexion = F2(
 						_1: _elm_lang$navigation$Navigation$newUrl('/#/login')
 					};
 				}
-			case 'LoginResponse':
+			case 'TokenResponse':
 				var _p9 = _p0._0;
 				if (_p9.ctor === 'Success') {
 					var _p12 = _p9._0;
-					var _p10 = {ctor: '_Tuple4', _0: _p12.status, _1: _p12.token, _2: _p12.user, _3: _p12.message};
-					if (((_p10._0 === true) && (_p10._1.ctor === 'Just')) && (_p10._2.ctor === 'Just')) {
+					var _p10 = {ctor: '_Tuple3', _0: _p12.status, _1: _p12.token, _2: _p12.message};
+					if ((_p10._0 === true) && (_p10._1.ctor === 'Just')) {
 						var _p11 = _p10._1._0;
 						return {
 							ctor: '_Tuple2',
@@ -26212,7 +26758,7 @@ var _user$project$Update$updateConnexion = F2(
 								_user$project$Login_LoginModels$LoginRoute,
 								_elm_lang$core$Native_Utils.update(
 									_user$project$Login_LoginModels$initialLoginModel,
-									{message: _p10._3})),
+									{message: _p10._2})),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					}
@@ -26225,7 +26771,7 @@ var _user$project$Update$updateConnexion = F2(
 							_elm_lang$core$Native_Utils.update(
 								_user$project$Login_LoginModels$initialLoginModel,
 								{
-									message: _elm_lang$core$Maybe$Just('Error')
+									message: _elm_lang$core$Maybe$Just('Server error')
 								})),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -26246,8 +26792,10 @@ var _user$project$Update$update = F2(
 				return A3(_user$project$Login_LoginUpdate$updateLogin, _p13._1, _p13._0._0, _p13._0._1);
 			case 'Connexion':
 				return A2(_user$project$Update$updateConnexion, _p13._1, _p13._0._0);
-			default:
+			case 'Connected':
 				return A6(_user$project$App_AppUpdate$updateApp, _p13._1, _p13._0._0, _p13._0._1, _p13._0._2, _p13._0._3, _p13._0._4);
+			default:
+				return A3(_user$project$App_Admin_AdminUpdate$updateAdmin, _p13._1, _p13._0._0, _p13._0._1);
 		}
 	});
 

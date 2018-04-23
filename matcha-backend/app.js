@@ -51,10 +51,16 @@ app.get('/api/admin/*', Auth.hasRole(0));
 app.post('/api/admin/*', Auth.hasRole(0));
 app.use('/api/admin', Admin);
 
-app.get('/api/*', Auth.hasRole(1));
-app.post('/api/*', Auth.hasRole(1));
+app.get('/api/users/*', Auth.hasRole(1));
+app.post('/api/users/*', Auth.hasRole(1));
 app.use('/api/users', Users);
+
+app.get('/api/tag/*', Auth.hasRole(1));
+app.post('/api/tag/*', Auth.hasRole(1));
 app.use('/api/tag', Tag);
+
+app.get('/api/talks/*', Auth.hasRole(1));
+app.post('/api/talks/*', Auth.hasRole(1));
 app.use('/api/talks', Talks);
 
 

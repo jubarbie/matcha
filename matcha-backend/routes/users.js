@@ -295,8 +295,8 @@ router.post('/update', (req, res, next) => {
     var logged = req.logged_user;
 
     if (logged, valid.valid) {
-        UsersModel.updateInfos(logged.login, valid.data, "activated", function(err, rows, fields) {
-            if (rows && !err) {
+        UsersModel.updateInfos(logged.login, valid.data, "activated", (err, results, fields) => {
+            if (!err) {
                 res.json({
                     "status": true
                 });
@@ -307,6 +307,7 @@ router.post('/update', (req, res, next) => {
             }
         });
     } else {
+        console.log(valid.error)
         res.json({
             "status": false,
             "msg": "invalid form"
@@ -329,18 +330,7 @@ router.post('/update_gender', (req, res, next) => {
         } else {
             UsersModel.updateField(logged.login, "gender", req.body.gender, (err, rows, fields) => {
                 if (!err) {
-                    UserCtrl.getConnectedUser(logged.login, (user) => {
-                        if (user) {
-                            res.json({
-                                "status": true,
-                                "data": user
-                            });
-                        } else {
-                            res.json({
-                                "status": false
-                            });
-                        }
-                    });
+                    sendConnectedUser(logged, res);
                 } else {
                     res.json({
                         "status": false
@@ -348,6 +338,10 @@ router.post('/update_gender', (req, res, next) => {
                 }
             });
         }
+    } else {
+      res.json({
+          "status": false
+      });
     }
 });
 
@@ -367,6 +361,7 @@ router.post('/update_int_in', (req, res, next) => {
             int_in = int_in.map((gender) => {
                 return [logged.login, gender];
             });
+            console.log(int_in);
             UsersModel.updateSexuality(logged.login, int_in, (err, rows, fields) => {
                 if (!err) {
                     sendConnectedUser(logged, res);
@@ -406,20 +401,20 @@ router.post('/update_dob', (req, res, next) => {
     }
 });
 
-function sendConnectedUser(logged, res) {
-    UserCtrl.getConnectedUser(logged.login, (user) => {
-        if (user) {
+let sendConnectedUser = (logged, res) => {
+    UserCtrl.getConnectedUser(logged.login)
+    .then( user => {
             res.json({
                 "status": true,
                 "data": user
             });
-        } else {
+        })
+    .catch( err => {
             res.json({
                 "status": false
             });
-        }
-    });
-}
+        });
+};
 
 /* Update user password */
 router.post('/change_password', (req, res, next) => {
